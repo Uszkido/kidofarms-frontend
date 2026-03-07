@@ -70,7 +70,7 @@ export default function Home() {
               </div>
               <div>
                 <p className="text-xs font-black uppercase tracking-widest text-secondary">Harvesting Now</p>
-                <p className="text-white font-bold text-lg">Kano State</p>
+                <p className="text-white font-bold text-lg">Jos, Plateau</p>
               </div>
             </div>
             <p className="text-cream/60 text-sm font-medium leading-relaxed">

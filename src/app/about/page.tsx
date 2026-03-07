@@ -21,11 +21,11 @@ export default function AboutPage() {
                             </div>
                             <div className="space-y-8">
                                 <div className="space-y-4">
-                                    <span className="text-secondary font-bold uppercase tracking-widest text-sm">Founded 1920</span>
-                                    <h1 className="text-6xl font-bold font-serif leading-tight text-primary">A Century of <br /><span className="italic">Sustainable Love</span></h1>
+                                    <span className="text-secondary font-bold uppercase tracking-widest text-sm">Founded 2020</span>
+                                    <h1 className="text-6xl font-bold font-serif leading-tight text-primary">Born From <br /><span className="italic">Passion & Purpose</span></h1>
                                 </div>
                                 <p className="text-lg text-primary/70 leading-relaxed">
-                                    Kidogo Farms & Orchard began as a small family plot in the heart of Georgetown, South Carolina. For over 100 years, we have preserved the Gullah Geechee agricultural traditions, passed down through four generations of resilient farmers.
+                                    Kido Farms & Orchard was founded in 2020 with a bold vision — connecting Nigeria's most talented farmers directly with consumers through technology. What started as a single orchard has grown into the KidoFresh Network, one of Nigeria's most trusted farm-to-table platforms.
                                 </p>
                                 <div className="grid grid-cols-2 gap-8 pt-8">
                                     <div className="space-y-2">
@@ -33,8 +33,8 @@ export default function AboutPage() {
                                         <p className="text-sm font-bold uppercase text-primary/40 tracking-wider">Organic Grown</p>
                                     </div>
                                     <div className="space-y-2">
-                                        <h3 className="text-3xl font-bold font-serif text-secondary">4 Gen</h3>
-                                        <p className="text-sm font-bold uppercase text-primary/40 tracking-wider">Heritage Farming</p>
+                                        <h3 className="text-3xl font-bold font-serif text-secondary">Since '20</h3>
+                                        <p className="text-sm font-bold uppercase text-primary/40 tracking-wider">Built in Nigeria</p>
                                     </div>
                                 </div>
                             </div>
@@ -51,9 +51,9 @@ export default function AboutPage() {
 
                         <div className="grid md:grid-cols-3 gap-12">
                             {[
-                                { title: "Empowerment", desc: "Training the next generation of black farmers in sustainable practices." },
-                                { title: "Preservation", desc: "Saving heritage seeds and Gullah Geechee agricultural wisdom." },
-                                { title: "Accessibility", desc: "Making premium, organic food available to our local communities." },
+                                { title: "Farmer Empowerment", desc: "Equipping Nigerian farmers with technology, market access, and fair pricing to grow their businesses." },
+                                { title: "Tech Innovation", desc: "Leveraging modern greenhouse technology, hydroponics, and smart logistics to deliver freshness at scale." },
+                                { title: "Community Access", desc: "Making premium, organic farm produce affordable and accessible to every household across Nigeria." },
                             ].map((item, i) => (
                                 <div key={i} className="bg-white p-12 rounded-[2rem] shadow-sm border border-primary/5 hover:shadow-xl transition-all">
                                     <h3 className="text-2xl font-bold font-serif text-primary mb-4">{item.title}</h3>

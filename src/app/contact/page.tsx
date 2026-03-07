@@ -26,7 +26,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="font-bold text-primary">Farm Location</p>
-                                            <p className="text-primary/60">123 Orchard Lane, Georgetown, SC</p>
+                                            <p className="text-primary/60">KidoFresh Hub, Jos, Plateau State, Nigeria</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-6 items-center">
@@ -35,7 +35,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="font-bold text-primary">Phone Number</p>
-                                            <p className="text-primary/60">+1 (843) 555-0123</p>
+                                            <p className="text-primary/60">+234 801 234 5678</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-6 items-center">
@@ -95,7 +95,7 @@ export default function ContactPage() {
                     <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center space-y-4">
                             <MapPin size={48} className="mx-auto text-secondary" />
-                            <p className="font-serif text-xl font-bold">Find us in Georgetown, SC</p>
+                            <p className="font-serif text-xl font-bold">Find us in Jos, Plateau State</p>
                         </div>
                     </div>
                 </section>
