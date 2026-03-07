@@ -3,7 +3,8 @@ import { Footer } from "@/components/Footer";
 import Image from "next/image";
 import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star } from "lucide-react";
 
-export default function ProductDetailsPage({ params }: { params: { id: string } }) {
+export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
     // Dummy product data
     const product = {
         name: "Organic Gala Apples",
