@@ -17,8 +17,27 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 import { getApiUrl } from "@/lib/api";
+import { useEffect } from "react";
 
 export default function AdminDashboard() {
+    const [stats, setStats] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await fetch(getApiUrl("/api/analytics/overview"));
+                const data = await res.json();
+                setStats(data);
+            } catch (err) {
+                console.error("Failed to fetch stats", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+    }, []);
+
     return (
         <div className="min-h-screen bg-cream/30">
             {/* Header */}

@@ -115,6 +115,54 @@ const reviews = pgTable("reviews", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Vendors Table (Farmer details)
+const vendors = pgTable("vendors", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    businessName: text("business_name").notNull(),
+    description: text("description"),
+    logo: text("logo"),
+    status: text("status").default("pending"), // pending, approved, suspended
+    commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("10.00"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Coupons Table
+const coupons = pgTable("coupons", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    code: text("code").notNull().unique(),
+    discountType: text("discount_type").notNull(), // percentage, fixed
+    discountValue: numeric("discount_value", { precision: 10, scale: 2 }).notNull(),
+    minOrderAmount: numeric("min_order_amount", { precision: 12, scale: 2 }).default("0"),
+    expiresAt: timestamp("expires_at"),
+    usageLimit: integer("usage_limit"),
+    usedCount: integer("used_count").default(0),
+    isActive: boolean("is_active").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Activity Logs Table
+const activityLogs = pgTable("activity_logs", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id),
+    action: text("action").notNull(),
+    entity: text("entity"), // products, orders, etc.
+    details: jsonb("details"),
+    ipAddress: text("ip_address"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Settings Table
+const settings = pgTable("settings", {
+    id: text("id").primaryKey().default("site_config"),
+    siteName: text("site_name").default("Kido Farms"),
+    contactEmail: text("contact_email"),
+    currency: text("currency").default("NGN"),
+    taxRate: numeric("tax_rate", { precision: 5, scale: 2 }).default("0"),
+    shippingOptions: jsonb("shipping_options").default([]),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     author: one(users, {
@@ -123,8 +171,19 @@ const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     }),
 }));
 
-const usersRelations = relations(users, ({ many }) => ({
+const usersRelations = relations(users, ({ many, one }) => ({
     blogPosts: many(blogPosts),
+    vendor: one(vendors, {
+        fields: [users.id],
+        references: [vendors.userId],
+    }),
+}));
+
+const vendorsRelations = relations(vendors, ({ one }) => ({
+    user: one(users, {
+        fields: [vendors.userId],
+        references: [users.id],
+    }),
 }));
 
 module.exports = {
@@ -136,8 +195,13 @@ module.exports = {
     orders,
     orderItems,
     reviews,
+    vendors,
+    coupons,
+    activityLogs,
+    settings,
     blogPostsRelations,
     usersRelations,
+    vendorsRelations,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
