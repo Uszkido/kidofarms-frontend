@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server';
-import dbConnect from '@/lib/db';
-import Product from '@/models/Product';
+import { db } from '@/db';
+import { products } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 
 export async function GET(
     request: Request,
     { params }: { params: { id: string } }
 ) {
-    await dbConnect();
     try {
-        const product = await Product.findById(params.id);
-        if (!product) {
+        const data = await db.query.products.findFirst({
+            where: eq(products.id, params.id)
+        });
+
+        if (!data) {
             return NextResponse.json({ error: 'Product not found' }, { status: 404 });
         }
-        return NextResponse.json(product);
+        return NextResponse.json(data);
     } catch (error) {
-        return NextResponse.json({ error: 'Invalid product ID' }, { status: 400 });
+        return NextResponse.json({ error: 'Failed to fetch product' }, { status: 500 });
     }
 }

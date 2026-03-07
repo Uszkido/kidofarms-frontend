@@ -1,8 +1,9 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import dbConnect from "@/lib/db";
-import User from "@/models/User";
+import { db } from "@/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
@@ -17,15 +18,16 @@ export const authOptions: NextAuthOptions = {
             async authorize(credentials) {
                 if (!credentials?.email || !credentials?.password) return null;
 
-                await dbConnect();
-                const user = await User.findOne({ email: credentials.email }).select("+password");
+                const user = await db.query.users.findFirst({
+                    where: eq(users.email, credentials.email)
+                });
 
                 if (!user) throw new Error("No account found with this email.");
                 const isMatch = await bcrypt.compare(credentials.password, user.password);
                 if (!isMatch) throw new Error("Incorrect password.");
 
                 return {
-                    id: user._id.toString(),
+                    id: user.id,
                     name: user.name,
                     email: user.email,
                     role: user.role,
@@ -67,5 +69,5 @@ export const authOptions: NextAuthOptions = {
         error: "/login",
     },
 
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.NEXT_AUTH_SECRET || process.env.NEXTAUTH_SECRET,
 };
