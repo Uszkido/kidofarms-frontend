@@ -1,26 +1,55 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f9f7f2;
+  /* Cream */
+  --foreground: #1a3c34;
+  /* Forest Green */
+  --card: #ffffff;
+  --card-foreground: #1a3c34;
+  --primary: #1a3c34;
+  --primary-foreground: #f9f7f2;
+  --secondary: #c5a059;
+  /* Gold */
+  --secondary-foreground: #1a3c34;
+  --accent: #4a7c59;
+  /* Accent Green */
+  --accent-foreground: #f9f7f2;
+  --border: #e2e2e2;
+  --input: #e2e2e2;
+  --ring: #1a3c34;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-serif: "Playfair Display", serif;
+  --font-sans: "Outfit", sans-serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
