@@ -158,18 +158,77 @@ export default function AdminDashboard() {
                                 <p className="text-primary/40 font-medium text-sm mt-3 leading-relaxed">Manage newsletter subscribers and marketing list.</p>
                             </div>
                         </Link>
+
+                        {/* Recent Orders Table Component */}
+                        <div className="bg-white p-10 rounded-[3rem] border border-primary/5 shadow-sm space-y-6">
+                            <div className="flex items-center justify-between">
+                                <h3 className="text-xl font-black font-serif uppercase tracking-tight">Recent <span className="text-secondary italic">Harvests</span></h3>
+                                <Link href="/admin/orders" className="text-[10px] font-black uppercase tracking-widest text-primary/30 hover:text-primary transition-colors">View All</Link>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-primary/5">
+                                            <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Order ID</th>
+                                            <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Status</th>
+                                            <th className="pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20 text-right">Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-primary/5">
+                                        {stats?.recentOrders?.map((order: any) => (
+                                            <tr key={order.id} className="group hover:bg-neutral-50 transition-colors">
+                                                <td className="py-4 text-xs font-bold text-primary truncate max-w-[120px]">{order.id}</td>
+                                                <td className="py-4">
+                                                    <span className={`px-2 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-600' :
+                                                            order.orderStatus === 'processing' ? 'bg-amber-100 text-amber-600' :
+                                                                'bg-neutral-100 text-neutral-600'
+                                                        }`}>
+                                                        {order.orderStatus}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 text-xs font-black text-primary text-right">₦{Number(order.totalAmount).toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                        {!stats?.recentOrders?.length && (
+                                            <tr>
+                                                <td colSpan={3} className="py-8 text-center text-xs text-primary/20 font-medium italic">No recent orders found.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
 
                     {/* Sidebar Info */}
                     <div className="space-y-8">
+                        {/* Summary View */}
+                        <div className="bg-white p-10 rounded-[3rem] border border-primary/5 shadow-sm space-y-8">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Operations Menu</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <MenuLink href="/admin/vendors" icon={<Users size={16} />} label="Vendors" color="text-secondary" />
+                                <MenuLink href="/admin/promotions" icon={<TrendingUp size={16} />} label="Promos" color="text-green-500" />
+                                <MenuLink href="/admin/payments" icon={<ShoppingCart size={16} />} label="Payments" color="text-blue-500" />
+                                <MenuLink href="/admin/reviews" icon={<FileText size={16} />} label="Reviews" color="text-purple-500" />
+                                <MenuLink href="/admin/reports" icon={<TrendingUp size={16} />} label="Reports" color="text-red-500" />
+                                <MenuLink href="/admin/settings" icon={<Map size={16} />} label="Settings" color="text-primary" />
+                            </div>
+                        </div>
+
                         <div className="bg-primary p-12 rounded-[4rem] text-white space-y-8 shadow-2xl relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-secondary rounded-full blur-[80px] opacity-20" />
-                            <h3 className="text-2xl font-black font-serif leading-tight">Farmer <br /><span className="text-secondary italic">Onboarding Hub</span></h3>
-                            <p className="text-cream/40 text-sm font-medium leading-relaxed">
-                                There are <span className="text-white font-black underline decoration-secondary">14 pending</span> farmer applications awaiting verification and soil report review.
-                            </p>
+                            <h3 className="text-2xl font-black font-serif leading-tight">Low Stock <br /><span className="text-secondary italic">Alerts</span></h3>
+                            <div className="space-y-4">
+                                {stats?.lowStock?.map((item: any) => (
+                                    <div key={item.id} className="flex justify-between items-center text-xs">
+                                        <span className="font-medium text-cream/60 truncate max-w-[140px]">{item.name}</span>
+                                        <span className="font-black text-secondary">{item.stock} left</span>
+                                    </div>
+                                ))}
+                                {!stats?.lowStock?.length && <p className="text-xs text-cream/20">Inventory healthy.</p>}
+                            </div>
                             <button className="w-full bg-secondary text-primary py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl">
-                                Review Applications
+                                Restock Hub
                             </button>
                         </div>
 
@@ -204,5 +263,16 @@ export default function AdminDashboard() {
                 </div>
             </main>
         </div>
+    );
+}
+
+function MenuLink({ href, icon, label, color }: any) {
+    return (
+        <Link href={href} className="flex flex-col items-center gap-3 p-4 rounded-2xl border border-primary/5 hover:bg-neutral-50 transition-all">
+            <div className={`w-10 h-10 rounded-xl bg-neutral-100 ${color} flex items-center justify-center`}>
+                {icon}
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">{label}</span>
+        </Link>
     );
 }
