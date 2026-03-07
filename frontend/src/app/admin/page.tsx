@@ -14,7 +14,9 @@ import {
     Activity,
     AlertCircle,
     DollarSign,
-    Box
+    Bell,
+    Box,
+    Globe
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -158,8 +160,8 @@ export default function AdminDashboard() {
                                                 <td className="py-4 text-xs font-bold text-primary truncate max-w-[100px]">{order.id}</td>
                                                 <td className="py-4 font-black">
                                                     <span className={`px-2 py-0.5 rounded text-[8px] uppercase tracking-widest ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-600' :
-                                                            order.orderStatus === 'processing' ? 'bg-amber-100 text-amber-600' :
-                                                                'bg-neutral-100 text-neutral-400'
+                                                        order.orderStatus === 'processing' ? 'bg-amber-100 text-amber-600' :
+                                                            'bg-neutral-100 text-neutral-400'
                                                         }`}>
                                                         {order.orderStatus}
                                                     </span>
@@ -185,6 +187,9 @@ export default function AdminDashboard() {
                                 <SmallMenuLink href="/admin/reviews" label="Reviews" icon={<FileText size={14} />} />
                                 <SmallMenuLink href="/admin/reports" label="Repo" icon={<Activity size={14} />} />
                                 <SmallMenuLink href="/admin/settings" label="Setup" icon={<Map size={14} />} />
+                                <SmallMenuLink href="/admin/subscribers" label="Subs" icon={<Globe size={14} />} />
+                                <SmallMenuLink href="/admin/users" label="Users" icon={<Users size={14} />} />
+                                <SmallMenuLink href="/admin/notifications" label="Alerts" icon={<Bell size={14} />} />
                             </div>
                         </div>
 
