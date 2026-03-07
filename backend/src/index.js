@@ -12,6 +12,7 @@ const ordersRoutes = require('./routes/orders');
 const analyticsRoutes = require('./routes/analytics');
 const vendorsRoutes = require('./routes/vendors');
 const promotionsRoutes = require('./routes/promotions');
+const securityRoutes = require('./routes/security');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,6 +36,7 @@ app.use('/api/orders', ordersRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/vendors', vendorsRoutes);
 app.use('/api/promotions', promotionsRoutes);
+app.use('/api/security', securityRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
