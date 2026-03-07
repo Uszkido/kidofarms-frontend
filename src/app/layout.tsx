@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { playfair, outfit } from "@/lib/fonts";
-import { CartProvider } from "@/context/CartContext";
+import { Providers } from "./providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Kido Farms & Orchard | Fresh From Our Farms to Your Table",
-  description: "Experience the finest artisanal produce, grains, and catfish at Kido Farms. Sustainable, organic, and locally grown.",
+  title: "KidoFresh Network | Farm Fresh. Delivered.",
+  description: "Nigeria's most trusted digital farm marketplace. 100% organic produce from verified farmers delivered to your table. Founded 2020, Jos, Plateau State.",
 };
 
 export default function RootLayout({
@@ -16,9 +16,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
       <body className="antialiased">
-        <CartProvider>
-          {children}
-        </CartProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
