@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import Image from "next/image";
-import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star } from "lucide-react";
+import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf } from "lucide-react";
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
