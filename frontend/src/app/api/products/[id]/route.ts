@@ -12,11 +12,12 @@ async function isAdmin() {
 
 export async function GET(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const product = await db.query.products.findFirst({
-            where: eq(products.id, params.id)
+            where: eq(products.id, id)
         });
 
         if (!product) {
@@ -31,7 +32,7 @@ export async function GET(
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     if (!await isAdmin()) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -39,9 +40,10 @@ export async function PATCH(
 
     try {
         const body = await request.json();
+        const { id } = await params;
         const [updatedProduct] = await db.update(products)
             .set(body)
-            .where(eq(products.id, params.id))
+            .where(eq(products.id, id))
             .returning();
 
         return NextResponse.json(updatedProduct);
@@ -52,14 +54,15 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     if (!await isAdmin()) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
-        await db.delete(products).where(eq(products.id, params.id));
+        const { id } = await params;
+        await db.delete(products).where(eq(products.id, id));
         return NextResponse.json({ message: 'Product deleted successfully' });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });

@@ -12,7 +12,7 @@ async function isAdmin() {
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     if (!await isAdmin()) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -20,9 +20,10 @@ export async function PATCH(
 
     try {
         const body = await request.json();
+        const { id } = await params;
         const [updated] = await db.update(categories)
             .set(body)
-            .where(eq(categories.id, params.id))
+            .where(eq(categories.id, id))
             .returning();
 
         return NextResponse.json(updated);
@@ -33,14 +34,15 @@ export async function PATCH(
 
 export async function DELETE(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     if (!await isAdmin()) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     try {
-        await db.delete(categories).where(eq(categories.id, params.id));
+        const { id } = await params;
+        await db.delete(categories).where(eq(categories.id, id));
         return NextResponse.json({ message: 'Category deleted successfully' });
     } catch (error) {
         return NextResponse.json({ error: 'Failed to delete category' }, { status: 500 });

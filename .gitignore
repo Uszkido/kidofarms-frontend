@@ -53,3 +53,5 @@ frontend/next-env.d.ts
 
 # ── Testing ──────────────────────────────────────────────────
 /coverage
+
+.vercel

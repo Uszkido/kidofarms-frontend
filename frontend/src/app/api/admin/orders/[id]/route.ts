@@ -12,7 +12,7 @@ async function isAdmin() {
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     if (!await isAdmin()) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -25,9 +25,10 @@ export async function PATCH(
         if (orderStatus) updateData.orderStatus = orderStatus;
         if (paymentStatus) updateData.paymentStatus = paymentStatus;
 
+        const { id } = await params;
         const [updatedOrder] = await db.update(orders)
             .set(updateData)
-            .where(eq(orders.id, params.id))
+            .where(eq(orders.id, id))
             .returning();
 
         return NextResponse.json(updatedOrder);
