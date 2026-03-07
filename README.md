@@ -1,36 +1,97 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Kido Farms – Local Development Guide
 
-## Getting Started
+A full-stack e-commerce platform for fresh Nigerian farm produce.
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+kido-farms-ecommerce/
+├── frontend/    → Next.js 16 (React, Tailwind CSS, NextAuth)
+├── backend/     → Express.js (Node.js, Drizzle ORM, PostgreSQL/Neon)
+├── package.json → Root workspace orchestrator (concurrently)
+└── README.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🚀 Quick Start (One Command)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Install all dependencies
+```bash
+npm run install:all
+```
 
-## Learn More
+### 2. Configure Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+**`backend/.env`**
+```env
+DATABASE_URL="postgresql://..."
+NEXTAUTH_SECRET="kido-farms-super-secret-12345"
+PORT=5000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**`frontend/.env`**
+```env
+DATABASE_URL="postgresql://..."
+NEXT_AUTH_SECRET="kido-farms-super-secret-12345"
+NEXTAUTH_URL="http://localhost:3000"
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_preset
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Run both servers together
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+This starts:
+- 🟢 **Backend** → http://localhost:5000
+- 🟦 **Frontend** → http://localhost:3000
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔧 Individual Commands
+
+| Task | Command | Directory |
+|------|---------|-----------|
+| Start backend only | `npm start` | `backend/` |
+| Start frontend only | `npm run dev` | `frontend/` |
+| Push DB schema | `npm run db:push` | `frontend/` |
+| DB Studio (GUI) | `npm run db:studio` | `frontend/` |
+| Build frontend | `npm run build` | root |
+
+---
+
+## 🌐 API Endpoints (Backend – port 5000)
+
+| Method | Route | Description |
+|--------|-------|-------------|
+| GET | `/api/health` | Health check |
+| POST | `/api/auth/login` | User login |
+| POST | `/api/auth/signup` | User registration |
+| GET/POST | `/api/products` | Product listing & creation |
+| GET/POST | `/api/categories` | Categories |
+| GET/POST | `/api/blog` | Blog posts |
+| GET/POST | `/api/subscribers` | Newsletter subscribers |
+| GET | `/api/orders` | Orders |
+| GET | `/api/users` | Users (admin) |
+
+---
+
+## 🛡️ Admin Access
+
+Default admin seed script: `frontend/src/db/seed-admin.ts`  
+Run with: `npx tsx src/db/seed-admin.ts` from the `frontend/` directory.
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16, React 19, Tailwind CSS 4 |
+| Auth | NextAuth v4 (JWT strategy) |
+| Backend | Express.js 4, Node.js |
+| Database | Neon PostgreSQL (serverless) |
+| ORM | Drizzle ORM |
+| Images | Cloudinary |
+| Deployment | Vercel (frontend) + Vercel serverless (backend) |
