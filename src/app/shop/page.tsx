@@ -1,21 +1,38 @@
-import Link from "next/image";
+"use client";
+
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Filter, Search as SearchIcon, ArrowUpDown } from "lucide-react";
+import { Filter, Search as SearchIcon, ArrowUpDown, Loader2 } from "lucide-react";
 import Image from "next/image";
+import { useCart } from "@/context/CartContext";
 
 const categories = ["All", "Fruits", "Vegetables", "Grains", "Catfish"];
 
-const dummyProducts = [
-    { id: 1, name: "Organic Gala Apples", price: 12.99, category: "Fruits", image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6bccb?q=80&w=1974&auto=format&fit=crop", rating: 4.8 },
-    { id: 2, name: "Fresh African Catfish", price: 24.50, category: "Catfish", image: "https://images.unsplash.com/photo-1555074213-911855e4be62?q=80&w=2070&auto=format&fit=crop", rating: 4.9 },
-    { id: 3, name: "Premium Brown Rice", price: 18.00, category: "Grains", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?q=80&w=2070&auto=format&fit=crop", rating: 4.7 },
-    { id: 4, name: "Organic Spinach", price: 5.99, category: "Vegetables", image: "https://images.unsplash.com/photo-1576045057995-568f588f82fb?q=80&w=2070&auto=format&fit=crop", rating: 4.5 },
-    { id: 5, name: "Local White Corn", price: 8.50, category: "Grains", image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2070&auto=format&fit=crop", rating: 4.6 },
-    { id: 6, name: "Sun-ripened Oranges", price: 10.99, category: "Fruits", image: "https://images.unsplash.com/photo-1557800636-894a64c1696f?q=80&w=1965&auto=format&fit=crop", rating: 4.8 },
-];
-
 export default function ShopPage() {
+    const { addToCart } = useCart();
+    const [products, setProducts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedCategory, setSelectedCategory] = useState("All");
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            setLoading(true);
+            try {
+                const url = selectedCategory === "All"
+                    ? "/api/products"
+                    : `/api/products?category=${selectedCategory}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                setProducts(data);
+            } catch (err) {
+                console.error("Failed to fetch products");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProducts();
+    }, [selectedCategory]);
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -53,11 +70,15 @@ export default function ShopPage() {
                                 <h3 className="text-xl font-bold font-serif">Categories</h3>
                                 <div className="flex flex-col gap-3">
                                     {categories.map((cat) => (
-                                        <label key={cat} className="flex items-center gap-3 cursor-pointer group">
-                                            <div className="w-5 h-5 rounded border border-primary/20 flex items-center justify-center group-hover:border-secondary transition-colors">
-                                                <div className="w-2.5 h-2.5 rounded-sm bg-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                        <label
+                                            key={cat}
+                                            className="flex items-center gap-3 cursor-pointer group"
+                                            onClick={() => setSelectedCategory(cat)}
+                                        >
+                                            <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${selectedCategory === cat ? 'border-secondary bg-secondary/10' : 'border-primary/20 group-hover:border-secondary'}`}>
+                                                <div className={`w-2.5 h-2.5 rounded-sm bg-secondary transition-opacity ${selectedCategory === cat ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`} />
                                             </div>
-                                            <span className="text-sm font-medium group-hover:text-primary transition-colors text-primary/70">{cat}</span>
+                                            <span className={`text-sm font-medium transition-colors ${selectedCategory === cat ? 'text-primary font-bold' : 'text-primary/70 group-hover:text-primary'}`}>{cat}</span>
                                         </label>
                                     ))}
                                 </div>
@@ -85,42 +106,66 @@ export default function ShopPage() {
                         {/* Product Grid */}
                         <div className="flex-grow">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {dummyProducts.map((prod) => (
-                                    <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden border border-primary/5 hover:shadow-2xl transition-all h-full flex flex-col">
-                                        <div className="relative h-72 overflow-hidden">
-                                            <Image
-                                                src={prod.image}
-                                                alt={prod.name}
-                                                fill
-                                                className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                            />
-                                            <div className="absolute top-4 left-4 flex gap-2">
-                                                <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary">
-                                                    {prod.category}
-                                                </span>
-                                            </div>
-                                            <button className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-primary/40 hover:text-red-500 transition-colors">
-                                                <Filter size={18} className="rotate-45" /> {/* Heart icon replacement for now */}
-                                            </button>
-                                        </div>
-
-                                        <div className="p-6 flex flex-col flex-grow">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
-                                            </div>
-                                            <div className="flex items-center gap-1 mb-4 text-secondary">
-                                                <span className="text-xs font-bold">★</span>
-                                                <span className="text-xs font-bold text-primary/60">{prod.rating}</span>
-                                            </div>
-                                            <div className="mt-auto pt-6 flex justify-between items-center border-t border-primary/5">
-                                                <span className="text-2xl font-bold text-primary">${prod.price}</span>
-                                                <button className="bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-secondary hover:text-primary transition-all">
-                                                    Add to Cart
-                                                </button>
-                                            </div>
-                                        </div>
+                                {loading ? (
+                                    <div className="col-span-full py-20 flex justify-center">
+                                        <Loader2 className="animate-spin text-secondary" size={48} />
                                     </div>
-                                ))}
+                                ) : products.length > 0 ? (
+                                    products.map((prod) => (
+                                        <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden border border-primary/5 hover:shadow-2xl transition-all h-full flex flex-col">
+                                            <div className="relative h-72 overflow-hidden">
+                                                <Image
+                                                    src={prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800"}
+                                                    alt={prod.name}
+                                                    fill
+                                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                                />
+                                                <div className="absolute top-4 left-4 flex gap-2">
+                                                    <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary">
+                                                        {prod.category}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            <div className="p-6 flex flex-col flex-grow">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
+                                                </div>
+                                                <div className="flex items-center gap-1 mb-4 text-secondary">
+                                                    <span className="text-xs font-bold">★</span>
+                                                    <span className="text-xs font-bold text-primary/60">{prod.rating}</span>
+                                                </div>
+                                                <div className="mt-auto pt-6 flex justify-between items-center border-t border-primary/5">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-2xl font-bold text-primary">₦{Number(prod.price).toLocaleString()}</span>
+                                                        <span className="text-[10px] font-bold text-primary/30 uppercase">per {prod.unit}</span>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => addToCart({
+                                                            id: prod.id,
+                                                            name: prod.name,
+                                                            price: Number(prod.price),
+                                                            image: prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800",
+                                                            quantity: 1,
+                                                            category: prod.category
+                                                        })}
+                                                        className="bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-secondary hover:text-primary transition-all"
+                                                    >
+                                                        Add to Cart
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="col-span-full py-20 text-center space-y-4">
+                                        <div className="text-primary/20 flex justify-center">
+                                            <SearchIcon size={64} />
+                                        </div>
+                                        <h3 className="text-2xl font-bold font-serif">No products found</h3>
+                                        <p className="text-primary/60">Try adjusting your filters or search terms.</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

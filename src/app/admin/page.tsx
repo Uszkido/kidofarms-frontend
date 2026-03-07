@@ -41,12 +41,12 @@ export default function AdminDashboard() {
                     {/* Quick Stats Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                         {[
-                            { label: "Total Revenue", value: "₦14.2M", trend: "+22%", icon: TrendingUp, color: "text-green-500" },
-                            { label: "Active Orders", value: "1,240", trend: "+5%", icon: ShoppingCart, color: "text-blue-500" },
-                            { label: "Active Farmers", value: "458", trend: "+12", icon: Users, color: "text-purple-500" },
-                            { label: "Inventory Alert", value: "12 Items", trend: "Critical", icon: AlertCircle, color: "text-red-500" },
+                            { label: "Total Revenue", value: "₦14.2M", trend: "+22%", icon: TrendingUp, color: "text-green-500", href: "/admin/orders" },
+                            { label: "Active Orders", value: "1,240", trend: "+5%", icon: ShoppingCart, color: "text-blue-500", href: "/admin/orders" },
+                            { label: "Active Users", value: "842", trend: "+12", icon: Users, color: "text-purple-500", href: "/admin/users" },
+                            { label: "Inventory Alert", value: "12 Items", trend: "Critical", icon: AlertCircle, color: "text-red-500", href: "/admin/inventory" },
                         ].map((stat, i) => (
-                            <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all group cursor-pointer">
+                            <Link href={stat.href} key={i} className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all group cursor-pointer block">
                                 <div className="flex justify-between items-start">
                                     <div className="w-12 h-12 rounded-2xl bg-neutral-50 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                                         <stat.icon size={24} />
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
                                     <h4 className="text-4xl font-black font-serif">{stat.value}</h4>
                                     <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">{stat.label}</p>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
                     </div>
 
