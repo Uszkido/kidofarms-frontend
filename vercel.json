@@ -1,0 +1,5 @@
+{
+    "buildCommand": "cd frontend && npm install --no-turbo && npm run build",
+    "outputDirectory": "frontend/.next",
+    "framework": "nextjs"
+}
