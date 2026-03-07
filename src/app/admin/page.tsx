@@ -26,7 +26,7 @@ export default function AdminDashboard() {
                     <div className="flex flex-col md:row justify-between items-start md:items-center mb-12 gap-6">
                         <div>
                             <h1 className="text-5xl font-black font-serif uppercase tracking-tighter">Ops <span className="text-secondary italic">Center</span></h1>
-                            <p className="text-primary/40 font-black uppercase tracking-widest text-xs mt-2">KidoFresh Network &bull; Global Operations Manager</p>
+                            <p className="text-primary/40 font-black uppercase tracking-widest text-xs mt-2">Kido Farms Network &bull; Global Operations Manager</p>
                         </div>
                         <div className="flex gap-4">
                             <button className="bg-white border border-primary/10 px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-neutral-100 transition-all flex items-center gap-2 shadow-sm">

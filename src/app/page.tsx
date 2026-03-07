@@ -41,7 +41,7 @@ export default function Home() {
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-4xl space-y-8">
               <div className="inline-flex items-center gap-3 bg-secondary/90 backdrop-blur-md px-5 py-2.5 rounded-full text-primary font-black text-xs uppercase tracking-[0.2em] shadow-xl">
-                KidoFresh Network &bull; The Digital Marketplace
+                Kido Farms Network &bull; The Digital Marketplace
               </div>
               <h1 className="text-7xl md:text-9xl font-black font-serif text-white leading-[0.9] tracking-tighter">
                 Direct From <br />
@@ -211,7 +211,7 @@ export default function Home() {
         <section className="py-32">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-4xl mx-auto space-y-8 mb-24">
-              <h2 className="text-6xl font-black font-serif uppercase tracking-tighter">The KidoFresh <span className="text-secondary italic underline decoration-secondary/30">Advantage</span></h2>
+              <h2 className="text-6xl font-black font-serif uppercase tracking-tighter">The Kido Farms <span className="text-secondary italic underline decoration-secondary/30">Advantage</span></h2>
               <p className="text-2xl text-primary/40 font-medium">Why the biggest distributors and premium supermarkets trust our network.</p>
             </div>
             <div className="grid md:grid-cols-3 gap-16">

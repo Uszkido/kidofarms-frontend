@@ -26,7 +26,7 @@ export default function ContactPage() {
                                         </div>
                                         <div>
                                             <p className="font-bold text-primary">Farm Location</p>
-                                            <p className="text-primary/60">KidoFresh Hub, Jos, Plateau State, Nigeria</p>
+                                            <p className="text-primary/60">Kido Farms Hub, Jos, Plateau State, Nigeria</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-6 items-center">

@@ -1,6 +1,6 @@
 {
-  "name": "KidoFresh Network",
-  "short_name": "KidoFresh",
+  "name": "Kido Farms Network",
+  "short_name": "Kido Farms",
   "description": "Digital Farmer Marketplace connecting consumers directly to the source.",
   "start_url": "/",
   "display": "standalone",

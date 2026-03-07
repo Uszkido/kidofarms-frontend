@@ -12,7 +12,7 @@ export default function MarketplacePage() {
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:row justify-between items-start md:items-center mb-12 gap-6">
                         <div className="space-y-2">
-                            <h1 className="text-5xl font-bold font-serif">KidoFresh <span className="text-secondary italic">Marketplace</span></h1>
+                            <h1 className="text-5xl font-bold font-serif">Kido Farms <span className="text-secondary italic">Marketplace</span></h1>
                             <p className="text-primary/60">The digital bridge between local community farmers and conscious consumers.</p>
                         </div>
                         <button className="bg-primary text-white px-8 py-4 rounded-full font-bold hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-lg">
@@ -125,7 +125,7 @@ export default function MarketplacePage() {
                                 <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 -skew-x-12 translate-x-1/4" />
                                 <div className="relative z-10 grid md:grid-cols-2 items-center gap-12">
                                     <div className="space-y-6">
-                                        <h2 className="text-4xl font-bold font-serif leading-tight">Become a Registered <br />KidoFresh Farmer</h2>
+                                        <h2 className="text-4xl font-bold font-serif leading-tight">Become a Registered <br />Kido Farms Farmer</h2>
                                         <p className="text-cream/60">Join over 450 farmers reaching thousands of customers directly. Take control of your harvest sales.</p>
                                         <button className="bg-secondary text-primary px-8 py-4 rounded-full font-bold hover:bg-white transition-all">
                                             Apply Today

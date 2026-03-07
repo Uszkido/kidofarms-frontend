@@ -72,10 +72,10 @@ export default function LoginPage() {
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-3 z-10">
                     <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center relative overflow-hidden shadow-xl">
-                        <Image src="/logo.svg" alt="KidoFresh" fill className="p-2 object-contain filter brightness-0 invert" />
+                        <Image src="/logo.svg" alt="Kido Farms" fill className="p-2 object-contain filter brightness-0 invert" />
                     </div>
                     <div>
-                        <p className="text-white font-black text-xl tracking-tighter uppercase leading-none">KidoFresh</p>
+                        <p className="text-white font-black text-xl tracking-tighter uppercase leading-none">Kido Farms</p>
                         <p className="text-secondary text-[9px] font-black uppercase tracking-[0.4em]">Network</p>
                     </div>
                 </Link>
@@ -109,9 +109,9 @@ export default function LoginPage() {
                     {/* Mobile Logo */}
                     <Link href="/" className="flex lg:hidden items-center gap-3 mb-8">
                         <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center relative overflow-hidden">
-                            <Image src="/logo.svg" alt="KidoFresh" fill className="p-1.5 object-contain filter brightness-0 invert" />
+                            <Image src="/logo.svg" alt="Kido Farms" fill className="p-1.5 object-contain filter brightness-0 invert" />
                         </div>
-                        <span className="font-black text-lg uppercase text-primary">KidoFresh</span>
+                        <span className="font-black text-lg uppercase text-primary">Kido Farms</span>
                     </Link>
 
                     {/* Tab Switch */}
@@ -131,7 +131,7 @@ export default function LoginPage() {
                     {/* Heading */}
                     <div className="space-y-2">
                         <h1 className="text-4xl font-black font-serif text-primary leading-tight">
-                            {mode === "login" ? "Welcome back" : "Join KidoFresh"}
+                            {mode === "login" ? "Welcome back" : "Join Kido Farms"}
                         </h1>
                         <p className="text-primary/40 font-medium text-base">
                             {mode === "login"
@@ -207,7 +207,7 @@ export default function LoginPage() {
                             className="w-full bg-primary text-white py-5 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed"
                         >
                             {loading && <Loader2 size={20} className="animate-spin" />}
-                            {loading ? "Please wait..." : mode === "login" ? "Sign In to KidoFresh" : "Create My Account"}
+                            {loading ? "Please wait..." : mode === "login" ? "Sign In to Kido Farms" : "Create My Account"}
                         </button>
 
                         {/* Divider */}

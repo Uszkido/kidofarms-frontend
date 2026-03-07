@@ -25,7 +25,7 @@ export default function AboutPage() {
                                     <h1 className="text-6xl font-bold font-serif leading-tight text-primary">Born From <br /><span className="italic">Passion & Purpose</span></h1>
                                 </div>
                                 <p className="text-lg text-primary/70 leading-relaxed">
-                                    Kido Farms & Orchard was founded in 2020 with a bold vision — connecting Nigeria's most talented farmers directly with consumers through technology. What started as a single orchard has grown into the KidoFresh Network, one of Nigeria's most trusted farm-to-table platforms.
+                                    Kido Farms & Orchard was founded in 2020 with a bold vision — connecting Nigeria's most talented farmers directly with consumers through technology. What started as a single orchard has grown into the Kido Farms Network, one of Nigeria's most trusted farm-to-table platforms.
                                 </p>
                                 <div className="grid grid-cols-2 gap-8 pt-8">
                                     <div className="space-y-2">

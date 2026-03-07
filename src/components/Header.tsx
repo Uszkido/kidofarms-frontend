@@ -15,14 +15,14 @@ export const Header = async () => {
                     <div className="relative w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 overflow-hidden">
                         <Image
                             src="/logo.svg"
-                            alt="KidoFresh Logo"
+                            alt="Kido Farms Logo"
                             fill
                             className="p-2 object-contain filter brightness-0 invert"
                             priority
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black tracking-tighter uppercase leading-none">KidoFresh</span>
+                        <span className="text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
                         <span className="text-[8px] font-black uppercase tracking-[0.4em] text-secondary">Network System</span>
                     </div>
                 </Link>
@@ -32,7 +32,7 @@ export const Header = async () => {
                     <Link href="/shop" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Marketplace</Link>
                     <Link href="/subscriptions" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Subscriptions</Link>
                     <Link href="/about" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Our Vision</Link>
-                    
+
                     {session?.user && (session.user as any).role === "admin" && (
                         <Link href="/admin" className="bg-white/10 hover:bg-white hover:text-primary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
                             <BarChart3 size={14} className="text-secondary" /> Admin Hub
@@ -44,7 +44,7 @@ export const Header = async () => {
                     <button className="p-2 hover:bg-white/10 rounded-full transition-all group">
                         <Search size={22} className="group-hover:text-secondary transition-colors" />
                     </button>
-                    
+
                     {session ? (
                         <div className="flex items-center gap-3">
                             <Link href="/profile" className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full transition-all">
