@@ -1,5 +1,6 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -8,22 +9,10 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "plus.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "res.cloudinary.com",
-      },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "unsplash.com" },
+      { protocol: "https", hostname: "plus.unsplash.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
 };
