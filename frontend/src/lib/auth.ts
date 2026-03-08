@@ -79,6 +79,34 @@ export const authOptions: NextAuthOptions = {
             }
             return session;
         },
+        async signIn({ user, account, profile }) {
+            if (account?.provider === "google") {
+                try {
+                    const res = await fetch(`${API_URL}/api/auth/social-login`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: user.email,
+                            name: user.name,
+                            image: user.image,
+                        }),
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        (user as any).id = data.user.id;
+                        (user as any).role = data.user.role;
+                        (user as any).accessToken = data.token;
+                        return true;
+                    }
+                    return false;
+                } catch (error) {
+                    console.error("Social Login Sync Error:", error);
+                    return false;
+                }
+            }
+            return true;
+        },
     },
 
     pages: {
