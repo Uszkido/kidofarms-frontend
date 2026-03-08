@@ -130,22 +130,26 @@ export default function AdminLandingPage() {
                         </Link>
                         <div>
                             <h1 className="text-3xl font-black font-serif text-primary">Landing <span className="text-primary/40 italic">CMS</span></h1>
-                            <p className="text-sm font-medium text-primary/40">Manage homepage content and branding</p>
+                            <div className="flex items-center gap-2">
+                                <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">Master Node:</p>
+                                <code className="text-[10px] bg-primary/5 px-2 py-0.5 rounded text-primary/40 font-mono italic">{getApiUrl("/api/landing")}</code>
+                            </div>
                         </div>
                     </div>
                 </header>
 
                 {error && (
-                    <div className="bg-red-50 border border-red-100 p-6 rounded-3xl flex items-center gap-4 text-red-600">
-                        <div className="p-2 bg-red-100 rounded-xl">
-                            <ShieldCheck className="text-red-600" size={20} />
+                    <div className="bg-red-50 border border-red-100 p-8 rounded-[2.5rem] flex flex-col md:flex-row items-start md:items-center gap-6 text-red-600 shadow-xl shadow-red-500/5 animate-in zoom-in-95 duration-300">
+                        <div className="p-4 bg-red-100 rounded-2xl">
+                            <ShieldCheck className="text-red-600" size={32} />
                         </div>
-                        <div>
-                            <p className="text-xs font-black uppercase tracking-widest">Master Node Link Offline</p>
-                            <p className="text-sm font-medium opacity-70">{error}</p>
+                        <div className="flex-grow space-y-1">
+                            <p className="text-xs font-black uppercase tracking-widest text-red-500/60">Node Connection Offline</p>
+                            <h3 className="text-xl font-black font-serif">Master Link Disrupted</h3>
+                            <p className="text-sm font-medium opacity-70">The frontend could not reach the content origin at <span className="font-mono text-xs font-bold underline bg-red-100/50 px-1">{getApiUrl("")}</span>. Check if your backend server is running or if the production environment variables are configured.</p>
                         </div>
-                        <button onClick={fetchData} className="ml-auto bg-red-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all">
-                            Retry Sync
+                        <button onClick={fetchData} className="w-full md:w-auto bg-red-600 text-white px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg">
+                            Attempt Re-Sync
                         </button>
                     </div>
                 )}
