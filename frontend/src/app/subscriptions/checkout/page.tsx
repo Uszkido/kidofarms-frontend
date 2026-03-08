@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+
 import { Check, CreditCard, MapPin, Phone, User, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
@@ -57,7 +56,7 @@ export default function SubscriptionCheckoutPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+
 
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
@@ -213,7 +212,7 @@ export default function SubscriptionCheckoutPage() {
                 </div>
             </main>
 
-            <Footer />
+
         </div>
     );
 }

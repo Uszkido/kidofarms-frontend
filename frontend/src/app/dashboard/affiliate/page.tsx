@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+
 import {
     Users, TrendingUp, DollarSign, Copy, CheckCircle2,
     ArrowRight, Clock, Award, Share2, Wallet
