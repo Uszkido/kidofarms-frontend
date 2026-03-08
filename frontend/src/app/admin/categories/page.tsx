@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
+
 import Link from "next/link";
 import {
     Tag,
@@ -101,7 +100,7 @@ export default function CategoryManagementPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-neutral-50">
-            <Header />
+
 
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6 max-w-7xl">
@@ -233,7 +232,7 @@ export default function CategoryManagementPage() {
                 </div>
             )}
 
-            <Footer />
+
         </div>
     );
 }
