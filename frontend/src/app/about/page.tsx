@@ -1,8 +1,11 @@
 import Image from "next/image";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function AboutPage() {
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow py-24">
                 <section className="py-24">
                     <div className="container mx-auto px-6">
@@ -60,6 +63,7 @@ export default function AboutPage() {
                     </div>
                 </section>
             </main>
+            <Footer />
         </div>
     );
 }
