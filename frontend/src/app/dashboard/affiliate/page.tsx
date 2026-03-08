@@ -75,7 +75,7 @@ export default function AffiliateDashboard() {
 
     return (
         <div className="flex flex-col min-h-screen bg-cream/10">
-            <Header />
+
 
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6">
@@ -190,7 +190,7 @@ export default function AffiliateDashboard() {
                 </div>
             </main>
 
-            <Footer />
+
         </div>
     );
 }

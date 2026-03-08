@@ -71,7 +71,7 @@ export default function MarketplacePage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+
 
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
@@ -268,7 +268,7 @@ export default function MarketplacePage() {
                 </div>
             </main>
 
-            <Footer />
+
         </div>
     );
 }
