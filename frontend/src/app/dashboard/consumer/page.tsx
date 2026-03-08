@@ -16,7 +16,7 @@ export default function ConsumerDashboard() {
                         {/* Welcome Header & Hero */}
                         <div className="relative h-[300px] md:h-[400px] rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-2xl group mb-12">
                             <img
-                                src="file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/consumer_dashboard_organic_basket_1772965456413.png"
+                                src="https://images.unsplash.com/photo-1615485290382-441e4d019cb5?q=80&w=1470&auto=format&fit=crop"
                                 alt="Organic Harvest"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[5000ms]"
                             />
@@ -78,8 +78,8 @@ export default function ConsumerDashboard() {
                                 </div>
                                 <div className="p-10 space-y-8">
                                     {[
-                                        { name: "Organic Strawberries", qty: "2kg", price: "₦24,000" },
-                                        { name: "Bulk Maize (50kg)", qty: "1 Bag", price: "₦15,000" },
+                                        { name: "Organic Strawberries", qty: "2kg", price: "₦24,000", description: "Freshly picked from Jos highlands." },
+                                        { name: "Bulk Maize (50kg)", qty: "1 Bag", price: "₦15,000", description: "High-grade dry maize for processing." },
                                     ].map((item, i) => (
                                         <div key={i} className="flex justify-between items-center group">
                                             <div className="flex gap-6 items-center">
