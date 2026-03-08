@@ -1,7 +1,7 @@
 "use client";
 
-
-import {
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer"; import {
     LayoutDashboard,
     Sprout,
     Droplets,
@@ -19,9 +19,7 @@ import Link from "next/link";
 export default function FarmerDashboard() {
     return (
         <div className="flex flex-col min-h-screen">
-
-
-            <main className="flex-grow pt-32 pb-24 bg-cream/10">
+            <Header />            <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto space-y-12">
 

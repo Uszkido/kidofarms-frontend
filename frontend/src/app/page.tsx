@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { ArrowRight, Leaf, ShieldCheck, Truck, Users, Search, ShoppingCart, TrendingUp, Clock, Star, MapPin } from "lucide-react";
 import { fetcher } from "@/lib/api";
 import HomeSearch from "@/components/HomeSearch";
@@ -89,6 +91,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <Header />
       <main className="flex-grow">
         {/* Amazon-Style Persistent Search Bar */}
         <HomeSearch />
@@ -322,6 +325,7 @@ export default async function Home() {
           </div>
         </section>
       </main>
+      <Footer />
     </div>
   );
 }
