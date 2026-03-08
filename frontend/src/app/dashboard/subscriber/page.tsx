@@ -1,6 +1,3 @@
-"use client";
-
-
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Calendar, CreditCard, Settings, Truck, Leaf, RefreshCw, ChevronRight, AlertCircle } from "lucide-react";
