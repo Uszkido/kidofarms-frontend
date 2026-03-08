@@ -53,12 +53,14 @@ export const Header = async () => {
                                             (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
                                                 "/dashboard/consumer"
                                 }
-                                className="flex items-center gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-6 py-3 rounded-full transition-all border border-white/10 shadow-lg group"
+                                className="flex items-center gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-6 py-3 rounded-full transition-all border border-white/10 shadow-lg group max-w-[200px]"
                             >
-                                <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
+                                <div className="shrink-0 w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
                                     <User size={18} />
                                 </div>
-                                <span className="text-sm font-black tracking-tight">Kido</span>
+                                <span className="text-sm font-black tracking-tight truncate">
+                                    {session.user?.name || session.user?.email || "Kido User"}
+                                </span>
                             </Link>
                             <LogoutButton />
                         </div>
@@ -67,7 +69,7 @@ export const Header = async () => {
                             <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
                                 <User size={18} />
                             </div>
-                            <span className="text-sm font-black tracking-tight">Kido</span>
+                            <span className="text-sm font-black tracking-tight">Login / Signup</span>
                         </Link>
                     )}
 
