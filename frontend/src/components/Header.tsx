@@ -32,7 +32,7 @@ export const Header = async () => {
                 <nav className="hidden lg:flex items-center gap-10">
                     <Link href="/shop" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Marketplace</Link>
                     <Link href="/subscriptions" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Subscriptions</Link>
-                    <Link href="/track-harvest" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Track Harvest</Link>
+                    <Link href="https://kidofarms.vercel.app/track-harvest" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Track Harvest</Link>
                     <Link href="/about" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Our Vision</Link>
                     <Link href="/blog" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Farm Blog</Link>
 

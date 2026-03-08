@@ -140,7 +140,7 @@ export default async function Home() {
             <p className="text-cream/60 text-sm font-medium leading-relaxed">
               Current harvest cycle: <span className="text-white font-bold italic">{harvesting.cycle}</span> {harvesting.deliveryInfo}
             </p>
-            <Link href="/track-harvest" className="w-full inline-block text-center py-4 bg-secondary/10 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg active:scale-95">
+            <Link href="https://kidofarms.vercel.app/track-harvest" className="w-full inline-block text-center py-4 bg-secondary/10 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg active:scale-95">
               {harvesting.btnText}
             </Link>
           </div>
