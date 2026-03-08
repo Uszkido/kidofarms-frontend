@@ -14,6 +14,7 @@ export default function AdminLandingPage() {
     const [data, setData] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchData();
@@ -21,12 +22,15 @@ export default function AdminLandingPage() {
 
     const fetchData = async () => {
         setLoading(true);
+        setError(null);
         try {
             const res = await fetch(getApiUrl("/api/landing"));
+            if (!res.ok) throw new Error("Connection to CMS lost. Please check backend status.");
             const landingData = await res.json();
-            setData(landingData);
-        } catch (err) {
+            setData(landingData || {});
+        } catch (err: any) {
             console.error(err);
+            setError(err.message || "Failed to sync with content origin.");
         } finally {
             setLoading(false);
         }
@@ -35,44 +39,50 @@ export default function AdminLandingPage() {
     const handleSave = async (sectionId: string) => {
         setSaving(true);
         try {
+            const content = data[sectionId] || {};
             const res = await fetch(getApiUrl(`/api/landing/${sectionId}`), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ content: data[sectionId] })
+                body: JSON.stringify({ content })
             });
-            if (res.ok) alert(`Section ${sectionId.toUpperCase()} updated successfully!`);
+            if (res.ok) alert(`Section ${sectionId.toUpperCase()} synchronized!`);
+            else throw new Error("Broadcast failed.");
         } catch (err) {
             console.error(err);
-            alert("Failed to update section.");
+            alert("Failed to synchronize section.");
         } finally {
             setSaving(false);
         }
     };
 
     const updateField = (section: string, field: string, value: any) => {
+        const sectionData = data[section] || {};
         setData({
             ...data,
             [section]: {
-                ...data[section],
+                ...sectionData,
                 [field]: value
             }
         });
     };
 
     const updateListItem = (section: string, listField: string, index: number, field: string, value: any) => {
-        const newList = [...data[section][listField]];
-        newList[index] = { ...newList[index], [field]: value };
-        updateField(section, listField, newList);
+        const sectionData = data[section] || {};
+        const list = [...(sectionData[listField] || [])];
+        list[index] = { ...list[index], [field]: value };
+        updateField(section, listField, list);
     };
 
     const addListItem = (section: string, listField: string, defaultValue: any) => {
-        const newList = [...(data[section][listField] || []), defaultValue];
-        updateField(section, listField, newList);
+        const sectionData = data[section] || {};
+        const list = [...(sectionData[listField] || []), defaultValue];
+        updateField(section, listField, list);
     };
 
     const removeListItem = (section: string, listField: string, index: number) => {
-        const newList = data[section][listField].filter((_: any, i: number) => i !== index);
-        updateField(section, listField, newList);
+        const sectionData = data[section] || {};
+        const list = (sectionData[listField] || []).filter((_: any, i: number) => i !== index);
+        updateField(section, listField, list);
     };
 
     if (loading) {
@@ -83,6 +93,32 @@ export default function AdminLandingPage() {
             </div>
         );
     }
+
+    const hero = data.hero || {
+        badge: "", title: "", titleItalic: "", subtitle: "",
+        btn1Text: "", btn1Link: "", btn2Text: "", btn2Link: ""
+    };
+
+    const harvesting = data.harvesting || {
+        region: "", statusLabel: "", cycle: "", deliveryInfo: "", btnText: ""
+    };
+
+    const trends = data.trends || {
+        label: "", title: "", titleItalic: "", subtitle: "",
+        stat1Value: "", stat1Label: "", stat2Value: "", stat2Label: "", btnText: ""
+    };
+
+    const trending_list = data.trending_list || {
+        title: "", items: []
+    };
+
+    const advantage = data.advantage || {
+        title: "", titleItalic: "", subtitle: "", items: []
+    };
+
+    const farmer_cta = data.farmer_cta || {
+        title: "", titleItalic: "", subtitle: "", btn1Text: "", btn2Text: ""
+    };
 
     return (
         <div className="min-h-screen bg-cream/30 p-6 lg:p-12">
@@ -98,6 +134,21 @@ export default function AdminLandingPage() {
                         </div>
                     </div>
                 </header>
+
+                {error && (
+                    <div className="bg-red-50 border border-red-100 p-6 rounded-3xl flex items-center gap-4 text-red-600">
+                        <div className="p-2 bg-red-100 rounded-xl">
+                            <ShieldCheck className="text-red-600" size={20} />
+                        </div>
+                        <div>
+                            <p className="text-xs font-black uppercase tracking-widest">Master Node Link Offline</p>
+                            <p className="text-sm font-medium opacity-70">{error}</p>
+                        </div>
+                        <button onClick={fetchData} className="ml-auto bg-red-600 text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-700 transition-all">
+                            Retry Sync
+                        </button>
+                    </div>
+                )}
 
                 {/* Section Tabs */}
                 <div className="flex gap-2 p-1 bg-white rounded-2xl border border-primary/5 w-fit overflow-x-auto">
@@ -119,122 +170,120 @@ export default function AdminLandingPage() {
                     ))}
                 </div>
 
-                <div className="bg-white rounded-[3rem] border border-primary/5 shadow-xl p-10">
-                    {activeTab === 'hero' && data.hero && (
+                <div className="bg-white rounded-[3rem] border border-primary/5 shadow-xl p-10 min-h-[400px]">
+                    {activeTab === 'hero' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                             <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Hero Section Configuration</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormItem label="Top Badge text" value={data.hero.badge} onChange={(v) => updateField('hero', 'badge', v)} />
-                                <FormItem label="Main Title" value={data.hero.title} onChange={(v) => updateField('hero', 'title', v)} />
-                                <FormItem label="Italicized Title Part" value={data.hero.titleItalic} onChange={(v) => updateField('hero', 'titleItalic', v)} />
+                                <FormItem label="Top Badge text" value={hero.badge} onChange={(v) => updateField('hero', 'badge', v)} />
+                                <FormItem label="Main Title" value={hero.title} onChange={(v) => updateField('hero', 'title', v)} />
+                                <FormItem label="Italicized Title Part" value={hero.titleItalic} onChange={(v) => updateField('hero', 'titleItalic', v)} />
                                 <div className="md:col-span-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 block mb-2">Subtitle / Description</label>
                                     <textarea
-                                        value={data.hero.subtitle}
+                                        value={hero.subtitle}
                                         onChange={(e) => updateField('hero', 'subtitle', e.target.value)}
                                         className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold h-32"
                                     />
                                 </div>
-                                <FormItem label="Button 1 Text" value={data.hero.btn1Text} onChange={(v) => updateField('hero', 'btn1Text', v)} />
-                                <FormItem label="Button 1 Link" value={data.hero.btn1Link} onChange={(v) => updateField('hero', 'btn1Link', v)} />
-                                <FormItem label="Button 2 Text" value={data.hero.btn2Text} onChange={(v) => updateField('hero', 'btn2Text', v)} />
-                                <FormItem label="Button 2 Link" value={data.hero.btn2Link} onChange={(v) => updateField('hero', 'btn2Link', v)} />
+                                <FormItem label="Button 1 Text" value={hero.btn1Text} onChange={(v) => updateField('hero', 'btn1Text', v)} />
+                                <FormItem label="Button 1 Link" value={hero.btn1Link} onChange={(v) => updateField('hero', 'btn1Link', v)} />
+                                <FormItem label="Button 2 Text" value={hero.btn2Text} onChange={(v) => updateField('hero', 'btn2Text', v)} />
+                                <FormItem label="Button 2 Link" value={hero.btn2Link} onChange={(v) => updateField('hero', 'btn2Link', v)} />
                             </div>
                             <SaveButton onClick={() => handleSave('hero')} saving={saving} />
                         </div>
                     )}
 
-                    {activeTab === 'harvesting' && data.harvesting && (
+                    {activeTab === 'harvesting' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                             <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Harvesting Now Widget</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormItem label="Region Name" value={data.harvesting.region} onChange={(v) => updateField('harvesting', 'region', v)} />
-                                <FormItem label="Status Label" value={data.harvesting.statusLabel} onChange={(v) => updateField('harvesting', 'statusLabel', v)} />
-                                <FormItem label="Current Cycle Items" value={data.harvesting.cycle} onChange={(v) => updateField('harvesting', 'cycle', v)} />
-                                <FormItem label="Delivery Info text" value={data.harvesting.deliveryInfo} onChange={(v) => updateField('harvesting', 'deliveryInfo', v)} />
-                                <FormItem label="Button Text" value={data.harvesting.btnText} onChange={(v) => updateField('harvesting', 'btnText', v)} />
+                                <FormItem label="Region Name" value={harvesting.region} onChange={(v) => updateField('harvesting', 'region', v)} />
+                                <FormItem label="Status Label" value={harvesting.statusLabel} onChange={(v) => updateField('harvesting', 'statusLabel', v)} />
+                                <FormItem label="Current Cycle Items" value={harvesting.cycle} onChange={(v) => updateField('harvesting', 'cycle', v)} />
+                                <FormItem label="Delivery Info text" value={harvesting.deliveryInfo} onChange={(v) => updateField('harvesting', 'deliveryInfo', v)} />
+                                <FormItem label="Button Text" value={harvesting.btnText} onChange={(v) => updateField('harvesting', 'btnText', v)} />
                             </div>
                             <SaveButton onClick={() => handleSave('harvesting')} saving={saving} />
                         </div>
                     )}
 
-                    {activeTab === 'trends' && data.trends && (
+                    {activeTab === 'trends' && (
                         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
                             <div>
                                 <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Market Trends Header</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <FormItem label="Small Label" value={data.trends.label} onChange={(v) => updateField('trends', 'label', v)} />
-                                    <FormItem label="Section Title" value={data.trends.title} onChange={(v) => updateField('trends', 'title', v)} />
-                                    <FormItem label="Italicized Title" value={data.trends.titleItalic} onChange={(v) => updateField('trends', 'titleItalic', v)} />
+                                    <FormItem label="Small Label" value={trends.label} onChange={(v) => updateField('trends', 'label', v)} />
+                                    <FormItem label="Section Title" value={trends.title} onChange={(v) => updateField('trends', 'title', v)} />
+                                    <FormItem label="Italicized Title" value={trends.titleItalic} onChange={(v) => updateField('trends', 'titleItalic', v)} />
                                     <div className="md:col-span-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 block mb-2">Description</label>
                                         <textarea
-                                            value={data.trends.subtitle}
+                                            value={trends.subtitle}
                                             onChange={(e) => updateField('trends', 'subtitle', e.target.value)}
                                             className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold h-24"
                                         />
                                     </div>
-                                    <FormItem label="Stat 1 Value" value={data.trends.stat1Value} onChange={(v) => updateField('trends', 'stat1Value', v)} />
-                                    <FormItem label="Stat 1 Label" value={data.trends.stat1Label} onChange={(v) => updateField('trends', 'stat1Label', v)} />
-                                    <FormItem label="Stat 2 Value" value={data.trends.stat2Value} onChange={(v) => updateField('trends', 'stat2Value', v)} />
-                                    <FormItem label="Stat 2 Label" value={data.trends.stat2Label} onChange={(v) => updateField('trends', 'stat2Label', v)} />
-                                    <FormItem label="CTA Button Text" value={data.trends.btnText} onChange={(v) => updateField('trends', 'btnText', v)} />
+                                    <FormItem label="Stat 1 Value" value={trends.stat1Value} onChange={(v) => updateField('trends', 'stat1Value', v)} />
+                                    <FormItem label="Stat 1 Label" value={trends.stat1Label} onChange={(v) => updateField('trends', 'stat1Label', v)} />
+                                    <FormItem label="Stat 2 Value" value={trends.stat2Value} onChange={(v) => updateField('trends', 'stat2Value', v)} />
+                                    <FormItem label="Stat 2 Label" value={trends.stat2Label} onChange={(v) => updateField('trends', 'stat2Label', v)} />
+                                    <FormItem label="CTA Button Text" value={trends.btnText} onChange={(v) => updateField('trends', 'btnText', v)} />
                                 </div>
                                 <div className="mt-6">
                                     <SaveButton onClick={() => handleSave('trends')} saving={saving} />
                                 </div>
                             </div>
 
-                            {data.trending_list && (
-                                <div className="pt-8 border-t">
-                                    <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Trending Near Lagos List</h2>
-                                    <div className="space-y-6">
-                                        <FormItem label="List Title" value={data.trending_list.title} onChange={(v) => setData({ ...data, trending_list: { ...data.trending_list, title: v } })} />
+                            <div className="pt-8 border-t">
+                                <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Trending Near Lagos List</h2>
+                                <div className="space-y-6">
+                                    <FormItem label="List Title" value={trending_list.title} onChange={(v) => setData({ ...data, trending_list: { ...trending_list, title: v } })} />
 
-                                        <div className="space-y-4">
-                                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Trending Items</p>
-                                            {data.trending_list.items.map((item: any, i: number) => (
-                                                <div key={i} className="flex gap-4 items-end bg-neutral-50 p-6 rounded-2xl border border-primary/5">
-                                                    <div className="flex-grow grid grid-cols-3 gap-4">
-                                                        <FormItem label="Item Name" value={item.name} onChange={(v) => updateListItem('trending_list', 'items', i, 'name', v)} />
-                                                        <FormItem label="Available Qty" value={item.qty} onChange={(v) => updateListItem('trending_list', 'items', i, 'qty', v)} />
-                                                        <FormItem label="Change (%)" value={item.change} onChange={(v) => updateListItem('trending_list', 'items', i, 'change', v)} />
-                                                    </div>
-                                                    <button onClick={() => removeListItem('trending_list', 'items', i)} className="p-4 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all mb-1">
-                                                        <Trash2 size={18} />
-                                                    </button>
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Trending Items</p>
+                                        {trending_list.items.map((item: any, i: number) => (
+                                            <div key={i} className="flex gap-4 items-end bg-neutral-50 p-6 rounded-2xl border border-primary/5">
+                                                <div className="flex-grow grid grid-cols-3 gap-4">
+                                                    <FormItem label="Item Name" value={item.name} onChange={(v) => updateListItem('trending_list', 'items', i, 'name', v)} />
+                                                    <FormItem label="Available Qty" value={item.qty} onChange={(v) => updateListItem('trending_list', 'items', i, 'qty', v)} />
+                                                    <FormItem label="Change (%)" value={item.change} onChange={(v) => updateListItem('trending_list', 'items', i, 'change', v)} />
                                                 </div>
-                                            ))}
-                                            <button
-                                                onClick={() => addListItem('trending_list', 'items', { name: "New Item", qty: "0 Units", change: "+0%" })}
-                                                className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/30 hover:bg-neutral-50 hover:text-primary transition-all flex items-center justify-center gap-2"
-                                            >
-                                                <Plus size={16} /> Add Trending Item
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="mt-6">
-                                        <SaveButton onClick={() => handleSave('trending_list')} saving={saving} />
+                                                <button onClick={() => removeListItem('trending_list', 'items', i)} className="p-4 bg-red-50 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all mb-1">
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            onClick={() => addListItem('trending_list', 'items', { name: "New Item", qty: "0 Units", change: "+0%" })}
+                                            className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/30 hover:bg-neutral-50 hover:text-primary transition-all flex items-center justify-center gap-2"
+                                        >
+                                            <Plus size={16} /> Add Trending Item
+                                        </button>
                                     </div>
                                 </div>
-                            )}
+                                <div className="mt-6">
+                                    <SaveButton onClick={() => handleSave('trending_list')} saving={saving} />
+                                </div>
+                            </div>
                         </div>
                     )}
 
-                    {activeTab === 'advantage' && data.advantage && (
+                    {activeTab === 'advantage' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                             <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">The Kido Advantage Section</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormItem label="Section Title" value={data.advantage.title} onChange={(v) => updateField('advantage', 'title', v)} />
-                                <FormItem label="Italicized Part" value={data.advantage.titleItalic} onChange={(v) => updateField('advantage', 'titleItalic', v)} />
+                                <FormItem label="Section Title" value={advantage.title} onChange={(v) => updateField('advantage', 'title', v)} />
+                                <FormItem label="Italicized Part" value={advantage.titleItalic} onChange={(v) => updateField('advantage', 'titleItalic', v)} />
                                 <div className="md:col-span-2">
-                                    <FormItem label="Subtitle" value={data.advantage.subtitle} onChange={(v) => updateField('advantage', 'subtitle', v)} />
+                                    <FormItem label="Subtitle" value={advantage.subtitle} onChange={(v) => updateField('advantage', 'subtitle', v)} />
                                 </div>
                             </div>
 
                             <div className="space-y-4 pt-6">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Feature Blocks (Max 3)</p>
-                                {data.advantage.items.map((item: any, i: number) => (
+                                {advantage.items.map((item: any, i: number) => (
                                     <div key={i} className="bg-neutral-50 p-6 rounded-2xl border border-primary/5 space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <FormItem label="Feature Title" value={item.title} onChange={(v) => updateListItem('advantage', 'items', i, 'title', v)} />
@@ -249,27 +298,33 @@ export default function AdminLandingPage() {
                                         </div>
                                     </div>
                                 ))}
+                                <button
+                                    onClick={() => addListItem('advantage', 'items', { title: "New Advantage", desc: "Description here" })}
+                                    className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/30 hover:bg-neutral-50 hover:text-primary transition-all flex items-center justify-center gap-2"
+                                >
+                                    <Plus size={16} /> Add Advantage block
+                                </button>
                             </div>
                             <SaveButton onClick={() => handleSave('advantage')} saving={saving} />
                         </div>
                     )}
 
-                    {activeTab === 'farmer_cta' && data.farmer_cta && (
+                    {activeTab === 'farmer_cta' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                             <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Farmer Onboarding Section</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <FormItem label="Main Title" value={data.farmer_cta.title} onChange={(v) => updateField('farmer_cta', 'title', v)} />
-                                <FormItem label="Italicized Sub-Title" value={data.farmer_cta.titleItalic} onChange={(v) => updateField('farmer_cta', 'titleItalic', v)} />
+                                <FormItem label="Main Title" value={farmer_cta.title} onChange={(v) => updateField('farmer_cta', 'title', v)} />
+                                <FormItem label="Italicized Sub-Title" value={farmer_cta.titleItalic} onChange={(v) => updateField('farmer_cta', 'titleItalic', v)} />
                                 <div className="md:col-span-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 block mb-2">Subtitle / CTA Description</label>
                                     <textarea
-                                        value={data.farmer_cta.subtitle}
+                                        value={farmer_cta.subtitle}
                                         onChange={(e) => updateField('farmer_cta', 'subtitle', e.target.value)}
                                         className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold h-32"
                                     />
                                 </div>
-                                <FormItem label="Primary Button text" value={data.farmer_cta.btn1Text} onChange={(v) => updateField('farmer_cta', 'btn1Text', v)} />
-                                <FormItem label="App Button text" value={data.farmer_cta.btn2Text} onChange={(v) => updateField('farmer_cta', 'btn2Text', v)} />
+                                <FormItem label="Primary Button text" value={farmer_cta.btn1Text} onChange={(v) => updateField('farmer_cta', 'btn1Text', v)} />
+                                <FormItem label="App Button text" value={farmer_cta.btn2Text} onChange={(v) => updateField('farmer_cta', 'btn2Text', v)} />
                             </div>
                             <SaveButton onClick={() => handleSave('farmer_cta')} saving={saving} />
                         </div>
