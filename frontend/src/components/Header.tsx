@@ -32,6 +32,7 @@ export const Header = async () => {
                 <nav className="hidden lg:flex items-center gap-10">
                     <Link href="/shop" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Marketplace</Link>
                     <Link href="/subscriptions" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Subscriptions</Link>
+                    <Link href="/track-harvest" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Track Harvest</Link>
                     <Link href="/about" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Our Vision</Link>
                     <Link href="/blog" className="text-xs font-black uppercase tracking-widest hover:text-secondary transition-colors">Farm Blog</Link>
 
@@ -43,21 +44,30 @@ export const Header = async () => {
                 </nav>
 
                 <div className="flex items-center gap-6">
-                    <button className="p-2 hover:bg-white/10 rounded-full transition-all group">
-                        <Search size={22} className="group-hover:text-secondary transition-colors" />
-                    </button>
-
                     {session ? (
                         <div className="flex items-center gap-3">
-                            <Link href="/profile" className="flex items-center gap-2 bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-full transition-all">
-                                <User size={16} className="text-secondary" />
-                                <span className="text-xs font-bold">{session.user?.name?.split(' ')[0] || "Profile"}</span>
+                            <Link
+                                href={
+                                    (session.user as any).role === "admin" ? "/admin" :
+                                        (session.user as any).role === "farmer" ? "/dashboard/vendor" :
+                                            (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
+                                                "/dashboard/consumer"
+                                }
+                                className="flex items-center gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-6 py-3 rounded-full transition-all border border-white/10 shadow-lg group"
+                            >
+                                <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
+                                    <User size={18} />
+                                </div>
+                                <span className="text-sm font-black tracking-tight">Kido</span>
                             </Link>
                             <LogoutButton />
                         </div>
                     ) : (
-                        <Link href="/login" className="flex items-center gap-2 group p-2 hover:bg-white/10 rounded-full transition-all">
-                            <User size={22} className="group-hover:text-secondary transition-colors" />
+                        <Link href="/login" className="flex items-center gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-6 py-3 rounded-full transition-all border border-white/10 shadow-lg group">
+                            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
+                                <User size={18} />
+                            </div>
+                            <span className="text-sm font-black tracking-tight">Kido</span>
                         </Link>
                     )}
 

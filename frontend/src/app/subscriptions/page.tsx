@@ -80,20 +80,18 @@ export default function SubscriptionPage() {
                                         </div>
                                     </div>
 
-                                    <form onSubmit={handleSubscribe} className="space-y-4 relative z-10">
-                                        <input
-                                            type="email" required placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)}
-                                            className="w-full bg-white/10 border border-white/20 rounded-2xl px-6 py-4 outline-none focus:ring-1 focus:ring-secondary text-white placeholder:text-white/40"
-                                        />
-                                        <button
-                                            disabled={submitting || status === 'success'}
+                                    <div className="space-y-4 relative z-10">
+                                        <p className="text-cream/60 text-sm leading-relaxed">
+                                            Get priority access to the freshest harvests, curated by our master farmers and delivered with zero middlemen.
+                                        </p>
+                                        <a
+                                            href="/subscriptions/checkout"
                                             className="w-full bg-secondary text-primary py-5 rounded-full font-bold text-lg hover:bg-white transition-all shadow-lg flex items-center justify-center gap-3"
                                         >
-                                            {status === 'success' ? "Subscribed!" : submitting ? <Loader2 className="animate-spin" /> : "Subscribe Now"}
-                                            {status !== 'success' && <ArrowRight size={22} />}
-                                        </button>
-                                        {status === 'error' && <p className="text-red-400 text-xs text-center font-bold">Something went wrong. Please try again.</p>}
-                                    </form>
+                                            Start Secure Checkout
+                                            <ArrowRight size={22} />
+                                        </a>
+                                    </div>
 
                                     <div className="flex justify-between gap-4 pt-4 border-t border-white/10 relative z-10">
                                         <div className="flex gap-2 items-center text-[10px] uppercase font-bold tracking-tighter text-cream/40">

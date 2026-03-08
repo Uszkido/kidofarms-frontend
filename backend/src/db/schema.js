@@ -57,10 +57,29 @@ const blogPosts = pgTable("blog_posts", {
 // Subscribers Table
 const subscribers = pgTable("subscribers", {
     id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id),
     email: text("email").notNull().unique(),
-    status: subscriberStatusEnum("status").default("pending"),
+    phone: text("phone"),
+    street: text("street"),
+    city: text("city"),
+    state: text("state"),
+    zip: text("zip"),
+    status: subscriberStatusEnum("status").default("pending"), // pending, active, cancelled
     plan: text("plan").default("Weekly Farm Basket"),
+    paymentStatus: text("payment_status").default("pending"), // pending, paid, failed
     createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Harvests Table
+const harvests = pgTable("harvests", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cropName: text("crop_name").notNull(),
+    farmName: text("farm_name").notNull(),
+    region: text("region").notNull(), // Kano, Jos, Benue, etc.
+    status: text("status").notNull(), // planted, growing, harvesting, ready
+    progress: integer("progress").default(0).notNull(), // 0-100
+    estimatedReadyDate: timestamp("estimated_ready_date"),
+    updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Products Table
@@ -208,6 +227,7 @@ module.exports = {
     activityLogs,
     settings,
     landingSections,
+    harvests,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

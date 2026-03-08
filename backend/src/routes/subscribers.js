@@ -16,10 +16,31 @@ router.get('/', async (req, res) => {
 // POST /api/subscribers
 router.post('/', async (req, res) => {
     try {
-        const [sub] = await db.insert(subscribers).values(req.body).returning();
+        const { email, phone, street, city, state, zip, plan, userId } = req.body;
+
+        // Check if subscriber already exists
+        const { eq } = require('drizzle-orm');
+        const existing = await db.select().from(subscribers).where(eq(subscribers.email, email));
+
+        if (existing.length > 0) {
+            // Update existing subscriber
+            const [updated] = await db.update(subscribers)
+                .set({ phone, street, city, state, zip, plan, userId, status: 'active', paymentStatus: 'paid' })
+                .where(eq(subscribers.email, email))
+                .returning();
+            return res.json(updated);
+        }
+
+        const [sub] = await db.insert(subscribers).values({
+            email, phone, street, city, state, zip, plan, userId,
+            status: 'active',
+            paymentStatus: 'paid'
+        }).returning();
+
         res.status(201).json(sub);
     } catch (error) {
-        res.status(400).json({ error: 'Failed' });
+        console.error(error);
+        res.status(400).json({ error: 'Failed to process subscription' });
     }
 });
 

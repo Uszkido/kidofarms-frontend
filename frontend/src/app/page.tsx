@@ -155,9 +155,9 @@ export default async function Home() {
             <p className="text-cream/60 text-sm font-medium leading-relaxed">
               Current harvest cycle: <span className="text-white font-bold italic">{harvesting.cycle}</span> {harvesting.deliveryInfo}
             </p>
-            <button className="w-full py-4 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">
+            <Link href="/track-harvest" className="w-full inline-block text-center py-4 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">
               {harvesting.btnText}
-            </button>
+            </Link>
           </div>
         </section>
 
