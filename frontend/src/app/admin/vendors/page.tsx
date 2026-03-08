@@ -68,6 +68,7 @@ export default function VendorsPage() {
                                     <tr>
                                         <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Business Name</th>
                                         <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Owner</th>
+                                        <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Categories</th>
                                         <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Status</th>
                                         <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-primary/20 text-right">Actions</th>
                                     </tr>
@@ -84,9 +85,22 @@ export default function VendorsPage() {
                                                 <p className="text-[10px] text-primary/40 font-medium">{vendor.userEmail}</p>
                                             </td>
                                             <td className="px-8 py-6">
+                                                <div className="flex flex-wrap gap-1">
+                                                    {vendor.categories && vendor.categories.length > 0 ? (
+                                                        vendor.categories.map((cat: string) => (
+                                                            <span key={cat} className="px-2 py-0.5 bg-primary/5 border border-primary/10 rounded text-[8px] font-black text-primary/60 uppercase">
+                                                                {cat}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-[8px] font-bold text-primary/20 italic">No categories</span>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
                                                 <span className={`px-3 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest flex items-center gap-2 w-fit ${vendor.status === 'approved' ? 'bg-green-100 text-green-600' :
-                                                        vendor.status === 'pending' ? 'bg-amber-100 text-amber-600' :
-                                                            'bg-red-100 text-red-600'
+                                                    vendor.status === 'pending' ? 'bg-amber-100 text-amber-600' :
+                                                        'bg-red-100 text-red-600'
                                                     }`}>
                                                     {vendor.status === 'approved' ? <CheckCircle size={10} /> :
                                                         vendor.status === 'pending' ? <Shield size={10} /> :

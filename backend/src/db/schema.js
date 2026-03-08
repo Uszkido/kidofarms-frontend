@@ -124,6 +124,7 @@ const vendors = pgTable("vendors", {
     logo: text("logo"),
     status: text("status").default("pending"), // pending, approved, suspended
     commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("10.00"),
+    categories: jsonb("categories").default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

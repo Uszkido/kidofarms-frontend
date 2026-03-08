@@ -244,7 +244,7 @@ export default function Home() {
                     Are you a farmer in Kano, Abuja, or Lagos? Join the network and reach 10x more customers. Our dashboard manages listing, pricing, and automated dispatch.
                   </p>
                   <div className="flex gap-4">
-                    <button className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-secondary transition-all">List New Harvest</button>
+                    <Link href="/register/vendor" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-secondary transition-all">List New Harvest</Link>
                     <button className="border-2 border-white/20 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/10 transition-all">Download Farmer App</button>
                   </div>
                 </div>

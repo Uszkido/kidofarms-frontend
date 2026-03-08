@@ -11,6 +11,7 @@ router.get('/', async (req, res) => {
             id: vendors.id,
             businessName: vendors.businessName,
             status: vendors.status,
+            categories: vendors.categories,
             createdAt: vendors.createdAt,
             userName: users.name,
             userEmail: users.email
@@ -22,6 +23,31 @@ router.get('/', async (req, res) => {
     } catch (error) {
         console.error('Vendors Error:', error);
         res.status(500).json({ error: 'Failed to fetch vendors' });
+    }
+});
+
+// Register new vendor
+router.post('/register', async (req, res) => {
+    const { userId, businessName, description, categories: vendorCategories } = req.body;
+
+    try {
+        const [newVendor] = await db.insert(vendors).values({
+            userId,
+            businessName,
+            description,
+            categories: vendorCategories || [],
+            status: 'pending'
+        }).returning();
+
+        // Also update user role to farmer if not already
+        await db.update(users)
+            .set({ role: 'farmer' })
+            .where(eq(users.id, userId));
+
+        res.status(201).json(newVendor);
+    } catch (error) {
+        console.error('Vendor Registration Error:', error);
+        res.status(500).json({ error: 'Failed to register vendor' });
     }
 });
 
