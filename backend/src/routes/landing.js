@@ -15,7 +15,11 @@ router.get('/', async (req, res) => {
         res.json(config);
     } catch (error) {
         console.error('Landing API Error:', error);
-        res.status(500).json({ error: 'Failed to fetch landing content' });
+        res.status(500).json({
+            error: 'Failed to fetch landing content',
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
     }
 });
 
