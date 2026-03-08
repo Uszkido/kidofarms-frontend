@@ -187,6 +187,7 @@ export default function AdminDashboard() {
                                 <SmallMenuLink href="/admin/reports" label="Repo" icon={<Activity size={14} />} />
                                 <SmallMenuLink href="/admin/settings" label="Setup" icon={<Map size={14} />} />
                                 <SmallMenuLink href="/admin/subscribers" label="Subs" icon={<Globe size={14} />} />
+                                <SmallMenuLink href="/admin/landing" label="Landing" icon={<LayoutDashboard size={14} />} />
                                 <SmallMenuLink href="/admin/users" label="Users" icon={<Users size={14} />} />
                                 <SmallMenuLink href="/admin/notifications" label="Alerts" icon={<Bell size={14} />} />
                             </div>

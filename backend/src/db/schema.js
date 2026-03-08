@@ -164,6 +164,13 @@ const settings = pgTable("settings", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Landing Page Content Table
+const landingSections = pgTable("landing_sections", {
+    id: text("id").primaryKey(), // e.g., 'hero', 'harvesting', 'trends', 'advantage', 'farmer_cta'
+    content: jsonb("content").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     author: one(users, {
@@ -200,6 +207,7 @@ module.exports = {
     coupons,
     activityLogs,
     settings,
+    landingSections,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

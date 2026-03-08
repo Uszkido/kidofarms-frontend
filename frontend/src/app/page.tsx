@@ -1,12 +1,95 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Leaf, ShieldCheck, Truck, Users, Search, ShoppingCart, TrendingUp, Clock, Star, MapPin } from "lucide-react";
+import { fetcher } from "@/lib/api";
 
-export default function Home() {
+export const dynamic = 'force-dynamic';
+
+async function getLandingData() {
+  try {
+    return await fetcher('/api/landing');
+  } catch (error) {
+    console.error('Failed to fetch landing data:', error);
+    return null;
+  }
+}
+
+export default async function Home() {
+  const landingData = await getLandingData();
+
+  // CMS Content with Fallbacks
+  const hero = landingData?.hero || {
+    badge: "Kido Farms Network • The Digital Marketplace",
+    title: "Direct From",
+    titleItalic: "The Source.",
+    subtitle: "West Africa's most trusted network connecting premium community farmers directly to your kitchen. 100% Organic. Zero Middlemen.",
+    btn1Text: "Start Shopping",
+    btn1Link: "/shop",
+    btn2Text: "Weekly Basket Plan",
+    btn2Link: "/subscriptions"
+  };
+
+  const harvesting = landingData?.harvesting || {
+    region: "Jos, Plateau",
+    statusLabel: "Harvesting Now",
+    cycle: "Sweet Maize & Red Peppers.",
+    deliveryInfo: "Delivery available within 24 hours.",
+    btnText: "Track Harvest"
+  };
+
+  const trends = landingData?.trends || {
+    label: "Market Trends",
+    title: "The Harvest",
+    titleItalic: "Volume Report",
+    subtitle: "Join 15,000+ conscious customers buying directly from our verified network of 450+ farmers. Experience real-time price transparency.",
+    stat1Value: "₦45M+",
+    stat1Label: "Market Volume This Week",
+    stat2Value: "12.5h",
+    stat2Label: "Avg. Harvest-to-Table Time",
+    btnText: "View Live Marketplace"
+  };
+
+  const trendingList = landingData?.trending_list || {
+    title: "Trending Near Lagos",
+    items: [
+      { name: "Red Habanero Peppers", qty: "450 Baskets", change: "+12%" },
+      { name: "Sweet Kano Onions", qty: "1.2 Tons", change: "+8%" },
+      { name: "Live Mature Fishes", qty: "2,400 Units", change: "+24%" },
+      { name: "Organic Honeybush", qty: "850 Liters", change: "-2%" }
+    ]
+  };
+
+  const advantage = landingData?.advantage || {
+    title: "The Kido Farms",
+    titleItalic: "Advantage",
+    subtitle: "Why the biggest distributors and premium supermarkets trust our network.",
+    items: [
+      { title: "Smart Logistics", icon: Truck, desc: "Proprietary oxygenated tank delivery for live catfish and cold-chain systems for strawberries." },
+      { title: "Direct Verification", icon: ShieldCheck, desc: "Every farmer is manually vetted. View soil reports and harvest certifications for every item." },
+      { title: "Tech-Driven Yield", icon: Leaf, desc: "Utilizing cutting-edge greenhouses and hydroponics to ensure consistency year-round." }
+    ]
+  };
+
+  // Map icon strings to components for advantage section if they come from API as strings
+  const advantageItems = (advantage.items || []).map((item: any) => {
+    let Icon = Leaf;
+    if (item.title === "Smart Logistics") Icon = Truck;
+    if (item.title === "Direct Verification") Icon = ShieldCheck;
+    return { ...item, icon: Icon };
+  });
+
+  const farmerCta = landingData?.farmer_cta || {
+    title: "Scale Your",
+    titleItalic: "Farm Business",
+    subtitle: "Are you a farmer in Kano, Abuja, or Lagos? Join the network and reach 10x more customers. Our dashboard manages listing, pricing, and automated dispatch.",
+    btn1Text: "List New Harvest",
+    btn2Text: "Download Farmer App"
+  };
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
-        {/* Amazon-Style Persistent Search Bar (Sticky on Scroll usually, but here simplified) */}
+        {/* Amazon-Style Persistent Search Bar */}
         <div className="bg-primary/95 backdrop-blur-xl border-b border-white/10 py-3 sticky top-20 z-50 shadow-2xl">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto relative group">
@@ -37,46 +120,48 @@ export default function Home() {
           <div className="container mx-auto px-6 relative z-10">
             <div className="max-w-4xl space-y-8">
               <div className="inline-flex items-center gap-3 bg-secondary/90 backdrop-blur-md px-5 py-2.5 rounded-full text-primary font-black text-xs uppercase tracking-[0.2em] shadow-xl">
-                Kido Farms Network &bull; The Digital Marketplace
+                {hero.badge}
               </div>
               <h1 className="text-7xl md:text-9xl font-black font-serif text-white leading-[0.9] tracking-tighter">
-                Direct From <br />
-                <span className="text-secondary italic">The Source.</span>
+                {hero.title} <br />
+                <span className="text-secondary italic">{hero.titleItalic}</span>
               </h1>
               <p className="text-2xl text-cream/90 max-w-2xl leading-relaxed font-medium">
-                West Africa's most trusted network connecting premium community farmers directly to your kitchen. 100% Organic. Zero Middlemen.
+                {hero.subtitle}
               </p>
               <div className="flex flex-wrap gap-5 pt-6">
-                <Link href="/shop" className="bg-secondary text-primary px-12 py-6 rounded-2xl font-black text-xl transition-all hover:bg-white flex items-center gap-3 shadow-[0_20px_50px_rgba(190,160,78,0.3)] hover:-translate-y-1">
-                  Start Shopping
+                <Link href={hero.btn1Link} className="bg-secondary text-primary px-12 py-6 rounded-2xl font-black text-xl transition-all hover:bg-white flex items-center gap-3 shadow-[0_20px_50px_rgba(190,160,78,0.3)] hover:-translate-y-1">
+                  {hero.btn1Text}
                   <ArrowRight size={24} strokeWidth={3} />
                 </Link>
-                <Link href="/subscriptions" className="bg-white/5 backdrop-blur-xl border-2 border-white/20 text-white px-12 py-6 rounded-2xl font-black text-xl transition-all hover:bg-white/10 flex items-center gap-3">
-                  Weekly Basket Plan
+                <Link href={hero.btn2Link} className="bg-white/5 backdrop-blur-xl border-2 border-white/20 text-white px-12 py-6 rounded-2xl font-black text-xl transition-all hover:bg-white/10 flex items-center gap-3">
+                  {hero.btn2Text}
                 </Link>
               </div>
             </div>
           </div>
 
-          {/* Floating Trust Card (Amazon/Airbnb style) */}
+          {/* Floating Trust Card */}
           <div className="hidden lg:block absolute bottom-20 right-20 w-80 glass p-8 rounded-[2.5rem] border border-white/10 shadow-2xl space-y-6 animate-float">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-inner">
                 <MapPin size={28} />
               </div>
               <div>
-                <p className="text-xs font-black uppercase tracking-widest text-secondary">Harvesting Now</p>
-                <p className="text-white font-bold text-lg">Jos, Plateau</p>
+                <p className="text-xs font-black uppercase tracking-widest text-secondary">{harvesting.statusLabel}</p>
+                <p className="text-white font-bold text-lg">{harvesting.region}</p>
               </div>
             </div>
             <p className="text-cream/60 text-sm font-medium leading-relaxed">
-              Current harvest cycle: <span className="text-white font-bold italic">Sweet Maize & Red Peppers.</span> Delivery available within 24 hours.
+              Current harvest cycle: <span className="text-white font-bold italic">{harvesting.cycle}</span> {harvesting.deliveryInfo}
             </p>
-            <button className="w-full py-4 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">Track Harvest</button>
+            <button className="w-full py-4 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">
+              {harvesting.btnText}
+            </button>
           </div>
         </section>
 
-        {/* Categories Bar - Minimalist Icons */}
+        {/* Categories Bar */}
         <section className="bg-cream/20 py-12 border-b border-primary/5">
           <div className="container mx-auto px-6">
             <div className="flex justify-center gap-8 md:gap-20 flex-wrap">
@@ -99,7 +184,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Recently Viewed / Amazon Style Recommendations */}
+        {/* Recommended For You */}
         <section className="py-24">
           <div className="container mx-auto px-6">
             <div className="flex items-center gap-4 mb-12">
@@ -143,7 +228,7 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Trending Categories Section */}
+        {/* Market Trends Section */}
         <section className="py-24 bg-primary text-white overflow-hidden relative">
           <div className="absolute inset-0 opacity-20">
             <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-secondary/40 via-transparent to-transparent" />
@@ -152,44 +237,39 @@ export default function Home() {
             <div className="grid lg:grid-cols-2 gap-20 items-center">
               <div className="space-y-10">
                 <div className="space-y-4">
-                  <span className="text-secondary font-black uppercase tracking-[0.3em] text-xs">Market Trends</span>
-                  <h2 className="text-6xl md:text-8xl font-black font-serif leading-[0.85]">The Harvest <br /><span className="italic text-secondary">Volume Report</span></h2>
+                  <span className="text-secondary font-black uppercase tracking-[0.3em] text-xs">{trends.label}</span>
+                  <h2 className="text-6xl md:text-8xl font-black font-serif leading-[0.85]">{trends.title} <br /><span className="italic text-secondary">{trends.titleItalic}</span></h2>
                 </div>
                 <p className="text-cream/50 text-xl leading-relaxed max-w-xl">
-                  Join 15,000+ conscious customers buying directly from our verified network of 450+ farmers. Experience real-time price transparency.
+                  {trends.subtitle}
                 </p>
                 <div className="grid grid-cols-2 gap-8">
                   <div className="p-8 rounded-[2rem] bg-white/5 border border-white/10 space-y-4">
                     <TrendingUp className="text-secondary" size={32} />
-                    <h4 className="text-4xl font-black font-serif">₦45M+</h4>
-                    <p className="text-xs uppercase font-bold tracking-widest text-cream/40">Market Volume This Week</p>
+                    <h4 className="text-4xl font-black font-serif">{trends.stat1Value}</h4>
+                    <p className="text-xs uppercase font-bold tracking-widest text-cream/40">{trends.stat1Label}</p>
                   </div>
                   <div className="p-8 rounded-[2rem] bg-white/5 border border-white/10 space-y-4">
                     <Clock className="text-secondary" size={32} />
-                    <h4 className="text-4xl font-black font-serif">12.5h</h4>
-                    <p className="text-xs uppercase font-bold tracking-widest text-cream/40">Avg. Harvest-to-Table Time</p>
+                    <h4 className="text-4xl font-black font-serif">{trends.stat2Value}</h4>
+                    <p className="text-xs uppercase font-bold tracking-widest text-cream/40">{trends.stat2Label}</p>
                   </div>
                 </div>
                 <button className="bg-secondary text-primary px-12 py-6 rounded-2xl font-black text-xl hover:bg-white transition-all shadow-2xl flex items-center justify-center gap-3">
-                  View Live Marketplace <ArrowRight size={24} />
+                  {trends.btnText} <ArrowRight size={24} />
                 </button>
               </div>
               <div className="relative h-[800px] w-full bg-white/5 rounded-[4rem] border border-white/10 overflow-hidden shadow-2xl">
                 <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent" />
                 <div className="p-16 space-y-12">
-                  <h3 className="text-3xl font-black font-serif border-b-2 border-secondary/20 pb-6">Trending Near Lagos</h3>
-                  {[
-                    { name: "Red Habanero Peppers", qty: "450 Baskets", change: "+12%" },
-                    { name: "Sweet Kano Onions", qty: "1.2 Tons", change: "+8%" },
-                    { name: "Live Mature Fishes", qty: "2,400 Units", change: "+24%" },
-                    { name: "Organic Honeybush", qty: "850 Liters", change: "-2%" },
-                  ].map((item, i) => (
+                  <h3 className="text-3xl font-black font-serif border-b-2 border-secondary/20 pb-6">{trendingList.title}</h3>
+                  {(trendingList.items || []).map((item: any, i: number) => (
                     <div key={i} className="flex justify-between items-center hover:bg-white/5 p-4 rounded-2xl transition-all cursor-crosshair">
                       <div>
                         <p className="text-lg font-bold">{item.name}</p>
                         <p className="text-xs uppercase font-black text-cream/30">{item.qty} Available</p>
                       </div>
-                      <span className={`text-sm font-black px-4 py-1.5 rounded-full ${item.change.startsWith('+') ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                      <span className={`text-sm font-black px-4 py-1.5 rounded-full ${item.change?.startsWith('+') ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                         {item.change}
                       </span>
                     </div>
@@ -203,19 +283,15 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Why Us / Tech Edge Section */}
+        {/* Advantage Section */}
         <section className="py-32">
           <div className="container mx-auto px-6">
             <div className="text-center max-w-4xl mx-auto space-y-8 mb-24">
-              <h2 className="text-6xl font-black font-serif uppercase tracking-tighter">The Kido Farms <span className="text-secondary italic underline decoration-secondary/30">Advantage</span></h2>
-              <p className="text-2xl text-primary/40 font-medium">Why the biggest distributors and premium supermarkets trust our network.</p>
+              <h2 className="text-6xl font-black font-serif uppercase tracking-tighter">{advantage.title} <span className="text-secondary italic underline decoration-secondary/30">{advantage.titleItalic}</span></h2>
+              <p className="text-2xl text-primary/40 font-medium">{advantage.subtitle}</p>
             </div>
             <div className="grid md:grid-cols-3 gap-16">
-              {[
-                { title: "Smart Logistics", icon: Truck, desc: "Proprietary oxygenated tank delivery for live catfish and cold-chain systems for strawberries." },
-                { title: "Direct Verification", icon: ShieldCheck, desc: "Every farmer is manually vetted. View soil reports and harvest certifications for every item." },
-                { title: "Tech-Driven Yield", icon: Leaf, desc: "Utilizing cutting-edge greenhouses and hydroponics to ensure consistency year-round." },
-              ].map((item, i) => (
+              {advantageItems.map((item: any, i: number) => (
                 <div key={i} className="space-y-8 text-center group">
                   <div className="w-32 h-32 mx-auto rounded-[3rem] bg-secondary/10 flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-primary transition-all duration-500 group-hover:rotate-[15deg]">
                     <item.icon size={56} strokeWidth={1.5} />
@@ -230,22 +306,22 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Startup Story / Roadmap Section */}
+        {/* Farmer CTA Section */}
         <section className="py-24 bg-cream/10 border-y border-primary/5">
           <div className="container mx-auto px-6">
             <div className="bg-primary rounded-[4rem] p-16 md:p-24 text-white shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-full h-full opacity-5 pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-secondary rounded-full blur-[150px]" />
               </div>
-              <div className="relative z-10 flex flex-col md:row justify-between items-center gap-20">
+              <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-20">
                 <div className="max-w-2xl space-y-8">
-                  <h2 className="text-5xl font-black font-serif leading-tight">Scale Your <br /><span className="text-secondary">Farm Business</span></h2>
+                  <h2 className="text-5xl font-black font-serif leading-tight">{farmerCta.title} <br /><span className="text-secondary">{farmerCta.titleItalic}</span></h2>
                   <p className="text-xl text-cream/40 leading-relaxed font-medium">
-                    Are you a farmer in Kano, Abuja, or Lagos? Join the network and reach 10x more customers. Our dashboard manages listing, pricing, and automated dispatch.
+                    {farmerCta.subtitle}
                   </p>
                   <div className="flex gap-4">
-                    <Link href="/register/vendor" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-secondary transition-all">List New Harvest</Link>
-                    <button className="border-2 border-white/20 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/10 transition-all">Download Farmer App</button>
+                    <Link href="/register/vendor" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-secondary transition-all">{farmerCta.btn1Text}</Link>
+                    <button className="border-2 border-white/20 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/10 transition-all">{farmerCta.btn2Text}</button>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
