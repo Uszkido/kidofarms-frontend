@@ -26,26 +26,74 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Register new vendor
+// Register new vendor (includes user creation)
 router.post('/register', async (req, res) => {
-    const { userId, businessName, description, categories: vendorCategories } = req.body;
+    const {
+        userId,
+        name,
+        email,
+        password,
+        phone,
+        street,
+        city,
+        state,
+        zip,
+        businessName,
+        description,
+        categories: vendorCategories
+    } = req.body;
 
     try {
+        let finalUserId = userId;
+
+        // If no userId, create a new user
+        if (!finalUserId) {
+            if (!email || !password || !name) {
+                return res.status(400).json({ error: 'Missing required user fields (name, email, password)' });
+            }
+
+            const bcrypt = require('bcryptjs');
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const [user] = await db.insert(users).values({
+                name,
+                email,
+                password: hashedPassword,
+                phone,
+                street,
+                city,
+                state,
+                zip,
+                role: 'farmer'
+            }).returning();
+            finalUserId = user.id;
+        } else {
+            // Update existing user to farmer role and add details if provided
+            await db.update(users)
+                .set({
+                    role: 'farmer',
+                    phone: phone || undefined,
+                    street: street || undefined,
+                    city: city || undefined,
+                    state: state || undefined,
+                    zip: zip || undefined
+                })
+                .where(eq(users.id, finalUserId));
+        }
+
         const [newVendor] = await db.insert(vendors).values({
-            userId,
+            userId: finalUserId,
             businessName,
             description,
             categories: vendorCategories || [],
             status: 'pending'
         }).returning();
 
-        // Also update user role to farmer if not already
-        await db.update(users)
-            .set({ role: 'farmer' })
-            .where(eq(users.id, userId));
-
-        res.status(201).json(newVendor);
+        res.status(201).json({ vendor: newVendor, userId: finalUserId });
     } catch (error) {
+        if (error.code === '23505') {
+            return res.status(400).json({ error: 'Email already registered' });
+        }
         console.error('Vendor Registration Error:', error);
         res.status(500).json({ error: 'Failed to register vendor' });
     }

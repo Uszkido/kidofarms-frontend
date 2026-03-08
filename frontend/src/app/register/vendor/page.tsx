@@ -38,8 +38,15 @@ export default function VendorRegistrationPage() {
         businessName: "",
         description: "",
         categories: [] as string[],
+        contactName: "",
+        email: "",
         phone: "",
-        location: "Kano", // Default based on user request regions
+        password: "",
+        street: "",
+        city: "",
+        state: "",
+        zip: "",
+        location: "Kano", // Primary Region for Vendor categorization
     });
 
     const toggleCategory = (catId: string) => {
@@ -57,18 +64,10 @@ export default function VendorRegistrationPage() {
         setError("");
 
         try {
-            // In a real app, we'd get the current user ID from session
-            // For now, we'll simulate registration. 
-            // In this specific flow, the user might need to log in first or we create a user.
-            // Let's assume a simplified flow for this task.
-
             const res = await fetch(getApiUrl("/api/vendors/register"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    ...formData,
-                    userId: "temp-user-id" // This should be the actual auth user ID
-                })
+                body: JSON.stringify(formData)
             });
 
             if (res.ok) {
@@ -148,7 +147,7 @@ export default function VendorRegistrationPage() {
                         <div className="bg-white rounded-[4rem] p-12 lg:p-16 shadow-2xl border border-primary/5 relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-secondary rounded-full blur-[120px] opacity-10 -translate-y-32 translate-x-32" />
 
-                            <form onSubmit={handleSubmit} className="relative space-y-10">
+                            <form onSubmit={handleSubmit} className="relative space-y-12">
                                 <div className="space-y-2">
                                     <h2 className="text-3xl font-black font-serif uppercase tracking-tight">Business Profile</h2>
                                     <p className="text-sm text-primary/40 font-medium">Tell us about your farm operation</p>
@@ -160,56 +159,157 @@ export default function VendorRegistrationPage() {
                                     </div>
                                 )}
 
-                                <div className="space-y-8">
-                                    {/* Section 1: Basic Info */}
-                                    <div className="grid md:grid-cols-2 gap-8">
+                                <div className="space-y-12">
+                                    {/* Section 1: Business Info */}
+                                    <div className="space-y-8">
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 flex items-center gap-2">
+                                                    <Building2 size={12} /> Farm Business Name
+                                                </label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="e.g. Kano Valley Organics"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.businessName}
+                                                    onChange={e => setFormData({ ...formData, businessName: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 flex items-center gap-2">
+                                                    <MapPin size={12} /> Primary Region
+                                                </label>
+                                                <select
+                                                    required
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all appearance-none cursor-pointer"
+                                                    value={formData.location}
+                                                    onChange={e => setFormData({ ...formData, location: e.target.value })}
+                                                >
+                                                    <option value="Kano">Kano</option>
+                                                    <option value="Abuja">Abuja</option>
+                                                    <option value="Lagos">Lagos</option>
+                                                    <option value="Jos">Jos (Base)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
                                         <div className="space-y-3">
                                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 flex items-center gap-2">
-                                                <Building2 size={12} /> Farm Business Name
+                                                <FileText size={12} /> About Your Harvest
                                             </label>
-                                            <input
-                                                type="text"
+                                            <textarea
                                                 required
-                                                placeholder="e.g. Kano Valley Organics"
-                                                className="w-full bg-cream/20 border border-primary/5 rounded-2x; px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
-                                                value={formData.businessName}
-                                                onChange={e => setFormData({ ...formData, businessName: e.target.value })}
+                                                rows={3}
+                                                placeholder="What do you grow? Describe your farming practices..."
+                                                className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:ring-2 focus:ring-secondary/20 outline-none transition-all resize-none"
+                                                value={formData.description}
+                                                onChange={e => setFormData({ ...formData, description: e.target.value })}
                                             />
                                         </div>
-                                        <div className="space-y-3">
-                                            <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 flex items-center gap-2">
-                                                <MapPin size={12} /> Primary Region
-                                            </label>
-                                            <select
-                                                required
-                                                className="w-full bg-cream/20 border border-primary/5 rounded-2x; px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all appearance-none cursor-pointer"
-                                                value={formData.location}
-                                                onChange={e => setFormData({ ...formData, location: e.target.value })}
-                                            >
-                                                <option value="Kano">Kano</option>
-                                                <option value="Abuja">Abuja</option>
-                                                <option value="Lagos">Lagos</option>
-                                                <option value="Jos">Jos (Base)</option>
-                                            </select>
+                                    </div>
+
+                                    {/* Section 2: Contact Information */}
+                                    <div className="space-y-8 pt-6 border-t border-primary/5">
+                                        <div className="space-y-2">
+                                            <h3 className="text-xl font-black font-serif uppercase tracking-tight">Contact Information</h3>
+                                            <p className="text-[10px] text-primary/40 font-bold uppercase tracking-widest">Personal details for account management</p>
+                                        </div>
+
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Contact Person Name</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="Full Name"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.contactName}
+                                                    onChange={e => setFormData({ ...formData, contactName: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Email Address</label>
+                                                <input
+                                                    type="email"
+                                                    required
+                                                    placeholder="farmer@example.com"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.email}
+                                                    onChange={e => setFormData({ ...formData, email: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Phone Number</label>
+                                                <input
+                                                    type="tel"
+                                                    required
+                                                    placeholder="+234..."
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.phone}
+                                                    onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Secure Password</label>
+                                                <input
+                                                    type="password"
+                                                    required
+                                                    placeholder="••••••••"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.password}
+                                                    onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 flex items-center gap-2">
-                                            <FileText size={12} /> About Your Harvest
-                                        </label>
-                                        <textarea
-                                            required
-                                            rows={3}
-                                            placeholder="What do you grow? Describe your farming practices..."
-                                            className="w-full bg-cream/20 border border-primary/5 rounded-2x; px-6 py-4 font-bold text-primary placeholder:text-primary/20 focus:ring-2 focus:ring-secondary/20 outline-none transition-all resize-none"
-                                            value={formData.description}
-                                            onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                        />
+                                    {/* Section 3: Farm Address */}
+                                    <div className="space-y-8 pt-6 border-t border-primary/5">
+                                        <div className="space-y-2">
+                                            <h3 className="text-xl font-black font-serif uppercase tracking-tight">Farm Location</h3>
+                                            <p className="text-[10px] text-primary/40 font-bold uppercase tracking-widest">Physical address for dispatch planning</p>
+                                        </div>
+
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            <div className="md:col-span-2 space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Street Address</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="Plot No. / Street Name"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.street}
+                                                    onChange={e => setFormData({ ...formData, street: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">City</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="City"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.city}
+                                                    onChange={e => setFormData({ ...formData, city: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">State</label>
+                                                <input
+                                                    type="text"
+                                                    required
+                                                    placeholder="State"
+                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
+                                                    value={formData.state}
+                                                    onChange={e => setFormData({ ...formData, state: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {/* Section 2: Product Categories */}
-                                    <div className="space-y-6">
+                                    {/* Section 4: Product Categories */}
+                                    <div className="space-y-6 pt-6 border-t border-primary/5">
                                         <div className="flex justify-between items-center">
                                             <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Product Specializations</label>
                                             <span className="text-[10px] font-bold text-secondary">Select all that apply</span>
@@ -220,8 +320,8 @@ export default function VendorRegistrationPage() {
                                                     key={cat.id}
                                                     onClick={() => toggleCategory(cat.id)}
                                                     className={`p-4 rounded-3xl border-2 cursor-pointer transition-all flex flex-col items-center gap-2 text-center ${formData.categories.includes(cat.id)
-                                                            ? "bg-secondary border-secondary shadow-lg shadow-secondary/20 scale-105"
-                                                            : "bg-white border-primary/5 hover:border-secondary/30"
+                                                        ? "bg-secondary border-secondary shadow-lg shadow-secondary/20 scale-105"
+                                                        : "bg-white border-primary/5 hover:border-secondary/30"
                                                         }`}
                                                 >
                                                     <span className="text-2xl">{cat.icon}</span>
