@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Leaf, ShieldCheck, Truck, Users, Search, ShoppingCart, TrendingUp, Clock, Star, MapPin } from "lucide-react";
 import { fetcher } from "@/lib/api";
+import HomeSearch from "@/components/HomeSearch";
 
 export const dynamic = 'force-dynamic';
 
@@ -90,23 +91,7 @@ export default async function Home() {
     <div className="flex flex-col min-h-screen">
       <main className="flex-grow">
         {/* Amazon-Style Persistent Search Bar */}
-        <div className="bg-primary/95 backdrop-blur-xl border-b border-white/10 py-3 sticky top-20 z-50 shadow-2xl">
-          <div className="container mx-auto px-6">
-            <div className="max-w-4xl mx-auto relative group">
-              <div className="absolute inset-y-0 left-4 md:left-6 flex items-center pointer-events-none">
-                <Search size={18} className="text-secondary" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search organic..."
-                className="w-full bg-white/10 border border-white/20 rounded-full py-3 md:py-4 pl-12 md:pl-16 pr-24 md:pr-32 text-white placeholder:text-white/40 focus:bg-white focus:text-primary focus:ring-4 focus:ring-secondary/20 transition-all outline-none text-sm md:text-lg font-medium"
-              />
-              <button className="absolute right-1.5 md:right-2 top-1.5 md:top-2 bottom-1.5 md:bottom-2 bg-secondary text-primary px-4 md:px-8 rounded-full font-bold text-xs md:text-sm hover:bg-white transition-all">
-                Search
-              </button>
-            </div>
-          </div>
-        </div>
+        <HomeSearch />
 
         {/* Hero Section */}
         <section className="relative h-[85vh] flex items-center overflow-hidden">
@@ -155,7 +140,7 @@ export default async function Home() {
             <p className="text-cream/60 text-sm font-medium leading-relaxed">
               Current harvest cycle: <span className="text-white font-bold italic">{harvesting.cycle}</span> {harvesting.deliveryInfo}
             </p>
-            <Link href="/track-harvest" className="w-full inline-block text-center py-4 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">
+            <Link href="/track-harvest" className="w-full inline-block text-center py-4 bg-secondary/10 border-2 border-secondary/30 rounded-xl text-secondary text-xs font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg active:scale-95">
               {harvesting.btnText}
             </Link>
           </div>
