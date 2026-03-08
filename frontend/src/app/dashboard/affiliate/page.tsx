@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import {
     Users, TrendingUp, DollarSign, Copy, CheckCircle2,
     ArrowRight, Clock, Award, Share2, Wallet
@@ -74,6 +76,7 @@ export default function AffiliateDashboard() {
 
     return (
         <div className="flex flex-col min-h-screen bg-cream/10">
+            <Header />
 
 
             <main className="flex-grow pt-32 pb-24">
@@ -190,6 +193,7 @@ export default function AffiliateDashboard() {
             </main>
 
 
+            <Footer />
         </div>
     );
 }

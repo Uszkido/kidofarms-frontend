@@ -1,6 +1,8 @@
 "use client";
 
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Users, TrendingUp, DollarSign, ArrowRight, CheckCircle2, Share2, Award, Zap } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -29,6 +31,7 @@ export default function AffiliateLanding() {
 
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
 
 
             <main className="flex-grow pt-32 pb-24">
