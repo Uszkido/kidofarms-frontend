@@ -1,5 +1,7 @@
 "use client";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import { Trash2, ShoppingBag, ArrowRight } from "lucide-react";
 import Image from "next/image";
@@ -11,6 +13,7 @@ export default function CartPage() {
     if (cart.length === 0) {
         return (
             <div className="flex flex-col min-h-screen">
+                <Header />
                 <main className="flex-grow flex items-center justify-center py-32">
                     <div className="text-center space-y-8">
                         <div className="w-32 h-32 bg-cream rounded-full flex items-center justify-center mx-auto text-primary/20">
@@ -25,12 +28,14 @@ export default function CartPage() {
                         </Link>
                     </div>
                 </main>
+                <Footer />
             </div>
         );
     }
 
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
                     <h1 className="text-5xl font-bold font-serif mb-12">Your Shopping Cart</h1>
@@ -100,6 +105,7 @@ export default function CartPage() {
                     </div>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

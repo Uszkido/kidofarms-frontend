@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { useSession } from "next-auth/react";
 import {
     ShieldCheck,
@@ -65,6 +67,7 @@ export default function CheckoutPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
                     <h1 className="text-5xl font-bold font-serif mb-12">Checkout</h1>
@@ -181,6 +184,7 @@ export default function CheckoutPage() {
                     </div>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

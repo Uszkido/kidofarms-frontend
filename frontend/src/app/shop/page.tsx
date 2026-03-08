@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag } from "lucide-react";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -44,6 +46,7 @@ export default function ShopPage() {
     }, [selectedCategory]);
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:row justify-between items-start md:items-end mb-12 gap-6">
@@ -178,6 +181,7 @@ export default function ShopPage() {
                     </div>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }
