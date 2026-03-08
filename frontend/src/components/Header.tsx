@@ -49,7 +49,7 @@ export const Header = async () => {
                             <Link
                                 href={
                                     (session.user as any).role === "admin" ? "/admin" :
-                                        (session.user as any).role === "farmer" ? "/dashboard/vendor" :
+                                        (session.user as any).role === "farmer" ? "/dashboard/farmer" :
                                             (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
                                                 "/dashboard/consumer"
                                 }
