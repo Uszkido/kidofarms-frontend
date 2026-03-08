@@ -37,10 +37,19 @@ app.get('/api/debug-db', async (req, res) => {
         const urlPeek = hasUrl ? `${process.env.DATABASE_URL.substring(0, 15)}...` : 'not-set';
 
         let dbStatus = 'waiting';
+        let tables = [];
         if (hasUrl) {
             try {
                 await db.execute(require('drizzle-orm').sql`SELECT 1`);
                 dbStatus = 'connected';
+
+                // List tables
+                const result = await db.execute(require('drizzle-orm').sql`
+                    SELECT table_name 
+                    FROM information_schema.tables 
+                    WHERE table_schema = 'public'
+                `);
+                tables = result.rows.map(r => r.table_name);
             } catch (e) {
                 dbStatus = `failed: ${e.message}`;
             }
@@ -50,8 +59,8 @@ app.get('/api/debug-db', async (req, res) => {
             hasUrl,
             urlPeek,
             dbStatus,
-            nodeVersion: process.version,
-            envKeys: Object.keys(process.env).filter(k => !k.includes('SECRET') && !k.includes('PASSWORD') && !k.includes('TOKEN'))
+            tables,
+            nodeVersion: process.version
         });
     } catch (error) {
         res.status(500).json({ error: error.message });
