@@ -12,19 +12,19 @@ export const Header = async () => {
     return (
         <header className="bg-primary text-white py-5 sticky top-0 z-[60] shadow-2xl border-b border-white/5">
             <div className="container mx-auto px-6 flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-3 group">
-                    <div className="relative w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 overflow-hidden">
+                <Link href="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
+                    <div className="relative w-10 h-10 md:w-12 md:h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 overflow-hidden">
                         <Image
                             src="/logo.svg"
                             alt="Kido Farms Logo"
                             fill
-                            className="p-2 object-contain filter brightness-0 invert"
+                            className="p-1.5 md:p-2 object-contain filter brightness-0 invert"
                             priority
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
-                        <span className="text-[8px] font-black uppercase tracking-[0.4em] text-secondary">Network System</span>
+                        <span className="text-lg md:text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
+                        <span className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.4em] text-secondary">Network System</span>
                     </div>
                 </Link>
 
@@ -43,9 +43,9 @@ export const Header = async () => {
                     )}
                 </nav>
 
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2 md:gap-6">
                     {session ? (
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                             <Link
                                 href={
                                     (session.user as any).role === "admin" ? "/admin" :
@@ -53,29 +53,31 @@ export const Header = async () => {
                                             (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
                                                 "/dashboard/consumer"
                                 }
-                                className="flex items-center gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-6 py-3 rounded-full transition-all border border-white/10 shadow-lg group max-w-[200px]"
+                                className="flex items-center gap-2 md:gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-4 md:px-6 py-2 md:py-3 rounded-full transition-all border border-white/10 shadow-lg group max-w-[120px] md:max-w-[200px]"
                             >
-                                <div className="shrink-0 w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
-                                    <User size={18} />
+                                <div className="shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
+                                    <User size={14} className="md:size-[18px]" />
                                 </div>
-                                <span className="text-sm font-black tracking-tight truncate">
-                                    {session.user?.name || session.user?.email || "Kido User"}
+                                <span className="text-xs md:text-sm font-black tracking-tight truncate">
+                                    {session.user?.name || session.user?.email || "User"}
                                 </span>
                             </Link>
-                            <LogoutButton />
+                            <div className="hidden md:block">
+                                <LogoutButton />
+                            </div>
                         </div>
                     ) : (
-                        <Link href="/login" className="flex items-center gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-6 py-3 rounded-full transition-all border border-white/10 shadow-lg group">
-                            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
-                                <User size={18} />
+                        <Link href="/login" className="flex items-center gap-2 md:gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-4 md:px-6 py-2 md:py-3 rounded-full transition-all border border-white/10 shadow-lg group">
+                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all">
+                                <User size={14} className="md:size-[18px]" />
                             </div>
-                            <span className="text-sm font-black tracking-tight">Login / Signup</span>
+                            <span className="text-xs md:text-sm font-black tracking-tight">Login</span>
                         </Link>
                     )}
 
                     <CartCount />
-                    <button className="lg:hidden p-2">
-                        <Menu size={28} />
+                    <button className="lg:hidden p-1">
+                        <Menu size={24} />
                     </button>
                 </div>
             </div>

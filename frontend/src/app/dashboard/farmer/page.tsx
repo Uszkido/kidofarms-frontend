@@ -27,24 +27,24 @@ export default function FarmerDashboard() {
                     <div className="max-w-6xl mx-auto space-y-12">
 
                         {/* Hero Section */}
-                        <div className="relative h-[400px] rounded-[4rem] overflow-hidden shadow-2xl group">
+                        <div className="relative h-[300px] md:h-[400px] rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-2xl group">
                             <img
                                 src="file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/farm_harvest_dashboard_hero_1772965399553.png"
                                 alt="Farm Harvest"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[5000ms]"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent" />
-                            <div className="absolute bottom-12 left-12 right-12 flex flex-col md:flex-row justify-between items-end gap-8">
-                                <div className="space-y-4">
-                                    <div className="inline-flex items-center gap-2 bg-secondary text-primary px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
-                                        <Sprout size={12} strokeWidth={3} />
+                            <div className="absolute bottom-6 md:bottom-12 left-6 md:left-12 right-6 md:right-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8">
+                                <div className="space-y-3 md:space-y-4">
+                                    <div className="inline-flex items-center gap-2 bg-secondary text-primary px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[8px] md:text-[10px] font-black uppercase tracking-widest shadow-xl">
+                                        <Sprout className="w-2.5 h-2.5 md:w-3 md:h-3" strokeWidth={3} />
                                         Soil Integrity Verified
                                     </div>
-                                    <h1 className="text-6xl font-black font-serif text-white leading-tight">Farmer <br /><span className="text-secondary italic">Command Center</span></h1>
+                                    <h1 className="text-3xl md:text-6xl font-black font-serif text-white leading-tight">Farmer <br /><span className="text-secondary italic">Command Center</span></h1>
                                 </div>
-                                <div className="flex gap-4">
-                                    <Link href="/admin/inventory/new" className="bg-white text-primary px-8 py-5 rounded-2xl font-black text-sm hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center gap-3">
-                                        <Plus size={18} /> List New Harvest
+                                <div className="flex gap-4 w-full md:w-auto">
+                                    <Link href="/admin/inventory/new" className="bg-white text-primary px-6 md:px-8 py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black text-xs md:text-sm hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center justify-center gap-3 w-full md:w-auto">
+                                        <Plus className="w-4 h-4 md:w-5 md:h-5" /> List New Harvest
                                     </Link>
                                 </div>
                             </div>

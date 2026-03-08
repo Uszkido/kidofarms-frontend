@@ -93,15 +93,15 @@ export default async function Home() {
         <div className="bg-primary/95 backdrop-blur-xl border-b border-white/10 py-3 sticky top-20 z-50 shadow-2xl">
           <div className="container mx-auto px-6">
             <div className="max-w-4xl mx-auto relative group">
-              <div className="absolute inset-y-0 left-6 flex items-center pointer-events-none">
-                <Search size={20} className="text-secondary" />
+              <div className="absolute inset-y-0 left-4 md:left-6 flex items-center pointer-events-none">
+                <Search size={18} className="text-secondary" />
               </div>
               <input
                 type="text"
-                placeholder="Search for organic vegetables, fresh fishes, or seasonal fruits..."
-                className="w-full bg-white/10 border border-white/20 rounded-full py-4 pl-16 pr-32 text-white placeholder:text-white/40 focus:bg-white focus:text-primary focus:ring-4 focus:ring-secondary/20 transition-all outline-none text-lg font-medium"
+                placeholder="Search organic..."
+                className="w-full bg-white/10 border border-white/20 rounded-full py-3 md:py-4 pl-12 md:pl-16 pr-24 md:pr-32 text-white placeholder:text-white/40 focus:bg-white focus:text-primary focus:ring-4 focus:ring-secondary/20 transition-all outline-none text-sm md:text-lg font-medium"
               />
-              <button className="absolute right-2 top-2 bottom-2 bg-secondary text-primary px-8 rounded-full font-bold text-sm hover:bg-white transition-all">
+              <button className="absolute right-1.5 md:right-2 top-1.5 md:top-2 bottom-1.5 md:bottom-2 bg-secondary text-primary px-4 md:px-8 rounded-full font-bold text-xs md:text-sm hover:bg-white transition-all">
                 Search
               </button>
             </div>
@@ -118,23 +118,23 @@ export default async function Home() {
             priority
           />
           <div className="container mx-auto px-6 relative z-10">
-            <div className="max-w-4xl space-y-8">
-              <div className="inline-flex items-center gap-3 bg-secondary/90 backdrop-blur-md px-5 py-2.5 rounded-full text-primary font-black text-xs uppercase tracking-[0.2em] shadow-xl">
+            <div className="max-w-4xl space-y-6 md:space-y-8">
+              <div className="inline-flex items-center gap-2 md:gap-3 bg-secondary/90 backdrop-blur-md px-4 md:px-5 py-2 md:py-2.5 rounded-full text-primary font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-xl">
                 {hero.badge}
               </div>
-              <h1 className="text-7xl md:text-9xl font-black font-serif text-white leading-[0.9] tracking-tighter">
+              <h1 className="text-5xl md:text-7xl lg:text-9xl font-black font-serif text-white leading-[0.9] tracking-tighter">
                 {hero.title} <br />
                 <span className="text-secondary italic">{hero.titleItalic}</span>
               </h1>
-              <p className="text-2xl text-cream/90 max-w-2xl leading-relaxed font-medium">
+              <p className="text-lg md:text-2xl text-cream/90 max-w-2xl leading-relaxed font-medium">
                 {hero.subtitle}
               </p>
-              <div className="flex flex-wrap gap-5 pt-6">
-                <Link href={hero.btn1Link} className="bg-secondary text-primary px-12 py-6 rounded-2xl font-black text-xl transition-all hover:bg-white flex items-center gap-3 shadow-[0_20px_50px_rgba(190,160,78,0.3)] hover:-translate-y-1">
+              <div className="flex flex-wrap gap-4 md:gap-5 pt-4 md:pt-6">
+                <Link href={hero.btn1Link} className="bg-secondary text-primary px-8 md:px-12 py-4 md:py-6 rounded-2xl font-black text-lg md:text-xl transition-all hover:bg-white flex items-center gap-3 shadow-[0_20px_50px_rgba(190,160,78,0.3)] hover:-translate-y-1">
                   {hero.btn1Text}
-                  <ArrowRight size={24} strokeWidth={3} />
+                  <ArrowRight className="w-5 h-5 md:w-6 md:h-6" strokeWidth={3} />
                 </Link>
-                <Link href={hero.btn2Link} className="bg-white/5 backdrop-blur-xl border-2 border-white/20 text-white px-12 py-6 rounded-2xl font-black text-xl transition-all hover:bg-white/10 flex items-center gap-3">
+                <Link href={hero.btn2Link} className="bg-white/5 backdrop-blur-xl border-2 border-white/20 text-white px-8 md:px-12 py-4 md:py-6 rounded-2xl font-black text-lg md:text-xl transition-all hover:bg-white/10 flex items-center gap-3">
                   {hero.btn2Text}
                 </Link>
               </div>
