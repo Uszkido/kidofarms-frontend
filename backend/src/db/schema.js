@@ -12,7 +12,7 @@ const {
 const { relations } = require("drizzle-orm");
 
 // Enums
-const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber"]);
+const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate"]);
 const unitEnum = pgEnum("unit", ["kg", "basket", "piece"]);
 const paymentMethodEnum = pgEnum("payment_method", ["card", "transfer", "cash"]);
 const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
@@ -113,6 +113,7 @@ const orders = pgTable("orders", {
     paymentMethod: paymentMethodEnum("payment_method").default("card"),
     paymentStatus: paymentStatusEnum("payment_status").default("pending"),
     orderStatus: orderStatusEnum("order_status").default("processing"),
+    referralCode: text("referral_code"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -147,7 +148,6 @@ const vendors = pgTable("vendors", {
     categories: jsonb("categories").default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
-
 // Farmers Table (Agricultural-specific details)
 const farmers = pgTable("farmers", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -164,6 +164,26 @@ const farmers = pgTable("farmers", {
     accountNumber: text("account_number"),
     accountName: text("account_name"),
     status: text("status").default("pending"), // pending, approved, suspended
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Affiliates Table
+const affiliates = pgTable("affiliates", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    referralCode: text("referral_code").notNull().unique(),
+    status: text("status").default("pending"), // pending, active, suspended
+    commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("5.00"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Commissions Table
+const commissions = pgTable("commissions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    affiliateId: uuid("affiliate_id").references(() => affiliates.id).notNull(),
+    orderId: uuid("order_id").references(() => orders.id).notNull(),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    status: text("status").default("pending"), // pending, paid
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -272,6 +292,8 @@ module.exports = {
     landingSections,
     harvests,
     userCards,
+    affiliates,
+    commissions,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,
