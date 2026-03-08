@@ -36,8 +36,12 @@ router.post('/login', async (req, res) => {
 
 router.post('/signup', async (req, res) => {
     try {
-        const { name, email, password, phone } = req.body;
+        const { name, email, password, phone, role } = req.body;
         if (!name || !email || !password) return res.status(400).json({ error: 'Missing fields' });
+
+        // Role Validation
+        const allowedRoles = ['customer', 'farmer', 'subscriber'];
+        const validatedRole = allowedRoles.includes(role) ? role : 'customer';
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const [user] = await db.insert(users).values({
@@ -45,7 +49,7 @@ router.post('/signup', async (req, res) => {
             email,
             password: hashedPassword,
             phone,
-            role: 'customer'
+            role: validatedRole
         }).returning();
 
         res.status(201).json(user);
