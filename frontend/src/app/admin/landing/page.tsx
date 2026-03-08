@@ -1,4 +1,5 @@
 "use client";
+// Build Trigger: v1.0.1 - Ensuring lowercase API endpoints
 
 import { useState, useEffect } from "react";
 import {
