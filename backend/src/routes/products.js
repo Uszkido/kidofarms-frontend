@@ -82,4 +82,67 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.post('/init', async (req, res) => {
+    try {
+        const count = await db.select().from(products);
+        if (count.length === 0) {
+            const initialProducts = [
+                {
+                    name: "Bulbous Onions (5kg)",
+                    price: "4500",
+                    description: "Freshly harvested organic bulbous onions from our Kano fields.",
+                    category: "Vegetables",
+                    images: ["https://images.unsplash.com/photo-1508747703725-719777637510?q=80&w=2000"],
+                    farmSource: "Kano Valley Organics",
+                    origin: "Kano",
+                    rating: "4.9",
+                    isFeatured: true,
+                    stock: 500
+                },
+                {
+                    name: "Organic Strawberries",
+                    price: "12000",
+                    description: "Juicy, hand-picked strawberries from the cool highlands of Jos.",
+                    category: "Fruits",
+                    images: ["https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=2000"],
+                    farmSource: "Plateau Greens",
+                    origin: "Jos",
+                    rating: "5.0",
+                    isFeatured: true,
+                    stock: 100
+                },
+                {
+                    name: "Fresh Catfish (Large)",
+                    price: "3500",
+                    description: "Live catfish harvested from sustainable Jos ponds.",
+                    category: "Fishes",
+                    images: ["https://images.unsplash.com/photo-1555074213-911855e4be62?q=80&w=2000"],
+                    farmSource: "Kido Fishery",
+                    origin: "Jos",
+                    rating: "4.8",
+                    isFeatured: true,
+                    stock: 200
+                },
+                {
+                    name: "Benue Yams (King Size)",
+                    price: "15000",
+                    description: "Premium poundable yams directly from Benue riverbanks.",
+                    category: "Grains",
+                    images: ["https://images.unsplash.com/photo-1596450514735-2d937089146a?q=80&w=2000"],
+                    farmSource: "Riverbank Farms",
+                    origin: "Benue",
+                    rating: "4.7",
+                    isFeatured: true,
+                    stock: 80
+                }
+            ];
+            await db.insert(products).values(initialProducts);
+        }
+        res.json({ message: 'Products initialized' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed' });
+    }
+});
+
 module.exports = router;
