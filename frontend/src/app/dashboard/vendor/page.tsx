@@ -1,6 +1,3 @@
-"use client";
-
-
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { LayoutDashboard, ShoppingBag, TrendingUp, Users, Plus, Star, MapPin, Bell } from "lucide-react";
