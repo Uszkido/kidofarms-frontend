@@ -97,6 +97,7 @@ const products = pgTable("products", {
     rating: numeric("rating", { precision: 3, scale: 2 }).default("0"),
     numReviews: integer("num_reviews").default(0),
     isFeatured: boolean("is_featured").default(false),
+    trackingId: text("tracking_id").unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -134,7 +135,7 @@ const reviews = pgTable("reviews", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Vendors Table (Farmer details)
+// Vendors Table (General business details)
 const vendors = pgTable("vendors", {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id).notNull().unique(),
@@ -144,6 +145,25 @@ const vendors = pgTable("vendors", {
     status: text("status").default("pending"), // pending, approved, suspended
     commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("10.00"),
     categories: jsonb("categories").default([]),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Farmers Table (Agricultural-specific details)
+const farmers = pgTable("farmers", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    farmName: text("farm_name").notNull(),
+    farmLocationState: text("farm_location_state").notNull(),
+    farmLocationLga: text("farm_location_lga").notNull(),
+    farmSize: text("farm_size"), // e.g., Acres or Hectares
+    farmingType: text("farming_type"), // Crop Farming, Livestock, Mixed
+    primaryProduce: text("primary_produce"),
+    isOrganicCertified: boolean("is_organic_certified").default(false),
+    yearsOfExperience: integer("years_of_experience"),
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
+    status: text("status").default("pending"), // pending, approved, suspended
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -190,6 +210,17 @@ const landingSections = pgTable("landing_sections", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// User Cards Table
+const userCards = pgTable("user_cards", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    cardBrand: text("card_brand").notNull(), // Visa, Mastercard, etc.
+    last4: text("last4").notNull(),
+    expiry: text("expiry").notNull(),
+    isDefault: boolean("is_default").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Relations
 const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     author: one(users, {
@@ -204,11 +235,22 @@ const usersRelations = relations(users, ({ many, one }) => ({
         fields: [users.id],
         references: [vendors.userId],
     }),
+    farmer: one(farmers, {
+        fields: [users.id],
+        references: [farmers.userId],
+    }),
 }));
 
 const vendorsRelations = relations(vendors, ({ one }) => ({
     user: one(users, {
         fields: [vendors.userId],
+        references: [users.id],
+    }),
+}));
+
+const farmersRelations = relations(farmers, ({ one }) => ({
+    user: one(users, {
+        fields: [farmers.userId],
         references: [users.id],
     }),
 }));
@@ -223,14 +265,17 @@ module.exports = {
     orderItems,
     reviews,
     vendors,
+    farmers,
     coupons,
     activityLogs,
     settings,
     landingSections,
     harvests,
+    userCards,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,
+    farmersRelations,
     roleEnum,
     unitEnum,
     paymentMethodEnum,

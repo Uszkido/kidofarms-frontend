@@ -18,6 +18,7 @@ interface Product {
     farmSource?: string;
     origin?: string;
     rating: string;
+    trackingId?: string;
 }
 
 interface Category {
@@ -96,8 +97,8 @@ export default function MarketplacePage() {
                                         <button
                                             onClick={() => setSelectedCategory("All")}
                                             className={`px-6 py-3 rounded-2xl text-left text-sm font-bold transition-all ${selectedCategory === "All"
-                                                    ? "bg-secondary text-primary shadow-lg shadow-secondary/20"
-                                                    : "bg-white text-primary/40 hover:bg-cream"
+                                                ? "bg-secondary text-primary shadow-lg shadow-secondary/20"
+                                                : "bg-white text-primary/40 hover:bg-cream"
                                                 }`}
                                         >
                                             All Products
@@ -107,8 +108,8 @@ export default function MarketplacePage() {
                                                 key={cat.id}
                                                 onClick={() => setSelectedCategory(cat.name)}
                                                 className={`px-6 py-3 rounded-2xl text-left text-sm font-bold transition-all ${selectedCategory === cat.name
-                                                        ? "bg-secondary text-primary shadow-lg shadow-secondary/20"
-                                                        : "bg-white text-primary/40 hover:bg-cream"
+                                                    ? "bg-secondary text-primary shadow-lg shadow-secondary/20"
+                                                    : "bg-white text-primary/40 hover:bg-cream"
                                                     }`}
                                             >
                                                 {cat.name}
@@ -197,6 +198,11 @@ export default function MarketplacePage() {
                                                 <div className="absolute top-4 right-4 bg-secondary px-3 py-1 rounded-full text-[10px] font-bold text-primary shadow-sm">
                                                     {item.category}
                                                 </div>
+                                                {item.trackingId && (
+                                                    <div className="absolute bottom-4 left-4 bg-primary/80 backdrop-blur-sm px-2 py-1 rounded text-[8px] font-black text-white border border-white/10 uppercase tracking-tighter">
+                                                        Track: {item.trackingId}
+                                                    </div>
+                                                )}
                                             </div>
                                             <div className="p-8 space-y-4">
                                                 <div className="h-20">
@@ -239,11 +245,16 @@ export default function MarketplacePage() {
                                 <div className="absolute top-0 right-0 w-1/2 h-full bg-white/5 -skew-x-12 translate-x-1/4" />
                                 <div className="relative z-10 grid md:grid-cols-2 items-center gap-12">
                                     <div className="space-y-6">
-                                        <h2 className="text-4xl font-bold font-serif leading-tight">Become a Registered <br />Kido Farms Farmer</h2>
-                                        <p className="text-cream/60">Join over 450 farmers reaching thousands of customers directly. Take control of your harvest sales.</p>
-                                        <Link href="/register/vendor" className="inline-block bg-secondary text-primary px-8 py-4 rounded-full font-bold hover:bg-white transition-all text-center">
-                                            Apply Today
-                                        </Link>
+                                        <h2 className="text-4xl font-bold font-serif leading-tight">Become a Registered <br />Kido Farms Partner</h2>
+                                        <p className="text-cream/60">Join over 450 farmers and vendors reaching thousands of customers directly. Take control of your sales.</p>
+                                        <div className="flex flex-wrap gap-4">
+                                            <Link href="/register/farmer" className="inline-block bg-secondary text-primary px-8 py-4 rounded-full font-bold hover:bg-white transition-all text-center">
+                                                Apply as Farmer
+                                            </Link>
+                                            <Link href="/register/vendor" className="inline-block border-2 border-secondary/50 text-white px-8 py-4 rounded-full font-bold hover:bg-white/10 transition-all text-center">
+                                                Apply as Vendor
+                                            </Link>
+                                        </div>
                                     </div>
                                     <div className="hidden md:flex justify-end">
                                         <div className="w-48 h-48 rounded-[3rem] border-4 border-secondary flex items-center justify-center text-secondary rotate-12">

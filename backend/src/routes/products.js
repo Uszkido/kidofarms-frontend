@@ -3,6 +3,9 @@ const router = express.Router();
 const { db } = require('../db');
 const { products } = require('../db/schema');
 const { eq, and, desc } = require('drizzle-orm');
+const crypto = require('crypto');
+
+const generateTrackingId = () => `KD-PROD-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
 
 // GET /api/products
 router.get('/', async (req, res) => {
@@ -49,6 +52,7 @@ router.post('/', async (req, res) => {
             ...body,
             price: body.price.toString(),
             stock: parseInt(body.stock) || 0,
+            trackingId: generateTrackingId(),
         };
         const [product] = await db.insert(products).values(payload).returning();
         res.status(201).json(product);
@@ -133,9 +137,10 @@ router.post('/init', async (req, res) => {
                     origin: "Benue",
                     rating: "4.7",
                     isFeatured: true,
-                    stock: 80
+                    stock: 80,
+                    trackingId: generateTrackingId()
                 }
-            ];
+            ].map(p => ({ ...p, trackingId: p.trackingId || generateTrackingId() }));
             await db.insert(products).values(initialProducts);
         }
         res.json({ message: 'Products initialized' });

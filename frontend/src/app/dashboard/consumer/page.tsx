@@ -2,7 +2,7 @@
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight } from "lucide-react";
+import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight, CreditCard, ShieldCheck, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function ConsumerDashboard() {
@@ -86,7 +86,7 @@ export default function ConsumerDashboard() {
                                                 <div className="w-16 h-16 bg-cream rounded-2xl flex items-center justify-center font-black text-primary/20">📦</div>
                                                 <div>
                                                     <h4 className="font-bold text-lg group-hover:text-secondary transition-colors">{item.name}</h4>
-                                                    <p className="text-xs text-primary/40 font-medium">Quantity: {item.qty}</p>
+                                                    <p className="text-xs text-primary/40 font-medium line-clamp-2 mt-2">{item.description}</p>
                                                 </div>
                                             </div>
                                             <span className="font-black text-lg">{item.price}</span>
@@ -134,6 +134,89 @@ export default function ConsumerDashboard() {
                                                 </div>
                                             </div>
                                         ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Payment Methods Section */}
+                        <div className="space-y-6 pt-12 border-t border-primary/5">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-3xl font-black font-serif">Saved <span className="text-secondary italic">Cards</span></h2>
+                                <button className="bg-primary text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg flex items-center gap-2">
+                                    <Plus className="w-4 h-4" /> Add New Card
+                                </button>
+                            </div>
+
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {/* Sample Visa Card */}
+                                <div className="relative h-60 rounded-[3rem] bg-gradient-to-br from-gray-900 to-black p-10 text-white shadow-2xl overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                                    <div className="relative z-10 h-full flex flex-col justify-between">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex flex-col">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Card Brand</p>
+                                                <p className="text-xl font-black italic tracking-tighter">VISA</p>
+                                            </div>
+                                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/5">
+                                                <CreditCard className="text-secondary" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-2xl font-mono tracking-[0.2em] mb-4">•••• •••• •••• 4592</p>
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Card Holder</p>
+                                                    <p className="text-sm font-bold truncate max-w-[150px]">KIDO EXPLORER</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Expires</p>
+                                                    <p className="text-sm font-bold">12/28</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-x-0 bottom-0 h-2 bg-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+
+                                {/* Sample Mastercard */}
+                                <div className="relative h-60 rounded-[3rem] bg-gradient-to-br from-secondary to-secondary/80 p-10 text-primary shadow-2xl overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+                                    <div className="relative z-10 h-full flex flex-col justify-between">
+                                        <div className="flex justify-between items-start">
+                                            <div className="flex flex-col">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">Card Brand</p>
+                                                <p className="text-xl font-black italic tracking-tighter">Mastercard</p>
+                                            </div>
+                                            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-primary/5">
+                                                <ShieldCheck className="text-primary" />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-2xl font-mono tracking-[0.2em] mb-4">•••• •••• •••• 8201</p>
+                                            <div className="flex justify-between items-end">
+                                                <div>
+                                                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/20">Card Holder</p>
+                                                    <p className="text-sm font-bold">KIDO EXPLORER</p>
+                                                </div>
+                                                <div className="text-right">
+                                                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/20">Expires</p>
+                                                    <p className="text-sm font-bold">08/29</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-x-0 bottom-0 h-2 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+
+                                {/* Save Card CTA */}
+                                <div className="h-60 rounded-[3rem] border-4 border-dashed border-primary/10 bg-cream/10 flex flex-col items-center justify-center p-10 gap-4 group hover:border-secondary transition-all cursor-pointer hover:bg-secondary/5">
+                                    <div className="w-20 h-20 rounded-full bg-cream flex items-center justify-center text-primary/10 group-hover:bg-secondary group-hover:text-primary group-hover:scale-110 transition-all shadow-inner">
+                                        <Plus className="w-10 h-10" />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-black text-sm uppercase tracking-widest">Save Tag-ID Card</p>
+                                        <p className="text-[10px] text-primary/30 font-bold">Instantly pay with physical ID</p>
                                     </div>
                                 </div>
                             </div>
