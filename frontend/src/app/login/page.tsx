@@ -61,7 +61,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
             await signIn("credentials", { redirect: false, email: form.email, password: form.password });
 
             // Redirect based on role
-            const redirectPath = role === "farmer" ? "/dashboard/vendor" :
+            const redirectPath = role === "farmer" ? "/dashboard/farmer" :
                 role === "subscriber" ? "/dashboard/subscriber" :
                     "/dashboard/consumer";
             router.push(redirectPath);
