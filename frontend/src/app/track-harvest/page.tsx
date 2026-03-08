@@ -70,61 +70,61 @@ export default function TrackHarvestPage() {
                         ) : (
                             <div className="space-y-8">
                                 {harvests.map((harvest) => (
-                                    <div key={harvest.id} className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-xl hover:shadow-2xl transition-all group overflow-hidden relative">
-                                        <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 -translate-y-1/2 translate-x-1/2 rounded-full blur-3xl group-hover:bg-secondary/10 transition-colors" />
+                                    <div key={harvest.id} className="bg-white rounded-[4rem] border border-primary/5 shadow-xl hover:shadow-2xl transition-all group overflow-hidden flex flex-col md:flex-row">
+                                        {/* Image Section */}
+                                        <div className="md:w-1/3 h-64 md:h-auto relative overflow-hidden shrink-0">
+                                            <img
+                                                src={harvest.cropName.includes('Maize')
+                                                    ? "file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/track_harvest_maize_field_1772965531213.png"
+                                                    : harvest.cropName.includes('Habanero')
+                                                        ? "file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/track_harvest_habanero_peppers_1772965549394.png"
+                                                        : "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80"}
+                                                alt={harvest.cropName}
+                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[5000ms]"
+                                            />
+                                            <div className="absolute top-6 left-6">
+                                                <span className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest shadow-2xl ${getStatusColor(harvest.status)}`}>
+                                                    {harvest.status}
+                                                </span>
+                                            </div>
+                                        </div>
 
-                                        <div className="grid md:grid-cols-3 gap-10 items-center relative z-10">
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="w-12 h-12 rounded-2xl bg-cream flex items-center justify-center text-primary group-hover:bg-secondary group-hover:scale-110 transition-all">
-                                                        <Leaf size={24} />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-2xl font-black font-serif">{harvest.cropName}</h3>
-                                                        <p className="text-xs font-bold text-primary/40 uppercase tracking-widest">at {harvest.farmName}</p>
+                                        {/* Content Section */}
+                                        <div className="p-10 flex-grow space-y-8">
+                                            <div className="flex justify-between items-start">
+                                                <div className="space-y-2">
+                                                    <h3 className="text-3xl font-black font-serif text-primary">{harvest.cropName}</h3>
+                                                    <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                                                        <div className="flex items-center gap-1"><MapPin size={12} className="text-secondary" /> {harvest.region} Node</div>
+                                                        <div className="flex items-center gap-1"><Calendar size={12} className="text-secondary" /> Ready: {new Date(harvest.estimatedReadyDate).toLocaleDateString()}</div>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-4 text-xs font-bold text-primary/60">
-                                                    <div className="flex items-center gap-1"><MapPin size={14} className="text-secondary" /> {harvest.region}</div>
-                                                    <div className="flex items-center gap-1"><Calendar size={14} className="text-secondary" /> Est. Ready: {new Date(harvest.estimatedReadyDate).toLocaleDateString()}</div>
+                                                <div className="text-right">
+                                                    <span className="text-4xl font-black font-serif text-primary">{harvest.progress}%</span>
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Growth Cycle</p>
                                                 </div>
                                             </div>
 
                                             <div className="space-y-4">
-                                                <div className="flex justify-between items-end">
-                                                    <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ${getStatusColor(harvest.status)}`}>
-                                                        {harvest.status}
-                                                    </span>
-                                                    <span className="text-3xl font-black font-serif text-primary">{harvest.progress}%</span>
-                                                </div>
                                                 <div className="w-full h-4 bg-cream rounded-full overflow-hidden border border-primary/5 p-1 shadow-inner">
                                                     <div
-                                                        className="h-full bg-secondary rounded-full transition-all duration-[2000ms] ease-out shadow-lg"
+                                                        className="h-full bg-secondary rounded-full transition-all duration-[2000ms] shadow-lg"
                                                         style={{ width: `${harvest.progress}%` }}
                                                     />
                                                 </div>
                                             </div>
 
-                                            <div className="flex justify-end">
-                                                <button className="bg-primary text-white p-6 rounded-[2rem] hover:bg-secondary hover:text-primary transition-all shadow-xl flex flex-col items-center gap-2 group/btn">
-                                                    <ShieldCheck size={32} strokeWidth={1.5} />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest">Verified</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-10 pt-10 border-t border-primary/5 flex flex-wrap gap-8 justify-between items-center opacity-60 group-hover:opacity-100 transition-opacity">
-                                            <div className="flex items-center gap-4">
-                                                <div className="flex -space-x-3">
-                                                    {[1, 2, 3].map(i => (
-                                                        <div key={i} className="w-8 h-8 rounded-full border-2 border-white bg-cream flex items-center justify-center text-[10px] font-black">👤</div>
-                                                    ))}
+                                            <div className="flex justify-between items-center pt-6 border-t border-primary/5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-secondary shadow-lg">
+                                                        <ShieldCheck size={20} />
+                                                    </div>
+                                                    <p className="text-[9px] font-black uppercase tracking-widest text-primary/60">Kido Verified <br />Organic Origin</p>
                                                 </div>
-                                                <span className="text-[10px] font-black uppercase tracking-widest">Registered Farmers Monitoring</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <TrendingUp size={16} className="text-green-500" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-green-600">Yield Optimization Active</span>
+                                                <div className="flex items-center gap-2">
+                                                    <TrendingUp size={16} className="text-green-500" />
+                                                    <span className="text-[9px] font-black uppercase tracking-widest text-green-600">Cycle Active</span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
