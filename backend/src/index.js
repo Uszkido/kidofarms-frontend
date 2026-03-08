@@ -30,43 +30,6 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Kido Farms API is running' });
 });
 
-// Diagnostic endpoint
-app.get('/api/debug-db', async (req, res) => {
-    try {
-        const hasUrl = !!process.env.DATABASE_URL;
-        const urlPeek = hasUrl ? `${process.env.DATABASE_URL.substring(0, 15)}...` : 'not-set';
-
-        let dbStatus = 'waiting';
-        let tables = [];
-        if (hasUrl) {
-            try {
-                await db.execute(require('drizzle-orm').sql`SELECT 1`);
-                dbStatus = 'connected';
-
-                // List tables
-                const result = await db.execute(require('drizzle-orm').sql`
-                    SELECT table_name 
-                    FROM information_schema.tables 
-                    WHERE table_schema = 'public'
-                `);
-                tables = result.rows.map(r => r.table_name);
-            } catch (e) {
-                dbStatus = `failed: ${e.message}`;
-            }
-        }
-
-        res.json({
-            hasUrl,
-            urlPeek,
-            dbStatus,
-            tables,
-            nodeVersion: process.version
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
 // Routes
 app.use('/api/products', productsRoutes);
 app.use('/api/categories', categoriesRoutes);
