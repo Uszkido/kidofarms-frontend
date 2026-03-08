@@ -7,6 +7,12 @@ const { eq } = require('drizzle-orm');
 // Get all landing sections
 router.get('/', async (req, res) => {
     try {
+        if (!landingSections) {
+            console.error('CRITICAL: landingSections is undefined in the route!');
+            return res.status(500).json({ error: 'Internal Schema Error', details: 'landingSections table object is undefined' });
+        }
+
+        console.log('Fetching landing sections from DB...');
         const sections = await db.select().from(landingSections);
         const config = sections.reduce((acc, section) => {
             acc[section.id] = section.content;
