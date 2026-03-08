@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { orders, orderItems } = require('../db/schema');
-const { desc } = require('drizzle-orm');
+const { orders, orderItems, affiliates, commissions } = require('../db/schema');
+const { desc, eq } = require('drizzle-orm');
 
 router.get('/', async (req, res) => {
     try {
@@ -24,7 +24,7 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
     try {
-        const { items, totalAmount, street, city, state, zip, paymentMethod, userId } = req.body;
+        const { items, totalAmount, street, city, state, zip, paymentMethod, userId, referralCode } = req.body;
 
         const [order] = await db.insert(orders).values({
             userId,
@@ -34,8 +34,23 @@ router.post('/', async (req, res) => {
             city,
             state,
             zip,
-            paymentMethod
+            paymentMethod,
+            referralCode
         }).returning();
+
+        // Handle Referral Commission
+        if (referralCode) {
+            const affiliate = await db.select().from(affiliates).where(eq(affiliates.referralCode, referralCode)).limit(1);
+            if (affiliate.length > 0) {
+                const commissionAmount = (parseFloat(totalAmount) * (parseFloat(affiliate[0].commissionRate) / 100)).toFixed(2);
+                await db.insert(commissions).values({
+                    affiliateId: affiliate[0].id,
+                    orderId: order.id,
+                    amount: commissionAmount,
+                    status: 'pending'
+                });
+            }
+        }
 
         for (const item of items) {
             await db.insert(orderItems).values({
