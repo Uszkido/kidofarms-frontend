@@ -150,7 +150,8 @@ export default function FarmerDashboard() {
                 </div>
             </main>
 
-
+            <Footer />
         </div>
     );
 }
+

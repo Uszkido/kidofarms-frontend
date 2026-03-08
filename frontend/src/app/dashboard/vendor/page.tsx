@@ -1,13 +1,15 @@
 "use client";
 
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { LayoutDashboard, ShoppingBag, TrendingUp, Users, Plus, Star, MapPin, Bell } from "lucide-react";
 import Link from "next/link";
 
 export default function VendorDashboard() {
     return (
         <div className="flex flex-col min-h-screen">
-
+            <Header />
 
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
@@ -138,7 +140,8 @@ export default function VendorDashboard() {
                 </div>
             </main>
 
-
+            <Footer />
         </div>
     );
 }
+
