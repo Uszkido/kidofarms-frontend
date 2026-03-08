@@ -19,7 +19,7 @@
     "drizzle-orm": "^0.45.1",
     "framer-motion": "^12.35.1",
     "lucide-react": "^0.577.0",
-    "next": "15.2.4",
+    "next": "15.2.8",
     "next-auth": "^4.24.13",
     "next-cloudinary": "^6.17.5",
     "react": "18.3.1",
