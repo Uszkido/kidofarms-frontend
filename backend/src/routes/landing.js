@@ -7,12 +7,6 @@ const { eq } = require('drizzle-orm');
 // Get all landing sections
 router.get('/', async (req, res) => {
     try {
-        if (!landingSections) {
-            console.error('CRITICAL: landingSections is undefined in the route!');
-            return res.status(500).json({ error: 'Internal Schema Error', details: 'landingSections table object is undefined' });
-        }
-
-        console.log('Fetching landing sections from DB...');
         const sections = await db.select().from(landingSections);
         const config = sections.reduce((acc, section) => {
             acc[section.id] = section.content;
@@ -20,11 +14,9 @@ router.get('/', async (req, res) => {
         }, {});
         res.json(config);
     } catch (error) {
-        console.error('Landing API Error:', error);
+        console.error('Landing API Error:', error.message);
         res.status(500).json({
-            error: 'Failed to fetch landing content',
-            details: error.message,
-            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            error: 'Failed to fetch landing content'
         });
     }
 });
