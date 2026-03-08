@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Check, ArrowRight, Loader2, ShieldCheck, Truck } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
@@ -29,6 +31,7 @@ export default function SubscriptionPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow py-24">
                 <section className="py-24 bg-cream/30">
                     <div className="container mx-auto px-6">
@@ -107,6 +110,7 @@ export default function SubscriptionPage() {
                     </div>
                 </section>
             </main>
+            <Footer />
         </div>
     );
 }
