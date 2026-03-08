@@ -28,9 +28,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <ReferralTracker />
           </Suspense>
-          <Header />
           <main className="flex-grow">{children}</main>
-          <Footer />
         </Providers>
       </body>
     </html>
