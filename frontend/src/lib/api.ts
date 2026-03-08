@@ -2,8 +2,16 @@ export const getApiUrl = (path: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     // Ensure path starts with /
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
     // If path is an absolute URL (starts with http), return it as is
     if (path.startsWith('http')) return path;
+
+    // Safety: prevent relative URLs from pointing back to the frontend in production
+    // if NEXT_PUBLIC_API_URL is accidentally set to an empty string or relative path
+    if (!baseUrl.startsWith('http')) {
+        return `http://localhost:5000${cleanPath}`;
+    }
+
     return `${baseUrl}${cleanPath}`;
 };
 

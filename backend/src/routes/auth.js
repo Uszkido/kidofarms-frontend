@@ -60,4 +60,40 @@ router.post('/signup', async (req, res) => {
     }
 });
 
+router.post('/social-login', async (req, res) => {
+    try {
+        const { email, name, image } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+
+        let user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+
+        if (!user) {
+            // Create user if they don't exist
+            // Social users don't have a password, so we set a placeholder
+            // This is safe because they will always login via Google
+            const placeholderPassword = await bcrypt.hash(Math.random().toString(36), 10);
+            const [newUser] = await db.insert(users).values({
+                name: name || email.split('@')[0],
+                email,
+                password: placeholderPassword,
+                role: 'customer'
+            }).returning();
+            user = newUser;
+        }
+
+        const token = jwt.sign(
+            { id: user.id, role: user.role, name: user.name, email: user.email },
+            JWT_SECRET,
+            { expiresIn: '1d' }
+        );
+
+        res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
+    } catch (error) {
+        console.error('Social Login Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 module.exports = router;
