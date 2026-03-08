@@ -304,9 +304,9 @@ export default async function Home() {
                   <p className="text-xl text-cream/40 leading-relaxed font-medium">
                     {farmerCta.subtitle}
                   </p>
-                  <div className="flex gap-4">
-                    <Link href="/register/vendor" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-secondary transition-all">{farmerCta.btn1Text}</Link>
-                    <button className="border-2 border-white/20 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/10 transition-all">{farmerCta.btn2Text}</button>
+                  <div className="flex flex-wrap gap-4">
+                    <Link href="/register/farmer" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-lg hover:bg-secondary transition-all text-center">Register as Farmer</Link>
+                    <Link href="/register/vendor" className="border-2 border-white/20 text-white px-10 py-5 rounded-2xl font-black text-lg hover:bg-white/10 transition-all text-center">Register as Vendor</Link>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">

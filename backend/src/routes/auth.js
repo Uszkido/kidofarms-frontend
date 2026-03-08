@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users } = require('../db/schema');
+const { users, farmers } = require('../db/schema');
 const { eq } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -56,6 +56,57 @@ router.post('/signup', async (req, res) => {
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
         console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/signup/farmer', async (req, res) => {
+    try {
+        const {
+            name, email, password, phone,
+            farmName, farmLocationState, farmLocationLga, farmSize, farmingType, primaryProduce,
+            isOrganicCertified, yearsOfExperience, bankName, accountNumber, accountName
+        } = req.body;
+
+        if (!name || !email || !password || !farmName || !farmLocationState || !farmLocationLga) {
+            return res.status(400).json({ error: 'Missing required fields' });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Use a transaction since we are inserting into multiple tables
+        const result = await db.transaction(async (tx) => {
+            const [user] = await tx.insert(users).values({
+                name,
+                email,
+                password: hashedPassword,
+                phone,
+                role: 'farmer'
+            }).returning();
+
+            await tx.insert(farmers).values({
+                userId: user.id,
+                farmName,
+                farmLocationState,
+                farmLocationLga,
+                farmSize,
+                farmingType,
+                primaryProduce,
+                isOrganicCertified: isOrganicCertified || false,
+                yearsOfExperience: yearsOfExperience ? parseInt(yearsOfExperience) : 0,
+                bankName,
+                accountNumber,
+                accountName,
+                status: 'pending'
+            });
+
+            return user;
+        });
+
+        res.status(201).json(result);
+    } catch (error) {
+        if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
+        console.error('Farmer Signup Error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
