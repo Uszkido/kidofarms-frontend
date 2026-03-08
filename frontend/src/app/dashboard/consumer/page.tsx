@@ -13,15 +13,26 @@ export default function ConsumerDashboard() {
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto space-y-12">
-                        {/* Welcome Header */}
-                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div className="space-y-2">
-                                <h1 className="text-5xl font-black font-serif">Hello, <span className="text-secondary italic">Shopper</span></h1>
-                                <p className="text-primary/40 font-bold uppercase tracking-widest text-[10px]">Your personal Kido Farms procurement center</p>
+                        {/* Welcome Header & Hero */}
+                        <div className="relative h-[400px] rounded-[4rem] overflow-hidden shadow-2xl group mb-12">
+                            <img
+                                src="file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/consumer_dashboard_organic_basket_1772965456413.png"
+                                alt="Organic Harvest"
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[5000ms]"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/20 to-transparent" />
+                            <div className="absolute bottom-12 left-12 right-12 flex flex-col md:flex-row justify-between items-end gap-8">
+                                <div className="space-y-4">
+                                    <div className="inline-flex items-center gap-2 bg-secondary text-primary px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                                        <Heart size={12} strokeWidth={3} className="fill-current" />
+                                        Farm-to-Table Fresh
+                                    </div>
+                                    <h1 className="text-6xl font-black font-serif text-white leading-tight">Hello, <br /><span className="text-secondary italic">Shopper</span></h1>
+                                </div>
+                                <Link href="/shop" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-sm hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center gap-3">
+                                    Browse Today's Harvest <ArrowRight size={18} />
+                                </Link>
                             </div>
-                            <Link href="/shop" className="bg-primary text-white px-8 py-4 rounded-full font-black hover:bg-secondary hover:text-primary transition-all shadow-xl">
-                                Continue Shopping
-                            </Link>
                         </div>
 
                         {/* Quick Stats */}
