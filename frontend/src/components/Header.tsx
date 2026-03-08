@@ -12,8 +12,8 @@ export const Header = async () => {
     return (
         <header className="bg-primary text-white py-5 sticky top-0 z-[60] shadow-2xl border-b border-white/5">
             <div className="container mx-auto px-6 flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-2 md:gap-3 group shrink-0">
-                    <div className="relative w-10 h-10 md:w-12 md:h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-all duration-300 overflow-hidden">
+                <Link href="/" className="flex items-center gap-3 md:gap-4 group shrink-0">
+                    <div className="relative w-12 h-12 md:w-16 md:h-16 bg-secondary rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all duration-300 overflow-hidden">
                         <Image
                             src="/logo.svg"
                             alt="Kido Farms Logo"
@@ -23,8 +23,8 @@ export const Header = async () => {
                         />
                     </div>
                     <div className="flex flex-col">
-                        <span className="text-lg md:text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
-                        <span className="text-[6px] md:text-[8px] font-black uppercase tracking-[0.4em] text-secondary">Network System</span>
+                        <span className="text-xl md:text-3xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
+                        <span className="text-[7px] md:text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Network System</span>
                     </div>
                 </Link>
 
