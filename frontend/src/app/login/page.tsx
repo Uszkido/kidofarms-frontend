@@ -22,6 +22,16 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
         phone: "",
     });
 
+    const handleRoleSelect = (selectedRole: string) => {
+        if (selectedRole === "farmer") {
+            router.push("/register/farmer");
+        } else if (selectedRole === "subscriber") {
+            router.push("/subscriptions");
+        } else {
+            setRole("customer");
+        }
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -176,12 +186,12 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                                                 <button
                                                     key={r.id}
                                                     type="button"
-                                                    onClick={() => setRole(r.id)}
-                                                    className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${role === r.id ? "border-secondary bg-secondary/5" : "border-primary/5 bg-white hover:border-primary/10"
+                                                    onClick={() => handleRoleSelect(r.id)}
+                                                    className={`flex-1 p-6 rounded-[2rem] border-2 transition-all flex flex-col items-center gap-3 shadow-sm ${role === r.id ? "border-secondary bg-secondary/10 shadow-lg shadow-secondary/5 scale-105" : "border-primary/5 bg-white hover:border-primary/10 hover:shadow-md"
                                                         }`}
                                                 >
-                                                    <span className="text-xl">{r.icon}</span>
-                                                    <span className={`text-[10px] font-black uppercase tracking-tight ${role === r.id ? "text-primary" : "text-primary/40"}`}>{r.label}</span>
+                                                    <span className="text-3xl filter grayscale-[0.5] group-hover:grayscale-0">{r.icon}</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-widest ${role === r.id ? "text-primary" : "text-primary/30"}`}>{r.label}</span>
                                                 </button>
                                             ))}
                                         </div>
