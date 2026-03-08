@@ -126,7 +126,7 @@ export default async function Home() {
                 {hero.title} <br />
                 <span className="text-secondary italic">{hero.titleItalic}</span>
               </h1>
-              <p className="text-lg md:text-2xl text-cream/90 max-w-2xl leading-relaxed font-medium">
+              <p className="text-lg md:text-2xl text-white max-w-2xl leading-relaxed font-medium">
                 {hero.subtitle}
               </p>
               <div className="flex flex-wrap gap-4 md:gap-5 pt-4 md:pt-6">
