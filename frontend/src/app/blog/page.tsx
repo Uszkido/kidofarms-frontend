@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Calendar, User, ArrowRight, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -27,6 +29,7 @@ export default function BlogPage() {
 
     return (
         <div className="flex flex-col min-h-screen bg-neutral-50">
+            <Header />
             <main className="flex-grow py-24">
                 <div className="container mx-auto px-6 max-w-7xl">
                     <div className="text-center max-w-2xl mx-auto mb-20 space-y-6">
@@ -72,6 +75,7 @@ export default function BlogPage() {
                     )}
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

@@ -1,9 +1,12 @@
 import Link from "next/link";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Shield, Lock, Eye, FileText, ArrowLeft, CheckCircle2 } from "lucide-react";
 
 export default function PrivacyPolicy() {
     return (
         <div className="flex flex-col min-h-screen bg-neutral-50">
+            <Header />
             <main className="flex-grow py-24">
                 <div className="container mx-auto px-6 max-w-4xl">
                     <div className="mb-16">
@@ -42,6 +45,7 @@ export default function PrivacyPolicy() {
                     </div>
                 </div>
             </main>
+            <Footer />
         </div>
     );
 }

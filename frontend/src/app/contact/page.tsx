@@ -1,8 +1,11 @@
 import { Mail, Phone, MapPin, Send, Loader2, Instagram, Facebook, Twitter } from "lucide-react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 
 export default function ContactPage() {
     return (
         <div className="flex flex-col min-h-screen">
+            <Header />
             <main className="flex-grow py-24 bg-cream/30">
                 <section className="py-24">
                     <div className="container mx-auto px-6">
@@ -96,6 +99,7 @@ export default function ContactPage() {
                     </div>
                 </section>
             </main>
+            <Footer />
         </div>
     );
 }
