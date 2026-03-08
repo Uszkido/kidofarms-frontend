@@ -22,7 +22,7 @@ export default function NotificationsPage() {
                 <div className="bg-white p-20 rounded-[3rem] border border-primary/5 text-center space-y-4">
                     <Bell className="mx-auto text-amber-100" size={64} />
                     <h3 className="text-xl font-black font-serif text-primary uppercase">Broadcast System Ready</h3>
-                    <p className="max-w-md mx-auto text-primary/40 text-sm font-medium">Critical inventory alerts and system status updates are automatically synchronized with the Command Center.</p>
+                    <p className="max-w-md mx-auto text-primary/40 text-sm font-medium">Critical inventory alerts and system status updates are automatically synchronized with the Admin Hub.</p>
                 </div>
             </div>
         </div>

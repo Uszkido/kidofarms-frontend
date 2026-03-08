@@ -50,8 +50,8 @@ export default function AdminDashboard() {
                             <LayoutDashboard className="text-secondary" size={20} />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black font-serif tracking-tight text-primary uppercase">Command Center</h1>
-                            <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest leading-none">Operations Oversight</p>
+                            <h1 className="text-xl font-black font-serif tracking-tight text-primary uppercase">Kido Farms</h1>
+                            <p className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] leading-none">& Orchards</p>
                         </div>
                     </div>
 
