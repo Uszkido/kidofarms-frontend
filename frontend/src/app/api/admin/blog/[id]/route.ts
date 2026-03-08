@@ -10,6 +10,27 @@ async function isAdmin() {
     return session?.user && (session.user as any).role === "admin";
 }
 
+export async function GET(
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const { id } = await params;
+        const post = await db.query.blogPosts.findFirst({
+            where: eq(blogPosts.id, id),
+            with: { author: true }
+        });
+
+        if (!post) {
+            return NextResponse.json({ error: 'Post not found' }, { status: 404 });
+        }
+
+        return NextResponse.json(post);
+    } catch (error) {
+        return NextResponse.json({ error: 'Failed to fetch post' }, { status: 500 });
+    }
+}
+
 export async function PATCH(
     request: Request,
     { params }: { params: Promise<{ id: string }> }
