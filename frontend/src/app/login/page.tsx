@@ -8,12 +8,13 @@ import Image from "next/image";
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
-export default function LoginPage() {
+export default function LoginPage({ initialRole = "customer" }: { initialRole?: string }) {
     const router = useRouter();
     const [mode, setMode] = useState<"login" | "signup">("login");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
+    const [role, setRole] = useState(initialRole);
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -52,13 +53,19 @@ export default function LoginPage() {
             const res = await fetch(getApiUrl("/auth/signup"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form),
+                body: JSON.stringify({ ...form, role }),
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.error);
             // Auto login after signup
             await signIn("credentials", { redirect: false, email: form.email, password: form.password });
-            router.push("/");
+
+            // Redirect based on role
+            const redirectPath = role === "farmer" ? "/dashboard/vendor" :
+                role === "subscriber" ? "/dashboard/subscriber" :
+                    "/dashboard/consumer";
+            router.push(redirectPath);
+            router.refresh();
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -157,6 +164,29 @@ export default function LoginPage() {
                     <form onSubmit={mode === "login" ? handleLogin : handleSignup} className="space-y-5">
                         {mode === "signup" && (
                             <>
+                                {initialRole === "customer" && (
+                                    <div className="space-y-4 mb-6">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Register As</label>
+                                        <div className="flex gap-3">
+                                            {[
+                                                { id: "customer", label: "Shopper", icon: "🛒" },
+                                                { id: "farmer", label: "Farmer", icon: "👨‍🌾" },
+                                                { id: "subscriber", label: "Subscriber", icon: "📦" }
+                                            ].map((r) => (
+                                                <button
+                                                    key={r.id}
+                                                    type="button"
+                                                    onClick={() => setRole(r.id)}
+                                                    className={`flex-1 p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${role === r.id ? "border-secondary bg-secondary/5" : "border-primary/5 bg-white hover:border-primary/10"
+                                                        }`}
+                                                >
+                                                    <span className="text-xl">{r.icon}</span>
+                                                    <span className={`text-[10px] font-black uppercase tracking-tight ${role === r.id ? "text-primary" : "text-primary/40"}`}>{r.label}</span>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Full Name</label>
                                     <input
