@@ -30,7 +30,7 @@ export default function AffiliateLanding() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+
 
             <main className="flex-grow pt-32 pb-24">
                 {/* Hero Section */}
@@ -162,7 +162,7 @@ export default function AffiliateLanding() {
                 </section>
             </main>
 
-            <Footer />
+
         </div>
     );
 }

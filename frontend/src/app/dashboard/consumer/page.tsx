@@ -1,14 +1,12 @@
 "use client";
 
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight, CreditCard, ShieldCheck, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function ConsumerDashboard() {
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />
+
 
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
@@ -225,7 +223,7 @@ export default function ConsumerDashboard() {
                 </div>
             </main>
 
-            <Footer />
+
         </div>
     );
 }
