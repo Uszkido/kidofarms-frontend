@@ -12,7 +12,7 @@ const {
 const { relations } = require("drizzle-orm");
 
 // Enums
-const roleEnum = pgEnum("role", ["customer", "admin", "farmer"]);
+const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber"]);
 const unitEnum = pgEnum("unit", ["kg", "basket", "piece"]);
 const paymentMethodEnum = pgEnum("payment_method", ["card", "transfer", "cash"]);
 const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
