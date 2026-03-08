@@ -25,6 +25,8 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
     const handleRoleSelect = (selectedRole: string) => {
         if (selectedRole === "farmer") {
             router.push("/register/farmer");
+        } else if (selectedRole === "vendor") {
+            router.push("/register/vendor");
         } else if (selectedRole === "subscriber") {
             router.push("/subscriptions");
         } else {
@@ -181,6 +183,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                                             {[
                                                 { id: "customer", label: "Shopper", icon: "🛒" },
                                                 { id: "farmer", label: "Farmer", icon: "👨‍🌾" },
+                                                { id: "vendor", label: "Vendor", icon: "🏪" },
                                                 { id: "subscriber", label: "Subscriber", icon: "📦" }
                                             ].map((r) => (
                                                 <button
