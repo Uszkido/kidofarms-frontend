@@ -51,7 +51,7 @@ export default function CategoryManagementPage() {
         e.preventDefault();
         setIsSaving(true);
         const method = editingCategory ? "PATCH" : "POST";
-        const url = editingCategory ? `/api/admin/categories/${editingCategory.id}` : "/api/admin/categories";
+        const url = editingCategory ? `/api/categories/${editingCategory.id}` : "/api/categories";
 
         try {
             const res = await fetch(getApiUrl(url), {

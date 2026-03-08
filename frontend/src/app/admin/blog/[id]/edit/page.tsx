@@ -23,7 +23,7 @@ export default function EditBlogPage() {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const res = await fetch(getApiUrl(`/api/admin/blog/${params.id}`));
+                const res = await fetch(getApiUrl(`/api/blog/${params.id}`));
                 const data = await res.json();
                 if (res.ok) {
                     setForm({
@@ -60,7 +60,7 @@ export default function EditBlogPage() {
                 image: images[0] || null,
             };
 
-            const res = await fetch(getApiUrl(`/api/admin/blog/${params.id}`), {
+            const res = await fetch(getApiUrl(`/api/blog/${params.id}`), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

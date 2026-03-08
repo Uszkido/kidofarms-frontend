@@ -55,11 +55,18 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
     try {
+        const { eq } = require('drizzle-orm');
         const { id } = req.params;
-        const { status } = req.body;
-        await db.update(orders).set({ status }).where(eq(orders.id, parseInt(id)));
-        res.json({ message: 'Order updated' });
+        const { status, orderStatus } = req.body;
+        const finalStatus = status || orderStatus;
+
+        const [updated] = await db.update(orders)
+            .set({ status: finalStatus })
+            .where(eq(orders.id, id))
+            .returning();
+        res.json(updated);
     } catch (error) {
+        console.error(error);
         res.status(400).json({ error: 'Failed' });
     }
 });

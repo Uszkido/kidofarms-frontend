@@ -3,12 +3,47 @@ const router = express.Router();
 const { db } = require('../db');
 const { categories } = require('../db/schema');
 
+const { eq } = require('drizzle-orm');
+
 router.get('/', async (req, res) => {
     try {
         const data = await db.select().from(categories);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed' });
+    }
+});
+
+// POST /api/categories
+router.post('/', async (req, res) => {
+    try {
+        const [category] = await db.insert(categories).values(req.body).returning();
+        res.status(201).json(category);
+    } catch (error) {
+        res.status(400).json({ error: 'Failed' });
+    }
+});
+
+// PATCH /api/categories/:id
+router.patch('/:id', async (req, res) => {
+    try {
+        const [updated] = await db.update(categories)
+            .set(req.body)
+            .where(eq(categories.id, req.params.id))
+            .returning();
+        res.json(updated);
+    } catch (error) {
+        res.status(400).json({ error: 'Failed' });
+    }
+});
+
+// DELETE /api/categories/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        await db.delete(categories).where(eq(categories.id, req.params.id));
+        res.status(204).end();
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete' });
     }
 });
 

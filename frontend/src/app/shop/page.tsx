@@ -15,7 +15,7 @@ export default function ShopPage() {
 
     useEffect(() => {
         const fetchCategories = async () => {
-            const res = await fetch(getApiUrl("/api/admin/categories"));
+            const res = await fetch(getApiUrl("/api/categories"));
             if (res.ok) {
                 const data = await res.json();
                 setCategories(["All", ...data.map((c: any) => c.name)]);

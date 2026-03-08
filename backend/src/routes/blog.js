@@ -16,6 +16,72 @@ router.get('/', async (req, res) => {
     }
 });
 
+// GET /api/blog/:id
+router.get('/:id', async (req, res) => {
+    try {
+        const { eq } = require('drizzle-orm');
+        const post = await db.query.blogPosts.findFirst({
+            where: eq(blogPosts.id, req.params.id)
+        });
+        if (!post) return res.status(404).json({ error: 'Post not found' });
+        res.json(post);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed' });
+    }
+});
+
+// POST /api/blog
+router.post('/', async (req, res) => {
+    try {
+        const { users } = require('../db/schema');
+        const { eq } = require('drizzle-orm');
+        let adminUser = await db.query.users.findFirst({ where: eq(users.role, 'admin') });
+
+        // If no admin found, use the first user or fail gracefully
+        if (!adminUser) {
+            adminUser = await db.query.users.findFirst();
+        }
+
+        if (!adminUser) {
+            return res.status(400).json({ error: 'No user found in database to assign as author' });
+        }
+
+        const [post] = await db.insert(blogPosts).values({
+            ...req.body,
+            authorId: adminUser.id
+        }).returning();
+        res.status(201).json(post);
+    } catch (error) {
+        console.error('Blog creation error:', error);
+        res.status(400).json({ error: 'Failed to create blog post', details: error.message });
+    }
+});
+
+// PATCH /api/blog/:id
+router.patch('/:id', async (req, res) => {
+    try {
+        const { eq } = require('drizzle-orm');
+        const [updated] = await db.update(blogPosts)
+            .set(req.body)
+            .where(eq(blogPosts.id, req.params.id))
+            .returning();
+        res.json(updated);
+    } catch (error) {
+        res.status(400).json({ error: 'Failed' });
+    }
+});
+
+// DELETE /api/blog/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        const { eq } = require('drizzle-orm');
+        await db.delete(blogPosts).where(eq(blogPosts.id, req.params.id));
+        res.status(204).end();
+    } catch (error) {
+        res.status(500).json({ error: 'Failed' });
+    }
+});
+
 router.post('/init', async (req, res) => {
     try {
         const { users } = require('../db/schema');

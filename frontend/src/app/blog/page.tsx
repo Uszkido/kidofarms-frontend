@@ -13,7 +13,7 @@ export default function BlogPage() {
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const res = await fetch(getApiUrl("/api/admin/blog"));
+                const res = await fetch(getApiUrl("/api/blog"));
                 const data = await res.json();
                 setPosts(data);
             } catch (err) {

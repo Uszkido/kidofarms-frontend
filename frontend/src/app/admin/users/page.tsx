@@ -61,7 +61,7 @@ export default function UserManagementPage() {
         setError("");
 
         try {
-            const res = await fetch(getApiUrl("/api/admin/users"), {
+            const res = await fetch(getApiUrl("/api/users"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
@@ -85,10 +85,10 @@ export default function UserManagementPage() {
     const toggleRole = async (userId: string, currentRole: string) => {
         const nextRole = currentRole === "admin" ? "customer" : "admin";
         try {
-            const res = await fetch(getApiUrl("/api/admin/users"), {
+            const res = await fetch(getApiUrl(`/api/users/${userId}`), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ id: userId, role: nextRole })
+                body: JSON.stringify({ role: nextRole })
             });
             if (res.ok) {
                 setUsers(users.map(u => u.id === userId ? { ...u, role: nextRole } : u));
@@ -102,7 +102,7 @@ export default function UserManagementPage() {
         if (!confirm("Are you sure you want to permanently delete this user? This cannot be undone.")) return;
 
         try {
-            const res = await fetch(getApiUrl(`/api/admin/users?id=${id}`), { method: "DELETE" });
+            const res = await fetch(getApiUrl(`/api/users/${id}`), { method: "DELETE" });
             if (res.ok) {
                 setUsers(users.filter(u => u.id !== id));
             } else {

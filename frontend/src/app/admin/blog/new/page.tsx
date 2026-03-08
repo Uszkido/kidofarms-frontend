@@ -34,7 +34,7 @@ export default function NewBlogPage() {
                 image: images[0] || "https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?w=1200", // Default farm image
             };
 
-            const res = await fetch(getApiUrl("/api/admin/blog"), {
+            const res = await fetch(getApiUrl("/api/blog"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),

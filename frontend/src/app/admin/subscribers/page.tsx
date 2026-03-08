@@ -52,7 +52,7 @@ export default function SubscriberManagementPage() {
     const deleteSubscriber = async (id: string) => {
         if (!confirm("Remove this subscriber?")) return;
         try {
-            await fetch(getApiUrl(`/api/admin/subscribers/${id}`), { method: "DELETE" });
+            await fetch(getApiUrl(`/api/subscribers/${id}`), { method: "DELETE" });
             fetchSubscribers();
         } catch (error) {
             alert("Delete failed");

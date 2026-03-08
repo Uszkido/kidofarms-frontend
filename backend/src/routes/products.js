@@ -72,4 +72,14 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
+// DELETE /api/products/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        await db.delete(products).where(eq(products.id, req.params.id));
+        res.status(204).end();
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to delete product' });
+    }
+});
+
 module.exports = router;
