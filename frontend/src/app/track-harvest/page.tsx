@@ -76,9 +76,9 @@ export default function TrackHarvestPage() {
                                         <div className="md:w-1/3 h-48 md:h-auto relative overflow-hidden shrink-0">
                                             <img
                                                 src={harvest.cropName.includes('Maize')
-                                                    ? "file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/track_harvest_maize_field_1772965531213.png"
+                                                    ? "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&q=80"
                                                     : harvest.cropName.includes('Habanero')
-                                                        ? "file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/track_harvest_habanero_peppers_1772965549394.png"
+                                                        ? "https://images.unsplash.com/photo-1596645511090-fffdca5dca3c?auto=format&fit=crop&q=80"
                                                         : "https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?auto=format&fit=crop&q=80"}
                                                 alt={harvest.cropName}
                                                 className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-[5000ms]"

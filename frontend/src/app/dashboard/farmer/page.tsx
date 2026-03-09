@@ -25,7 +25,7 @@ export default function FarmerDashboard() {
                         {/* Hero Section */}
                         <div className="relative h-[300px] md:h-[400px] rounded-[2rem] md:rounded-[4rem] overflow-hidden shadow-2xl group">
                             <img
-                                src="file:///C:/Users/COMPUTER 13/.gemini/antigravity/brain/f50ad5b6-b585-4325-b0d1-e6ba4ca4dbbf/farm_harvest_dashboard_hero_1772965399553.png"
+                                src="https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80"
                                 alt="Farm Harvest"
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-[5000ms]"
                             />
