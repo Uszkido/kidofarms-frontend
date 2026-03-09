@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { KeyRound, Loader2, RefreshCcw, User, Mail, Calendar, ShieldCheck, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 
 export default function AdminOtpsPage() {
