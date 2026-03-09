@@ -124,7 +124,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                         <span className="text-secondary italic">Delivered.</span>
                     </h2>
                     <p className="text-cream/40 text-lg leading-relaxed max-w-sm font-medium">
-                        Join 15,000+ customers getting the freshest organic produce straight from verified Nigerian farmers.
+                        Kido Farms & Orchard was founded in 2020 by <span className="text-secondary font-bold">Usama Ado Shehu</span> with a bold vision — connecting Nigeria's most talented farmers directly with consumers through technology.
                     </p>
                     <div className="flex items-center gap-3 p-6 rounded-3xl bg-white/5 border border-white/10">
                         <Leaf className="text-secondary shrink-0" size={28} />
@@ -135,7 +135,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                     </div>
                 </div>
 
-                <p className="text-cream/20 text-xs z-10">© {new Date().getFullYear()} Kido Farms & Orchard. Founded 2020 by Usama Ado Shehu, Jos, Nigeria.</p>
+                <p className="text-cream/20 text-xs z-10">© {new Date().getFullYear()} Kido Farms & Orchard. Founded 2020. Jos, Nigeria.</p>
             </div>
 
             {/* Right Form Panel */}
