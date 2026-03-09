@@ -29,7 +29,7 @@ router.post('/', async (req, res) => {
         const [order] = await db.insert(orders).values({
             userId,
             totalAmount: totalAmount.toString(),
-            status: 'processing',
+            orderStatus: 'processing',
             street,
             city,
             state,
@@ -76,7 +76,7 @@ router.patch('/:id', async (req, res) => {
         const finalStatus = status || orderStatus;
 
         const [updated] = await db.update(orders)
-            .set({ status: finalStatus })
+            .set({ orderStatus: finalStatus })
             .where(eq(orders.id, id))
             .returning();
         res.json(updated);

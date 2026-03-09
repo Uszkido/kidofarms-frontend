@@ -160,6 +160,8 @@ export default function AdminLandingPage() {
                     {[
                         { id: 'hero', icon: Zap, label: 'Hero' },
                         { id: 'harvesting', icon: MapPin, label: 'Harvesting' },
+                        { id: 'recommended', icon: Layout, label: 'Recommended' },
+                        { id: 'ticker', icon: TrendingUp, label: 'Market Ticker' },
                         { id: 'trends', icon: TrendingUp, label: 'Market Trends' },
                         { id: 'advantage', icon: ShieldCheck, label: 'Advantage' },
                         { id: 'farmer_cta', icon: Users, label: 'Farmer CTA' },
@@ -211,6 +213,79 @@ export default function AdminLandingPage() {
                                 <FormItem label="Button Text" value={harvesting.btnText} onChange={(v) => updateField('harvesting', 'btnText', v)} />
                             </div>
                             <SaveButton onClick={() => handleSave('harvesting')} saving={saving} />
+                        </div>
+                    )}
+
+                    {activeTab === 'recommended' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                            <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Recommended Products Configuration</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <FormItem label="Section Title" value={data.recommended?.title ?? ""} onChange={(v) => updateField('recommended', 'title', v)} />
+                                <FormItem label="Italicized Part" value={data.recommended?.titleItalic ?? ""} onChange={(v) => updateField('recommended', 'titleItalic', v)} />
+                                <FormItem label="Badge Text" value={data.recommended?.badge ?? ""} onChange={(v) => updateField('recommended', 'badge', v)} />
+                            </div>
+
+                            <div className="space-y-4 pt-6">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Product Items</p>
+                                {(data.recommended?.items || []).map((item: any, i: number) => (
+                                    <div key={i} className="bg-neutral-50 p-6 rounded-2xl border border-primary/5 space-y-4">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                            <FormItem label="Product Name" value={item.name} onChange={(v) => updateListItem('recommended', 'items', i, 'name', v)} />
+                                            <FormItem label="Farmer" value={item.farmer} onChange={(v) => updateListItem('recommended', 'items', i, 'farmer', v)} />
+                                            <FormItem label="Price" value={item.price} onChange={(v) => updateListItem('recommended', 'items', i, 'price', v)} />
+                                            <FormItem label="Rating" value={item.rating} onChange={(v) => updateListItem('recommended', 'items', i, 'rating', v)} />
+                                        </div>
+                                        <FormItem label="Image URL" value={item.image} onChange={(v) => updateListItem('recommended', 'items', i, 'image', v)} />
+                                        <button onClick={() => removeListItem('recommended', 'items', i)} className="text-red-500 text-[10px] font-black uppercase flex items-center gap-2">
+                                            <Trash2 size={12} /> Remove Item
+                                        </button>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={() => addListItem('recommended', 'items', { name: "New Product", farmer: "Farmer Name", price: "₦0", rating: "5.0", image: "" })}
+                                    className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/30 hover:bg-neutral-50 flex items-center justify-center gap-2"
+                                >
+                                    <Plus size={16} /> Add Product
+                                </button>
+                            </div>
+                            <SaveButton onClick={() => handleSave('recommended')} saving={saving} />
+                        </div>
+                    )}
+
+                    {activeTab === 'ticker' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                            <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Market Ticker Items</h2>
+                            <div className="space-y-4">
+                                {(data.ticker?.items || []).map((item: any, i: number) => (
+                                    <div key={i} className="bg-neutral-50 p-6 rounded-2xl border border-primary/5 grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                                        <FormItem label="Crop" value={item.crop} onChange={(v) => updateListItem('ticker', 'items', i, 'crop', v)} />
+                                        <FormItem label="Price" value={item.price} onChange={(v) => updateListItem('ticker', 'items', i, 'price', v)} />
+                                        <FormItem label="Change" value={item.change} onChange={(v) => updateListItem('ticker', 'items', i, 'change', v)} />
+                                        <FormItem label="Region" value={item.region} onChange={(v) => updateListItem('ticker', 'items', i, 'region', v)} />
+                                        <div className="flex flex-col gap-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/20">Trend</label>
+                                            <select
+                                                value={item.trend}
+                                                onChange={(e) => updateListItem('ticker', 'items', i, 'trend', e.target.value)}
+                                                className="w-full bg-white border border-primary/5 p-4 rounded-xl font-bold"
+                                            >
+                                                <option value="up">Up</option>
+                                                <option value="down">Down</option>
+                                            </select>
+                                        </div>
+                                        <button onClick={() => removeListItem('ticker', 'items', i)} className="md:col-span-5 text-red-500 text-[10px] font-black uppercase flex items-center gap-2 pt-2">
+                                            <Trash2 size={12} /> Remove Ticker Item
+                                        </button>
+                                    </div>
+                                ))}
+                                <button
+                                    onClick={() => addListItem('ticker', 'items', { crop: "New Crop", price: "₦0", change: "+0%", trend: "up", region: "Lagos" })}
+                                    className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/30 hover:bg-neutral-50 flex items-center justify-center gap-2"
+                                >
+                                    <Plus size={16} /> Add Ticker Item
+                                </button>
+                            </div>
+                            <SaveButton onClick={() => handleSave('ticker')} saving={saving} />
                         </div>
                     )}
 
