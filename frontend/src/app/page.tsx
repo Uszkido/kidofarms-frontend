@@ -113,7 +113,7 @@ export default async function Home() {
         <PremiumHero data={hero} />
 
         {/* Categories Bar */}
-        <section className="bg-primary pt-16 pb-24 border-b border-white/5 relative z-10">
+        <section className="bg-primary pt-10 md:pt-16 pb-16 md:pb-24 border-b border-white/5 relative z-10">
           <div className="container mx-auto px-6">
             <CategoryList />
           </div>
@@ -121,17 +121,17 @@ export default async function Home() {
 
         {/* Recommended For You */}
         <FadeInEntry>
-          <section className="py-32 bg-primary">
+          <section className="py-20 md:py-32 bg-primary">
             <div className="container mx-auto px-6">
-              <div className="flex items-center gap-4 mb-20">
+              <div className="flex flex-col md:flex-row md:items-center gap-4 mb-12 md:mb-20">
                 <div className="w-16 h-1 bg-secondary rounded-full shadow-lg shadow-secondary/20" />
-                <h2 className="text-5xl md:text-7xl font-black font-serif flex items-center gap-6 uppercase tracking-tighter text-white">
+                <h2 className="text-4xl md:text-7xl font-black font-serif flex flex-wrap items-center gap-4 md:gap-6 uppercase tracking-tighter text-white">
                   {recommended.title} <span className="text-white/20 italic">{recommended.titleItalic}</span>
-                  <span className="bg-secondary text-primary text-[10px] px-5 py-2 rounded-full font-black ml-4 shadow-xl shadow-secondary/30">{recommended.badge}</span>
+                  <span className="bg-secondary text-primary text-[8px] md:text-[10px] px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black shadow-xl shadow-secondary/30">{recommended.badge}</span>
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16">
                 {(recommended.items || []).map((prod: any, i: number) => (
                   <div key={i} className="group relative">
                     <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 border border-white/5">
@@ -162,18 +162,18 @@ export default async function Home() {
 
         {/* Market Trends Section */}
         <FadeInEntry>
-          <section className="py-40 bg-neutral-950 text-white overflow-hidden relative rounded-[5rem] mx-6 lg:mx-12 border border-white/5">
+          <section className="py-20 md:py-40 bg-neutral-950 text-white overflow-hidden relative rounded-[3rem] md:rounded-[5rem] mx-4 md:mx-12 border border-white/5">
             <div className="absolute inset-0 opacity-40">
               <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-secondary/10 rounded-full blur-[180px] -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-primary/20 rounded-full blur-[160px] translate-y-1/2 -translate-x-1/2" />
             </div>
 
-            <div className="container mx-auto px-12 relative z-10">
-              <div className="grid lg:grid-cols-2 gap-32 items-center">
-                <div className="space-y-16">
-                  <div className="space-y-8">
-                    <span className="inline-block text-secondary font-black uppercase tracking-[0.4em] text-[10px] bg-white/5 px-6 py-3 rounded-full border border-white/10 shadow-2xl">{trends.label}</span>
-                    <h2 className="text-7xl md:text-9xl font-black font-serif leading-[0.85] tracking-tighter">
+            <div className="container mx-auto px-6 md:px-12 relative z-10">
+              <div className="grid lg:grid-cols-2 gap-20 lg:grid-cols-2 lg:gap-32 items-center">
+                <div className="space-y-12 md:space-y-16">
+                  <div className="space-y-6 md:space-y-8">
+                    <span className="inline-block text-secondary font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px] bg-white/5 px-4 md:px-6 py-2 md:py-3 rounded-full border border-white/10 shadow-2xl">{trends.label}</span>
+                    <h2 className="text-5xl md:text-9xl font-black font-serif leading-[0.9] md:leading-[0.85] tracking-tighter">
                       {trends.title} <br />
                       <span className="italic text-secondary">{trends.titleItalic}</span>
                     </h2>
@@ -203,9 +203,9 @@ export default async function Home() {
                   </div>
                 </div>
 
-                <div className="relative h-[900px] w-full bg-white/5 backdrop-blur-3xl rounded-[5rem] border border-white/10 overflow-hidden shadow-2xl">
+                <div className="relative h-auto lg:h-[900px] w-full bg-white/5 backdrop-blur-3xl rounded-[3rem] md:rounded-[5rem] border border-white/10 overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-transparent pointer-events-none" />
-                  <div className="p-16 space-y-20">
+                  <div className="p-8 md:p-16 space-y-12 md:space-y-20">
                     <div className="flex justify-between items-center border-b border-white/5 pb-12">
                       <h3 className="text-4xl font-black font-serif uppercase tracking-tight text-white">{trendingList.title}</h3>
                       <div className="flex gap-3 items-center">
@@ -254,9 +254,9 @@ export default async function Home() {
 
         {/* Farmer CTA Section */}
         <FadeInEntry>
-          <section className="py-40 mb-24 px-6 lg:px-12">
+          <section className="py-20 md:py-40 mb-12 md:mb-24 px-4 md:px-12">
             <div className="container mx-auto">
-              <div className="bg-neutral-950 rounded-[6rem] p-20 md:p-40 text-white shadow-2xl relative overflow-hidden border border-white/5">
+              <div className="bg-neutral-950 rounded-[3rem] md:rounded-[6rem] p-10 md:p-40 text-white shadow-2xl relative overflow-hidden border border-white/5">
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-secondary/5 to-transparent pointer-events-none" />
 
@@ -271,18 +271,18 @@ export default async function Home() {
                         {farmerCta.subtitle}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-8 justify-center lg:justify-start">
-                      <Link href="/register/farmer" className="bg-secondary text-primary px-16 py-8 rounded-[2.5rem] font-black text-xl uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 active:scale-95">{farmerCta.btn1Text}</Link>
-                      <Link href="/register/vendor" className="bg-white/5 border-2 border-white/10 text-white px-16 py-8 rounded-[2.5rem] font-black text-xl uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">{farmerCta.btn2Text}</Link>
+                    <div className="flex flex-wrap gap-4 md:gap-8 justify-center lg:justify-start">
+                      <Link href="/register/farmer" className="bg-secondary text-primary px-8 md:px-16 py-5 md:py-8 rounded-2xl md:rounded-[2.5rem] font-black text-sm md:text-xl uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 active:scale-95">{farmerCta.btn1Text}</Link>
+                      <Link href="/register/vendor" className="bg-white/5 border-2 border-white/10 text-white px-8 md:px-16 py-5 md:py-8 rounded-2xl md:rounded-[2.5rem] font-black text-sm md:text-xl uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">{farmerCta.btn2Text}</Link>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-10 relative">
+                  <div className="grid grid-cols-2 gap-6 md:gap-10 relative">
                     <div className="absolute -inset-10 bg-secondary/5 blur-[100px] rounded-full pointer-events-none" />
                     {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="w-52 h-52 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl flex flex-col items-center justify-center group hover:bg-secondary hover:border-secondary transition-all cursor-pointer shadow-2xl hover:scale-110 duration-500">
-                        <Users className="text-secondary group-hover:text-primary mb-4" size={56} strokeWidth={1} />
-                        <span className="text-[11px] font-black uppercase tracking-[0.3em] group-hover:text-primary text-white/20 transition-colors">Unit #{i * 256}</span>
+                      <div key={i} className="w-32 h-32 md:w-52 md:h-52 rounded-3xl md:rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl flex flex-col items-center justify-center group hover:bg-secondary hover:border-secondary transition-all cursor-pointer shadow-2xl hover:scale-110 duration-500">
+                        <Users className="text-secondary group-hover:text-primary mb-2 md:mb-4 w-8 h-8 md:w-14 md:h-14" strokeWidth={1} />
+                        <span className="text-[8px] md:text-[11px] font-black uppercase tracking-[0.3em] group-hover:text-primary text-white/20 transition-colors">Unit #{i * 256}</span>
                       </div>
                     ))}
                   </div>

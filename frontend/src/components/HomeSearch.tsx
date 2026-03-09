@@ -27,7 +27,7 @@ export default function HomeSearch() {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         placeholder="Search organic..."
-                        className="w-full bg-white/10 border border-white/20 rounded-full py-3 md:py-4 pl-12 md:pl-16 pr-24 md:pr-32 text-white placeholder:text-white/40 focus:bg-white focus:text-primary focus:ring-4 focus:ring-secondary/20 transition-all outline-none text-sm md:text-lg font-medium"
+                        className="w-full bg-white/10 border border-white/20 rounded-full py-3 md:py-4 pl-10 md:pl-16 pr-24 md:pr-32 text-white placeholder:text-white/40 focus:bg-white focus:text-primary focus:ring-4 focus:ring-secondary/20 transition-all outline-none text-xs md:text-lg font-medium"
                     />
                     <button
                         type="submit"

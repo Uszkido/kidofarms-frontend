@@ -24,17 +24,17 @@ export default function AdvantageSection({ data }: { data: AdvantageData }) {
     });
 
     return (
-        <section className="py-40 bg-primary/20">
+        <section className="py-20 md:py-40 bg-primary/20">
             <div className="container mx-auto px-6">
-                <div className="text-center max-w-4xl mx-auto space-y-10 mb-32">
-                    <span className="text-secondary font-black uppercase tracking-[0.4em] text-[10px]">The Kido Advantage</span>
-                    <h2 className="text-6xl md:text-8xl font-black font-serif uppercase tracking-tighter leading-none text-white">
+                <div className="text-center max-w-4xl mx-auto space-y-8 md:space-y-10 mb-20 md:mb-32">
+                    <span className="text-secondary font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px]">The Kido Advantage</span>
+                    <h2 className="text-4xl md:text-8xl font-black font-serif uppercase tracking-tighter leading-[0.9] md:leading-none text-white">
                         {data.title} <br />
-                        <span className="text-secondary italic underline decoration-secondary/30 decoration-8 underline-offset-8">
+                        <span className="text-secondary italic underline decoration-secondary/30 decoration-4 md:decoration-8 underline-offset-4 md:underline-offset-8">
                             {data.titleItalic}
                         </span>
                     </h2>
-                    <p className="text-2xl text-white/40 font-medium leading-relaxed">{data.subtitle}</p>
+                    <p className="text-lg md:text-2xl text-white/40 font-medium leading-relaxed">{data.subtitle}</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-20">
                     {advantageItems.map((item: any, i: number) => (

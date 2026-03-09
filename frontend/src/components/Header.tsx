@@ -3,13 +3,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from "next-auth/react";
-import { Search, User, Menu, BarChart3, ShoppingCart } from "lucide-react";
+import { Search, User, Menu, BarChart3, ShoppingCart, X, ArrowRight } from "lucide-react";
 import LogoutButton from './LogoutButton';
 import CartCount from './CartCount';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState } from 'react';
 
 export const Header = () => {
     const { data: session } = useSession();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const navLinks = [
+        { label: "Marketplace", href: "/shop" },
+        { label: "Subscriptions", href: "/subscriptions" },
+        { label: "Our Vision", href: "/about" },
+        { label: "Farm Blog", href: "/blog" },
+    ];
 
     return (
         <header className="bg-primary/95 backdrop-blur-xl text-white py-4 sticky top-0 z-[60] shadow-2xl border-b border-white/10">
@@ -29,12 +38,7 @@ export const Header = () => {
 
                 {/* Global Desktop Nav */}
                 <nav className="hidden lg:flex items-center gap-8">
-                    {[
-                        { label: "Marketplace", href: "/shop" },
-                        { label: "Subscriptions", href: "/subscriptions" },
-                        { label: "Our Vision", href: "/about" },
-                        { label: "Farm Blog", href: "/blog" },
-                    ].map((link) => (
+                    {navLinks.map((link) => (
                         <Link
                             key={link.label}
                             href={link.href}
@@ -89,11 +93,110 @@ export const Header = () => {
                     <div className="w-px h-6 bg-white/10 mx-2 hidden md:block" />
                     <CartCount />
 
-                    <button className="lg:hidden p-2 bg-white/5 rounded-xl">
+                    <button
+                        onClick={() => setIsMenuOpen(true)}
+                        className="lg:hidden p-2 bg-white/5 rounded-xl text-white hover:bg-secondary hover:text-primary transition-all active:scale-95"
+                    >
                         <Menu size={20} />
                     </button>
                 </div>
             </div>
+
+            {/* Mobile Navigation Drawer */}
+            <AnimatePresence>
+                {isMenuOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsMenuOpen(false)}
+                            className="fixed inset-0 bg-primary/60 backdrop-blur-md z-[70] lg:hidden"
+                        />
+
+                        {/* Drawer */}
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed top-0 right-0 bottom-0 w-[85%] max-w-sm bg-primary border-l border-white/10 z-[80] lg:hidden shadow-2xl p-10 flex flex-col"
+                        >
+                            <div className="flex justify-between items-center mb-16">
+                                <span className="text-secondary font-black uppercase tracking-widest text-xs">Menu</span>
+                                <button
+                                    onClick={() => setIsMenuOpen(false)}
+                                    className="p-3 bg-white/5 rounded-2xl text-white hover:bg-secondary hover:text-primary transition-all"
+                                >
+                                    <X size={24} />
+                                </button>
+                            </div>
+
+                            <nav className="flex flex-col gap-8">
+                                {navLinks.map((link, i) => (
+                                    <motion.div
+                                        key={link.label}
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: i * 0.1 }}
+                                    >
+                                        <Link
+                                            href={link.href}
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="text-3xl font-black font-serif text-white hover:text-secondary transition-colors flex items-center justify-between group"
+                                        >
+                                            {link.label}
+                                            <ArrowRight size={24} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-secondary" />
+                                        </Link>
+                                    </motion.div>
+                                ))}
+
+                                {session?.user && (session.user as any).role === "admin" && (
+                                    <motion.div
+                                        initial={{ opacity: 0, x: 20 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ delay: navLinks.length * 0.1 }}
+                                    >
+                                        <Link
+                                            href="/admin"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="bg-white/10 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:bg-secondary hover:text-primary transition-all shadow-xl"
+                                        >
+                                            Admin Hub
+                                        </Link>
+                                    </motion.div>
+                                )}
+                            </nav>
+
+                            <div className="mt-auto pt-10 border-t border-white/5 space-y-8">
+                                {session ? (
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Logged in as</p>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-secondary/20 flex items-center justify-center text-secondary">
+                                                <User size={20} />
+                                            </div>
+                                            <span className="font-black text-white">{session.user?.name}</span>
+                                        </div>
+                                        <div className="pt-4">
+                                            <LogoutButton />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Link
+                                        href="/login"
+                                        onClick={() => setIsMenuOpen(false)}
+                                        className="w-full bg-secondary text-primary py-6 rounded-2xl font-black uppercase tracking-widest text-sm text-center block shadow-2xl"
+                                    >
+                                        Sign In
+                                    </Link>
+                                )}
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </header>
     );
 };
