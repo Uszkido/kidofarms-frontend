@@ -1,9 +1,57 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight, CreditCard, ShieldCheck, Plus } from "lucide-react";
+import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight, CreditCard, ShieldCheck, Plus, X, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { getApiUrl } from "@/lib/api";
 
 export default function ConsumerDashboard() {
+    const { data: session } = useSession();
+    const [cards, setCards] = useState<any[]>([]);
+    const [loadingCards, setLoadingCards] = useState(true);
+    const [trackingId, setTrackingId] = useState("");
+    const [trackingResult, setTrackingResult] = useState<any>(null);
+    const [trackingLoading, setTrackingLoading] = useState(false);
+    const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+
+    useEffect(() => {
+        if ((session?.user as any)?.id) {
+            fetchCards();
+        }
+    }, [(session?.user as any)?.id]);
+
+    const fetchCards = async () => {
+        try {
+            const res = await fetch(getApiUrl(`/api/cards?userId=${(session?.user as any)?.id}`));
+            const data = await res.json();
+            if (Array.isArray(data)) setCards(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingCards(false);
+        }
+    };
+
+    const handleTrack = async () => {
+        if (!trackingId) return;
+        setTrackingLoading(true);
+        // Simulate tracking fetch
+        setTimeout(() => {
+            setTrackingResult({
+                id: trackingId,
+                status: "In Transit",
+                location: "Kano Dispatch Hub",
+                oxygen: "98%",
+                temp: "18°C",
+                eta: "Tomorrow, 2:00 PM"
+            });
+            setTrackingLoading(false);
+        }, 1500);
+    };
+
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -113,9 +161,46 @@ export default function ConsumerDashboard() {
                                     <h2 className="text-4xl font-black font-serif leading-tight">Where's my <br /><span className="text-secondary italic">Harvest?</span></h2>
                                     <p className="text-cream/40 font-medium">Enter your tracking ID to see real-time oxygen levels and transit status of your perishables.</p>
                                     <div className="flex gap-2 p-2 bg-white/10 rounded-2xl border border-white/10">
-                                        <input className="bg-transparent border-none outline-none flex-grow px-4 py-2 text-white placeholder:text-white/20 font-mono" placeholder="KD-XXXX-XXXX" />
-                                        <button className="bg-secondary text-primary px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all">Track</button>
+                                        <input
+                                            className="bg-transparent border-none outline-none flex-grow px-4 py-2 text-white placeholder:text-white/20 font-mono"
+                                            placeholder="KD-XXXX-XXXX"
+                                            value={trackingId}
+                                            onChange={(e) => setTrackingId(e.target.value)}
+                                        />
+                                        <button
+                                            onClick={handleTrack}
+                                            disabled={trackingLoading}
+                                            className="bg-secondary text-primary px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all disabled:opacity-50"
+                                        >
+                                            {trackingLoading ? <Loader2 size={16} className="animate-spin" /> : "Track"}
+                                        </button>
                                     </div>
+
+                                    {trackingResult && (
+                                        <div className="p-6 bg-white/10 rounded-[2rem] border border-white/10 space-y-4 animate-in fade-in slide-in-from-top-4">
+                                            <div className="flex justify-between items-center group">
+                                                <div className="space-y-1">
+                                                    <p className="text-[8px] font-black uppercase text-white/40">Real-time Location</p>
+                                                    <p className="text-sm font-bold text-secondary">{trackingResult.location}</p>
+                                                </div>
+                                                <X
+                                                    size={16}
+                                                    className="cursor-pointer text-white/20 hover:text-white"
+                                                    onClick={() => setTrackingResult(null)}
+                                                />
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4 border-t border-white/5 pt-4">
+                                                <div>
+                                                    <p className="text-[8px] font-black uppercase text-white/40 mb-1">Status</p>
+                                                    <span className="bg-green-500/20 text-green-400 px-2 py-0.5 rounded text-[10px] uppercase font-black">{trackingResult.status}</span>
+                                                </div>
+                                                <div>
+                                                    <p className="text-[8px] font-black uppercase text-white/40 mb-1">Oxygen Level</p>
+                                                    <p className="text-sm font-bold text-secondary">{trackingResult.oxygen}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                                 <div className="hidden md:block">
                                     <div className="space-y-4 py-6 border-l-2 border-secondary/20 pl-10">
@@ -141,71 +226,55 @@ export default function ConsumerDashboard() {
                         <div className="space-y-6 pt-12 border-t border-primary/5">
                             <div className="flex justify-between items-center">
                                 <h2 className="text-3xl font-black font-serif">Saved <span className="text-secondary italic">Cards</span></h2>
-                                <button className="bg-primary text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg flex items-center gap-2">
+                                <button
+                                    onClick={() => setIsAddCardOpen(true)}
+                                    className="bg-primary text-white px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg flex items-center gap-2"
+                                >
                                     <Plus className="w-4 h-4" /> Add New Card
                                 </button>
                             </div>
 
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {/* Sample Visa Card */}
-                                <div className="relative h-60 rounded-[3rem] bg-gradient-to-br from-gray-900 to-black p-10 text-white shadow-2xl overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                                    <div className="relative z-10 h-full flex flex-col justify-between">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex flex-col">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Card Brand</p>
-                                                <p className="text-xl font-black italic tracking-tighter">VISA</p>
-                                            </div>
-                                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/5">
-                                                <CreditCard className="text-secondary" />
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <p className="text-2xl font-mono tracking-[0.2em] mb-4">•••• •••• •••• 4592</p>
-                                            <div className="flex justify-between items-end">
-                                                <div>
-                                                    <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Card Holder</p>
-                                                    <p className="text-sm font-bold truncate max-w-[150px]">KIDO EXPLORER</p>
+                                {loadingCards ? (
+                                    <div className="col-span-full py-20 flex justify-center"><Loader2 size={32} className="animate-spin text-secondary" /></div>
+                                ) : cards.map((card) => (
+                                    <div key={card.id} className="relative h-60 rounded-[3rem] bg-gradient-to-br from-gray-900 to-black p-10 text-white shadow-2xl overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
+                                        <div className="relative z-10 h-full flex flex-col justify-between">
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex flex-col">
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">Card Brand</p>
+                                                    <p className="text-xl font-black italic tracking-tighter uppercase">{card.cardBrand}</p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Expires</p>
-                                                    <p className="text-sm font-bold">12/28</p>
+                                                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-white/5">
+                                                    <CreditCard className="text-secondary" />
                                                 </div>
                                             </div>
+                                            <div>
+                                                <p className="text-2xl font-mono tracking-[0.2em] mb-4">•••• •••• •••• {card.last4}</p>
+                                                <div className="flex justify-between items-end">
+                                                    <div>
+                                                        <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Card Holder</p>
+                                                        <p className="text-sm font-bold truncate max-w-[150px]">{session?.user?.name || "Kido Explorer"}</p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-[8px] font-black uppercase tracking-widest text-white/20">Expires</p>
+                                                        <p className="text-sm font-bold">{card.expiry}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
+                                        <div className="absolute inset-x-0 bottom-0 h-2 bg-secondary" />
                                     </div>
-                                    <div className="absolute inset-x-0 bottom-0 h-2 bg-secondary opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
+                                ))}
 
-                                {/* Sample Mastercard */}
-                                <div className="relative h-60 rounded-[3rem] bg-gradient-to-br from-secondary to-secondary/80 p-10 text-primary shadow-2xl overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-                                    <div className="relative z-10 h-full flex flex-col justify-between">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex flex-col">
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">Card Brand</p>
-                                                <p className="text-xl font-black italic tracking-tighter">Mastercard</p>
-                                            </div>
-                                            <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center backdrop-blur-md border border-primary/5">
-                                                <ShieldCheck className="text-primary" />
-                                            </div>
+                                {cards.length === 0 && !loadingCards && (
+                                    <div className="relative h-60 rounded-[3rem] bg-secondary/5 border-2 border-dashed border-primary/10 p-10 flex flex-col items-center justify-center text-center space-y-3">
+                                        <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center text-primary/20 shadow-inner">
+                                            <CreditCard size={20} />
                                         </div>
-                                        <div>
-                                            <p className="text-2xl font-mono tracking-[0.2em] mb-4">•••• •••• •••• 8201</p>
-                                            <div className="flex justify-between items-end">
-                                                <div>
-                                                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/20">Card Holder</p>
-                                                    <p className="text-sm font-bold">KIDO EXPLORER</p>
-                                                </div>
-                                                <div className="text-right">
-                                                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/20">Expires</p>
-                                                    <p className="text-sm font-bold">08/29</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">No saved cards found</p>
                                     </div>
-                                    <div className="absolute inset-x-0 bottom-0 h-2 bg-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                                </div>
+                                )}
 
                                 {/* Save Card CTA */}
                                 <div className="h-60 rounded-[3rem] border-4 border-dashed border-primary/10 bg-cream/10 flex flex-col items-center justify-center p-10 gap-4 group hover:border-secondary transition-all cursor-pointer hover:bg-secondary/5">
@@ -224,7 +293,100 @@ export default function ConsumerDashboard() {
             </main>
 
             <Footer />
+
+            {isAddCardOpen && (
+                <AddCardModal
+                    onClose={() => setIsAddCardOpen(false)}
+                    onSuccess={() => {
+                        fetchCards();
+                        setIsAddCardOpen(false);
+                    }}
+                    userId={(session?.user as any)?.id}
+                />
+            )}
         </div>
     );
 }
+
+function AddCardModal({ onClose, onSuccess, userId }: any) {
+    const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        cardBrand: "Visa",
+        last4: "",
+        expiry: "",
+        userId: userId
+    });
+
+    const handleSubmit = async (e: any) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const res = await fetch(getApiUrl("/api/cards"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(formData)
+            });
+            if (res.ok) onSuccess();
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-primary/40 backdrop-blur-sm">
+            <div className="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative animate-in zoom-in-95 duration-300">
+                <button onClick={onClose} className="absolute top-8 right-8 text-primary/20 hover:text-primary transition-colors">
+                    <X size={24} />
+                </button>
+                <div className="mb-8">
+                    <h3 className="text-3xl font-black font-serif uppercase tracking-tight">Add <span className="text-secondary italic">Card</span></h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Securely save your payment method.</p>
+                </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Card Brand</label>
+                        <select
+                            className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/30"
+                            value={formData.cardBrand}
+                            onChange={(e) => setFormData({ ...formData, cardBrand: e.target.value })}
+                        >
+                            <option>Visa</option>
+                            <option>Mastercard</option>
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Last 4 Digits</label>
+                        <input
+                            required
+                            maxLength={4}
+                            className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/30"
+                            placeholder="4242"
+                            value={formData.last4}
+                            onChange={(e) => setFormData({ ...formData, last4: e.target.value })}
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Expiry (MM/YY)</label>
+                        <input
+                            required
+                            placeholder="12/28"
+                            className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/30"
+                            value={formData.expiry}
+                            onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
+                        />
+                    </div>
+                    <button
+                        disabled={loading}
+                        className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl disabled:opacity-50"
+                    >
+                        {loading ? <Loader2 className="animate-spin mx-auto" size={18} /> : "Save Card Node"}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+}
+
 

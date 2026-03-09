@@ -36,9 +36,15 @@ export default function InventoryPage() {
         try {
             const res = await fetch(getApiUrl("/api/products"));
             const data = await res.json();
-            setProducts(data);
+            if (Array.isArray(data)) {
+                setProducts(data);
+            } else {
+                console.error("API did not return an array:", data);
+                setProducts([]);
+            }
         } catch (error) {
-            console.error("Failed to fetch products");
+            console.error("Failed to fetch products:", error);
+            setProducts([]);
         } finally {
             setLoading(false);
         }
@@ -108,6 +114,7 @@ export default function InventoryPage() {
                                 <thead>
                                     <tr className="border-b border-primary/5 bg-neutral-50/50">
                                         <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Product Info</th>
+                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Tracking ID</th>
                                         <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Category / Source</th>
                                         <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Stock Status</th>
                                         <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Price</th>
@@ -142,6 +149,11 @@ export default function InventoryPage() {
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </td>
+                                            <td className="py-6 px-8">
+                                                <span className="font-mono text-xs font-bold bg-neutral-100 px-3 py-1.5 rounded-lg border border-primary/5 text-primary/60">
+                                                    {product.trackingId || 'N/A'}
+                                                </span>
                                             </td>
                                             <td className="py-6 px-8">
                                                 <p className="font-bold text-sm text-primary">{product.category}</p>
