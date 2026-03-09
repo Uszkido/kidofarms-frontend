@@ -16,12 +16,29 @@ export default function ConsumerDashboard() {
     const [trackingResult, setTrackingResult] = useState<any>(null);
     const [trackingLoading, setTrackingLoading] = useState(false);
     const [isAddCardOpen, setIsAddCardOpen] = useState(false);
+    const [wallet, setWallet] = useState<any>(null);
+    const [walletTxs, setWalletTxs] = useState<any[]>([]);
+    const [loadingWallet, setLoadingWallet] = useState(true);
 
     useEffect(() => {
         if ((session?.user as any)?.id) {
             fetchCards();
+            fetchWallet();
         }
     }, [(session?.user as any)?.id]);
+
+    const fetchWallet = async () => {
+        try {
+            const res = await fetch(getApiUrl(`/api/wallet?userId=${(session?.user as any)?.id}`));
+            const data = await res.json();
+            setWallet(data.wallet);
+            setWalletTxs(data.transactions);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoadingWallet(false);
+        }
+    };
 
     const fetchCards = async () => {
         try {
@@ -81,6 +98,29 @@ export default function ConsumerDashboard() {
                             </div>
                         </div>
 
+                        {/* Impact Dashboard */}
+                        <div className="bg-cream border border-primary/5 rounded-[3rem] p-10 flex flex-col md:flex-row justify-between items-center gap-10 shadow-lg">
+                            <div className="flex gap-6 items-center">
+                                <div className="w-16 h-16 rounded-[1.5rem] bg-white flex items-center justify-center text-secondary shadow-lg">
+                                    <ShieldCheck size={32} />
+                                </div>
+                                <div className="space-y-1">
+                                    <h4 className="text-xl font-black font-serif italic text-primary">Your Kido <span className="text-secondary">Impact Score</span></h4>
+                                    <p className="text-xs text-primary/40 font-medium leading-relaxed">By shopping fresh, you've saved <span className="text-primary font-bold">12kg of CO2</span> and supported <span className="text-primary font-bold">3 local farm families</span> this month.</p>
+                                </div>
+                            </div>
+                            <div className="flex gap-4">
+                                <div className="text-center px-6 py-2 border-l border-primary/10">
+                                    <p className="text-2xl font-black font-serif text-primary">12kg</p>
+                                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/30">CO2 Saved</p>
+                                </div>
+                                <div className="text-center px-6 py-2 border-l border-primary/10">
+                                    <p className="text-2xl font-black font-serif text-primary">84%</p>
+                                    <p className="text-[8px] font-black uppercase tracking-widest text-primary/30">Sustainability</p>
+                                </div>
+                            </div>
+                        </div>
+
                         {/* Quick Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                             {[
@@ -121,6 +161,61 @@ export default function ConsumerDashboard() {
                                         </div>
                                     </div>
                                     <span className="bg-green-500/10 text-green-600 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">Delivered</span>
+                                </div>
+
+                                {/* Kido Wallet Section */}
+                                <div className="grid md:grid-cols-12 gap-12">
+                                    <div className="md:col-span-8 bg-white rounded-[3rem] p-10 border border-primary/5 shadow-2xl space-y-8 flex flex-col justify-between overflow-hidden relative group">
+                                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 -translate-y-1/2 translate-x-1/2 rounded-full blur-3xl group-hover:bg-secondary/10 transition-all" />
+                                        <div className="flex justify-between items-start relative z-10">
+                                            <div className="space-y-2">
+                                                <h2 className="text-3xl font-black font-serif">Kido <span className="text-secondary italic">Wallet</span></h2>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Your Internal Financial Node</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-4xl font-black font-serif text-primary">₦{Number(wallet?.balance || 0).toLocaleString()}</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary italic">Available Credits</p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-4 relative z-10">
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Recent Transactions</p>
+                                            <div className="space-y-3">
+                                                {walletTxs.length > 0 ? walletTxs.map((tx, i) => (
+                                                    <div key={i} className="flex justify-between items-center py-2 border-b border-primary/5 last:border-0 opacity-60 hover:opacity-100 transition-opacity">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-2 h-2 rounded-full ${tx.type === 'credit' ? 'bg-green-500' : 'bg-red-500'}`} />
+                                                            <p className="text-xs font-bold">{tx.description}</p>
+                                                        </div>
+                                                        <p className={`text-xs font-black ${tx.type === 'credit' ? 'text-green-600' : 'text-primary'}`}>
+                                                            {tx.type === 'credit' ? '+' : '-'} ₦{Number(tx.amount).toLocaleString()}
+                                                        </p>
+                                                    </div>
+                                                )) : (
+                                                    <p className="text-xs font-medium text-primary/20 italic">No recent transactions found.</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                            Refill Wallet Node
+                                        </button>
+                                    </div>
+
+                                    <div className="md:col-span-4 bg-secondary rounded-[3rem] p-10 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+                                        <Plus size={80} className="absolute -bottom-10 -right-10 text-primary/5 rotate-12" />
+                                        <div className="space-y-4">
+                                            <h3 className="text-2xl font-black font-serif leading-tight text-primary">Refer & <br />Earn <span className="italic">Credits</span></h3>
+                                            <p className="text-[10px] font-bold uppercase tracking-widest text-primary/40 leading-relaxed">Get ₦500 for every farmer or friend you bring to the network.</p>
+                                        </div>
+                                        <div className="pt-8">
+                                            <div className="bg-white/20 p-4 rounded-xl border border-primary/10 flex justify-between items-center mb-6">
+                                                <span className="font-mono text-sm font-black">KIDO-REF-2026</span>
+                                                <button className="text-[10px] font-black uppercase text-primary/40 hover:text-primary">Copy</button>
+                                            </div>
+                                            <button className="w-full bg-primary text-white py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-primary transition-all">
+                                                Invite Now
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="p-10 space-y-8">
                                     {[

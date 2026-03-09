@@ -71,6 +71,11 @@ async function fixEverything() {
         `;
         console.log("✅ Categories table checked.");
 
+        // Fix Orders (Escrow Shield)
+        console.log("Step 6: Fixing 'orders' table for Escrow Shield...");
+        await sql`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "escrow_status" text DEFAULT 'held';`;
+        console.log("✅ Orders table updated.");
+
         console.log("\n✨ Database schema is now synchronized with src/db/schema.js");
     } catch (err) {
         console.error("❌ Failed to synchronize schema:", err);

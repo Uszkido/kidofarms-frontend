@@ -114,6 +114,7 @@ const orders = pgTable("orders", {
     paymentMethod: paymentMethodEnum("payment_method").default("card"),
     paymentStatus: paymentStatusEnum("payment_status").default("pending"),
     orderStatus: orderStatusEnum("order_status").default("processing"),
+    escrowStatus: text("escrow_status").default("held"), // held, released, disputed
     referralCode: text("referral_code"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -251,6 +252,79 @@ const otps = pgTable("otps", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// --- KIDO FARMS 2.0 TABLES ---
+
+// Stories Table (Media-rich vertical feed)
+const stories = pgTable("stories", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    vendorId: uuid("vendor_id").references(() => users.id).notNull(),
+    mediaUrl: text("media_url").notNull(),
+    mediaType: text("media_type").default("image"), // image, video
+    caption: text("caption"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Wallets Table (Internal FinTech)
+const wallets = pgTable("wallets", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    balance: numeric("balance", { precision: 12, scale: 2 }).default("0.00"),
+    currency: text("currency").default("NGN"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Wallet Transactions Table
+const walletTransactions = pgTable("wallet_transactions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    walletId: uuid("wallet_id").references(() => wallets.id).notNull(),
+    type: text("type").notNull(), // credit, debit, referral, cashback
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Group Buys Table (Neighborhood shared purchases)
+const groupBuys = pgTable("group_buys", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id").references(() => products.id).notNull(),
+    targetQuantity: integer("target_quantity").notNull(),
+    currentQuantity: integer("current_quantity").default(0),
+    expiryDate: timestamp("expiry_date").notNull(),
+    status: text("status").default("active"), // active, completed, failed
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Group Buy Participants Table
+const groupBuyParticipants = pgTable("group_buy_participants", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    groupBuyId: uuid("group_buy_id").references(() => groupBuys.id).notNull(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    quantity: integer("quantity").notNull(),
+    paidStatus: boolean("paid_status").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Notifications Table (Real-time Alert Center)
+const notifications = pgTable("notifications", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    title: text("title").notNull(),
+    message: text("message").notNull(),
+    type: text("type").default("info"), // info, success, warning, danger
+    isRead: boolean("is_read").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// IoT Sensors Table (Smart Farming)
+const sensors = pgTable("sensors", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityId: uuid("entity_id").notNull(), // Links to Harvest or Product
+    type: text("type").notNull(), // moisture, temperature, oxygen, weight
+    value: text("value").notNull(),
+    status: text("status").default("normal"), // normal, critical, warning
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     author: one(users, {
@@ -269,13 +343,41 @@ const usersRelations = relations(users, ({ many, one }) => ({
         fields: [users.id],
         references: [farmers.userId],
     }),
+    wallet: one(wallets, {
+        fields: [users.id],
+        references: [wallets.userId],
+    }),
 }));
 
-const vendorsRelations = relations(vendors, ({ one }) => ({
+const vendorsRelations = relations(vendors, ({ one, many }) => ({
     user: one(users, {
         fields: [vendors.userId],
         references: [users.id],
     }),
+    stories: many(stories),
+}));
+
+const walletsRelations = relations(wallets, ({ one, many }) => ({
+    user: one(users, {
+        fields: [wallets.userId],
+        references: [users.id],
+    }),
+    transactions: many(walletTransactions),
+}));
+
+const storiesRelations = relations(stories, ({ one }) => ({
+    vendor: one(users, {
+        fields: [stories.vendorId],
+        references: [users.id],
+    }),
+}));
+
+const groupBuysRelations = relations(groupBuys, ({ one, many }) => ({
+    product: one(products, {
+        fields: [groupBuys.productId],
+        references: [products.id],
+    }),
+    participants: many(groupBuyParticipants),
 }));
 
 const farmersRelations = relations(farmers, ({ one }) => ({
@@ -305,9 +407,19 @@ module.exports = {
     affiliates,
     commissions,
     otps,
+    stories,
+    wallets,
+    walletTransactions,
+    groupBuys,
+    groupBuyParticipants,
+    notifications,
+    sensors,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,
+    walletsRelations,
+    storiesRelations,
+    groupBuysRelations,
     farmersRelations,
     roleEnum,
     unitEnum,

@@ -1,3 +1,5 @@
+"use client";
+
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import {
@@ -11,11 +13,80 @@ import {
     ArrowRight,
     CheckCircle2,
     Calendar,
-    MapPin
+    MapPin,
+    Search,
+    Zap,
+    Camera,
+    Brain,
+    Loader2,
+    X,
+    AlertTriangle,
+    ShieldCheck,
+    QrCode,
+    Mic,
+    Check
 } from "lucide-react";
 import Link from "next/link";
+import { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 
 export default function FarmerDashboard() {
+    const [sensors, setSensors] = useState<any[]>([]);
+    const [loadingSensors, setLoadingSensors] = useState(true);
+    const [isAgronomistOpen, setIsAgronomistOpen] = useState(false);
+    const [diagnosis, setDiagnosis] = useState<any>(null);
+    const [diagnosing, setDiagnosing] = useState(false);
+    const [isVoiceListingOpen, setIsVoiceListingOpen] = useState(false);
+    const [voiceResult, setVoiceResult] = useState<any>(null);
+    const [isRecording, setIsRecording] = useState(false);
+
+    useEffect(() => {
+        const fetchSensors = async () => {
+            try {
+                const res = await fetch(getApiUrl("/api/sensors"));
+                if (res.ok) setSensors(await res.json());
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoadingSensors(false);
+            }
+        };
+        fetchSensors();
+    }, []);
+
+    const handleVoiceListing = async () => {
+        setIsRecording(true);
+        // Simulate record time
+        setTimeout(async () => {
+            try {
+                const res = await fetch(getApiUrl("/api/voice/parse"), { method: "POST" });
+                if (res.ok) setVoiceResult(await res.json());
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setIsRecording(false);
+            }
+        }, 3000);
+    };
+
+    const handleDiagnose = async (cropType: string) => {
+        setDiagnosing(true);
+        try {
+            const res = await fetch(getApiUrl("/api/agronomist/diagnose"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ cropType, description: "Leaves turning yellow with purple spots." })
+            });
+            if (res.ok) setDiagnosis(await res.json());
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setDiagnosing(false);
+        }
+    };
+
+    const getSensorVal = (type: string) => sensors.find(s => s.type === type)?.value || "--";
+
     return (
         <div className="flex flex-col min-h-screen">
             <Header />            <main className="flex-grow pt-32 pb-24 bg-cream/10">
@@ -54,8 +125,8 @@ export default function FarmerDashboard() {
                             {[
                                 { label: "Total Yield", value: "2.4 Tons", icon: Sprout, color: "bg-green-500", detail: "+12% vs last cycle" },
                                 { label: "Est. Revenue", value: "₦4.8M", icon: TrendingUp, color: "bg-secondary", detail: "Next payout: Friday" },
-                                { label: "Soil Moisture", value: "68%", icon: Droplets, color: "bg-blue-500", detail: "Optimal range: 60-75%" },
-                                { label: "Direct Orders", value: "142", icon: ShoppingBag, color: "bg-primary", detail: "8 orders pending dispatch" },
+                                { label: "Soil Moisture", value: getSensorVal('moisture') + (getSensorVal('moisture') !== '--' ? '%' : ''), icon: Droplets, color: "bg-blue-500", detail: "Optimal range: 60-75%" },
+                                { label: "Soil Temp", value: getSensorVal('temperature') + (getSensorVal('temperature') !== '--' ? '°C' : ''), icon: ThermometerSun, color: "bg-orange-500", detail: "Optimal range: 18-24°C" },
                             ].map((stat, i) => (
                                 <div key={i} className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm space-y-4 group hover:shadow-xl transition-all relative overflow-hidden">
                                     <div className={`w-14 h-14 rounded-2xl ${stat.color} flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
@@ -101,12 +172,25 @@ export default function FarmerDashboard() {
                                                     <span className="text-2xl font-black font-serif text-primary">{item.progress}%</span>
                                                     <p className="text-[10px] font-black uppercase tracking-widest text-secondary italic">{item.stage}</p>
                                                 </div>
-                                            </div>
-                                            <div className="w-full h-3 bg-cream rounded-full overflow-hidden border border-primary/5 p-0.5">
-                                                <div
-                                                    className="h-full bg-secondary rounded-full transition-all duration-[2000ms]"
-                                                    style={{ width: `${item.progress}%` }}
-                                                />
+                                                <div className="flex gap-4">
+                                                    <div className="w-full h-3 bg-cream rounded-full overflow-hidden border border-primary/5 p-0.5 flex-grow">
+                                                        <div
+                                                            className="h-full bg-secondary rounded-full transition-all duration-[2000ms]"
+                                                            style={{ width: `${item.progress}%` }}
+                                                        />
+                                                    </div>
+                                                    <Link href={`/trace/KD-2026-${i}`} className="bg-primary text-white p-2 rounded-xl hover:bg-secondary hover:text-primary transition-all shadow-lg flex items-center justify-center">
+                                                        <QrCode size={16} />
+                                                    </Link>
+                                                </div>
+                                                <div className="mt-4 flex gap-4">
+                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-primary/40">
+                                                        <Droplets size={12} className="text-blue-500" /> Moisture: {getSensorVal('moisture')}%
+                                                    </div>
+                                                    <div className="flex items-center gap-2 text-[10px] font-bold text-primary/40">
+                                                        <ThermometerSun size={12} className="text-orange-500" /> Temp: {getSensorVal('temperature')}°C
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -137,11 +221,23 @@ export default function FarmerDashboard() {
                                     </button>
                                 </div>
 
-                                <div className="bg-secondary rounded-[3rem] p-8 text-primary space-y-4 shadow-xl">
-                                    <h4 className="text-xl font-black font-serif leading-tight">Need Support <br />From the Network?</h4>
-                                    <p className="text-primary/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Connect with agronomists and supply chain experts.</p>
+                                <div className="bg-primary rounded-[3rem] p-8 text-white space-y-4 shadow-xl relative group cursor-pointer overflow-hidden" onClick={() => setIsVoiceListingOpen(true)}>
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 -translate-y-1/2 translate-x-1/2 rounded-full blur-2xl" />
+                                    <h4 className="text-xl font-black font-serif leading-tight">Voice Command <br /><span className="text-secondary italic">List by Speaking</span></h4>
+                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">No typing needed. Just tell Kido what you harvested.</p>
+                                    <button className="flex items-center gap-2 font-black text-xs uppercase tracking-widest border-b-2 border-secondary/20 hover:border-secondary transition-all pb-1">
+                                        Open Mic Center <Mic size={14} className="text-secondary" />
+                                    </button>
+                                </div>
+
+                                <div className="bg-secondary rounded-[3rem] p-8 text-primary space-y-4 shadow-xl relative group cursor-pointer" onClick={() => setIsAgronomistOpen(true)}>
+                                    <div className="absolute -top-4 -right-4 w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white scale-0 group-hover:scale-100 transition-transform">
+                                        <Zap size={20} />
+                                    </div>
+                                    <h4 className="text-xl font-black font-serif leading-tight">AI Agronomist <br /><span className="italic">Ready for Scan</span></h4>
+                                    <p className="text-primary/60 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Upload a photo to detect pest and diseases in seconds.</p>
                                     <button className="flex items-center gap-2 font-black text-xs uppercase tracking-widest border-b-2 border-primary/20 hover:border-primary transition-all pb-1">
-                                        Open Support Ticket <ArrowRight size={14} />
+                                        Open Diagnostic Node <Brain size={14} />
                                     </button>
                                 </div>
                             </div>
@@ -149,6 +245,151 @@ export default function FarmerDashboard() {
                     </div>
                 </div>
             </main>
+
+            {isAgronomistOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/90 backdrop-blur-xl">
+                    <div className="bg-white w-full max-w-lg rounded-[3.5rem] p-12 shadow-2xl relative">
+                        <button onClick={() => { setIsAgronomistOpen(false); setDiagnosis(null); }} className="absolute top-10 right-10 text-primary/20 hover:text-primary">
+                            <X size={28} />
+                        </button>
+
+                        <div className="mb-10 text-center">
+                            <div className="w-20 h-20 bg-secondary rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-primary shadow-xl">
+                                <Brain size={40} />
+                            </div>
+                            <h3 className="text-3xl font-black font-serif">Kido <span className="text-secondary italic">Agronomist</span></h3>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Precision Disease Diagnosis</p>
+                        </div>
+
+                        {!diagnosis ? (
+                            <div className="space-y-8">
+                                <div className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-6 group hover:border-secondary transition-all cursor-pointer">
+                                    <div className="w-16 h-16 rounded-3xl bg-cream flex items-center justify-center text-primary group-hover:bg-secondary group-hover:scale-110 transition-all">
+                                        <Camera size={32} />
+                                    </div>
+                                    <div className="text-center">
+                                        <p className="font-black text-sm uppercase tracking-widest">Select Crop Photo</p>
+                                        <p className="text-[10px] text-primary/30 font-bold">Supported: Maize, Onions, Peppers</p>
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-3 gap-4">
+                                    {['Maize', 'Onion', 'Pepper'].map(crop => (
+                                        <button
+                                            key={crop}
+                                            onClick={() => handleDiagnose(crop)}
+                                            disabled={diagnosing}
+                                            className="bg-cream hover:bg-secondary py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all disabled:opacity-50"
+                                        >
+                                            {crop}
+                                        </button>
+                                    ))}
+                                </div>
+                                {diagnosing && (
+                                    <div className="flex items-center justify-center gap-3 text-secondary">
+                                        <Loader2 size={16} className="animate-spin" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest">AI is analyzing tissue...</span>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="space-y-8 animate-in slide-in-from-bottom-6">
+                                <div className="p-8 bg-cream rounded-[2.5rem] border border-secondary/20 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-6 opacity-10">
+                                        <AlertTriangle size={64} className="text-primary" />
+                                    </div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mb-2">Diagnosis Result</p>
+                                    <h4 className="text-2xl font-black font-serif text-primary italic mb-4">{diagnosis.diagnosis}</h4>
+                                    <div className="inline-flex items-center gap-2 bg-secondary text-primary px-3 py-1 rounded-full text-[8px] font-black uppercase mb-6">
+                                        <ShieldCheck size={10} strokeWidth={3} /> {Math.round(diagnosis.confidence * 100)}% Confidence
+                                    </div>
+                                    <div className="space-y-4">
+                                        <p className="text-[10px] font-black uppercase text-primary/40">Treatment Plan</p>
+                                        <p className="text-sm font-medium leading-relaxed italic border-l-2 border-secondary pl-6">{diagnosis.treatment}</p>
+                                    </div>
+                                </div>
+                                <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                    Save to Field Log
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {isVoiceListingOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/95 backdrop-blur-2xl">
+                    <div className="bg-white w-full max-w-lg rounded-[3.5rem] p-12 shadow-2xl relative text-center">
+                        <button onClick={() => { setIsVoiceListingOpen(false); setVoiceResult(null); }} className="absolute top-10 right-10 text-primary/20 hover:text-primary">
+                            <X size={28} />
+                        </button>
+
+                        <div className="mb-10">
+                            <h3 className="text-3xl font-black font-serif">Kido <span className="text-secondary italic">Voice Assistant</span></h3>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Natural Language Listing</p>
+                        </div>
+
+                        {!voiceResult ? (
+                            <div className="space-y-12">
+                                <div
+                                    onClick={handleVoiceListing}
+                                    className={`w-32 h-32 rounded-full mx-auto flex items-center justify-center transition-all cursor-pointer ${isRecording ? 'bg-secondary scale-110 shadow-[0_0_50px_rgba(255,215,0,0.5)]' : 'bg-primary shadow-xl hover:scale-105'}`}
+                                >
+                                    <Mic size={48} className={isRecording ? 'text-primary animate-pulse' : 'text-white'} />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <p className="font-black text-sm uppercase tracking-widest">
+                                        {isRecording ? "Listening to your field report..." : "Tap to start speaking"}
+                                    </p>
+                                    <p className="text-[10px] text-primary/30 font-bold max-w-xs mx-auto">
+                                        E.g., "List 50 baskets of tomatoes from Sector B. Price 5000 naira each."
+                                    </p>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="space-y-8 animate-in zoom-in-95 duration-500">
+                                <div className="bg-cream/50 p-8 rounded-[2.5rem] border border-primary/5 text-left space-y-6">
+                                    <div className="flex justify-between items-center">
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 italic">Text Extracted</p>
+                                        <div className="bg-secondary/20 text-primary px-3 py-1 rounded-full text-[8px] font-black uppercase">
+                                            {Math.round(voiceResult.confidence * 100)}% Confidence
+                                        </div>
+                                    </div>
+                                    <p className="text-sm font-medium italic text-primary/80">"{voiceResult.audioTranscript}"</p>
+
+                                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-primary/5">
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Product</p>
+                                            <p className="text-sm font-black">{voiceResult.product}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Quantity</p>
+                                            <p className="text-sm font-black">{voiceResult.quantity} {voiceResult.unit}s</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Unit Price</p>
+                                            <p className="text-sm font-black">₦{voiceResult.price}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Location</p>
+                                            <p className="text-sm font-black">{voiceResult.location}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-4">
+                                    <button onClick={() => setVoiceResult(null)} className="flex-1 bg-cream py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary/5 transition-all">
+                                        Retry
+                                    </button>
+                                    <button className="flex-2 bg-primary text-white py-5 px-10 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl flex items-center justify-center gap-2">
+                                        <Check size={16} /> Confirm & List
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <Footer />
         </div>

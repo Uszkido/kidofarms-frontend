@@ -86,6 +86,23 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
+// POST /api/orders/:id/release (Escrow Shield: Release Funds to Vendor)
+router.post('/:id/release', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const [order] = await db.update(orders)
+            .set({ escrowStatus: 'released' })
+            .where(eq(orders.id, id))
+            .returning();
+
+        // In a real app, this would trigger a payout to the vendor's real bank account
+        res.json({ message: 'Funds released to vendor successfully!', order });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ error: 'Failed to release funds' });
+    }
+});
+
 // GET /api/orders/vendor/:userId
 // Fetches only order items that belong to the vendor's products
 router.get('/vendor/:userId', async (req, res) => {
