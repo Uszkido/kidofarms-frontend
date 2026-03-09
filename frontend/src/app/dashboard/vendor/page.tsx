@@ -65,83 +65,81 @@ export default async function VendorDashboard() {
                         </header>
 
                         {/* Growth Stats */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            {/* Growth Stats */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
-                                    <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
-                                        <ShoppingBag size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-black font-serif">{stats.totalSales}</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Total Revenue</p>
-                                        <span className="inline-block mt-3 text-[10px] font-black text-green-500 bg-green-50 px-2 py-0.5 rounded">
-                                            {stats.growth}
-                                        </span>
-                                    </div>
+                        {/* Growth Stats */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
+                                <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
+                                    <ShoppingBag size={24} />
                                 </div>
-
-                                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
-                                    <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
-                                        <Activity size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-black font-serif">{stats.activeOrders}</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Active Orders</p>
-                                    </div>
-                                </div>
-
-                                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
-                                    <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
-                                        <Box size={24} />
-                                    </div>
-                                    <div>
-                                        <p className="text-3xl font-black font-serif">{stats.stockItems}</p>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Stock Items</p>
-                                    </div>
-                                </div>
-
-                                <div className="bg-primary p-8 rounded-[2.5rem] shadow-xl text-white space-y-4 relative overflow-hidden group">
-                                    <div className="absolute inset-0 bg-secondary/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                                    <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center relative">
-                                        <TrendingUp size={24} className="text-secondary" />
-                                    </div>
-                                    <div className="relative">
-                                        <p className="text-3xl font-black font-serif italic text-secondary leading-none">Scale Up</p>
-                                        <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mt-2">Elite Status</p>
-                                        <ChevronRight className="absolute bottom-0 right-1 text-white/20 group-hover:text-secondary group-hover:translate-x-2 transition-all" size={24} />
-                                    </div>
+                                <div>
+                                    <p className="text-3xl font-black font-serif">{stats.totalSales}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Total Revenue</p>
+                                    <span className="inline-block mt-3 text-[10px] font-black text-green-500 bg-green-50 px-2 py-0.5 rounded">
+                                        {stats.growth}
+                                    </span>
                                 </div>
                             </div>
 
-                            {/* Action Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                <Link href="/dashboard/vendor/orders" className="bg-primary text-white p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden group min-h-[300px] flex flex-col justify-between">
-                                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 -translate-y-1/2 translate-x-1/2 rounded-full blur-[60px]" />
-                                    <Package className="text-secondary mb-6 group-hover:scale-110 transition-transform" size={40} />
-                                    <div className="space-y-4">
-                                        <h4 className="text-3xl font-black font-serif italic mb-2">Order Vault</h4>
-                                        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">View all active and fulfilled sales from your unique stock node.</p>
-                                    </div>
-                                    <div className="mt-8 inline-flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-widest">
-                                        Access Ledger <ArrowUpRight size={14} />
-                                    </div>
-                                </Link>
-
-                                <div className="bg-white p-10 rounded-[3.5rem] border border-primary/5 shadow-2xl flex flex-col justify-between min-h-[300px]">
-                                    <TrendingUp className="text-secondary" size={40} />
-                                    <div className="space-y-4">
-                                        <h4 className="text-2xl font-black font-serif">Growth Matrix</h4>
-                                        <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Advanced analytics for your farm's performance and regional reach.</p>
-                                    </div>
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
+                                <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
+                                    <Activity size={24} />
                                 </div>
+                                <div>
+                                    <p className="text-3xl font-black font-serif">{stats.activeOrders}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Active Orders</p>
+                                </div>
+                            </div>
 
-                                <div className="bg-secondary p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px]">
-                                    <CheckCircle className="text-primary" size={40} />
-                                    <div className="space-y-4">
-                                        <h4 className="text-2xl font-black font-serif italic">Support Node</h4>
-                                        <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Direct line to Kido Farms logistics and vendor success agents.</p>
-                                    </div>
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
+                                <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
+                                    <Box size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-3xl font-black font-serif">{stats.stockItems}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Stock Items</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-primary p-8 rounded-[2.5rem] shadow-xl text-white space-y-4 relative overflow-hidden group">
+                                <div className="absolute inset-0 bg-secondary/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center relative">
+                                    <TrendingUp size={24} className="text-secondary" />
+                                </div>
+                                <div className="relative">
+                                    <p className="text-3xl font-black font-serif italic text-secondary leading-none">Scale Up</p>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/40 mt-2">Elite Status</p>
+                                    <ChevronRight className="absolute bottom-0 right-1 text-white/20 group-hover:text-secondary group-hover:translate-x-2 transition-all" size={24} />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Action Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <Link href="/dashboard/vendor/orders" className="bg-primary text-white p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden group min-h-[300px] flex flex-col justify-between">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 -translate-y-1/2 translate-x-1/2 rounded-full blur-[60px]" />
+                                <Package className="text-secondary mb-6 group-hover:scale-110 transition-transform" size={40} />
+                                <div className="space-y-4">
+                                    <h4 className="text-3xl font-black font-serif italic mb-2">Order Vault</h4>
+                                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">View all active and fulfilled sales from your unique stock node.</p>
+                                </div>
+                                <div className="mt-8 inline-flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-widest">
+                                    Access Ledger <ArrowUpRight size={14} />
+                                </div>
+                            </Link>
+
+                            <div className="bg-white p-10 rounded-[3.5rem] border border-primary/5 shadow-2xl flex flex-col justify-between min-h-[300px]">
+                                <TrendingUp className="text-secondary" size={40} />
+                                <div className="space-y-4">
+                                    <h4 className="text-2xl font-black font-serif">Growth Matrix</h4>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Advanced analytics for your farm's performance and regional reach.</p>
+                                </div>
+                            </div>
+
+                            <div className="bg-secondary p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px]">
+                                <CheckCircle className="text-primary" size={40} />
+                                <div className="space-y-4">
+                                    <h4 className="text-2xl font-black font-serif italic">Support Node</h4>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Direct line to Kido Farms logistics and vendor success agents.</p>
                                 </div>
                             </div>
                         </div>
