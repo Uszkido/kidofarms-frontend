@@ -53,6 +53,7 @@ router.post('/', async (req, res) => {
             price: body.price.toString(),
             stock: parseInt(body.stock) || 0,
             trackingId: generateTrackingId(),
+            ownerId: body.ownerId || null, // Can be assigned from auth middleare in real app
         };
         const [product] = await db.insert(products).values(payload).returning();
         res.status(201).json(product);

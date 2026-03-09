@@ -14,10 +14,13 @@ import {
     Activity,
     Users,
     ChevronRight,
-    Store,
-    Wallet,
+    Box,
+    Clock,
+    User,
+    ArrowUpRight,
+    CheckCircle,
     BarChart3,
-    CheckCircle2
+    Wallet
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
@@ -77,22 +80,28 @@ export default function VendorDashboard() {
                                     </span>
                                 </div>
                             </div>
-                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-6 hover:shadow-xl transition-all">
-                                <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
-                                    <Activity size={24} />
+                            {/* Action Grid */}
+                            <div className="grid md:grid-cols-3 gap-8">
+                                <Link href="/dashboard/vendor/orders" className="bg-primary text-white p-10 rounded-[3.5rem] shadow-2xl relative overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary opacity-20 -translate-y-1/2 translate-x-1/2 rounded-full blur-[60px]" />
+                                    <Package className="text-secondary mb-6 group-hover:scale-110 transition-transform" size={40} />
+                                    <h4 className="text-3xl font-black font-serif italic mb-2">Order Vault</h4>
+                                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">View all active and fulfilled sales from your unique stock node.</p>
+                                    <div className="mt-8 inline-flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-widest">
+                                        Access Ledger <ArrowUpRight size={14} />
+                                    </div>
+                                </Link>
+
+                                <div className="bg-white p-10 rounded-[3.5rem] border border-primary/5 shadow-2xl space-y-4">
+                                    <TrendingUp className="text-secondary" size={40} />
+                                    <h4 className="text-2xl font-black font-serif">Growth Matrix</h4>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Advanced analytics for your farm's performance and regional reach.</p>
                                 </div>
-                                <div>
-                                    <p className="text-3xl font-black font-serif">{stats.activeOrders}</p>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Active Shipments</p>
-                                </div>
-                            </div>
-                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-6 hover:shadow-xl transition-all">
-                                <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
-                                    <Package size={24} />
-                                </div>
-                                <div>
-                                    <p className="text-3xl font-black font-serif">{stats.stockItems}</p>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-1">Unique SKUs</p>
+
+                                <div className="bg-secondary p-10 rounded-[3.5rem] shadow-2xl space-y-4">
+                                    <CheckCircle className="text-primary" size={40} />
+                                    <h4 className="text-2xl font-black font-serif italic">Support Node</h4>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Direct line to Kido Farms logistics and vendor success agents.</p>
                                 </div>
                             </div>
                             <div className="bg-primary p-8 rounded-[2.5rem] shadow-xl text-white space-y-6 relative overflow-hidden group">

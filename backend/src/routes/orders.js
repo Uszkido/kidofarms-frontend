@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { orders, orderItems, affiliates, commissions } = require('../db/schema');
-const { desc, eq } = require('drizzle-orm');
+const { orders, orderItems, affiliates, commissions, products } = require('../db/schema');
+const { desc, eq, and, inArray } = require('drizzle-orm');
 
 router.get('/', async (req, res) => {
     try {
@@ -83,6 +83,39 @@ router.patch('/:id', async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(400).json({ error: 'Failed' });
+    }
+});
+
+// GET /api/orders/vendor/:userId
+// Fetches only order items that belong to the vendor's products
+router.get('/vendor/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+
+        // 1. Get all products owned by this vendor
+        const vendorProducts = await db.select({ id: products.id })
+            .from(products)
+            .where(eq(products.ownerId, userId));
+
+        if (vendorProducts.length === 0) return res.json([]);
+
+        const productIds = vendorProducts.map(p => p.id);
+
+        // 2. Find all order items matching these products
+        const items = await db.query.orderItems.findMany({
+            where: inArray(orderItems.productId, productIds),
+            with: {
+                order: {
+                    with: { user: true }
+                },
+                product: true
+            }
+        });
+
+        res.json(items);
+    } catch (error) {
+        console.error('Vendor Orders Error:', error);
+        res.status(500).json({ error: 'Failed to fetch vendor orders' });
     }
 });
 
