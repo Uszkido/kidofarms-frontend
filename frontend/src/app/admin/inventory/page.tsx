@@ -69,7 +69,7 @@ export default function InventoryPage() {
     );
 
     return (
-        <div className="flex flex-col min-h-screen bg-neutral-50 px-6">
+        <div className="flex flex-col min-h-screen bg-background px-6">
             <main className="flex-grow py-24">
                 <div className="container mx-auto px-6 max-w-7xl">
                     {/* Header Controls */}
@@ -102,7 +102,7 @@ export default function InventoryPage() {
                     </div>
 
                     {/* Inventory Table Container */}
-                    <div className="bg-white rounded-[3rem] border border-primary/5 shadow-sm overflow-x-auto custom-scrollbar">
+                    <div className="bg-card rounded-[3rem] border border-primary/5 shadow-sm overflow-x-auto custom-scrollbar">
                         <div className="min-w-[1000px]">
                             <table className="w-full text-left border-collapse">
                                 <thead>
@@ -122,7 +122,7 @@ export default function InventoryPage() {
                                             </td>
                                         </tr>
                                     ) : filteredProducts.map((product) => (
-                                        <tr key={product.id} className="border-b border-primary/5 hover:bg-neutral-50/50 transition-colors group">
+                                        <tr key={product.id} className="border-b border-primary/5 hover:bg-primary/5 transition-colors group">
                                             <td className="py-6 px-8">
                                                 <div className="flex items-center gap-4">
                                                     <div className="w-16 h-16 rounded-2xl bg-neutral-100 relative overflow-hidden shrink-0 border border-primary/5">

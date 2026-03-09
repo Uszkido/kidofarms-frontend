@@ -7,12 +7,13 @@ import { Search, User, Menu, BarChart3, ShoppingCart } from "lucide-react";
 import LogoutButton from './LogoutButton';
 import CartCount from './CartCount';
 import { motion } from "framer-motion";
+import ThemeToggle from "./ThemeToggle";
 
 export const Header = () => {
     const { data: session } = useSession();
 
     return (
-        <header className="bg-primary/95 backdrop-blur-xl text-white py-4 sticky top-0 z-[60] shadow-2xl border-b border-white/10">
+        <header className="bg-primary backdrop-blur-xl text-primary-foreground py-4 sticky top-0 z-[60] shadow-2xl border-b border-primary/10">
             <div className="container mx-auto px-6 flex justify-between items-center">
                 <Link href="/" className="flex items-center gap-4 group shrink-0">
                     <motion.div
@@ -87,6 +88,7 @@ export const Header = () => {
                     )}
 
                     <div className="w-px h-6 bg-white/10 mx-2 hidden md:block" />
+                    <ThemeToggle />
                     <CartCount />
 
                     <button className="lg:hidden p-2 bg-white/5 rounded-xl">

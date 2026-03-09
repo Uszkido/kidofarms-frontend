@@ -139,19 +139,19 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
             </div>
 
             {/* Right Form Panel */}
-            <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-neutral-50">
+            <div className="flex-1 flex items-center justify-center p-8 lg:p-16 bg-background">
                 <div className="w-full max-w-md space-y-10">
 
                     {/* Mobile Logo */}
                     <Link href="/" className="flex lg:hidden items-center gap-3 mb-8">
-                        <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center relative overflow-hidden shadow-lg">
+                        <div className="w-14 h-14 bg-card rounded-xl flex items-center justify-center relative overflow-hidden shadow-lg border border-primary/10">
                             <Image src="/logo.svg" alt="Kido Farms" fill className="p-1.5 object-contain" />
                         </div>
                         <span className="font-black text-lg uppercase text-primary">Kido Farms</span>
                     </Link>
 
                     {/* Tab Switch */}
-                    <div className="bg-white rounded-2xl p-1.5 flex shadow-sm border border-primary/5">
+                    <div className="bg-card rounded-2xl p-1.5 flex shadow-sm border border-primary/5">
                         {(["login", "signup"] as const).map((m) => (
                             <button
                                 key={m}
@@ -216,7 +216,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                                     <input
                                         name="name" type="text" required value={form.name} onChange={handleChange}
                                         placeholder="e.g. Aminu Musa"
-                                        className="w-full bg-white border border-primary/10 rounded-2xl px-6 py-4 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
+                                        className="w-full bg-card border border-primary/10 rounded-2xl px-6 py-4 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -224,7 +224,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                                     <input
                                         name="phone" type="tel" value={form.phone} onChange={handleChange}
                                         placeholder="+234 801 234 5678"
-                                        className="w-full bg-white border border-primary/10 rounded-2xl px-6 py-4 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
+                                        className="w-full bg-card border border-primary/10 rounded-2xl px-6 py-4 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
                                     />
                                 </div>
                             </>
@@ -235,7 +235,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                             <input
                                 name="email" type="email" required value={form.email} onChange={handleChange}
                                 placeholder="yourname@email.com"
-                                className="w-full bg-white border border-primary/10 rounded-2xl px-6 py-4 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
+                                className="w-full bg-card border border-primary/10 rounded-2xl px-6 py-4 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
                             />
                         </div>
 
@@ -245,7 +245,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                                 <input
                                     name="password" type={showPassword ? "text" : "password"} required value={form.password} onChange={handleChange}
                                     placeholder="Min. 8 characters"
-                                    className="w-full bg-white border border-primary/10 rounded-2xl px-6 py-4 pr-14 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
+                                    className="w-full bg-card border border-primary/10 rounded-2xl px-6 py-4 pr-14 text-primary font-medium focus:ring-2 focus:ring-secondary/30 focus:border-secondary outline-none transition-all shadow-sm"
                                 />
                                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-1/2 -translate-y-1/2 text-primary/30 hover:text-primary transition-colors">
                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
