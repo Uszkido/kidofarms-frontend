@@ -7,7 +7,8 @@ async function seed() {
     console.log('--- Seeding Demo Accounts ---');
     const demoUsers = [
         { name: 'Kido Admin', email: 'admin@kido.com', password: 'kido-admin-2026', role: 'admin' },
-        { name: 'Kano Valley Farmer', email: 'vendor@kido.com', password: 'kido-vendor-2026', role: 'farmer' },
+        { name: 'Kano Valley Farmer', email: 'farmer@kido.com', password: 'kido-farmer-2026', role: 'farmer' },
+        { name: 'Kido Store Vendor', email: 'vendor@kido.com', password: 'kido-vendor-2026', role: 'vendor' },
         { name: 'Elite Subscriber', email: 'subscriber@kido.com', password: 'kido-sub-2026', role: 'subscriber' },
         { name: 'Happy Shopper', email: 'shopper@kido.com', password: 'kido-shop-2026', role: 'customer' }
     ];

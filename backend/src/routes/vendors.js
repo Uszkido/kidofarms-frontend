@@ -64,14 +64,14 @@ router.post('/register', async (req, res) => {
                 city,
                 state,
                 zip,
-                role: 'farmer'
+                role: 'vendor'
             }).returning();
             finalUserId = user.id;
         } else {
-            // Update existing user to farmer role and add details if provided
+            // Update existing user to vendor role and add details if provided
             await db.update(users)
                 .set({
-                    role: 'farmer',
+                    role: 'vendor',
                     phone: phone || undefined,
                     street: street || undefined,
                     city: city || undefined,
