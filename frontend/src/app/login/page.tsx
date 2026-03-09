@@ -107,8 +107,8 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-3 z-10">
-                    <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center relative overflow-hidden shadow-xl">
-                        <Image src="/logo.svg" alt="Kido Farms" fill className="p-2 object-contain filter brightness-0 invert" />
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center relative overflow-hidden shadow-xl">
+                        <Image src="/logo.svg" alt="Kido Farms" fill className="p-2 object-contain" />
                     </div>
                     <div>
                         <p className="text-white font-black text-xl tracking-tighter uppercase leading-none">Kido Farms</p>
@@ -144,8 +144,8 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
 
                     {/* Mobile Logo */}
                     <Link href="/" className="flex lg:hidden items-center gap-3 mb-8">
-                        <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center relative overflow-hidden">
-                            <Image src="/logo.svg" alt="Kido Farms" fill className="p-1.5 object-contain filter brightness-0 invert" />
+                        <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center relative overflow-hidden shadow-lg">
+                            <Image src="/logo.svg" alt="Kido Farms" fill className="p-1.5 object-contain" />
                         </div>
                         <span className="font-black text-lg uppercase text-primary">Kido Farms</span>
                     </Link>
