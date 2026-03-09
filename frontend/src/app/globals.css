@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9f7f2;
-  /* Cream */
+  --background: #fdfcf9;
+  /* Creamy White */
   --foreground: #1a3c34;
   /* Forest Green */
   --card: #ffffff;
@@ -18,6 +18,27 @@
   --border: #e2e2e2;
   --input: #e2e2e2;
   --ring: #1a3c34;
+}
+
+.dark {
+  --background: #0a110f;
+  /* Deep Obsidian Green */
+  --foreground: #fdfcf9;
+  /* Creamy White */
+  --card: #111d1a;
+  /* Dark Forest Card */
+  --card-foreground: #fdfcf9;
+  --primary: #fdfcf9;
+  /* White as primary on dark */
+  --primary-foreground: #1a3c34;
+  --secondary: #d4af37;
+  /* Lighter Gold */
+  --secondary-foreground: #0a110f;
+  --accent: #2d5a43;
+  --accent-foreground: #fdfcf9;
+  --border: #1a3c34;
+  --input: #1a3c34;
+  --ring: #d4af37;
 }
 
 @theme inline {

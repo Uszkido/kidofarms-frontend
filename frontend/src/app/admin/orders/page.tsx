@@ -70,7 +70,7 @@ export default function OrdersPage() {
     );
 
     return (
-        <div className="flex flex-col min-h-screen bg-neutral-50 px-6">
+        <div className="flex flex-col min-h-screen bg-background px-6">
             <main className="flex-grow py-24">
                 <div className="container mx-auto px-6 max-w-7xl">
                     {/* Header Controls */}
@@ -147,7 +147,7 @@ export default function OrdersPage() {
                             if (order.orderStatus === 'cancelled') { statusColor = "bg-red-100 text-red-600"; StatusIcon = XCircle; }
 
                             return (
-                                <div key={order.id} className="bg-white p-6 lg:p-8 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-xl transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 group">
+                                <div key={order.id} className="bg-card p-6 lg:p-8 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-xl transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-6 group">
                                     <div className="flex items-start lg:items-center gap-6">
                                         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 ${statusColor}`}>
                                             <StatusIcon size={20} />

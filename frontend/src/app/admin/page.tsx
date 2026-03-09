@@ -43,7 +43,7 @@ export default function AdminDashboard() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#FDFCF9]">
+        <div className="min-h-screen bg-background">
             {/* Header */}
             <header className="bg-white border-b border-primary/5 sticky top-0 z-50 shadow-sm">
                 <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
