@@ -18,15 +18,8 @@ export const Header = () => {
                     <motion.div
                         whileHover={{ scale: 1.05, rotate: -2 }}
                         whileTap={{ scale: 0.95 }}
-                        className="relative w-14 h-14 md:w-20 md:h-20 bg-secondary rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden"
-                    >
-                        <Image
-                            src="/logo.svg"
-                            alt="Kido Farms Logo"
-                            fill
-                            className="p-1.5 md:p-2 object-contain filter brightness-0 invert"
-                            priority
-                        />
+                        className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center relative overflow-hidden shadow-xl">
+                        <Image src="/logo.svg" alt="Kido Farms" fill className="p-2 object-contain" priority />
                     </motion.div>
                     <div className="flex flex-col">
                         <span className="text-xl md:text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
