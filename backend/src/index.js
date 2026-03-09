@@ -16,6 +16,7 @@ const securityRoutes = require('./routes/security');
 const landingRoutes = require('./routes/landing');
 const harvestsRoutes = require('./routes/harvests');
 const affiliatesRoutes = require('./routes/affiliates');
+const farmersRoutes = require('./routes/farmers');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -46,6 +47,7 @@ app.use('/api/security', securityRoutes);
 app.use('/api/landing', landingRoutes);
 app.use('/api/harvests', harvestsRoutes);
 app.use('/api/affiliates', affiliatesRoutes);
+app.use('/api/farmers', farmersRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
