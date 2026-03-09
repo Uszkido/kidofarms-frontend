@@ -17,7 +17,7 @@ export default function FarmersAdminPage() {
         try {
             const res = await fetch(getApiUrl("/api/farmers"));
             const data = await res.json();
-            setFarmers(data);
+            setFarmers(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error(err);
         } finally {
@@ -107,8 +107,8 @@ export default function FarmersAdminPage() {
                                             </td>
                                             <td className="px-8 py-8">
                                                 <span className={`px-4 py-2 rounded-2xl text-[8px] font-black uppercase tracking-widest flex items-center gap-2 w-fit shadow-sm border ${farmer.status === 'approved' ? 'bg-green-50 text-green-600 border-green-100' :
-                                                        farmer.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                            'bg-red-50 text-red-600 border-red-100'
+                                                    farmer.status === 'pending' ? 'bg-amber-50 text-amber-600 border-amber-100' :
+                                                        'bg-red-50 text-red-600 border-red-100'
                                                     }`}>
                                                     {farmer.status === 'approved' ? <CheckCircle size={12} strokeWidth={3} /> :
                                                         farmer.status === 'pending' ? <Shield size={12} strokeWidth={3} /> :

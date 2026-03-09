@@ -14,7 +14,7 @@ export default function AdminOtpsPage() {
         try {
             const res = await fetch(getApiUrl("/api/auth/otps"));
             const data = await res.json();
-            setOtps(data);
+            setOtps(Array.isArray(data) ? data : []);
         } catch (err) {
             console.error("Failed to fetch OTPs", err);
         } finally {

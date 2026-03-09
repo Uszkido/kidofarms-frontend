@@ -20,7 +20,8 @@ export default function ShopPage() {
             const res = await fetch(getApiUrl("/api/categories"));
             if (res.ok) {
                 const data = await res.json();
-                setCategories(["All", ...data.map((c: any) => c.name)]);
+                const categoryList = Array.isArray(data) ? data.map((c: any) => c.name) : [];
+                setCategories(["All", ...categoryList]);
             }
         };
         fetchCategories();
@@ -35,7 +36,7 @@ export default function ShopPage() {
                     : getApiUrl(`/api/products?category=${selectedCategory}`);
                 const res = await fetch(url);
                 const data = await res.json();
-                setProducts(data);
+                setProducts(Array.isArray(data) ? data : []);
             } catch (err) {
                 console.error("Failed to fetch products");
             } finally {

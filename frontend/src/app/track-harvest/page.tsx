@@ -28,7 +28,7 @@ export default function TrackHarvestPage() {
                 const res = await fetch(getApiUrl("/api/harvests"));
                 if (res.ok) {
                     const data = await res.json();
-                    setHarvests(data);
+                    setHarvests(Array.isArray(data) ? data : []);
                 }
             } catch (error) {
                 console.error("Failed to fetch harvests:", error);
@@ -97,7 +97,7 @@ export default function TrackHarvestPage() {
                                                     <h3 className="text-xl md:text-3xl font-black font-serif text-primary">{harvest.cropName}</h3>
                                                     <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-[8px] md:text-[10px] font-black uppercase tracking-widest text-primary/40">
                                                         <div className="flex items-center gap-1"><MapPin className="text-secondary w-2.5 h-2.5 md:w-3 md:h-3" /> {harvest.region} Node</div>
-                                                        <div className="flex items-center gap-1"><Calendar className="text-secondary w-2.5 h-2.5 md:w-3 md:h-3" /> Ready: {new Date(harvest.estimatedReadyDate).toLocaleDateString()}</div>
+                                                        <div className="flex items-center gap-1"><Calendar className="text-secondary w-2.5 h-2.5 md:w-3 md:h-3" /> Ready: {harvest.estimatedReadyDate ? new Date(harvest.estimatedReadyDate).toLocaleDateString() : 'TBD'}</div>
                                                     </div>
                                                 </div>
                                                 <div className="text-right shrink-0">

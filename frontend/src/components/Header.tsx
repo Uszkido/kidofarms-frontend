@@ -1,24 +1,25 @@
+"use client";
+
 import Link from 'next/link';
 import Image from 'next/image';
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 import { Search, User, Menu, BarChart3 } from "lucide-react";
 import LogoutButton from './LogoutButton';
 import CartCount from './CartCount';
 
-export const Header = async () => {
-    const session = await getServerSession(authOptions);
+export const Header = () => {
+    const { data: session } = useSession();
 
     return (
         <header className="bg-primary text-white py-5 sticky top-0 z-[60] shadow-2xl border-b border-white/5">
             <div className="container mx-auto px-6 flex justify-between items-center">
-                <Link href="/" className="flex items-center gap-3 group shrink-0">
-                    <div className="relative w-12 h-12 md:w-16 md:h-16 bg-secondary rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-105 transition-all duration-300 overflow-hidden">
+                <Link href="/" className="flex items-center gap-3 md:gap-4 group shrink-0">
+                    <div className="relative w-16 h-16 md:w-24 md:h-24 bg-secondary rounded-2xl flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all duration-300 overflow-hidden">
                         <Image
                             src="/logo.svg"
                             alt="Kido Farms Logo"
                             fill
-                            className="p-1 md:p-1.5 object-contain filter brightness-0 invert"
+                            className="p-1 md:p-2 object-contain filter brightness-0 invert"
                             priority
                         />
                     </div>
