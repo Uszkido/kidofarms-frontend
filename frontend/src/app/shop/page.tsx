@@ -140,7 +140,10 @@ export default function ShopPage() {
 
                                             <div className="p-6 flex flex-col flex-grow">
                                                 <div className="flex justify-between items-start mb-2">
-                                                    <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
+                                                    <div>
+                                                        <p className="text-[8px] font-black uppercase tracking-widest text-primary/40 mb-1">Harvest ID: {prod.trackingId || 'Pending'}</p>
+                                                        <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
+                                                    </div>
                                                 </div>
                                                 <div className="flex items-center gap-1 mb-4 text-secondary">
                                                     <span className="text-xs font-bold">★</span>
