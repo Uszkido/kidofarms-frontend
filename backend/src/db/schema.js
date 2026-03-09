@@ -238,6 +238,15 @@ const userCards = pgTable("user_cards", {
     last4: text("last4").notNull(),
     expiry: text("expiry").notNull(),
     isDefault: boolean("is_default").default(false),
+});
+
+// OTPs Table
+const otps = pgTable("otps", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    code: text("code").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    isUsed: boolean("is_used").default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -294,6 +303,7 @@ module.exports = {
     userCards,
     affiliates,
     commissions,
+    otps,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

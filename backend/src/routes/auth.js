@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, farmers } = require('../db/schema');
-const { eq } = require('drizzle-orm');
+const { users, farmers, otps } = require('../db/schema');
+const { eq, and, gt } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -143,6 +143,111 @@ router.post('/social-login', async (req, res) => {
         res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
     } catch (error) {
         console.error('Social Login Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Admin ONLY: get active OTPs
+router.get('/otps', async (req, res) => {
+    try {
+        const activeOtps = await db.select({
+            id: otps.id,
+            code: otps.code,
+            expiresAt: otps.expiresAt,
+            isUsed: otps.isUsed,
+            userName: users.name,
+            userEmail: users.email
+        })
+            .from(otps)
+            .leftJoin(users, eq(otps.userId, users.id))
+            .where(eq(otps.isUsed, false)); // Can filter by active if needed
+
+        res.json(activeOtps);
+    } catch (error) {
+        console.error('Fetch OTPs Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Forgot Password -> Generates OTP for new accounts, bypassing for legacy
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ error: 'Email is required' });
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+
+        if (!user) {
+            return res.json({ message: 'If your email is registered, you will be able to reset your password.', requiresOtp: true });
+        }
+
+        // Legacy accounts before March 9, 2026 are excluded from OTPs
+        const isLegacy = new Date(user.createdAt) < new Date('2026-03-09T00:00:00Z');
+
+        if (isLegacy) {
+            return res.json({ message: 'Legacy account. Proceed to reset.', requiresOtp: false });
+        }
+
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+
+        await db.insert(otps).values({
+            userId: user.id,
+            code: otpCode,
+            expiresAt
+        });
+
+        res.json({ message: 'OTP requested successfully.', requiresOtp: true });
+    } catch (error) {
+        console.error('Forgot Password Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Reset Password
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+        if (!email || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+
+        if (!user) return res.status(400).json({ error: 'Invalid request' });
+
+        const isLegacy = new Date(user.createdAt) < new Date('2026-03-09T00:00:00Z');
+
+        if (!isLegacy) {
+            if (!otp) return res.status(400).json({ error: 'OTP is required' });
+
+            const validOtp = await db.query.otps.findFirst({
+                where: and(
+                    eq(otps.userId, user.id),
+                    eq(otps.code, otp),
+                    eq(otps.isUsed, false),
+                    gt(otps.expiresAt, new Date())
+                )
+            });
+
+            if (!validOtp) return res.status(400).json({ error: 'Invalid or expired OTP' });
+
+            // Mark OTP as used
+            await db.update(otps)
+                .set({ isUsed: true })
+                .where(eq(otps.id, validOtp.id));
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await db.update(users)
+            .set({ password: hashedPassword })
+            .where(eq(users.id, user.id));
+
+        res.json({ message: 'Password reset successful' });
+    } catch (error) {
+        console.error('Reset Password Error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });

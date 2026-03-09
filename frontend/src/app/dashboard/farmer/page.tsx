@@ -39,8 +39,11 @@ export default function FarmerDashboard() {
                                     <h1 className="text-3xl md:text-6xl font-black font-serif text-white leading-tight">Farmer <br /><span className="text-secondary italic">Command Center</span></h1>
                                 </div>
                                 <div className="flex gap-4 w-full md:w-auto">
-                                    <Link href="/admin/inventory/new" className="bg-white text-primary px-6 md:px-8 py-3.5 md:py-5 rounded-xl md:rounded-2xl font-black text-xs md:text-sm hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center justify-center gap-3 w-full md:w-auto">
-                                        <Plus className="w-4 h-4 md:w-5 md:h-5" /> List New Harvest
+                                    <button className="flex-1 md:flex-none border-2 border-primary/5 px-8 py-4 rounded-2xl font-black text-sm hover:bg-cream transition-all flex items-center justify-center gap-3">
+                                        Edit Farm Profile
+                                    </button>
+                                    <Link href="/dashboard/farmer/harvest/new" className="flex-1 md:flex-none bg-primary text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-secondary hover:text-primary transition-all shadow-xl flex items-center justify-center gap-3">
+                                        <Plus size={18} /> List New Harvest
                                     </Link>
                                 </div>
                             </div>

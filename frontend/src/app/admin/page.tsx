@@ -14,9 +14,12 @@ import {
     Activity,
     AlertCircle,
     DollarSign,
+    DollarSign,
     Bell,
     Box,
-    Globe
+    Globe,
+    Sprout,
+    KeyRound
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -116,6 +119,13 @@ export default function AdminDashboard() {
                                 color="primary"
                             />
                             <NavCard
+                                href="/admin/farmers"
+                                icon={<Sprout size={24} />}
+                                title="Farmers"
+                                sub="Scale farm businesses"
+                                color="blue"
+                            />
+                            <NavCard
                                 href="/admin/orders"
                                 icon={<ShoppingCart size={24} />}
                                 title="Orders"
@@ -181,6 +191,8 @@ export default function AdminDashboard() {
                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Operations</h4>
                             <div className="grid grid-cols-3 gap-3">
                                 <SmallMenuLink href="/admin/vendors" label="Vendors" icon={<Users size={14} />} />
+                                <SmallMenuLink href="/admin/farmers" label="Farmers" icon={<Sprout size={14} />} />
+                                <SmallMenuLink href="/admin/otps" label="OTPs" icon={<KeyRound size={14} />} />
                                 <SmallMenuLink href="/admin/promotions" label="Promos" icon={<TrendingUp size={14} />} />
                                 <SmallMenuLink href="/admin/payments" label="Pay" icon={<DollarSign size={14} />} />
                                 <SmallMenuLink href="/admin/reviews" label="Reviews" icon={<FileText size={14} />} />
