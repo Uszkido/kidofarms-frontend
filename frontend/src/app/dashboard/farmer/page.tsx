@@ -24,7 +24,12 @@ import {
     ShieldCheck,
     QrCode,
     Mic,
-    Check
+    Check,
+    Building2,
+    Globe,
+    RefreshCw,
+    GraduationCap,
+    Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -40,6 +45,13 @@ export default function FarmerDashboard() {
     const [voiceResult, setVoiceResult] = useState<any>(null);
     const [isRecording, setIsRecording] = useState(false);
 
+    // Horizon Phase 5 States
+    const [horizonTab, setHorizonTab] = useState('pods');
+    const [pods, setPods] = useState<any[]>([]);
+    const [exports, setExports] = useState<any[]>([]);
+    const [circular, setCircular] = useState<any>(null);
+    const [academy, setAcademy] = useState<any[]>([]);
+
     useEffect(() => {
         const fetchSensors = async () => {
             try {
@@ -52,6 +64,26 @@ export default function FarmerDashboard() {
             }
         };
         fetchSensors();
+    }, []);
+
+    useEffect(() => {
+        const fetchHorizon = async () => {
+            try {
+                const [pRes, eRes, cRes, aRes] = await Promise.all([
+                    fetch(getApiUrl("/api/horizon/pods")),
+                    fetch(getApiUrl("/api/horizon/exports")),
+                    fetch(getApiUrl("/api/horizon/circular")),
+                    fetch(getApiUrl("/api/horizon/academy"))
+                ]);
+                if (pRes.ok) setPods(await pRes.json());
+                if (eRes.ok) setExports(await eRes.json());
+                if (cRes.ok) setCircular(await cRes.json());
+                if (aRes.ok) setAcademy(await aRes.json());
+            } catch (err) {
+                console.error("Horizon fetch failed", err);
+            }
+        };
+        fetchHorizon();
     }, []);
 
     const handleVoiceListing = async () => {
@@ -145,6 +177,7 @@ export default function FarmerDashboard() {
                         </div>
 
                         {/* Inventory & Tracking Grid */}
+                        {/* Inventory & Tracking Grid */}
                         <div className="grid lg:grid-cols-3 gap-12">
                             {/* Live Harvest Status */}
                             <div className="lg:col-span-2 space-y-8">
@@ -185,10 +218,10 @@ export default function FarmerDashboard() {
                                                 </div>
                                                 <div className="mt-4 flex gap-4">
                                                     <div className="flex items-center gap-2 text-[10px] font-bold text-primary/40">
-                                                        <Droplets size={12} className="text-blue-500" /> Moisture: {getSensorVal('moisture')}%
+                                                        <Droplets size={12} className="text-blue-500" /> Moisture: 72%
                                                     </div>
                                                     <div className="flex items-center gap-2 text-[10px] font-bold text-primary/40">
-                                                        <ThermometerSun size={12} className="text-orange-500" /> Temp: {getSensorVal('temperature')}°C
+                                                        <ThermometerSun size={12} className="text-orange-500" /> Temp: 28°C
                                                     </div>
                                                 </div>
                                             </div>
@@ -240,6 +273,214 @@ export default function FarmerDashboard() {
                                         Open Diagnostic Node <Brain size={14} />
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Kido Horizon Expansion (Phase 5) */}
+                        <div className="space-y-10">
+                            <div className="flex flex-col md:flex-row justify-between items-center gap-6 px-4">
+                                <div className="space-y-2 text-center md:text-left">
+                                    <h2 className="text-4xl font-black font-serif text-primary">Kido <span className="text-secondary italic">Horizon Expansion</span></h2>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Phase 5: Global Infrastructure Layer</p>
+                                </div>
+                                <div className="flex bg-white p-2 rounded-[2rem] border border-primary/5 shadow-xl overflow-x-auto max-w-full">
+                                    {[
+                                        { id: 'pods', label: 'City-Nodes', icon: Building2 },
+                                        { id: 'exports', label: 'Global-Bridge', icon: Globe },
+                                        { id: 'circular', label: 'Circular Wealth', icon: RefreshCw },
+                                        { id: 'academy', label: 'Mastery Academy', icon: GraduationCap }
+                                    ].map((tab) => (
+                                        <button
+                                            key={tab.id}
+                                            onClick={() => setHorizonTab(tab.id)}
+                                            className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${horizonTab === tab.id ? 'bg-primary text-white shadow-lg' : 'text-primary/40 hover:bg-cream'}`}
+                                        >
+                                            <tab.icon size={14} /> {tab.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-[4rem] p-12 border border-primary/5 shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 p-12 opacity-[0.02] pointer-events-none">
+                                    <Sparkles size={300} />
+                                </div>
+
+                                {horizonTab === 'pods' && (
+                                    <div className="grid md:grid-cols-2 gap-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        {pods.map(pod => (
+                                            <div key={pod.id} className="bg-cream/30 p-8 rounded-[3rem] border border-primary/5 space-y-6 relative group overflow-hidden">
+                                                <div className="flex justify-between items-start">
+                                                    <div className="space-y-1">
+                                                        <h4 className="text-2xl font-black font-serif">{pod.name}</h4>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 flex items-center gap-2">
+                                                            <MapPin size={10} className="text-secondary" /> {pod.location}
+                                                        </p>
+                                                    </div>
+                                                    <div className={`px-4 py-2 rounded-full text-[10px] font-black uppercase flex items-center gap-2 ${pod.health > 95 ? 'bg-green-100 text-green-600' : 'bg-secondary/20 text-primary'}`}>
+                                                        <Zap size={10} className="animate-pulse" /> {pod.health}% Health
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-6">
+                                                    <div className="space-y-4">
+                                                        <div className="space-y-1">
+                                                            <p className="text-[8px] font-black uppercase text-primary/30">Current Crop</p>
+                                                            <p className="text-sm font-black italic text-secondary">{pod.crop}</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[8px] font-black uppercase text-primary/30">Nutrients</p>
+                                                            <p className="text-sm font-black">{pod.nutrients} PPM</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-4 text-right">
+                                                        <div className="space-y-1">
+                                                            <p className="text-[8px] font-black uppercase text-primary/30">Moisture</p>
+                                                            <p className="text-sm font-black">{pod.moisture}%</p>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-[8px] font-black uppercase text-primary/30">System Status</p>
+                                                            <p className="text-sm font-black text-green-500 flex items-center justify-end gap-1">
+                                                                <CheckCircle2 size={12} /> Live
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button className="w-full bg-white/50 border border-primary/5 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                                                    Open Remote Pod Console
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                {horizonTab === 'exports' && (
+                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <div className="grid md:grid-cols-3 gap-6">
+                                            <div className="bg-primary p-8 rounded-[2.5rem] text-white space-y-2 shadow-xl">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Pending Revenue</p>
+                                                <p className="text-3xl font-black font-serif">$12,450.00</p>
+                                            </div>
+                                            <div className="bg-secondary p-8 rounded-[2.5rem] text-primary space-y-2 shadow-xl">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Active Routes</p>
+                                                <p className="text-3xl font-black font-serif">4 Nodes</p>
+                                            </div>
+                                            <div className="bg-cream p-8 rounded-[2.5rem] border border-primary/5 space-y-2 shadow-xl">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Compliance Score</p>
+                                                <p className="text-3xl font-black font-serif text-primary">94/100</p>
+                                            </div>
+                                        </div>
+                                        <div className="bg-cream/30 rounded-[3rem] overflow-hidden border border-primary/5">
+                                            <table className="w-full text-left">
+                                                <thead className="bg-primary/5">
+                                                    <tr>
+                                                        <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-primary/40">Harvest Block</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-primary/40">Destination</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-primary/40">Est. Price</th>
+                                                        <th className="px-8 py-6 text-[10px] font-black uppercase tracking-widest text-primary/40">Terminal Status</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-primary/5">
+                                                    {exports.map(exp => (
+                                                        <tr key={exp.id} className="group hover:bg-white transition-all">
+                                                            <td className="px-8 py-6 font-black text-sm">{exp.product} <span className="text-[10px] text-primary/30 ml-2">({exp.volume})</span></td>
+                                                            <td className="px-8 py-6 text-sm font-medium italic">{exp.destination}</td>
+                                                            <td className="px-8 py-6 font-black text-primary">{exp.price}</td>
+                                                            <td className="px-8 py-6 italic">
+                                                                <span className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-[10px] font-black uppercase">{exp.status}</span>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {horizonTab === 'circular' && (
+                                    <div className="grid md:grid-cols-2 gap-12 items-center animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <div className="space-y-8">
+                                            <h3 className="text-4xl font-black font-serif leading-tight">Zero Waste <br /><span className="text-secondary italic">Circular Dashboard</span></h3>
+                                            <p className="text-primary/60 text-sm leading-relaxed">Your farm is currently recycling 84% of all harvest waste. You've earned <strong>450 Kido Energy Credits</strong> this month.</p>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div className="p-6 bg-cream rounded-2xl border border-primary/5 text-center">
+                                                    <RefreshCw className="mx-auto mb-3 text-secondary" size={24} />
+                                                    <p className="text-[8px] font-black uppercase text-primary/30">Waste Diverted</p>
+                                                    <p className="text-xl font-black font-serif">{circular?.totalWasteRecycled || '0.0 Tons'}</p>
+                                                </div>
+                                                <div className="p-6 bg-cream rounded-2xl border border-primary/5 text-center">
+                                                    <Zap className="mx-auto mb-3 text-orange-500" size={24} />
+                                                    <p className="text-[8px] font-black uppercase text-primary/30">Energy Yield</p>
+                                                    <p className="text-xl font-black font-serif">{circular?.energyGenerated || '0 kWh'}</p>
+                                                </div>
+                                            </div>
+                                            <button className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                                Schedule Waste Pick-up
+                                            </button>
+                                        </div>
+                                        <div className="relative">
+                                            <div className="w-full aspect-square rounded-[4rem] bg-cream p-12 overflow-hidden relative shadow-2xl">
+                                                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                                                <div className="relative z-10 flex flex-col justify-center items-center h-full text-center space-y-6">
+                                                    <div className="w-48 h-48 rounded-full border-[12px] border-secondary flex items-center justify-center relative">
+                                                        <div className="absolute inset-4 rounded-full border-4 border-primary/5 border-dashed" />
+                                                        <p className="text-5xl font-black font-serif">84<span className="text-xl">%</span></p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Circular Integrity</p>
+                                                        <p className="text-xs font-bold text-secondary italic mt-2">World Class Sustainability Tier</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {horizonTab === 'academy' && (
+                                    <div className="grid md:grid-cols-3 gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <div className="md:col-span-1 space-y-8">
+                                            <div className="bg-cream p-10 rounded-[3rem] border border-primary/5 space-y-6">
+                                                <div className="w-16 h-16 bg-white rounded-3xl flex items-center justify-center shadow-lg text-secondary">
+                                                    <GraduationCap size={32} />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Current Rank</p>
+                                                    <h4 className="text-3xl font-black font-serif italic text-primary">Master Farmer</h4>
+                                                </div>
+                                                <div className="w-full h-2 bg-white rounded-full overflow-hidden">
+                                                    <div className="w-[85%] h-full bg-secondary" />
+                                                </div>
+                                                <p className="text-[10px] font-bold text-primary/40 italic">150 points to "Landscape Legend"</p>
+                                            </div>
+                                        </div>
+                                        <div className="md:col-span-2 space-y-8">
+                                            <h3 className="text-3xl font-black font-serif px-4">Available <span className="text-secondary italic">Mastery Modules</span></h3>
+                                            <div className="grid gap-4">
+                                                {academy.map(course => (
+                                                    <div key={course.id} className="bg-cream/30 p-8 rounded-[2.5rem] border border-primary/5 flex justify-between items-center group hover:bg-white transition-all">
+                                                        <div className="flex items-center gap-6">
+                                                            <div className="w-12 h-12 bg-white rounded-2xl flex items-center justify-center shadow-md group-hover:bg-primary group-hover:text-white transition-all text-primary">
+                                                                <Zap size={20} />
+                                                            </div>
+                                                            <div>
+                                                                <h5 className="font-black text-sm uppercase tracking-widest">{course.title}</h5>
+                                                                <p className="text-[10px] text-primary/30 font-bold uppercase">{course.category} • {course.duration}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-6">
+                                                            <div className="text-right">
+                                                                <p className="text-sm font-black text-secondary">+{course.points}</p>
+                                                                <p className="text-[8px] font-black uppercase text-primary/20">Skill Pts</p>
+                                                            </div>
+                                                            <button className="bg-primary text-white p-3 rounded-xl hover:bg-secondary hover:text-primary transition-all">
+                                                                <ArrowRight size={16} />
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

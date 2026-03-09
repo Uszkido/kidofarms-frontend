@@ -76,6 +76,68 @@ async function fixEverything() {
         await sql`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "escrow_status" text DEFAULT 'held';`;
         console.log("✅ Orders table updated.");
 
+        // Step 7: Kido Horizon (Phase 5) Infrastructure
+        console.log("Step 7: Creating Kido Horizon (Phase 5) Tables...");
+
+        await sql`
+            CREATE TABLE IF NOT EXISTS "city_nodes" (
+                "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                "name" text NOT NULL,
+                "location" text NOT NULL,
+                "crop_type" text NOT NULL,
+                "moisture" integer DEFAULT 0,
+                "nutrients" integer DEFAULT 0,
+                "lights_on" boolean DEFAULT true,
+                "updated_at" timestamp DEFAULT now()
+            );
+        `;
+
+        await sql`
+            CREATE TABLE IF NOT EXISTS "exports" (
+                "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                "user_id" uuid NOT NULL REFERENCES "users"("id"),
+                "target_country" text NOT NULL,
+                "currency" text DEFAULT 'USD',
+                "estimated_price" numeric(12, 2) NOT NULL,
+                "status" text DEFAULT 'pending', -- pending, in_transit, delivered
+                "created_at" timestamp DEFAULT now()
+            );
+        `;
+
+        await sql`
+            CREATE TABLE IF NOT EXISTS "academy_courses" (
+                "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                "title" text NOT NULL,
+                "category" text NOT NULL,
+                "points" integer DEFAULT 10,
+                "created_at" timestamp DEFAULT now()
+            );
+        `;
+
+        await sql`
+            CREATE TABLE IF NOT EXISTS "user_achievements" (
+                "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                "user_id" uuid NOT NULL REFERENCES "users"("id"),
+                "course_id" uuid NOT NULL REFERENCES "academy_courses"("id"),
+                "points_earned" integer DEFAULT 0,
+                "status" text DEFAULT 'completed',
+                "created_at" timestamp DEFAULT now()
+            );
+        `;
+
+        await sql`
+            CREATE TABLE IF NOT EXISTS "circular_logs" (
+                "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+                "user_id" uuid NOT NULL REFERENCES "users"("id"),
+                "waste_weight" numeric(10, 2),
+                "credits_earned" integer DEFAULT 0,
+                "type" text DEFAULT 'fertilizer', -- fertilizer, energy
+                "created_at" timestamp DEFAULT now()
+            );
+        `;
+
+        console.log("✅ Phase 5 (Kido Horizon) tables initialized.");
+
         console.log("\n✨ Database schema is now synchronized with src/db/schema.js");
     } catch (err) {
         console.error("❌ Failed to synchronize schema:", err);
