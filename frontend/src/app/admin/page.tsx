@@ -14,7 +14,6 @@ import {
     Activity,
     AlertCircle,
     DollarSign,
-    DollarSign,
     Bell,
     Box,
     Globe,

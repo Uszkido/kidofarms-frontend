@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import ProductCard from "@/components/ProductCard";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Plus, LayoutDashboard, ShoppingCart, Users, Package, TrendingUp, Search, Loader2, Filter } from "lucide-react";
@@ -185,42 +186,17 @@ export default function MarketplacePage() {
                             ) : filteredProducts.length > 0 ? (
                                 <div className="grid md:grid-cols-3 gap-8">
                                     {filteredProducts.map((item) => (
-                                        <div key={item.id} className="bg-white rounded-[2.5rem] overflow-hidden border border-primary/5 hover:shadow-2xl transition-all group">
-                                            <div className="relative h-48">
-                                                <Image
-                                                    src={item.images?.[0] || "https://images.unsplash.com/photo-1551754655-cd27e38d2076?q=80&w=2000"}
-                                                    alt={item.name}
-                                                    fill
-                                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                                />
-                                                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold text-primary shadow-sm">
-                                                    {item.farmSource || "Lagos, NG"}
-                                                </div>
-                                                <div className="absolute top-4 right-4 bg-secondary px-3 py-1 rounded-full text-[10px] font-bold text-primary shadow-sm">
-                                                    {item.category}
-                                                </div>
-                                                {item.trackingId && (
-                                                    <div className="absolute bottom-4 left-4 bg-primary/80 backdrop-blur-sm px-2 py-1 rounded text-[8px] font-black text-white border border-white/10 uppercase tracking-tighter">
-                                                        Track: {item.trackingId}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div className="p-8 space-y-4">
-                                                <div className="h-20">
-                                                    <h4 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors line-clamp-1">{item.name}</h4>
-                                                    <p className="text-xs text-primary/40 font-medium line-clamp-2 mt-2">{item.description}</p>
-                                                </div>
-                                                <div className="flex justify-between items-center pt-4 border-t border-primary/5">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-xl font-bold text-primary">₦{parseFloat(item.price).toLocaleString()}</span>
-                                                        <span className="text-[10px] text-primary/30 font-bold uppercase">Source Verified</span>
-                                                    </div>
-                                                    <button className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-lg">
-                                                        <ShoppingCart size={20} />
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <ProductCard
+                                            key={item.id}
+                                            id={item.id}
+                                            name={item.name}
+                                            description={item.description}
+                                            price={parseFloat(item.price)}
+                                            image={item.images?.[0]}
+                                            category={item.category}
+                                            farmSource={item.farmSource}
+                                            trackingId={item.trackingId}
+                                        />
                                     ))}
                                 </div>
                             ) : (

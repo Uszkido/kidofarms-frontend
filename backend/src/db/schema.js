@@ -98,6 +98,7 @@ const products = pgTable("products", {
     numReviews: integer("num_reviews").default(0),
     isFeatured: boolean("is_featured").default(false),
     trackingId: text("tracking_id").unique(),
+    ownerId: uuid("owner_id").references(() => users.id), // Link to vendor/farmer
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { vendors, users } = require('../db/schema');
-const { eq, and } = require('drizzle-orm');
+const { vendors, users, products } = require('../db/schema');
+const { eq, and, desc } = require('drizzle-orm');
 
 // Get all vendors (Farmer role)
 router.get('/', async (req, res) => {
@@ -113,6 +113,45 @@ router.patch('/:id/status', async (req, res) => {
     } catch (error) {
         console.error('Vendor Status Update Error:', error);
         res.status(500).json({ error: 'Failed to update vendor status' });
+    }
+});
+
+// Get individual vendor profile (Public)
+router.get('/:id', async (req, res) => {
+    try {
+        const vendor = await db.query.vendors.findFirst({
+            where: eq(vendors.id, req.params.id),
+            with: {
+                user: true
+            }
+        });
+
+        if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+
+        res.json(vendor);
+    } catch (error) {
+        console.error('Vendor Profile Error:', error);
+        res.status(500).json({ error: 'Failed to fetch vendor profile' });
+    }
+});
+
+// Get products for a specific vendor
+router.get('/:id/products', async (req, res) => {
+    try {
+        const vendor = await db.query.vendors.findFirst({
+            where: eq(vendors.id, req.params.id)
+        });
+
+        if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
+
+        const vendorProducts = await db.select().from(products)
+            .where(eq(products.ownerId, vendor.userId))
+            .orderBy(desc(products.createdAt));
+
+        res.json(vendorProducts);
+    } catch (error) {
+        console.error('Vendor Products Error:', error);
+        res.status(500).json({ error: 'Failed to fetch vendor products' });
     }
 });
 
