@@ -74,8 +74,9 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
 
             // Redirect based on role
             const redirectPath = role === "farmer" ? "/dashboard/farmer" :
-                role === "subscriber" ? "/dashboard/subscriber" :
-                    "/dashboard/consumer";
+                role === "vendor" ? "/dashboard/vendor" :
+                    role === "subscriber" ? "/dashboard/subscriber" :
+                        "/dashboard/consumer";
             router.push(redirectPath);
             router.refresh();
         } catch (err: any) {

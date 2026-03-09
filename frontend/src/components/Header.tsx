@@ -50,8 +50,9 @@ export const Header = async () => {
                                 href={
                                     (session.user as any).role === "admin" ? "/admin" :
                                         (session.user as any).role === "farmer" ? "/dashboard/farmer" :
-                                            (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
-                                                "/dashboard/consumer"
+                                            (session.user as any).role === "vendor" ? "/dashboard/vendor" :
+                                                (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
+                                                    "/dashboard/consumer"
                                 }
                                 className="flex items-center gap-2 md:gap-3 bg-white/10 hover:bg-secondary hover:text-primary px-4 md:px-6 py-2 md:py-3 rounded-full transition-all border border-white/10 shadow-lg group max-w-[120px] md:max-w-[200px]"
                             >
