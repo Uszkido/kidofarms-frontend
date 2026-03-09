@@ -183,12 +183,16 @@ router.post('/forgot-password', async (req, res) => {
             return res.json({ message: 'If your email is registered, you will be able to reset your password.', requiresOtp: true });
         }
 
+        // OTP Requirement suspended for now as per user request
+        return res.json({ message: 'Password reset initialized. Proceed to reset.', requiresOtp: false });
+        /* 
         // Legacy accounts before March 9, 2026 are excluded from OTPs
         const isLegacy = new Date(user.createdAt) < new Date('2026-03-09T00:00:00Z');
 
         if (isLegacy) {
             return res.json({ message: 'Legacy account. Proceed to reset.', requiresOtp: false });
         }
+        */
 
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
@@ -218,6 +222,8 @@ router.post('/reset-password', async (req, res) => {
 
         if (!user) return res.status(400).json({ error: 'Invalid request' });
 
+        // OTP validation suspended per user request
+        /*
         const isLegacy = new Date(user.createdAt) < new Date('2026-03-09T00:00:00Z');
 
         if (!isLegacy) {
@@ -239,6 +245,7 @@ router.post('/reset-password', async (req, res) => {
                 .set({ isUsed: true })
                 .where(eq(otps.id, validOtp.id));
         }
+        */
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         await db.update(users)
