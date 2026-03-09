@@ -49,7 +49,7 @@ export function Footer() {
 
             <div className="container mx-auto px-6 mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[12px] text-cream/40 gap-8">
                 <div className="flex flex-col md:flex-row items-center gap-8">
-                    <p>© 2026 Kido Farms & Orchard. Founded by Usama Ado Shehu. All rights reserved.</p>
+                    <p>© 2026 Kido Farms & Orchard. Founded 2020. All rights reserved.</p>
                     <div className="flex gap-8">
                         <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
