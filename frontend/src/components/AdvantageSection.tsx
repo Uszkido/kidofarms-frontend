@@ -24,17 +24,17 @@ export default function AdvantageSection({ data }: { data: AdvantageData }) {
     });
 
     return (
-        <section className="py-40">
+        <section className="py-40 bg-primary/20">
             <div className="container mx-auto px-6">
                 <div className="text-center max-w-4xl mx-auto space-y-10 mb-32">
                     <span className="text-secondary font-black uppercase tracking-[0.4em] text-[10px]">The Kido Advantage</span>
-                    <h2 className="text-6xl md:text-8xl font-black font-serif uppercase tracking-tighter leading-none">
+                    <h2 className="text-6xl md:text-8xl font-black font-serif uppercase tracking-tighter leading-none text-white">
                         {data.title} <br />
                         <span className="text-secondary italic underline decoration-secondary/30 decoration-8 underline-offset-8">
                             {data.titleItalic}
                         </span>
                     </h2>
-                    <p className="text-2xl text-primary/40 font-medium leading-relaxed">{data.subtitle}</p>
+                    <p className="text-2xl text-white/40 font-medium leading-relaxed">{data.subtitle}</p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-20">
                     {advantageItems.map((item: any, i: number) => (
@@ -48,13 +48,13 @@ export default function AdvantageSection({ data }: { data: AdvantageData }) {
                         >
                             <div className="relative w-40 h-40 mx-auto">
                                 <div className="absolute inset-0 bg-secondary/10 rounded-[3.5rem] rotate-[15deg] group-hover:rotate-[25deg] transition-transform duration-700" />
-                                <div className="relative w-full h-full rounded-[3.5rem] bg-white border border-primary/5 shadow-2xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-primary transition-all duration-700">
+                                <div className="relative w-full h-full rounded-[3.5rem] bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-primary transition-all duration-700">
                                     <item.icon size={64} strokeWidth={1.5} />
                                 </div>
                             </div>
                             <div className="space-y-6">
-                                <h4 className="text-3xl font-black font-serif tracking-tight">{item.title}</h4>
-                                <p className="text-lg text-primary/60 leading-relaxed font-medium">{item.desc}</p>
+                                <h4 className="text-3xl font-black font-serif tracking-tight text-white">{item.title}</h4>
+                                <p className="text-lg text-white/60 leading-relaxed font-medium">{item.desc}</p>
                             </div>
                         </motion.div>
                     ))}
