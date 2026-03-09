@@ -49,7 +49,7 @@ export default function MarketTicker() {
                     repeat: Infinity,
                     ease: "linear",
                 }}
-                className="flex whitespace-nowrap items-center gap-12"
+                className="flex whitespace-nowrap items-center gap-8 md:gap-12"
             >
                 {/* Duplicate the list to create a seamless loop */}
                 {[...displayData, ...displayData].map((item, idx) => (

@@ -99,14 +99,14 @@ export default function PremiumHero({ data }: { data: HeroData }) {
                     <div className="space-y-4">
                         <motion.h1
                             initial="hidden" animate="visible" custom={1} variants={fadeInUp}
-                            className="text-7xl md:text-9xl font-black font-serif leading-[0.85] tracking-tighter text-white"
+                            className="text-5xl md:text-9xl font-black font-serif leading-[0.9] md:leading-[0.85] tracking-tighter text-white"
                         >
                             {data.title}<br />
                             <span className="text-secondary italic">{data.titleItalic}</span>
                         </motion.h1>
                         <motion.p
                             initial="hidden" animate="visible" custom={2} variants={fadeInUp}
-                            className="text-xl md:text-2xl text-white/40 max-w-2xl font-medium leading-relaxed"
+                            className="text-lg md:text-2xl text-white/40 max-w-2xl font-medium leading-relaxed"
                         >
                             {data.subtitle}
                         </motion.p>

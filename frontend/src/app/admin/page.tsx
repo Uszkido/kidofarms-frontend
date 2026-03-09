@@ -46,14 +46,14 @@ export default function AdminDashboard() {
         <div className="min-h-screen bg-[#FDFCF9]">
             {/* Header */}
             <header className="bg-white border-b border-primary/5 sticky top-0 z-50 shadow-sm">
-                <div className="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                            <LayoutDashboard className="text-secondary" size={20} />
+                <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
+                    <div className="flex items-center gap-3 md:gap-4">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
+                            <LayoutDashboard className="text-secondary h-4 w-4 md:h-5 md:w-5" />
                         </div>
                         <div>
-                            <h1 className="text-xl font-black font-serif tracking-tight text-primary uppercase">Kido Farms</h1>
-                            <p className="text-[10px] font-black text-secondary uppercase tracking-[0.2em] leading-none">& Orchards</p>
+                            <h1 className="text-lg md:text-xl font-black font-serif tracking-tight text-primary uppercase leading-tight md:leading-normal">Kido Farms</h1>
+                            <p className="text-[8px] md:text-[10px] font-black text-secondary uppercase tracking-[0.2em] leading-none">& Orchards</p>
                         </div>
                     </div>
 
