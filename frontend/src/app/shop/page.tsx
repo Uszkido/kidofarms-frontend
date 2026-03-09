@@ -3,13 +3,17 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag } from "lucide-react";
+import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode } from "lucide-react";
+import { StoryFeed } from "@/components/StoryFeed";
+import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 
 export default function ShopPage() {
     const { addToCart } = useCart();
+    const { data: session } = useSession();
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("All");
@@ -45,6 +49,30 @@ export default function ShopPage() {
         };
         fetchProducts();
     }, [selectedCategory]);
+
+    const handleGroupBuy = async (productId: string) => {
+        if (!session?.user) {
+            alert("Please login to join a group buy node!");
+            return;
+        }
+
+        try {
+            const res = await fetch(getApiUrl("/api/groupbuys/join"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    productId,
+                    userId: (session.user as any).id,
+                    quantity: 1
+                })
+            });
+            if (res.ok) {
+                alert("🚀 Neighborhood Node Linked! You've joined the group buy.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -73,6 +101,8 @@ export default function ShopPage() {
                             </button>
                         </div>
                     </div>
+
+                    <StoryFeed />
 
                     <div className="flex flex-col md:flex-row gap-12">
                         {/* Sidebar Filters */}
@@ -141,7 +171,14 @@ export default function ShopPage() {
                                             <div className="p-6 flex flex-col flex-grow">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
-                                                        <p className="text-[8px] font-black uppercase tracking-widest text-primary/40 mb-1">Harvest ID: {prod.trackingId || 'Pending'}</p>
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <p className="text-[8px] font-black uppercase tracking-widest text-primary/40">Harvest ID: {prod.trackingId || 'Pending'}</p>
+                                                            {prod.trackingId && (
+                                                                <Link href={`/trace/${prod.trackingId}`} className="text-secondary hover:text-primary transition-colors">
+                                                                    <QrCode size={12} strokeWidth={3} />
+                                                                </Link>
+                                                            )}
+                                                        </div>
                                                         <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
                                                     </div>
                                                 </div>
@@ -154,19 +191,31 @@ export default function ShopPage() {
                                                         <span className="text-2xl font-bold text-primary">₦{Number(prod.price).toLocaleString()}</span>
                                                         <span className="text-[10px] font-bold text-primary/30 uppercase">per {prod.unit}</span>
                                                     </div>
-                                                    <button
-                                                        onClick={() => addToCart({
-                                                            id: prod.id,
-                                                            name: prod.name,
-                                                            price: Number(prod.price),
-                                                            image: prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800",
-                                                            quantity: 1,
-                                                            category: prod.category
-                                                        })}
-                                                        className="bg-primary text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-secondary hover:text-primary transition-all"
-                                                    >
-                                                        Add to Cart
-                                                    </button>
+                                                    <div className="flex flex-col gap-2">
+                                                        <button
+                                                            onClick={() => addToCart({
+                                                                id: prod.id,
+                                                                name: prod.name,
+                                                                price: Number(prod.price),
+                                                                image: prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800",
+                                                                quantity: 1,
+                                                                category: prod.category
+                                                            })}
+                                                            className="bg-primary text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-secondary hover:text-primary transition-all whitespace-nowrap"
+                                                        >
+                                                            Add to Cart
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleGroupBuy(prod.id)}
+                                                            className="bg-white border border-primary/10 text-primary px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:border-secondary transition-all flex items-center justify-center gap-1 group/btn"
+                                                        >
+                                                            <Users size={12} className="text-secondary group-hover/btn:text-primary" /> Buy as Group
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-4 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
+                                                    <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded italic">Save 15% with Group</span>
+                                                    <span className="text-primary/20">4 Ongoing Buys</span>
                                                 </div>
                                             </div>
                                         </div>
