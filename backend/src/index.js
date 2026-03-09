@@ -26,6 +26,7 @@ const sensorsRoutes = require('./routes/sensors');
 const agronomistRoutes = require('./routes/agronomist');
 const groupBuysRoutes = require('./routes/groupbuys');
 const flashRoutes = require('./routes/flash');
+const horizonRoutes = require('./routes/horizon');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -66,6 +67,7 @@ app.use('/api/sensors', sensorsRoutes);
 app.use('/api/agronomist', agronomistRoutes);
 app.use('/api/groupbuys', groupBuysRoutes);
 app.use('/api/flash', flashRoutes);
+app.use('/api/horizon', horizonRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
