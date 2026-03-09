@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
 import { Leaf, Eye, EyeOff, Loader2 } from "lucide-react";
@@ -49,7 +49,17 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                 password: form.password,
             });
             if (res?.error) throw new Error(res.error);
-            router.push("/");
+
+            const session = await getSession();
+            const role = (session?.user as any)?.role;
+
+            const redirectPath = role === "admin" ? "/admin" :
+                role === "farmer" ? "/dashboard/farmer" :
+                    role === "vendor" ? "/dashboard/vendor" :
+                        role === "subscriber" ? "/dashboard/subscriber" :
+                            "/dashboard/consumer";
+
+            router.push(redirectPath);
             router.refresh();
         } catch (err: any) {
             setError(err.message);

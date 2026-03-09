@@ -12,7 +12,7 @@ export default withAuth(
         }
 
         // Role-based Dashboard Protection
-        if (path.startsWith("/dashboard/vendor") && token?.role !== "farmer") {
+        if (path.startsWith("/dashboard/vendor") && token?.role !== "vendor" && token?.role !== "farmer") {
             return NextResponse.redirect(new URL("/dashboard/consumer", req.url));
         }
 
