@@ -7,7 +7,7 @@ export function Footer() {
                 <div className="space-y-6">
                     <h3 className="text-2xl font-bold font-serif text-secondary">Kido Farms</h3>
                     <p className="text-cream/70 text-sm leading-relaxed">
-                        Connecting you with fresh, organic, and locally produced farm products directly from our fields to your table.
+                        Kido Farms & Orchard was founded in 2020 by <span className="text-secondary font-bold">Usama Ado Shehu</span> with a bold vision — connecting Nigeria's most talented farmers directly with consumers through technology.
                     </p>
                 </div>
 
@@ -49,7 +49,7 @@ export function Footer() {
 
             <div className="container mx-auto px-6 mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[12px] text-cream/40 gap-8">
                 <div className="flex flex-col md:flex-row items-center gap-8">
-                    <p>© 2026 Kido Farms & Orchard. All rights reserved.</p>
+                    <p>© 2026 Kido Farms & Orchard. Founded by Usama Ado Shehu. All rights reserved.</p>
                     <div className="flex gap-8">
                         <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>

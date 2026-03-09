@@ -64,8 +64,8 @@ export default function InventoryPage() {
     };
 
     const filteredProducts = products.filter(p =>
-        (p.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-        (p.category?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+        (p?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (p?.category?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -177,7 +177,7 @@ export default function InventoryPage() {
                                                         <Trash2 size={18} />
                                                     </button>
                                                     <Link
-                                                        href={`/admin/inventory/${product.id}/edit`}
+                                                        href={`/admin/inventory/${product.id ?? ""}/edit`}
                                                         className="p-3 bg-secondary/10 text-secondary hover:bg-secondary hover:text-primary transition-all rounded-xl shadow-sm"
                                                         title="Edit Product"
                                                     >

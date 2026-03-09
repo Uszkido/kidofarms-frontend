@@ -65,8 +65,8 @@ export default function OrdersPage() {
     };
 
     const filteredOrders = orders.filter(o =>
-        o.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.user?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        (o?.id?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (o?.user?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
     return (
@@ -137,7 +137,7 @@ export default function OrdersPage() {
                                 <Loader2 size={48} className="animate-spin text-secondary mx-auto" />
                             </div>
                         ) : filteredOrders.map((order) => {
-                            const date = new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+                            const date = order.createdAt ? new Date(order.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "Date Unknown";
                             let statusColor = "bg-primary/5 text-primary";
                             let StatusIcon = Clock;
 
@@ -154,7 +154,7 @@ export default function OrdersPage() {
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-3 mb-1">
-                                                <h3 className="font-black text-lg">#{order.id.substring(0, 8).toUpperCase()}</h3>
+                                                <h3 className="font-black text-lg">#{order.id?.substring(0, 8).toUpperCase() || "ORD"}</h3>
                                                 <select
                                                     value={order.orderStatus}
                                                     onChange={(e) => updateStatus(order.id, e.target.value)}

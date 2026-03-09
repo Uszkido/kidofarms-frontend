@@ -135,7 +135,7 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                     </div>
                 </div>
 
-                <p className="text-cream/20 text-xs z-10">© {new Date().getFullYear()} Kido Farms & Orchard. Founded 2020, Jos, Nigeria.</p>
+                <p className="text-cream/20 text-xs z-10">© {new Date().getFullYear()} Kido Farms & Orchard. Founded 2020 by Usama Ado Shehu, Jos, Nigeria.</p>
             </div>
 
             {/* Right Form Panel */}
