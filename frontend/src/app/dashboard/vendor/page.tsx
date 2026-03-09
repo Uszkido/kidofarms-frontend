@@ -1,6 +1,4 @@
-"use client";
 
-import { useState, useEffect } from "react";
 import {
     LayoutDashboard,
     ShoppingBag,
@@ -27,13 +25,13 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { getApiUrl } from "@/lib/api";
 
-export default function VendorDashboard() {
-    const [stats, setStats] = useState({
+export default async function VendorDashboard() {
+    const stats = {
         totalSales: "₦1.2M",
         activeOrders: 12,
         stockItems: 45,
         growth: "+18%"
-    });
+    };
 
     return (
         <div className="flex flex-col min-h-screen">

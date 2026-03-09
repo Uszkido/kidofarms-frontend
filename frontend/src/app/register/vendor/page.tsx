@@ -38,7 +38,7 @@ export default function VendorRegistrationPage() {
         businessName: "",
         description: "",
         categories: [] as string[],
-        contactName: "",
+        name: "",
         email: "",
         phone: "",
         password: "",
@@ -224,8 +224,8 @@ export default function VendorRegistrationPage() {
                                                     required
                                                     placeholder="Full Name"
                                                     className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
-                                                    value={formData.contactName}
-                                                    onChange={e => setFormData({ ...formData, contactName: e.target.value })}
+                                                    value={formData.name}
+                                                    onChange={e => setFormData({ ...formData, name: e.target.value })}
                                                 />
                                             </div>
                                             <div className="space-y-3">
