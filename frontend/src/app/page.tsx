@@ -38,6 +38,18 @@ export default async function Home() {
     btn2Link: "/subscriptions"
   };
 
+  const recommended = landingData?.recommended || {
+    title: "Recommended",
+    titleItalic: "For You",
+    badge: "LIVE MARKET",
+    items: [
+      { name: "Bulbous Onions", farmer: "Musa Ibrahim", price: "₦4,500", rating: 4.9, image: "https://images.unsplash.com/photo-1508747703725-719777637510?q=80&w=2000" },
+      { name: "Organic Strawberries", farmer: "Grace Oke", price: "₦12,000", rating: 5.0, image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=2000" },
+      { name: "Fresh Fishes (2kg)", farmer: "Kido Fishery", price: "₦8,500", rating: 4.8, image: "https://images.unsplash.com/photo-1555074213-911855e4be62?q=80&w=2000" },
+      { name: "Benue Yams", farmer: "Samuel Odoh", price: "₦15,000", rating: 4.7, image: "https://images.unsplash.com/photo-1596450514735-2d937089146a?q=80&w=2000" },
+    ]
+  };
+
   const harvesting = landingData?.harvesting || {
     region: "Jos, Plateau",
     statusLabel: "Harvesting Now",
@@ -83,12 +95,12 @@ export default async function Home() {
     title: "Scale Your",
     titleItalic: "Farm Business",
     subtitle: "Are you a farmer in Kano, Abuja, or Lagos? Join the network and reach 10x more customers. Our dashboard manages listing, pricing, and automated dispatch.",
-    btn1Text: "List New Harvest",
-    btn2Text: "Download Farmer App"
+    btn1Text: "Register as Farmer",
+    btn2Text: "Register as Vendor"
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-50">
+    <div className="flex flex-col min-h-screen bg-primary">
       <Header />
       <main className="flex-grow">
         {/* Market Ticker Component */}
@@ -101,7 +113,7 @@ export default async function Home() {
         <PremiumHero data={hero} />
 
         {/* Categories Bar */}
-        <section className="bg-white py-16 border-b border-primary/5 relative z-10">
+        <section className="bg-primary pt-16 pb-24 border-b border-white/5 relative z-10">
           <div className="container mx-auto px-6">
             <CategoryList />
           </div>
@@ -109,40 +121,35 @@ export default async function Home() {
 
         {/* Recommended For You */}
         <FadeInEntry>
-          <section className="py-24">
+          <section className="py-32 bg-primary">
             <div className="container mx-auto px-6">
-              <div className="flex items-center gap-4 mb-16">
-                <div className="w-12 h-1 bg-secondary rounded-full" />
-                <h2 className="text-4xl md:text-6xl font-black font-serif flex items-center gap-4 uppercase tracking-tighter">
-                  Recommended <span className="text-primary/20 italic">For You</span>
-                  <span className="bg-secondary text-primary text-[10px] px-4 py-1.5 rounded-full font-black ml-4 shadow-lg shadow-secondary/20">LIVE MARKET</span>
+              <div className="flex items-center gap-4 mb-20">
+                <div className="w-16 h-1 bg-secondary rounded-full shadow-lg shadow-secondary/20" />
+                <h2 className="text-5xl md:text-7xl font-black font-serif flex items-center gap-6 uppercase tracking-tighter text-white">
+                  {recommended.title} <span className="text-white/20 italic">{recommended.titleItalic}</span>
+                  <span className="bg-secondary text-primary text-[10px] px-5 py-2 rounded-full font-black ml-4 shadow-xl shadow-secondary/30">{recommended.badge}</span>
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-                {[
-                  { name: "Bulbous Onions", farmer: "Musa Ibrahim", price: "₦4,500", rating: 4.9, image: "https://images.unsplash.com/photo-1508747703725-719777637510?q=80&w=2000" },
-                  { name: "Organic Strawberries", farmer: "Grace Oke", price: "₦12,000", rating: 5.0, image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?q=80&w=2000" },
-                  { name: "Fresh Fishes (2kg)", farmer: "Kido Fishery", price: "₦8,500", rating: 4.8, image: "https://images.unsplash.com/photo-1555074213-911855e4be62?q=80&w=2000" },
-                  { name: "Benue Yams", farmer: "Samuel Odoh", price: "₦15,000", rating: 4.7, image: "https://images.unsplash.com/photo-1596450514735-2d937089146a?q=80&w=2000" },
-                ].map((prod, i) => (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-16">
+                {(recommended.items || []).map((prod: any, i: number) => (
                   <div key={i} className="group relative">
-                    <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl mb-8">
-                      <Image src={prod.image} alt={prod.name} fill className="object-cover group-hover:scale-105 transition-transform duration-1000" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                      <div className="absolute top-6 left-6">
-                        <span className="bg-white/95 backdrop-blur-md px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary shadow-xl">
+                    <div className="relative aspect-[4/5] rounded-[3.5rem] overflow-hidden shadow-2xl mb-10 border border-white/5">
+                      <Image src={prod.image} alt={prod.name} fill className="object-cover group-hover:scale-110 transition-transform duration-1000 brightness-90 group-hover:brightness-100" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                      <div className="absolute top-8 left-8">
+                        <span className="bg-white/10 backdrop-blur-xl px-5 py-2.5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white border border-white/10 shadow-2xl">
                           {prod.rating} ★
                         </span>
                       </div>
                     </div>
-                    <div className="space-y-3 px-2">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary">Verified Farmer: {prod.farmer}</p>
-                      <h3 className="text-2xl font-black font-serif group-hover:text-secondary transition-colors leading-tight">{prod.name}</h3>
-                      <div className="flex justify-between items-center pt-3">
-                        <span className="text-2xl font-black text-primary">{prod.price}</span>
-                        <button className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-lg active:scale-95">
-                          <ShoppingCart size={18} strokeWidth={2.5} />
+                    <div className="space-y-4 px-4">
+                      <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary/60 group-hover:text-secondary transition-colors">Verified Farmer: {prod.farmer}</p>
+                      <h3 className="text-3xl font-black font-serif text-white leading-tight">{prod.name}</h3>
+                      <div className="flex justify-between items-center pt-4">
+                        <span className="text-3xl font-black text-white">{prod.price}</span>
+                        <button className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-2xl active:scale-95 group-hover:border-secondary">
+                          <ShoppingCart size={22} strokeWidth={2.5} />
                         </button>
                       </div>
                     </div>
@@ -155,80 +162,82 @@ export default async function Home() {
 
         {/* Market Trends Section */}
         <FadeInEntry>
-          <section className="py-32 bg-primary text-white overflow-hidden relative rounded-[4rem] mx-6 lg:mx-12">
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-secondary/40 via-transparent to-transparent" />
+          <section className="py-40 bg-neutral-950 text-white overflow-hidden relative rounded-[5rem] mx-6 lg:mx-12 border border-white/5">
+            <div className="absolute inset-0 opacity-40">
+              <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-secondary/10 rounded-full blur-[180px] -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-primary/20 rounded-full blur-[160px] translate-y-1/2 -translate-x-1/2" />
             </div>
+
             <div className="container mx-auto px-12 relative z-10">
-              <div className="grid lg:grid-cols-2 gap-24 items-center">
-                <div className="space-y-12">
-                  <div className="space-y-6">
-                    <span className="inline-block text-secondary font-black uppercase tracking-[0.3em] text-xs bg-white/5 px-4 py-2 rounded-full border border-white/10">{trends.label}</span>
-                    <h2 className="text-6xl md:text-8xl font-black font-serif leading-[0.85] tracking-tighter">
+              <div className="grid lg:grid-cols-2 gap-32 items-center">
+                <div className="space-y-16">
+                  <div className="space-y-8">
+                    <span className="inline-block text-secondary font-black uppercase tracking-[0.4em] text-[10px] bg-white/5 px-6 py-3 rounded-full border border-white/10 shadow-2xl">{trends.label}</span>
+                    <h2 className="text-7xl md:text-9xl font-black font-serif leading-[0.85] tracking-tighter">
                       {trends.title} <br />
                       <span className="italic text-secondary">{trends.titleItalic}</span>
                     </h2>
                   </div>
-                  <p className="text-cream/50 text-xl leading-relaxed max-w-xl font-medium">
+                  <p className="text-white/40 text-2xl leading-relaxed max-w-xl font-medium">
                     {trends.subtitle}
                   </p>
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="p-10 rounded-[3rem] bg-white/5 border border-white/10 space-y-6 group hover:bg-white/10 transition-colors">
-                      <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-                        <TrendingUp size={24} />
+                  <div className="grid grid-cols-2 gap-10">
+                    <div className="p-12 rounded-[4rem] bg-white/5 border border-white/10 space-y-8 group hover:bg-white/10 transition-all hover:scale-105 duration-500">
+                      <div className="w-16 h-16 rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+                        <TrendingUp size={32} />
                       </div>
                       <div>
-                        <h4 className="text-4xl font-black font-serif">{trends.stat1Value}</h4>
-                        <p className="text-[10px] uppercase font-black tracking-[0.2em] text-cream/40">{trends.stat1Label}</p>
+                        <h4 className="text-5xl font-black font-serif text-white">{trends.stat1Value}</h4>
+                        <p className="text-[11px] uppercase font-black tracking-[0.3em] text-white/20">{trends.stat1Label}</p>
                       </div>
                     </div>
-                    <div className="p-10 rounded-[3rem] bg-white/5 border border-white/10 space-y-6 group hover:bg-white/10 transition-colors">
-                      <div className="w-12 h-12 rounded-2xl bg-secondary/10 flex items-center justify-center text-secondary">
-                        <Clock size={24} />
+                    <div className="p-12 rounded-[4rem] bg-white/5 border border-white/10 space-y-8 group hover:bg-white/10 transition-all hover:scale-105 duration-500">
+                      <div className="w-16 h-16 rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+                        <Clock size={32} />
                       </div>
                       <div>
-                        <h4 className="text-4xl font-black font-serif">{trends.stat2Value}</h4>
-                        <p className="text-[10px] uppercase font-black tracking-[0.2em] text-cream/40">{trends.stat2Label}</p>
+                        <h4 className="text-5xl font-black font-serif text-white">{trends.stat2Value}</h4>
+                        <p className="text-[11px] uppercase font-black tracking-[0.3em] text-white/20">{trends.stat2Label}</p>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="relative h-[850px] w-full bg-white/5 backdrop-blur-3xl rounded-[4rem] border border-white/10 overflow-hidden shadow-2xl">
-                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 via-transparent to-transparent pointer-events-none" />
-                  <div className="p-16 space-y-16">
-                    <div className="flex justify-between items-center border-b border-white/10 pb-10">
-                      <h3 className="text-3xl font-black font-serif uppercase tracking-tight">{trendingList.title}</h3>
-                      <div className="flex gap-2">
-                        <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
-                        <span className="text-[10px] font-black uppercase text-secondary">Updating Live</span>
+                <div className="relative h-[900px] w-full bg-white/5 backdrop-blur-3xl rounded-[5rem] border border-white/10 overflow-hidden shadow-2xl">
+                  <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-transparent pointer-events-none" />
+                  <div className="p-16 space-y-20">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-12">
+                      <h3 className="text-4xl font-black font-serif uppercase tracking-tight text-white">{trendingList.title}</h3>
+                      <div className="flex gap-3 items-center">
+                        <div className="w-3 h-3 rounded-full bg-secondary animate-pulse shadow-lg shadow-secondary/40" />
+                        <span className="text-[11px] font-black uppercase tracking-widest text-secondary">Broadcasting Live</span>
                       </div>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-8">
                       {(trendingList.items || []).map((item: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center group hover:bg-white/5 p-6 rounded-3xl transition-all cursor-pointer border border-transparent hover:border-white/5">
-                          <div className="flex items-center gap-6">
-                            <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-2xl">
+                        <div key={i} className="flex justify-between items-center group hover:bg-white/5 p-8 rounded-[2.5rem] transition-all cursor-pointer border border-transparent hover:border-white/10">
+                          <div className="flex items-center gap-8">
+                            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl shadow- inner shadow-white/5">
                               {i === 0 ? "🌶️" : i === 1 ? "🧅" : i === 2 ? "🐟" : "🍯"}
                             </div>
                             <div>
-                              <p className="text-xl font-black font-serif">{item.name}</p>
-                              <p className="text-[10px] uppercase font-black tracking-widest text-cream/30">{item.qty} In Network</p>
+                              <p className="text-2xl font-black font-serif text-white group-hover:text-secondary transition-colors">{item.name}</p>
+                              <p className="text-[11px] uppercase font-black tracking-[0.2em] text-white/30">{item.qty} Handled Locally</p>
                             </div>
                           </div>
-                          <div className={`flex items-center gap-2 text-sm font-black px-5 py-2 rounded-full ${item.change?.startsWith('+') ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                            {item.change?.startsWith('+') ? <TrendingUp size={14} /> : <TrendingUp size={14} className="rotate-180" />}
+                          <div className={`flex items-center gap-3 text-sm font-black px-6 py-2.5 rounded-full ${item.change?.startsWith('+') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                            {item.change?.startsWith('+') ? <TrendingUp size={16} /> : <TrendingUp size={16} className="rotate-180" />}
                             {item.change}
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="bg-secondary p-8 rounded-[2.5rem] flex items-center justify-between group cursor-pointer hover:bg-white transition-colors">
-                      <span className="text-primary font-black uppercase tracking-widest text-sm">View Full Market Analysis</span>
-                      <div className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <ArrowRight size={20} strokeWidth={3} />
+                    <div className="bg-secondary p-10 rounded-[3rem] flex items-center justify-between group cursor-pointer hover:bg-white transition-all shadow-2xl shadow-secondary/20">
+                      <span className="text-primary font-black uppercase tracking-[0.2em] text-sm">Open Full Market Analysis</span>
+                      <div className="w-14 h-14 rounded-2xl bg-primary text-secondary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+                        <ArrowRight size={24} strokeWidth={3} />
                       </div>
                     </div>
                   </div>
@@ -245,35 +254,35 @@ export default async function Home() {
 
         {/* Farmer CTA Section */}
         <FadeInEntry>
-          <section className="py-24 mb-24 px-6 lg:px-12">
+          <section className="py-40 mb-24 px-6 lg:px-12">
             <div className="container mx-auto">
-              <div className="bg-primary rounded-[5rem] p-16 md:p-32 text-white shadow-2xl relative overflow-hidden">
-                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-secondary/40 to-transparent" />
+              <div className="bg-neutral-950 rounded-[6rem] p-20 md:p-40 text-white shadow-2xl relative overflow-hidden border border-white/5">
+                <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-secondary/5 to-transparent pointer-events-none" />
 
-                <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-24">
-                  <div className="max-w-2xl space-y-10">
-                    <div className="space-y-6">
-                      <h2 className="text-6xl md:text-8xl font-black font-serif leading-[0.85] tracking-tighter">
+                <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-32">
+                  <div className="max-w-3xl space-y-16 text-center lg:text-left">
+                    <div className="space-y-10">
+                      <h2 className="text-7xl md:text-9xl font-black font-serif leading-[0.85] tracking-tighter">
                         {farmerCta.title} <br />
-                        <span className="text-secondary italic">{farmerCta.titleItalic}</span>
+                        <span className="text-secondary italic underline decoration-secondary/10 decoration-8 underline-offset-8">{farmerCta.titleItalic}</span>
                       </h2>
-                      <p className="text-xl text-cream/40 leading-relaxed font-medium">
+                      <p className="text-2xl text-white/40 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
                         {farmerCta.subtitle}
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-6">
-                      <Link href="/register/farmer" className="bg-white text-primary px-12 py-6 rounded-[2rem] font-black text-lg uppercase tracking-widest hover:bg-secondary transition-all shadow-xl shadow-white/5 active:scale-95">Register as Farmer</Link>
-                      <Link href="/register/vendor" className="border-2 border-white/20 text-white px-12 py-6 rounded-[2rem] font-black text-lg uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">Register as Vendor</Link>
+                    <div className="flex flex-wrap gap-8 justify-center lg:justify-start">
+                      <Link href="/register/farmer" className="bg-secondary text-primary px-16 py-8 rounded-[2.5rem] font-black text-xl uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 active:scale-95">{farmerCta.btn1Text}</Link>
+                      <Link href="/register/vendor" className="bg-white/5 border-2 border-white/10 text-white px-16 py-8 rounded-[2.5rem] font-black text-xl uppercase tracking-widest hover:bg-white/10 transition-all active:scale-95">{farmerCta.btn2Text}</Link>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-6 relative">
-                    <div className="absolute -inset-4 bg-secondary/10 blur-[60px] rounded-full pointer-events-none" />
+                  <div className="grid grid-cols-2 gap-10 relative">
+                    <div className="absolute -inset-10 bg-secondary/5 blur-[100px] rounded-full pointer-events-none" />
                     {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="w-44 h-44 rounded-[3rem] bg-white/5 border border-white/10 backdrop-blur-xl flex flex-col items-center justify-center group hover:bg-secondary hover:border-secondary transition-all cursor-pointer shadow-lg">
-                        <Users className="text-secondary group-hover:text-primary mb-3" size={40} strokeWidth={1.5} />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] group-hover:text-primary text-white/40">Network ID #{i * 128}</span>
+                      <div key={i} className="w-52 h-52 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl flex flex-col items-center justify-center group hover:bg-secondary hover:border-secondary transition-all cursor-pointer shadow-2xl hover:scale-110 duration-500">
+                        <Users className="text-secondary group-hover:text-primary mb-4" size={56} strokeWidth={1} />
+                        <span className="text-[11px] font-black uppercase tracking-[0.3em] group-hover:text-primary text-white/20 transition-colors">Unit #{i * 256}</span>
                       </div>
                     ))}
                   </div>
