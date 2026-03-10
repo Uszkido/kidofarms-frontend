@@ -44,27 +44,27 @@ export default function AdminDashboard() {
     }, []);
 
     return (
-        <div className="min-h-screen bg-[#FDFCF9]">
+        <div className="min-h-screen bg-[#0E1116] text-[#E6EDF3]">
             {/* Header */}
-            <header className="bg-white border-b border-primary/5 sticky top-0 z-50 shadow-sm">
+            <header className="bg-[#0E1116]/80 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50 shadow-2xl">
                 <div className="max-w-[1600px] mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
                     <div className="flex items-center gap-3 md:gap-4">
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20">
-                            <LayoutDashboard className="text-secondary h-4 w-4 md:h-5 md:w-5" />
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-secondary rounded-xl flex items-center justify-center shadow-lg shadow-secondary/20">
+                            <LayoutDashboard className="text-primary h-4 w-4 md:h-5 md:w-5" />
                         </div>
                         <div>
-                            <h1 className="text-lg md:text-xl font-black font-serif tracking-tight text-primary uppercase leading-tight md:leading-normal">Kido Farms</h1>
+                            <h1 className="text-lg md:text-xl font-black font-serif tracking-tight text-white uppercase leading-tight md:leading-normal">Kido Farms</h1>
                             <p className="text-[8px] md:text-[10px] font-black text-secondary uppercase tracking-[0.2em] leading-none">& Orchards</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <Link href="/" className="text-[10px] font-black text-primary hover:text-secondary uppercase tracking-[0.2em] transition-all flex items-center gap-2">
+                        <Link href="/" className="text-[10px] font-black text-white/60 hover:text-secondary uppercase tracking-[0.2em] transition-all flex items-center gap-2">
                             <ArrowLeft size={12} /> Exit to Store
                         </Link>
-                        <div className="h-6 w-px bg-primary/10" />
+                        <div className="h-6 w-px bg-white/10" />
                         <div className="text-right hidden md:block">
-                            <p className="text-xs font-black text-primary leading-none uppercase">Chief Farmer</p>
+                            <p className="text-xs font-black text-white leading-none uppercase">Chief Farmer</p>
                             <p className="text-[9px] text-secondary font-bold mt-1 uppercase tracking-widest">Administrator</p>
                         </div>
                     </div>
@@ -79,28 +79,28 @@ export default function AdminDashboard() {
                             label="Total Revenue"
                             value={`₦${(stats?.totalRevenue || 0).toLocaleString()}`}
                             icon={<DollarSign size={20} />}
-                            color="bg-primary text-secondary"
+                            color="bg-secondary text-primary"
                             loading={loading}
                         />
                         <MetricCard
                             label="Order Volume"
                             value={stats?.totalSales || 0}
                             icon={<ShoppingCart size={20} />}
-                            color="bg-white text-secondary borded-primary/5"
+                            color="bg-white/5 text-secondary border-white/5"
                             loading={loading}
                         />
                         <MetricCard
                             label="Customer Base"
                             value={stats?.totalCustomers || 0}
                             icon={<Users size={20} />}
-                            color="bg-white text-blue-500"
+                            color="bg-white/5 text-blue-400 border-white/5"
                             loading={loading}
                         />
                         <MetricCard
                             label="Product Range"
                             value={stats?.totalProducts || 0}
                             icon={<Box size={20} />}
-                            color="bg-white text-green-500"
+                            color="bg-white/5 text-green-400 border-white/5"
                             loading={loading}
                         />
                     </div>
@@ -156,33 +156,33 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* 3. ACTIVITY FEED */}
-                        <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-sm p-8 space-y-6">
+                        <div className="bg-white/5 rounded-[2.5rem] border border-white/5 shadow-2xl p-8 space-y-6 backdrop-blur-md">
                             <div className="flex items-center justify-between">
-                                <h3 className="text-lg font-black font-serif uppercase tracking-tight text-primary">Recent <span className="text-secondary italic">Harvests</span></h3>
-                                <Link href="/admin/orders" className="text-[10px] font-black uppercase tracking-widest text-primary/30 hover:text-primary transition-all">All Orders</Link>
+                                <h3 className="text-lg font-black font-serif uppercase tracking-tight text-white">Recent <span className="text-secondary italic">Harvests</span></h3>
+                                <Link href="/admin/orders" className="text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-secondary transition-all">All Orders</Link>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full">
                                     <thead>
-                                        <tr className="border-b border-primary/5">
-                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-primary/10 text-left">Ref</th>
-                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-primary/10 text-left">Status</th>
-                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-primary/10 text-right">Yield</th>
+                                        <tr className="border-b border-white/5">
+                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-white/10 text-left">Ref</th>
+                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-white/10 text-left">Status</th>
+                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-white/10 text-right">Yield</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-primary/5">
+                                    <tbody className="divide-y divide-white/5">
                                         {stats?.recentOrders?.map((order: any) => (
-                                            <tr key={order.id} className="hover:bg-neutral-50/50 transition-colors">
-                                                <td className="py-4 text-xs font-bold text-primary truncate max-w-[100px]">{order.id}</td>
+                                            <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                                                <td className="py-4 text-xs font-bold text-white/60 truncate max-w-[100px]">{order.id}</td>
                                                 <td className="py-4 font-black">
-                                                    <span className={`px-2 py-0.5 rounded text-[8px] uppercase tracking-widest ${order.orderStatus === 'delivered' ? 'bg-green-100 text-green-600' :
-                                                        order.orderStatus === 'processing' ? 'bg-amber-100 text-amber-600' :
-                                                            'bg-neutral-100 text-neutral-400'
+                                                    <span className={`px-2 py-0.5 rounded text-[8px] uppercase tracking-widest ${order.orderStatus === 'delivered' ? 'bg-green-500/10 text-green-400' :
+                                                        order.orderStatus === 'processing' ? 'bg-amber-500/10 text-amber-400' :
+                                                            'bg-white/5 text-white/20'
                                                         }`}>
                                                         {order.orderStatus}
                                                     </span>
                                                 </td>
-                                                <td className="py-4 text-xs font-black text-primary text-right">₦{Number(order.totalAmount).toLocaleString()}</td>
+                                                <td className="py-4 text-xs font-black text-white text-right">₦{Number(order.totalAmount).toLocaleString()}</td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -194,8 +194,8 @@ export default function AdminDashboard() {
                     {/* RIGHT COLUMN: Sidebar Insights */}
                     <div className="xl:col-span-4 space-y-8">
                         {/* QUICK ACCESS MENU */}
-                        <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-6">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/20">Operations</h4>
+                        <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 shadow-sm space-y-6 backdrop-blur-md">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20">Operations</h4>
                             <div className="grid grid-cols-3 gap-3">
                                 <SmallMenuLink href="/admin/vendors" label="Vendors" icon={<Users size={14} />} />
                                 <SmallMenuLink href="/admin/farmers" label="Farmers" icon={<Sprout size={14} />} />
@@ -212,6 +212,7 @@ export default function AdminDashboard() {
                                 <SmallMenuLink href="/admin/team" label="Team" icon={<Users size={14} />} />
                                 <SmallMenuLink href="/admin/impact" label="Impact" icon={<Activity size={14} />} />
                                 <SmallMenuLink href="/admin/investments" label="Invest" icon={<DollarSign size={14} />} />
+                                <SmallMenuLink href="/admin/stories" label="Stories" icon={<Activity size={14} />} />
                             </div>
                         </div>
 
@@ -234,13 +235,13 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* LOGISTICS */}
-                        <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-6">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/20 flex items-center gap-2">
+                        <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5 shadow-sm space-y-6 backdrop-blur-md">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-white/20 flex items-center gap-2">
                                 <Activity size={12} /> Logistics Stream
                             </h4>
                             <div className="space-y-6">
                                 <LogisticsNode label="Kano Depot" status="Operational" percent={85} color="bg-secondary" />
-                                <LogisticsNode label="Lagos Hub" status="High Volume" percent={98} color="bg-primary" />
+                                <LogisticsNode label="Lagos Hub" status="High Volume" percent={98} color="bg-secondary" />
                             </div>
                         </div>
                     </div>
@@ -251,10 +252,11 @@ export default function AdminDashboard() {
 }
 
 function MetricCard({ label, value, icon, color, loading }: any) {
+    const isDark = color.includes('bg-white/5');
     return (
-        <div className={`p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between h-40 transition-all border border-primary/5 ${color.includes('bg-white') ? color : color + ' shadow-xl shadow-primary/10'}`}>
+        <div className={`p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between h-40 transition-all border ${isDark ? 'border-white/5 bg-white/5 backdrop-blur-md' : color + ' shadow-xl shadow-secondary/10'}`}>
             <div className="flex items-center justify-between">
-                <span className={`p-2 rounded-lg ${color.includes('bg-white') ? 'bg-neutral-50' : 'bg-white/10'}`}>{icon}</span>
+                <span className={`p-2 rounded-lg ${isDark ? 'bg-white/5 text-secondary' : 'bg-white/10'}`}>{icon}</span>
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">{label}</span>
             </div>
             <div>
@@ -268,20 +270,20 @@ function MetricCard({ label, value, icon, color, loading }: any) {
 
 function NavCard({ href, icon, title, sub, color }: any) {
     const colors: any = {
-        primary: "bg-primary text-secondary",
+        primary: "bg-secondary text-primary",
         secondary: "bg-secondary/10 text-secondary border-secondary/20",
-        blue: "bg-blue-50 text-blue-500 border-blue-100",
-        purple: "bg-purple-50 text-purple-500 border-purple-100"
+        blue: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+        purple: "bg-purple-500/10 text-purple-400 border-purple-500/20"
     };
 
     return (
-        <Link href={href} className="group flex items-center gap-6 p-6 bg-white rounded-3xl border border-primary/5 transition-all hover:shadow-xl hover:border-transparent">
+        <Link href={href} className="group flex items-center gap-6 p-6 bg-white/5 rounded-3xl border border-white/5 transition-all hover:shadow-2xl hover:border-secondary/20 backdrop-blur-md">
             <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg ${colors[color]}`}>
                 {icon}
             </div>
             <div>
-                <h4 className="text-lg font-black font-serif uppercase tracking-tight text-primary">{title}</h4>
-                <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{sub}</p>
+                <h4 className="text-lg font-black font-serif uppercase tracking-tight text-white">{title}</h4>
+                <p className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{sub}</p>
             </div>
         </Link>
     );
@@ -289,11 +291,11 @@ function NavCard({ href, icon, title, sub, color }: any) {
 
 function SmallMenuLink({ href, label, icon }: any) {
     return (
-        <Link href={href} className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-primary/5 hover:bg-neutral-50 transition-all group">
-            <div className="w-8 h-8 rounded-lg bg-neutral-50 flex items-center justify-center text-primary/40 group-hover:text-primary transition-colors">
+        <Link href={href} className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-white/5 hover:bg-white/5 transition-all group backdrop-blur-sm">
+            <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white/40 group-hover:text-secondary transition-colors">
                 {icon}
             </div>
-            <span className="text-[8px] font-black uppercase tracking-widest text-primary/30">{label}</span>
+            <span className="text-[8px] font-black uppercase tracking-widest text-white/20 group-hover:text-white/60">{label}</span>
         </Link>
     );
 }

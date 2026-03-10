@@ -18,7 +18,8 @@ import {
     ArrowUpRight,
     CheckCircle,
     BarChart3,
-    Wallet
+    Wallet,
+    Camera
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
@@ -127,19 +128,22 @@ export default async function VendorDashboard() {
                                 </div>
                             </Link>
 
-                            <div className="bg-white p-10 rounded-[3.5rem] border border-primary/5 shadow-2xl flex flex-col justify-between min-h-[300px]">
-                                <TrendingUp className="text-secondary" size={40} />
+                            <Link href="/dashboard/vendor/stories" className="bg-secondary p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px] group">
+                                <Activity className="text-primary group-hover:rotate-12 transition-transform" size={40} />
                                 <div className="space-y-4">
-                                    <h4 className="text-2xl font-black font-serif">Growth Matrix</h4>
-                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Advanced analytics for your farm's performance and regional reach.</p>
+                                    <h4 className="text-2xl font-black font-serif italic">Horizon Feed</h4>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Broadcast live farm sessions and harvests directly to the storefront.</p>
                                 </div>
-                            </div>
+                                <div className="mt-8 inline-flex items-center gap-2 text-primary font-black text-[10px] uppercase tracking-widest">
+                                    Go Live <Camera size={14} className="animate-pulse" />
+                                </div>
+                            </Link>
 
-                            <div className="bg-secondary p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px]">
-                                <CheckCircle className="text-primary" size={40} />
+                            <div className="bg-primary text-white p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px] border border-white/5">
+                                <CheckCircle className="text-secondary" size={40} />
                                 <div className="space-y-4">
                                     <h4 className="text-2xl font-black font-serif italic">Support Node</h4>
-                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Direct line to Kido Farms logistics and vendor success agents.</p>
+                                    <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">Direct line to Kido Farms logistics and vendor success agents.</p>
                                 </div>
                             </div>
                         </div>
