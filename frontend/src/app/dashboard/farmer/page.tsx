@@ -246,6 +246,17 @@ export default function FarmerDashboard() {
                                     <p className="text-primary/60 text-[10px] font-bold uppercase tracking-widest">Detect pests and diseases via camera.</p>
                                     <Brain size={24} />
                                 </div>
+
+                                <Link href="/dashboard/farmer/stories" className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl flex flex-col justify-between min-h-[200px] group">
+                                    <Activity className="text-secondary group-hover:rotate-12 transition-transform" size={32} />
+                                    <div>
+                                        <h4 className="text-xl font-black font-serif italic mb-1">Horizon Story</h4>
+                                        <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest leading-relaxed">Broadcast live farm sessions.</p>
+                                    </div>
+                                    <div className="inline-flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-widest">
+                                        Open Horizon <Camera size={14} />
+                                    </div>
+                                </Link>
                             </div>
                         </div>
 

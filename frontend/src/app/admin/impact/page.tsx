@@ -56,44 +56,44 @@ export default function AdminImpactPage() {
     );
 
     return (
-        <div className="min-h-screen bg-neutral-50 px-6 py-24">
+        <div className="min-h-screen bg-[#0E1116] text-[#E6EDF3] px-6 py-24">
             <div className="container mx-auto max-w-4xl">
                 <div className="mb-12">
-                    <Link href="/admin" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary transition-all mb-4">
+                    <Link href="/admin" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-secondary transition-all mb-4">
                         <ArrowLeft size={14} /> Back to Hub
                     </Link>
-                    <h1 className="text-5xl font-extrabold font-serif uppercase tracking-tighter text-primary">Edit <span className="text-secondary italic">Impact</span></h1>
-                    <p className="text-primary/40 font-medium text-sm mt-2">Update the metrics displayed on the public landing page.</p>
+                    <h1 className="text-5xl font-extrabold font-serif uppercase tracking-tighter text-white">Edit <span className="text-secondary italic">Impact</span></h1>
+                    <p className="text-white/40 font-medium text-sm mt-2">Update the metrics displayed on the public landing page.</p>
                 </div>
 
-                <form onSubmit={handleSave} className="bg-white p-12 rounded-[4rem] border border-primary/5 shadow-2xl space-y-12">
+                <form onSubmit={handleSave} className="bg-white/5 p-12 rounded-[4rem] border border-white/5 shadow-22xl backdrop-blur-md space-y-12">
                     <div className="grid md:grid-cols-2 gap-12">
                         <div className="space-y-4">
-                            <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                            <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/40">
                                 <MapPin size={14} className="text-secondary" /> Acres Cultivated
                             </label>
                             <input
                                 type="number"
                                 value={metrics.acresCultivated}
                                 onChange={e => setMetrics({ ...metrics, acresCultivated: parseInt(e.target.value) })}
-                                className="w-full bg-neutral-50 border border-primary/10 rounded-2xl px-8 py-5 text-2xl font-black font-serif outline-none focus:ring-2 focus:ring-secondary/30 transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-2xl font-black font-serif text-white outline-none focus:ring-2 focus:ring-secondary/30 transition-all backdrop-blur-sm"
                             />
                         </div>
 
                         <div className="space-y-4">
-                            <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                            <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/40">
                                 <Users size={14} className="text-secondary" /> Farmers Supported
                             </label>
                             <input
                                 type="number"
                                 value={metrics.farmersSupported}
                                 onChange={e => setMetrics({ ...metrics, farmersSupported: parseInt(e.target.value) })}
-                                className="w-full bg-neutral-50 border border-primary/10 rounded-2xl px-8 py-5 text-2xl font-black font-serif outline-none focus:ring-2 focus:ring-secondary/30 transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-2xl font-black font-serif text-white outline-none focus:ring-2 focus:ring-secondary/30 transition-all backdrop-blur-sm"
                             />
                         </div>
 
                         <div className="md:col-span-2 space-y-4">
-                            <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                            <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/40">
                                 <BarChart3 size={14} className="text-secondary" /> Production Capacity
                             </label>
                             <input
@@ -101,15 +101,15 @@ export default function AdminImpactPage() {
                                 value={metrics.productionCapacity}
                                 placeholder="e.g. 5,000 Tons"
                                 onChange={e => setMetrics({ ...metrics, productionCapacity: e.target.value })}
-                                className="w-full bg-neutral-50 border border-primary/10 rounded-2xl px-8 py-5 text-2xl font-black font-serif outline-none focus:ring-2 focus:ring-secondary/30 transition-all"
+                                className="w-full bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-2xl font-black font-serif text-white outline-none focus:ring-2 focus:ring-secondary/30 transition-all backdrop-blur-sm"
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-8 border-t border-primary/5">
+                    <div className="flex items-center justify-between pt-8 border-t border-white/5">
                         <div className="flex items-center gap-3">
                             {message && (
-                                <div className={`flex items-center gap-2 text-sm font-bold ${message.includes('successfully') ? 'text-green-600' : 'text-red-500'}`}>
+                                <div className={`flex items-center gap-2 text-sm font-bold ${message.includes('successfully') ? 'text-green-400' : 'text-red-400'}`}>
                                     {message.includes('successfully') ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
                                     {message}
                                 </div>
@@ -118,7 +118,7 @@ export default function AdminImpactPage() {
                         <button
                             type="submit"
                             disabled={saving}
-                            className="bg-primary text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-3 shadow-xl shadow-primary/20"
+                            className="bg-secondary text-primary px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all flex items-center gap-3 shadow-xl shadow-secondary/10"
                         >
                             {saving ? <Loader2 className="animate-spin" size={20} /> : <Save size={20} />}
                             Save Changes
@@ -127,5 +127,6 @@ export default function AdminImpactPage() {
                 </form>
             </div>
         </div>
+
     );
 }

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Calendar, CreditCard, Settings, Truck, Leaf, RefreshCw, ChevronRight, AlertCircle } from "lucide-react";
@@ -43,12 +44,12 @@ export default function SubscriberDashboard() {
                                 <h2 className="text-3xl font-black font-serif px-4">Manage <span className="text-secondary italic">Plan</span></h2>
                                 <div className="space-y-4">
                                     {[
-                                        { label: "Basket Configuration", icon: RefreshCw, detail: "Sweet Potatoes, Carrots, Onions" },
-                                        { label: "Payment Method", icon: CreditCard, detail: "Visa ending in 4029" },
-                                        { label: "Delivery Schedule", icon: Calendar, detail: "Every Tuesday Morning" },
-                                        { label: "Account Settings", icon: Settings, detail: "Manage profile and password" },
+                                        { label: "Basket Configuration", icon: RefreshCw, detail: "Sweet Potatoes, Carrots, Onions", href: "/dashboard/subscriber/basket" },
+                                        { label: "Payment Method", icon: CreditCard, detail: "Visa ending in 4029", href: "/dashboard/subscriber/payment" },
+                                        { label: "Delivery Schedule", icon: Calendar, detail: "Every Tuesday Morning", href: "/dashboard/subscriber/schedule" },
+                                        { label: "Account Settings", icon: Settings, detail: "Manage profile and password", href: "/dashboard/subscriber/settings" },
                                     ].map((item, i) => (
-                                        <button key={i} className="w-full bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-between group">
+                                        <Link key={i} href={item.href} className="w-full bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-between group">
                                             <div className="flex items-center gap-6">
                                                 <div className="w-12 h-12 rounded-2xl bg-cream flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
                                                     <item.icon size={20} />
@@ -59,7 +60,7 @@ export default function SubscriberDashboard() {
                                                 </div>
                                             </div>
                                             <ChevronRight size={18} className="text-primary/10 group-hover:text-secondary" />
-                                        </button>
+                                        </Link>
                                     ))}
                                 </div>
                             </div>

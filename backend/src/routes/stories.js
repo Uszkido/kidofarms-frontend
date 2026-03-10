@@ -61,4 +61,15 @@ router.post('/seed', async (req, res) => {
     }
 });
 
+// DELETE /api/stories/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        await db.delete(stories).where(eq(stories.id, req.params.id));
+        res.json({ message: 'Story deleted' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to delete story' });
+    }
+});
+
 module.exports = router;

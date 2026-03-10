@@ -22,6 +22,26 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const data = await db.query.orders.findFirst({
+            where: eq(orders.id, id),
+            with: {
+                items: {
+                    with: { product: true }
+                },
+                user: true
+            }
+        });
+        if (!data) return res.status(404).json({ error: 'Order not found' });
+        res.json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed' });
+    }
+});
+
 router.post('/', async (req, res) => {
     try {
         const { items, totalAmount, street, city, state, zip, paymentMethod, userId, referralCode } = req.body;
