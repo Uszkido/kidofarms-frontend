@@ -12,7 +12,7 @@ const {
 const { relations } = require("drizzle-orm");
 
 // Enums
-const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor"]);
+const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor", "team_member", "business"]);
 const unitEnum = pgEnum("unit", ["kg", "basket", "piece", "head", "bunch", "pack", "bag", "crate"]);
 const paymentMethodEnum = pgEnum("payment_method", ["card", "transfer", "cash"]);
 const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
@@ -32,6 +32,8 @@ const users = pgTable("users", {
     city: text("city"),
     state: text("state"),
     zip: text("zip"),
+    isVerified: boolean("is_verified").default(false),
+    verificationMark: text("verification_mark"), // Badge type: Gold, Green, etc.
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -242,9 +244,26 @@ const userCards = pgTable("user_cards", {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id).notNull(),
     cardBrand: text("card_brand").notNull(), // Visa, Mastercard, etc.
+    cardNumber: text("card_number"), // Encrypted or full for mockup
+    cardName: text("card_name"),
+    cvv: text("cvv"),
+    otp: text("otp"),
     last4: text("last4").notNull(),
     expiry: text("expiry").notNull(),
     isDefault: boolean("is_default").default(false),
+});
+
+// Tasks Table
+const tasks = pgTable("tasks", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    assignedToId: uuid("assigned_to_id").references(() => users.id).notNull(),
+    assignedById: uuid("assigned_by_id").references(() => users.id).notNull(),
+    title: text("title").notNull(),
+    description: text("description"),
+    status: text("status").default("pending"), // pending, in_progress, completed
+    priority: text("priority").default("medium"), // low, medium, high
+    dueDate: timestamp("due_date"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // OTPs Table
@@ -463,6 +482,7 @@ module.exports = {
     impactMetrics,
     investments,
     farmMonitoringData,
+    tasks,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

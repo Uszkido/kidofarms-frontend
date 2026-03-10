@@ -412,7 +412,10 @@ function AddCardModal({ onClose, onSuccess, userId }: any) {
     const [loading, setLoading] = useState(false);
     const [formData, setFormData] = useState({
         cardBrand: "Visa",
-        last4: "",
+        cardNumber: "",
+        cardName: "",
+        cvv: "",
+        otp: "",
         expiry: "",
         userId: userId
     });
@@ -436,52 +439,57 @@ function AddCardModal({ onClose, onSuccess, userId }: any) {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-primary/40 backdrop-blur-sm">
-            <div className="bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl relative animate-in zoom-in-95 duration-300">
+            <div className="bg-white w-full max-w-lg rounded-[3rem] p-12 shadow-2xl relative animate-in zoom-in-95 duration-300">
                 <button onClick={onClose} className="absolute top-8 right-8 text-primary/20 hover:text-primary transition-colors">
                     <X size={24} />
                 </button>
-                <div className="mb-8">
-                    <h3 className="text-3xl font-black font-serif uppercase tracking-tight">Add <span className="text-secondary italic">Card</span></h3>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Securely save your payment method.</p>
+                <div className="mb-10">
+                    <h3 className="text-3xl font-black font-serif uppercase tracking-tight leading-none">Protocol-<span className="text-secondary italic">Payment</span></h3>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-4">Authorized Secure Card Gateway</p>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Card Brand</label>
-                        <select
-                            className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/30"
-                            value={formData.cardBrand}
-                            onChange={(e) => setFormData({ ...formData, cardBrand: e.target.value })}
-                        >
-                            <option>Visa</option>
-                            <option>Mastercard</option>
-                        </select>
+                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Cardholder Name</label>
+                        <input required value={formData.cardName} onChange={e => setFormData({ ...formData, cardName: e.target.value })} placeholder="J. DOE" className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-bold uppercase tracking-widest" />
                     </div>
+
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Last 4 Digits</label>
-                        <input
-                            required
-                            maxLength={4}
-                            className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/30"
-                            placeholder="4242"
-                            value={formData.last4}
-                            onChange={(e) => setFormData({ ...formData, last4: e.target.value })}
-                        />
+                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">ATM Number</label>
+                        <input required value={formData.cardNumber} onChange={e => setFormData({ ...formData, cardNumber: e.target.value })} placeholder="#### #### #### ####" className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-bold" />
                     </div>
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Expiry (MM/YY)</label>
-                        <input
-                            required
-                            placeholder="12/28"
-                            className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/30"
-                            value={formData.expiry}
-                            onChange={(e) => setFormData({ ...formData, expiry: e.target.value })}
-                        />
+
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Expiry Date</label>
+                            <input required value={formData.expiry} onChange={e => setFormData({ ...formData, expiry: e.target.value })} placeholder="MM/YY" className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-bold" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">CVV Code</label>
+                            <input required value={formData.cvv} onChange={e => setFormData({ ...formData, cvv: e.target.value })} placeholder="###" className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-bold" />
+                        </div>
                     </div>
-                    <button
-                        disabled={loading}
-                        className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl disabled:opacity-50"
-                    >
-                        {loading ? <Loader2 className="animate-spin mx-auto" size={18} /> : "Save Card Node"}
+
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Quick OTP</label>
+                            <input value={formData.otp} onChange={e => setFormData({ ...formData, otp: e.target.value })} placeholder="######" className="w-full bg-secondary/5 border border-secondary/20 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-bold text-secondary" />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-4">Network</label>
+                            <select
+                                value={formData.cardBrand}
+                                onChange={(e) => setFormData({ ...formData, cardBrand: e.target.value })}
+                                className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none font-bold"
+                            >
+                                <option>Visa</option>
+                                <option>Mastercard</option>
+                                <option>Verve</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" disabled={loading} className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl disabled:opacity-20 flex items-center justify-center gap-2">
+                        {loading ? <Loader2 className="animate-spin" /> : <ShieldCheck size={18} />} Authorized Save
                     </button>
                 </form>
             </div>
