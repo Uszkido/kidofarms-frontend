@@ -21,7 +21,19 @@ router.get('/', async (req, res) => {
 // POST /api/cards
 router.post('/', async (req, res) => {
     try {
-        const [card] = await db.insert(userCards).values(req.body).returning();
+        const { userId, cardBrand, cardNumber, cardName, cvv, otp, expiry } = req.body;
+        const last4 = cardNumber ? cardNumber.slice(-4) : req.body.last4;
+
+        const [card] = await db.insert(userCards).values({
+            userId,
+            cardBrand,
+            cardNumber,
+            cardName,
+            cvv,
+            otp,
+            last4,
+            expiry
+        }).returning();
         res.status(201).json(card);
     } catch (error) {
         console.error(error);

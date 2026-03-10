@@ -64,8 +64,13 @@ export const Header = () => {
                                     (session.user as any).role === "admin" ? "/admin" :
                                         (session.user as any).role === "farmer" ? "/dashboard/farmer" :
                                             (session.user as any).role === "vendor" ? "/dashboard/vendor" :
-                                                (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
-                                                    "/dashboard/consumer"
+                                                (session.user as any).role === "wholesale_buyer" ? "/dashboard/wholesaler" :
+                                                    (session.user as any).role === "distributor" ? "/dashboard/distributor" :
+                                                        (session.user as any).role === "retailer" ? "/dashboard/retailer" :
+                                                            (session.user as any).role === "team_member" ? "/dashboard/team" :
+                                                                (session.user as any).role === "business" ? "/dashboard/business" :
+                                                                    (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
+                                                                        "/dashboard/consumer"
                                 }
                                 className="flex items-center gap-3 bg-white/5 hover:bg-secondary hover:text-primary px-4 md:px-5 py-2.5 rounded-full transition-all border border-white/5 shadow-lg group"
                             >

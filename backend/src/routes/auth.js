@@ -183,17 +183,7 @@ router.post('/forgot-password', async (req, res) => {
             return res.json({ message: 'If your email is registered, you will be able to reset your password.', requiresOtp: true });
         }
 
-        // OTP Requirement suspended for now as per user request
-        return res.json({ message: 'Password reset initialized. Proceed to reset.', requiresOtp: false });
-        /* 
-        // Legacy accounts before March 9, 2026 are excluded from OTPs
-        const isLegacy = new Date(user.createdAt) < new Date('2026-03-09T00:00:00Z');
-
-        if (isLegacy) {
-            return res.json({ message: 'Legacy account. Proceed to reset.', requiresOtp: false });
-        }
-        */
-
+        // OTP Requirement re-enabled as per user request
         const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
 
@@ -203,7 +193,7 @@ router.post('/forgot-password', async (req, res) => {
             expiresAt
         });
 
-        res.json({ message: 'OTP requested successfully.', requiresOtp: true });
+        res.json({ message: 'OTP sent to your registered channel. (Check Admin Dashboard if simulated)', requiresOtp: true });
     } catch (error) {
         console.error('Forgot Password Error:', error);
         res.status(500).json({ error: 'Internal server error' });
@@ -222,30 +212,23 @@ router.post('/reset-password', async (req, res) => {
 
         if (!user) return res.status(400).json({ error: 'Invalid request' });
 
-        // OTP validation suspended per user request
-        /*
-        const isLegacy = new Date(user.createdAt) < new Date('2026-03-09T00:00:00Z');
+        if (!otp) return res.status(400).json({ error: 'OTP is required' });
 
-        if (!isLegacy) {
-            if (!otp) return res.status(400).json({ error: 'OTP is required' });
+        const validOtp = await db.query.otps.findFirst({
+            where: and(
+                eq(otps.userId, user.id),
+                eq(otps.code, otp),
+                eq(otps.isUsed, false),
+                gt(otps.expiresAt, new Date())
+            )
+        });
 
-            const validOtp = await db.query.otps.findFirst({
-                where: and(
-                    eq(otps.userId, user.id),
-                    eq(otps.code, otp),
-                    eq(otps.isUsed, false),
-                    gt(otps.expiresAt, new Date())
-                )
-            });
+        if (!validOtp) return res.status(400).json({ error: 'Invalid or expired OTP' });
 
-            if (!validOtp) return res.status(400).json({ error: 'Invalid or expired OTP' });
-
-            // Mark OTP as used
-            await db.update(otps)
-                .set({ isUsed: true })
-                .where(eq(otps.id, validOtp.id));
-        }
-        */
+        // Mark OTP as used
+        await db.update(otps)
+            .set({ isUsed: true })
+            .where(eq(otps.id, validOtp.id));
 
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         await db.update(users)

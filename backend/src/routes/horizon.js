@@ -49,6 +49,32 @@ router.get('/mastery/:userId', async (req, res) => {
 });
 
 // --- THE GLOBAL BRIDGE (EXPORT HUB) ---
+const exportRoutes = []; // In-memory simulation or DB if added
+
+router.get('/exports', async (req, res) => {
+    res.json(exportRoutes);
+});
+
+router.post('/exports', async (req, res) => {
+    const newExport = { id: Math.random().toString(36).substr(2, 9), ...req.body, createdAt: new Date() };
+    exportRoutes.push(newExport);
+    res.status(201).json(newExport);
+});
+
+router.delete('/exports/:id', async (req, res) => {
+    const index = exportRoutes.findIndex(e => e.id === req.params.id);
+    if (index > -1) exportRoutes.splice(index, 1);
+    res.status(204).end();
+});
+
+router.get('/pods', async (req, res) => {
+    res.json([
+        { id: "p1", name: "Greenhouse Alpha", status: "Optimal", crop: "Strawberries", health: 98 },
+        { id: "p2", name: "Hydro Pod B", status: "Warning", crop: "Lettuce", health: 75 },
+        { id: "p3", name: "Kano Node 4", status: "Optimal", crop: "Maize", health: 92 }
+    ]);
+});
+
 // Process export certification and documents
 router.get('/bridge/certification/:userId', async (req, res) => {
     try {

@@ -2,40 +2,35 @@
 
 import { useState, useEffect } from "react";
 import {
-    Activity,
     Plus,
     Trash2,
     Loader2,
     ArrowLeft,
-    Image as ImageIcon,
-    Type,
-    ExternalLink,
+    X,
+    ImagePlus,
     Search,
-    Video,
-    AlertCircle
+    Clock,
+    User,
+    Play
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import { getApiUrl } from "@/lib/api";
 
 export default function AdminStoriesPage() {
     const [stories, setStories] = useState<any[]>([]);
-    const [vendors, setVendors] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
 
+    // Form State
     const [formData, setFormData] = useState({
-        vendorId: "",
+        vendorId: "602d1f40-4f51-4d3e-9c7a-369b768e7ec9", // Fallback system vendor
         mediaUrl: "",
-        caption: "",
         mediaType: "image",
+        caption: ""
     });
 
     useEffect(() => {
         fetchStories();
-        fetchVendors();
     }, []);
 
     const fetchStories = async () => {
@@ -49,60 +44,51 @@ export default function AdminStoriesPage() {
         }
     };
 
-    const fetchVendors = async () => {
-        try {
-            const res = await fetch(getApiUrl("/api/users?role=vendor"));
-            if (res.ok) {
-                const data = await res.json();
-                // Filter specifically for vendors if the API doesn't filter by query
-                setVendors(data.filter((u: any) => u.role === 'vendor'));
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
     const handleCreateStory = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsSubmitting(true);
         try {
             const res = await fetch(getApiUrl("/api/stories"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: JSON.stringify(formData)
             });
             if (res.ok) {
-                const newStory = await res.json();
-                setStories([newStory, ...stories]);
-                setIsModalOpen(false);
-                setFormData({ vendorId: "", mediaUrl: "", caption: "", mediaType: "image" });
+                setFormData({ ...formData, mediaUrl: "", caption: "" });
+                fetchStories();
             }
         } catch (err) {
             console.error(err);
-        } finally {
-            setIsSubmitting(false);
         }
     };
 
     const handleDeleteStory = async (id: string) => {
-        if (!confirm("Remove this story from the network?")) return;
+        if (!confirm("Remove this story?")) return;
         try {
             const res = await fetch(getApiUrl(`/api/stories/${id}`), { method: "DELETE" });
-            if (res.ok) {
-                setStories(stories.filter(s => s.id !== id));
-            }
+            if (res.ok) fetchStories();
         } catch (err) {
             console.error(err);
         }
     };
 
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData({ ...formData, mediaUrl: reader.result as string, mediaType: "image" });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const filteredStories = stories.filter(s =>
-        s.caption.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        s.caption?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.vendor?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (
-        <div className="min-h-screen bg-[#0E1116] text-[#E6EDF3] p-6 lg:p-10">
+        <div className="min-h-screen bg-[#06120e] text-[#E6EDF3] p-6 lg:p-10">
             <div className="max-w-7xl mx-auto space-y-10">
                 {/* Header */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
@@ -113,10 +99,10 @@ export default function AdminStoriesPage() {
                         <h1 className="text-5xl font-extrabold font-serif uppercase tracking-tighter text-white">
                             Horizon <span className="text-secondary italic">Stories</span>
                         </h1>
-                        <p className="text-white/40 font-medium text-sm mt-2">Manage live visual updates from the Kido Farm network.</p>
+                        <p className="text-white/40 font-medium text-sm mt-2">Manage the visual heartbeat of the network.</p>
                     </div>
                     <div className="flex gap-4 w-full md:w-auto">
-                        <div className="relative flex-grow md:flex-grow-0 hidden md:block">
+                        <div className="relative flex-grow md:flex-grow-0">
                             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" />
                             <input
                                 type="text"
@@ -126,170 +112,126 @@ export default function AdminStoriesPage() {
                                 className="w-full md:w-64 bg-white/5 border border-white/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-medium text-white focus:ring-2 focus:ring-secondary/30 outline-none backdrop-blur-md"
                             />
                         </div>
-                        <button
-                            onClick={() => setIsModalOpen(true)}
-                            className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-xl shadow-secondary/10"
-                        >
-                            <Plus size={18} /> New Broadcast
-                        </button>
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="flex items-center justify-center py-40">
-                        <Loader2 size={48} className="animate-spin text-secondary opacity-20" />
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                        {filteredStories.map((story) => (
-                            <div key={story.id} className="bg-white/5 rounded-[3rem] border border-white/5 overflow-hidden group hover:border-secondary/30 transition-all shadow-2xl backdrop-blur-md">
-                                <div className="relative aspect-[9/16] bg-neutral-900">
-                                    <Image
-                                        src={story.mediaUrl}
-                                        alt="Story Content"
-                                        fill
-                                        className="object-cover opacity-80 group-hover:opacity-100 transition-opacity"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/40 p-8 flex flex-col justify-between">
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                                                <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center text-[10px] font-black text-primary">
-                                                    {story.vendor?.name?.charAt(0)}
-                                                </div>
-                                                <span className="text-[10px] font-black uppercase text-white tracking-widest truncate max-w-[80px]">
-                                                    {story.vendor?.name}
-                                                </span>
+                <div className="grid lg:grid-cols-12 gap-10">
+                    {/* Create Story Form */}
+                    <div className="lg:col-span-4 space-y-8">
+                        <div className="bg-white/5 rounded-[4rem] p-10 border border-white/5 backdrop-blur-md shadow-2xl">
+                            <h2 className="text-3xl font-black font-serif uppercase italic mb-8">Post <span className="text-secondary">Update</span></h2>
+                            <form onSubmit={handleCreateStory} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Media Source</label>
+                                    <div className="space-y-4">
+                                        {formData.mediaUrl && (
+                                            <div className="relative aspect-video rounded-2xl overflow-hidden border border-white/10">
+                                                <img src={formData.mediaUrl} className="w-full h-full object-cover" />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setFormData({ ...formData, mediaUrl: "" })}
+                                                    className="absolute top-2 right-2 p-2 bg-black/50 rounded-full hover:bg-red-500 transition-all"
+                                                >
+                                                    <X size={14} />
+                                                </button>
                                             </div>
-                                            <button
-                                                onClick={() => handleDeleteStory(story.id)}
-                                                className="w-10 h-10 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl flex items-center justify-center transition-all backdrop-blur-md border border-red-500/20"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                        )}
+                                        <div className="flex gap-2">
+                                            <label className="flex-grow cursor-pointer bg-white/5 border border-white/10 hover:border-secondary/30 rounded-2xl p-4 transition-all flex items-center justify-center gap-2 group">
+                                                <ImagePlus className="text-white/20 group-hover:text-secondary" />
+                                                <span className="text-xs font-bold text-white/40 group-hover:text-white">Upload Picture</span>
+                                                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
+                                            </label>
                                         </div>
+                                        <input
+                                            placeholder="Or paste media URL..."
+                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-medium text-white"
+                                            value={formData.mediaUrl}
+                                            onChange={e => setFormData({ ...formData, mediaUrl: e.target.value })}
+                                        />
+                                    </div>
+                                </div>
 
-                                        <div className="space-y-4">
-                                            <p className="text-white font-serif text-lg italic leading-tight line-clamp-3">
-                                                "{story.caption}"
-                                            </p>
-                                            <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.2em] text-white/30">
-                                                <span>{new Date(story.createdAt).toLocaleDateString()}</span>
-                                                <span className="text-secondary">{story.mediaType}</span>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Caption</label>
+                                    <textarea
+                                        rows={3}
+                                        placeholder="What's happening at the node?"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 font-medium text-white"
+                                        value={formData.caption}
+                                        onChange={e => setFormData({ ...formData, caption: e.target.value })}
+                                    />
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={!formData.mediaUrl}
+                                    className="w-full bg-secondary text-primary py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-white transition-all shadow-xl shadow-secondary/10 disabled:opacity-20 flex items-center justify-center gap-2"
+                                >
+                                    <Play size={18} fill="currentColor" /> Broadcast Story
+                                </button>
+                            </form>
+                        </div>
+
+                        <div className="bg-primary rounded-[3rem] p-10 border border-white/5 shadow-2xl space-y-4">
+                            <h3 className="text-xl font-bold font-serif text-white">Story <span className="text-secondary italic">Protocol</span></h3>
+                            <p className="text-white/40 text-[10px] leading-relaxed font-medium uppercase tracking-widest">Stories disappear after 24 hours. Use them for real-time harvest updates, farm walkthroughs, and organic verification videos.</p>
+                        </div>
+                    </div>
+
+                    {/* Stories Feed */}
+                    <div className="lg:col-span-8">
+                        {loading ? (
+                            <div className="flex items-center justify-center py-40">
+                                <Loader2 size={48} className="animate-spin text-secondary opacity-20" />
+                            </div>
+                        ) : (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {filteredStories.map((story) => (
+                                    <div key={story.id} className="bg-white/5 rounded-[3rem] border border-white/5 overflow-hidden backdrop-blur-md hover:border-secondary/30 transition-all group">
+                                        <div className="relative aspect-[4/5]">
+                                            <img src={story.mediaUrl} alt="Story" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+
+                                            <div className="absolute top-6 left-6 right-6 flex justify-between items-start">
+                                                <div className="flex items-center gap-3 bg-black/40 backdrop-blur-xl px-4 py-2 rounded-2xl border border-white/10">
+                                                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center text-primary font-black text-xs">
+                                                        {story.vendor?.name?.charAt(0) || 'K'}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-white tracking-widest leading-none">{story.vendor?.name || 'System'}</p>
+                                                        <p className="text-[8px] font-bold text-white/40 uppercase mt-1 flex items-center gap-1">
+                                                            <Clock size={8} /> {new Date(story.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteStory(story.id)}
+                                                    className="w-10 h-10 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all backdrop-blur-lg border border-red-500/20"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+
+                                            <div className="absolute bottom-8 left-8 right-8">
+                                                <p className="text-white font-bold leading-relaxed">{story.caption}</p>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        ))}
+                                ))}
 
-                        {filteredStories.length === 0 && (
-                            <div className="col-span-full py-40 text-center bg-white/5 rounded-[4rem] border border-white/5 backdrop-blur-md">
-                                <Activity size={64} className="mx-auto text-white/10 mb-6" />
-                                <h3 className="text-2xl font-black font-serif text-white uppercase italic">No Active Stories</h3>
-                                <p className="text-white/30 font-bold text-[10px] uppercase tracking-widest mt-2">Broadcast some live harvests to the community.</p>
+                                {filteredStories.length === 0 && (
+                                    <div className="col-span-full py-40 text-center bg-white/5 rounded-[4rem] border border-white/5 border-dashed">
+                                        <ImagePlus size={64} className="mx-auto text-white/10 mb-6" />
+                                        <h3 className="text-2xl font-black font-serif text-white uppercase italic">Silence in the Hub</h3>
+                                        <p className="text-white/30 font-bold text-[10px] uppercase tracking-widest mt-2">Broadcast the first harvest update of the day.</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </div>
-                )}
-            </div>
-
-            {/* Create Story Modal */}
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-md bg-[#0E1116]/80 text-white">
-                    <div className="bg-[#161B22] w-full max-w-xl rounded-[4rem] p-12 shadow-2xl relative overflow-hidden border border-white/5 animate-in fade-in zoom-in duration-300">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary rounded-full blur-[100px] opacity-10 -translate-y-32 translate-x-32" />
-
-                        <div className="relative space-y-8">
-                            <div>
-                                <h1 className="text-4xl font-extrabold font-serif tracking-tighter uppercase">New <span className="text-secondary italic">Broadcast</span></h1>
-                                <p className="text-white/40 font-medium text-sm mt-2">Publish live updates to the Horizon Story Feed.</p>
-                            </div>
-
-                            <form onSubmit={handleCreateStory} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Select Source (Vendor)</label>
-                                    <select
-                                        required
-                                        value={formData.vendorId}
-                                        onChange={e => setFormData({ ...formData, vendorId: e.target.value })}
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 transition-all font-medium text-white backdrop-blur-sm appearance-none"
-                                    >
-                                        <option value="" className="bg-[#161B22]">Choose Vendor...</option>
-                                        {vendors.map(v => (
-                                            <option key={v.id} value={v.id} className="bg-[#161B22]">{v.name}</option>
-                                        ))}
-                                    </select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Media URL</label>
-                                    <div className="relative">
-                                        <input
-                                            type="url"
-                                            required
-                                            placeholder="https://images.unsplash.com/..."
-                                            value={formData.mediaUrl}
-                                            onChange={e => setFormData({ ...formData, mediaUrl: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl pl-14 pr-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 transition-all font-medium text-white backdrop-blur-sm"
-                                        />
-                                        <ImageIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" size={20} />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Media Type</label>
-                                        <div className="flex gap-4">
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, mediaType: 'image' })}
-                                                className={`flex-1 py-4 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest ${formData.mediaType === 'image' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-white/5 bg-white/5 text-white/20'}`}
-                                            >
-                                                <ImageIcon size={14} /> Image
-                                            </button>
-                                            <button
-                                                type="button"
-                                                onClick={() => setFormData({ ...formData, mediaType: 'video' })}
-                                                className={`flex-1 py-4 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest ${formData.mediaType === 'video' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-white/5 bg-white/5 text-white/20'}`}
-                                            >
-                                                <Video size={14} /> Video
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-white/40">Caption</label>
-                                        <input
-                                            required
-                                            placeholder="Harvesting now..."
-                                            value={formData.caption}
-                                            onChange={e => setFormData({ ...formData, caption: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 transition-all font-medium text-white backdrop-blur-sm"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4 pt-4">
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsModalOpen(false)}
-                                        className="flex-grow py-4 rounded-2xl font-black text-sm uppercase tracking-widest text-white/40 hover:bg-white/5 transition-all text-center"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="flex-[2] bg-secondary text-primary py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-white transition-all shadow-xl shadow-secondary/10 flex items-center justify-center gap-2"
-                                    >
-                                        {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : "Publish Horizon"}
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
                 </div>
-            )}
+            </div>
         </div>
     );
 }
-
