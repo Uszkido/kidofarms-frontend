@@ -2,8 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
 const { users, orders, otps, activityLogs, products, harvests, walletTransactions } = require('../db/schema');
-const { desc, eq, sql } = require('drizzle-orm');
+const { desc, eq, sql, or } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
 
 // 1. GET /api/admin/stats - Super Admin Dashboard Statistics
 router.get('/stats', async (req, res) => {
@@ -92,7 +95,62 @@ router.post('/orders/approve-payment', async (req, res) => {
     }
 });
 
-// 5. GET /api/admin/full-audit - Integrated view of everything
+// 5. POST /api/admin/impersonate - Ghost Protocol (Impersonation)
+router.post('/impersonate', async (req, res) => {
+    const { userId } = req.body;
+    try {
+        // Find user by ID or Email
+        const user = await db.query.users.findFirst({
+            where: or(eq(users.id, userId), eq(users.email, userId))
+        });
+
+        if (!user) return res.status(404).json({ error: 'Citizen not found in network' });
+
+        const token = jwt.sign(
+            { id: user.id, role: user.role, name: user.name, email: user.email, impersonated: true },
+            JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_IMPERSONATION_START',
+            entity: 'users',
+            details: { targetId: user.id, targetEmail: user.email },
+        });
+
+        res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
+    } catch (error) {
+        console.error('Impersonation Error:', error);
+        res.status(500).json({ error: 'Protocol failed' });
+    }
+});
+
+// 6. POST /api/admin/finance/credit - Credit Injection
+router.post('/finance/credit', async (req, res) => {
+    const { userId, amount, reason } = req.body;
+    try {
+        const [transaction] = await db.insert(walletTransactions).values({
+            userId,
+            amount: sql`${amount}`,
+            type: 'credit',
+            status: 'completed',
+            description: reason || 'Admin Infrastructure Credit'
+        }).returning();
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_CREDIT_INJECTION',
+            entity: 'wallet',
+            details: { userId, amount, reason },
+        });
+
+        res.json({ message: 'Credit injected successfully', transaction });
+    } catch (error) {
+        console.error('Credit Error:', error);
+        res.status(500).json({ error: 'Credit injection failed' });
+    }
+});
+
+// 7. GET /api/admin/full-audit - Integrated view of everything
 router.get('/full-audit', async (req, res) => {
     try {
         const recentUsers = await db.select().from(users).orderBy(desc(users.createdAt)).limit(10);
