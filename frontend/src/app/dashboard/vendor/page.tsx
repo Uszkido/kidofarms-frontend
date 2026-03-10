@@ -54,12 +54,12 @@ export default async function VendorDashboard() {
                                     <span className="text-secondary italic">Control Node</span>
                                 </h2>
                                 <div className="flex flex-wrap gap-4 pt-4">
-                                    <Link href="/admin/inventory/new" className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center gap-2">
+                                    <Link href="/dashboard/vendor/products/new" className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center gap-2">
                                         <Plus size={16} /> New Product
                                     </Link>
-                                    <button className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all flex items-center gap-2">
+                                    <Link href="/dashboard/vendor/cashout" className="bg-white/10 text-white border border-white/20 px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white/20 transition-all flex items-center gap-2">
                                         <Wallet size={16} /> Cash Out Details
-                                    </button>
+                                    </Link>
                                 </div>
                             </div>
                         </header>

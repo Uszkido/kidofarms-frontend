@@ -6,6 +6,7 @@ import {
     ArrowRight, Clock, Award, Share2, Wallet
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getApiUrl } from "@/lib/api";
 
 interface Commission {
     id: string;
@@ -35,7 +36,7 @@ export function AffiliateDashboardClient() {
         const fetchData = async () => {
             try {
                 // For demo, we'll use local stats if fetch fails
-                const res = await fetch(`http://localhost:5000/api/affiliates/dashboard/${userId}`);
+                const res = await fetch(getApiUrl(`/api/affiliates/dashboard/${userId}`));
                 if (res.ok) {
                     const json = await res.json();
                     setData(json);
@@ -91,7 +92,7 @@ export function AffiliateDashboardClient() {
                             </div>
                             <button
                                 onClick={copyToClipboard}
-                                className={`p-4 rounded-2xl transition-all ${copied ? "bg-green-500 text-white" : "bg-primary text-white hover:bg-secondary hover:text-primary"}`}
+                                className={`p-4 rounded-2xl transition-all ${copied ? "bg-green-50 text-white" : "bg-primary text-white hover:bg-secondary hover:text-primary"}`}
                             >
                                 {copied ? <CheckCircle2 size={24} /> : <Copy size={24} />}
                             </button>
