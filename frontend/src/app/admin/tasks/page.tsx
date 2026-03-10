@@ -12,7 +12,9 @@ import {
     User,
     Calendar,
     Search,
-    Filter
+    Filter,
+    Activity,
+    X
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -107,8 +109,8 @@ export default function AdminTasksPage() {
                                 <div className="space-y-4 flex-grow">
                                     <div className="flex items-center gap-4">
                                         <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${task.priority === 'high' ? 'bg-red-500/10 text-red-400 border border-red-500/20' :
-                                                task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
-                                                    'bg-white/5 text-white/40'
+                                            task.priority === 'medium' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' :
+                                                'bg-white/5 text-white/40'
                                             }`}>
                                             {task.priority} Priority
                                         </span>
@@ -130,8 +132,8 @@ export default function AdminTasksPage() {
                                         </p>
                                     </div>
                                     <div className={`px-6 py-2 rounded-2xl font-black text-[10px] uppercase tracking-widest border ${task.status === 'completed' ? 'bg-green-500/10 text-green-400 border-green-500/20' :
-                                            task.status === 'in_progress' ? 'bg-secondary text-primary' :
-                                                'bg-white/5 text-white/40'
+                                        task.status === 'in_progress' ? 'bg-secondary text-primary' :
+                                            'bg-white/5 text-white/40'
                                         }`}>
                                         {task.status.replace('_', ' ')}
                                     </div>
