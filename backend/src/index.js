@@ -30,6 +30,7 @@ const horizonRoutes = require('./routes/horizon');
 const teamRoutes = require('./routes/team');
 const impactRoutes = require('./routes/impact');
 const investmentsRoutes = require('./routes/investments');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -74,6 +75,7 @@ app.use('/api/horizon', horizonRoutes);
 app.use('/api/team', teamRoutes);
 app.use('/api/impact', impactRoutes);
 app.use('/api/investments', investmentsRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

@@ -10,10 +10,26 @@ import {
     ImagePlus,
     Loader2,
     TrendingUp,
+    FileText,
+    Zap,
+    DollarSign,
+    Box,
+    KeyRound,
+    Bell,
+    Map,
+    Sprout,
+    ShieldAlert,
+    Package,
+    Settings2,
+    Star,
+    LayoutDashboard,
+    Sliders,
     Warehouse,
     ShieldCheck,
     Briefcase,
-    Building2
+    Building2,
+    BookOpen,
+    Truck
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -54,181 +70,184 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex items-center gap-4 bg-white/5 p-4 rounded-[2rem] border border-white/5 backdrop-blur-xl">
                         <div className="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center text-primary font-black shadow-xl">
-                            {session?.user?.name?.[0]}
+                            {session?.user?.name?.[0] || "A"}
                         </div>
                         <div className="hidden md:block">
-                            <p className="text-white font-bold text-sm">{session?.user?.name}</p>
+                            <p className="text-white font-bold text-sm">{session?.user?.name || "Admin"}</p>
                             <p className="text-[10px] font-black uppercase tracking-widest text-secondary">Chief Administrator</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Main Grid */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {/* User Registry Card */}
-                    <div className="group relative bg-white/5 p-10 rounded-[4rem] border border-white/5 overflow-hidden backdrop-blur-md shadow-2xl hover:border-secondary/20 transition-all">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-secondary rounded-full blur-[60px] opacity-10 -translate-y-16 translate-x-16" />
-                        <div className="relative space-y-6">
-                            <div className="w-16 h-16 bg-[#1a3c34] rounded-2xl flex items-center justify-center text-secondary shadow-xl group-hover:scale-110 transition-transform">
-                                <Users size={32} />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black font-serif text-white uppercase italic">Citizen <br /><span className="text-secondary">Registry</span></h3>
-                                <p className="text-white/30 text-xs font-medium mt-4 leading-relaxed">Manage user identities, verify accounts, and assign node access across the network.</p>
-                            </div>
-                            <Link href="/admin/users" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-secondary group-hover:gap-6 transition-all">
-                                Open Registry <ArrowRight size={18} />
-                            </Link>
+                {/* 1. KEY PERFORMANCE METRICS */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                    <MetricCard
+                        label="Total Revenue"
+                        value={`₦${(stats?.revenue || 0).toLocaleString()}`}
+                        icon={<DollarSign size={20} />}
+                        color="bg-primary text-secondary"
+                        loading={loading}
+                    />
+                    <MetricCard
+                        label="Order Volume"
+                        value={stats?.orders || 0}
+                        icon={<ShoppingCart size={20} />}
+                        color="bg-white/5 text-secondary border border-white/5"
+                        loading={loading}
+                    />
+                    <MetricCard
+                        label="Citizen Base"
+                        value={stats?.users || 0}
+                        icon={<Users size={20} />}
+                        color="bg-white/5 text-blue-400 border border-white/5"
+                        loading={loading}
+                    />
+                    <MetricCard
+                        label="Product Range"
+                        value={stats?.totalProducts || 120}
+                        icon={<Box size={20} />}
+                        color="bg-white/5 text-green-400 border border-white/5"
+                        loading={loading}
+                    />
+                </div>
+
+                {/* 2. MASTER COMMAND PALETTE (CORE FUNCTIONS) */}
+                <div className="mb-16">
+                    <div className="flex justify-between items-end mb-8 border-l-4 border-secondary pl-4">
+                        <div>
+                            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-secondary">Master Utility Rack</h2>
+                            <p className="text-[10px] text-white/20 uppercase font-black mt-1">12+ Functional Internal Nodes Active</p>
                         </div>
                     </div>
-
-                    {/* Team & Task Card */}
-                    <div className="group relative bg-white/5 p-10 rounded-[4rem] border border-white/5 overflow-hidden backdrop-blur-md shadow-2xl hover:border-secondary/20 transition-all">
-                        <div className="relative space-y-6">
-                            <div className="w-16 h-16 bg-[#1a3c34] rounded-2xl flex items-center justify-center text-secondary shadow-xl group-hover:scale-110 transition-transform">
-                                <Briefcase size={32} />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black font-serif text-white uppercase italic">Node <br /><span className="text-secondary">Workflows</span></h3>
-                                <p className="text-white/30 text-xs font-medium mt-4 leading-relaxed">Assign tasks to team members, monitor node productivity, and manage the internal roster.</p>
-                            </div>
-                            <div className="flex gap-4">
-                                <Link href="/admin/team" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-secondary transition-all">
-                                    Roster
-                                </Link>
-                                <span className="text-white/10">|</span>
-                                <Link href="/admin/tasks" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-secondary group-hover:gap-6 transition-all">
-                                    Deploy Tasks <ArrowRight size={18} />
-                                </Link>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Horizon Stories Card */}
-                    <div className="group relative bg-[#1a3c34] p-10 rounded-[4rem] overflow-hidden shadow-2xl border-4 border-secondary/10 hover:border-secondary/30 transition-all">
-                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-                        <div className="relative space-y-6">
-                            <div className="w-16 h-16 bg-secondary rounded-2xl flex items-center justify-center text-primary shadow-2xl group-hover:scale-110 transition-transform">
-                                <ImagePlus size={32} />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black font-serif text-white uppercase italic">Horizon <br /><span className="text-secondary">Broadcast</span></h3>
-                                <p className="text-white/60 text-xs font-medium mt-4 leading-relaxed">Stream live visual updates from the farm network to the global marketplace feed.</p>
-                            </div>
-                            <Link href="/admin/stories" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-secondary group-hover:gap-6 transition-all">
-                                Start Broadcast <ArrowRight size={18} />
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* Global Bridge Card */}
-                    <div className="group relative bg-white/5 p-10 rounded-[4rem] border border-white/5 overflow-hidden backdrop-blur-md shadow-2xl hover:border-secondary/20 transition-all">
-                        <div className="relative space-y-6">
-                            <div className="w-16 h-16 bg-[#1a3c34] rounded-2xl flex items-center justify-center text-secondary shadow-xl group-hover:scale-110 transition-transform">
-                                <Globe size={32} />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black font-serif text-white uppercase italic">Global <br /><span className="text-secondary">Bridge</span></h3>
-                                <p className="text-white/30 text-xs font-medium mt-4 leading-relaxed">Oversee international exports, manage certifications, and track trans-border logistics.</p>
-                            </div>
-                            <Link href="/admin/horizon" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-secondary group-hover:gap-6 transition-all">
-                                Open Bridge <ArrowRight size={18} />
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* B2B / Hotels Card */}
-                    <div className="group relative bg-white/5 p-10 rounded-[4rem] border border-white/5 overflow-hidden backdrop-blur-md shadow-2xl hover:border-secondary/20 transition-all">
-                        <div className="relative space-y-6">
-                            <div className="w-16 h-16 bg-[#1a3c34] rounded-2xl flex items-center justify-center text-secondary shadow-xl group-hover:scale-110 transition-transform">
-                                <Building2 size={32} />
-                            </div>
-                            <div>
-                                <h3 className="text-3xl font-black font-serif text-white uppercase italic">B2B <br /><span className="text-secondary">Partnerships</span></h3>
-                                <p className="text-white/30 text-xs font-medium mt-4 leading-relaxed">Manage corporate accounts, hotel procurement contracts, and bulk credit lines.</p>
-                            </div>
-                            <Link href="/dashboard/business" className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-secondary group-hover:gap-6 transition-all">
-                                Protocol B2B <ArrowRight size={18} />
-                            </Link>
-                        </div>
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <SmallMenuLink href="/admin/vendors" label="Vendors" icon={<Users size={20} />} />
+                        <SmallMenuLink href="/admin/farmers" label="Farmers" icon={<Sprout size={20} />} />
+                        <SmallMenuLink href="/admin/otps" label="OTP Gate" icon={<KeyRound size={20} />} />
+                        <SmallMenuLink href="/admin/promotions" label="Promos" icon={<Zap size={20} />} />
+                        <SmallMenuLink href="/admin/payments" label="Finance" icon={<DollarSign size={20} />} />
+                        <SmallMenuLink href="/admin/landing" label="Landing CMS" icon={<Settings2 size={20} />} />
+                        <SmallMenuLink href="/admin/reviews" label="Reviews" icon={<Star size={20} />} />
+                        <SmallMenuLink href="/admin/reports" label="Intel" icon={<Activity size={20} />} />
+                        <SmallMenuLink href="/admin/settings" label="Global Setup" icon={<Map size={20} />} />
+                        <SmallMenuLink href="/admin/subscribers" label="Subs" icon={<Globe size={20} />} />
+                        <SmallMenuLink href="/admin/orders" label="Tracking" icon={<Truck size={20} />} />
+                        <SmallMenuLink href="/admin/users" label="User Registry" icon={<Users size={20} />} />
                     </div>
                 </div>
 
-                {/* Bottom Section: Real-time Stats */}
-                <div className="mt-20 grid lg:grid-cols-12 gap-10">
-                    <div className="lg:col-span-8 space-y-10">
-                        <div className="bg-white/5 rounded-[4rem] p-12 border border-white/5 backdrop-blur-md shadow-2xl space-y-10">
-                            <div className="flex justify-between items-center">
-                                <h2 className="text-3xl font-black font-serif uppercase tracking-tight text-white">Network <span className="text-secondary italic">Health</span></h2>
-                                <button className="text-[10px] font-black uppercase tracking-widest text-white/20 hover:text-secondary underline underline-offset-8 transition-colors">View Detailed Analytics</button>
-                            </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                                {[
-                                    { label: "Total Revenue", value: "₦142.8M", change: "+14%", icon: TrendingUp, color: "text-green-400" },
-                                    { label: "Active Nodes", value: "1,204", change: "+8%", icon: Activity, color: "text-blue-400" },
-                                    { label: "Pending Orders", value: "84", change: "-2%", icon: ShoppingCart, color: "text-yellow-400" },
-                                    { label: "Trust Index", value: "98.2%", change: "+0.4%", icon: ShieldCheck, color: "text-secondary" },
-                                ].map((s, i) => (
-                                    <div key={i} className="space-y-2">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/20">{s.label}</p>
-                                        <h4 className="text-3xl font-black font-serif text-white">{s.value}</h4>
-                                        <p className={`text-[10px] font-bold ${s.color}`}>{s.change} <span className="text-white/10 ml-1">vs last month</span></p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                {/* 3. QUICK ACTIONS (ADD/EDIT) */}
+                <div className="mb-16 bg-[#1a3c34]/40 p-8 md:p-12 rounded-[3.5rem] border border-secondary/20 shadow-2xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[80px]" />
+                    <div className="flex justify-between items-center mb-8 relative z-10 w-full">
+                        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-secondary border-l-4 border-secondary pl-4">Direct Action Protocols</h2>
+                        <span className="text-[10px] text-white/30 uppercase tracking-widest font-black hidden md:block">Instant Entry Points</span>
+                    </div>
 
-                        {/* Horizon 5.0 Global Vitality */}
-                        <div className="bg-[#1a3c34]/20 rounded-[4rem] p-12 border border-secondary/10 backdrop-blur-xl shadow-2xl space-y-10 relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary/40 to-transparent animate-pulse" />
-                            <div className="flex justify-between items-center">
-                                <div>
-                                    <h2 className="text-3xl font-black font-serif uppercase tracking-tight text-white">Horizon 5.0 <span className="text-secondary italic">Vitality</span></h2>
-                                    <p className="text-[10px] font-black uppercase text-secondary/40 tracking-widest mt-1">Sovereign Infrastructure Monitoring</p>
-                                </div>
-                                <div className="flex items-center gap-2 bg-secondary/10 px-4 py-2 rounded-full border border-secondary/20">
-                                    <span className="w-2 h-2 bg-secondary rounded-full animate-ping" />
-                                    <span className="text-[10px] font-black uppercase text-secondary">Real-time Pulse Feed</span>
-                                </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-6 gap-4 relative z-10">
+                        <ActionBtn href="/admin/products/new" icon={<Package size={20} />} label="Add Product" />
+                        <ActionBtn href="/admin/users/new" icon={<Users size={20} />} label="Add Citizen" />
+                        <ActionBtn href="/admin/landing" icon={<ImagePlus size={20} />} label="Edit UI" />
+                        <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Update Stock" />
+                        <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Review Orders" />
+                        <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" />
+                    </div>
+                </div>
+
+                {/* 4. CORE INFRASTRUCTURE GRID */}
+                <div className="grid xl:grid-cols-12 gap-10">
+                    <div className="xl:col-span-8 space-y-10">
+                        <section>
+                            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-secondary mb-8 border-l-4 border-secondary pl-4">System Infrastructure</h2>
+                            <div className="grid md:grid-cols-2 gap-6">
+                                <InfrastructureCard
+                                    href="/admin/users"
+                                    title="Citizen Directory"
+                                    sub="Farmer, Vendor, B2B, Team profiles"
+                                    icon={<Users size={24} />}
+                                />
+                                <InfrastructureCard
+                                    href="/admin/otps"
+                                    title="OTP Master Recall"
+                                    sub="Intercept verification codes"
+                                    icon={<ShieldAlert size={24} />}
+                                    warning
+                                />
+                                <InfrastructureCard
+                                    href="/admin/inventory"
+                                    title="Global Stock Node"
+                                    sub="Real-time multi-depot inventory"
+                                    icon={<Warehouse size={24} />}
+                                />
+                                <InfrastructureCard
+                                    href="/admin/orders"
+                                    title="Logistics Node"
+                                    sub="Satellite tracking & transit logs"
+                                    icon={<Truck size={24} />}
+                                />
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                                {[
-                                    { label: "Insurance Risk", value: "Low (12%)", detail: "Yield-Shield Active", color: "text-green-400" },
-                                    { label: "Cold-Vault Stats", value: "-2°C / 65%", detail: "All Nodes Optimal", color: "text-blue-400" },
-                                    { label: "DNA Passports", value: "4,280", detail: "85% Batch Verified", color: "text-secondary" },
-                                    { label: "Waste Recycling", value: "2.8 Tons", detail: "480 Energy Credits", color: "text-orange-400" },
-                                ].map((s, i) => (
-                                    <div key={i} className="p-6 bg-white/5 rounded-3xl border border-white/5 space-y-3">
-                                        <p className="text-[9px] font-black uppercase tracking-widest text-white/20">{s.label}</p>
-                                        <h4 className="text-xl font-black font-serif text-white italic">{s.value}</h4>
-                                        <p className={`text-[9px] font-bold ${s.color} uppercase`}>{s.detail}</p>
-                                    </div>
-                                ))}
+                        </section>
+
+                        <div className="bg-white/5 rounded-[3rem] p-10 border border-white/5 backdrop-blur-md shadow-2xl space-y-8">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-2xl font-black font-serif uppercase tracking-tight text-white">Recent <span className="text-secondary italic">Operations</span></h2>
+                                <Link href="/admin/orders" className="text-[10px] font-black uppercase tracking-widest text-secondary hover:underline">Full Audit Log</Link>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-white/5">
+                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-white/20">Operation ID</th>
+                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-white/20">Status</th>
+                                            <th className="pb-4 text-[9px] font-black uppercase tracking-widest text-white/20 text-right">Yield</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {(stats?.recentOrders || []).map((order: any) => (
+                                            <tr key={order.id} className="hover:bg-white/5 transition-colors group">
+                                                <td className="py-4 text-xs font-bold text-white/60 tracking-mono">{order.id}</td>
+                                                <td className="py-4">
+                                                    <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${order.orderStatus === 'delivered' ? 'bg-green-500/10 text-green-400' : 'bg-secondary/10 text-secondary'
+                                                        }`}>
+                                                        {order.orderStatus}
+                                                    </span>
+                                                </td>
+                                                <td className="py-4 text-xs font-black text-right text-white">₦{Number(order.totalAmount).toLocaleString()}</td>
+                                            </tr>
+                                        ))}
+                                        {(!stats?.recentOrders || stats?.recentOrders.length === 0) && (
+                                            <tr>
+                                                <td colSpan={3} className="py-10 text-center text-white/20 text-xs italic font-medium tracking-widest">No recent operations logged in heartbeat feed.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
 
-                    <div className="lg:col-span-4 space-y-8">
-                        <div className="bg-secondary rounded-[4rem] p-12 text-primary shadow-2xl relative overflow-hidden group hover:rotate-1 transition-transform h-fit">
-                            <Warehouse className="absolute -bottom-10 -right-10 text-primary/5 w-64 h-64 -rotate-12" />
+                    <div className="xl:col-span-4 space-y-8">
+                        <div className="bg-secondary rounded-[3rem] p-10 text-primary shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all">
+                            <Warehouse className="absolute -bottom-10 -right-10 text-primary/5 w-48 h-48 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
                             <div className="relative z-10 space-y-6">
-                                <h3 className="text-4xl font-black font-serif leading-none italic uppercase">Supply <br />Node Beta</h3>
-                                <p className="text-primary/60 text-xs font-medium leading-relaxed uppercase tracking-widest">You have <span className="font-black text-primary">12 inventory alerts</span> from the central warehouse. Direct bulk transfers are active.</p>
-                                <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl">Audit Inventory</button>
+                                <h3 className="text-3xl font-black font-serif leading-none italic uppercase">Logistics Hub</h3>
+                                <p className="text-primary/60 text-xs font-medium leading-relaxed uppercase tracking-widest">You have <span className="font-black text-primary">12 infrastructure alerts</span> pending. Satellite uplink stable.</p>
+                                <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl">Audit Nodes</button>
                             </div>
                         </div>
 
-                        <div className="bg-white/5 p-12 rounded-[4rem] border border-white/5 backdrop-blur-md shadow-2xl space-y-6">
-                            <h3 className="text-2xl font-black font-serif text-white uppercase italic">Protocol <span className="text-secondary">Alerts</span></h3>
+                        <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 backdrop-blur-md shadow-2xl space-y-6 text-[#E6EDF3]">
+                            <h3 className="text-2xl font-black font-serif uppercase italic">Protocol <span className="text-secondary">Alerts</span></h3>
                             <div className="space-y-4">
                                 {[
-                                    { msg: "Unusual moisture drop in Kano Node 4", type: "warning" },
-                                    { msg: "Large B2B order from Hilton Hub", type: "info" },
-                                    { msg: "Global Bridge certification renewal due", type: "urgent" }
+                                    { msg: "Moisture deviation in Central Hub 4", type: "warning" },
+                                    { msg: "B2B certification pending approval", type: "info" },
+                                    { msg: "OTP rate limit surge detected", type: "urgent" }
                                 ].map((alert, i) => (
                                     <div key={i} className="flex gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 items-center">
-                                        <div className={`w-2 h-2 rounded-full ${alert.type === 'warning' ? 'bg-orange-400' : alert.type === 'urgent' ? 'bg-red-400' : 'bg-blue-400'}`} />
-                                        <p className="text-[10px] font-bold text-white/60 tracking-tight">{alert.msg}</p>
+                                        <div className={`w-2 h-2 rounded-full shrink-0 ${alert.type === 'warning' ? 'bg-orange-400' :
+                                                alert.type === 'urgent' ? 'bg-red-400' : 'bg-blue-400'
+                                            }`} />
+                                        <p className="text-[10px] font-bold text-white/40 tracking-tight leading-snug">{alert.msg}</p>
                                     </div>
                                 ))}
                             </div>
@@ -237,5 +256,59 @@ export default function AdminDashboard() {
                 </div>
             </div>
         </div>
+    );
+}
+
+function MetricCard({ label, value, icon, color, loading }: any) {
+    return (
+        <div className={`p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between h-40 transition-all border border-white/5 ${color.includes('bg-white') ? color : color + ' shadow-xl shadow-secondary/10'}`}>
+            <div className="flex items-center justify-between">
+                <span className={`p-2 rounded-lg bg-white/10`}>{icon}</span>
+                <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">{label}</span>
+            </div>
+            <div>
+                <h3 className="text-3xl font-black font-serif tracking-tight text-white uppercase">
+                    {loading ? <Loader2 className="animate-spin text-secondary" size={24} /> : value}
+                </h3>
+            </div>
+        </div>
+    );
+}
+
+function SmallMenuLink({ href, label, icon }: any) {
+    return (
+        <Link href={href} className="flex flex-col items-center gap-3 p-6 rounded-3xl border border-white/5 bg-white/5 hover:bg-secondary transition-all group text-white hover:text-primary shadow-xl cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-[#1a3c34] group-hover:bg-white/20 flex items-center justify-center transition-colors">
+                {icon}
+            </div>
+            <span className="text-[8px] font-black uppercase tracking-widest text-white/40 group-hover:text-primary leading-tight text-center">{label}</span>
+        </Link>
+    );
+}
+
+function ActionBtn({ href, icon, label }: any) {
+    return (
+        <Link href={href} className="flex flex-col items-center justify-center gap-4 bg-white/5 hover:bg-secondary border border-white/5 hover:border-secondary p-6 rounded-3xl transition-all group text-white hover:text-primary shadow-lg cursor-pointer">
+            <div className="w-14 h-14 rounded-2xl bg-[#1a3c34] group-hover:bg-white/20 flex items-center justify-center transition-colors shadow-inner">
+                {icon}
+            </div>
+            <span className="text-[10px] font-black uppercase tracking-widest text-center leading-tight">{label}</span>
+        </Link>
+    );
+}
+
+function InfrastructureCard({ href, title, sub, icon, warning }: any) {
+    return (
+        <Link href={href} className={`group p-8 rounded-[2.5rem] border ${warning ? 'bg-red-500/5 border-red-500/20 hover:border-red-500' : 'bg-white/5 border-white/5 hover:border-secondary'
+            } transition-all shadow-xl backdrop-blur-md`}>
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform ${warning ? 'bg-red-500/20 text-red-500' : 'bg-[#1a3c34] text-secondary'
+                }`}>
+                {icon}
+            </div>
+            <h3 className="text-xl font-black font-serif text-white uppercase italic mb-2 tracking-tight">{title}</h3>
+            <div className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-white/30 group-hover:text-secondary group-hover:gap-6 transition-all">
+                {sub} <ArrowRight size={14} />
+            </div>
+        </Link>
     );
 }
