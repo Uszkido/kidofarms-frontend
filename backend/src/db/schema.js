@@ -397,6 +397,58 @@ const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     }),
 }));
 
+// Yield-Shield Policies Table
+const yieldShieldPolicies = pgTable("yield_shield_policies", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    harvestId: uuid("harvest_id").references(() => harvests.id),
+    farmerId: uuid("farmer_id").references(() => users.id),
+    premium: numeric("premium", { precision: 12, scale: 2 }).notNull(),
+    coverageAmount: numeric("coverage_amount", { precision: 12, scale: 2 }).notNull(),
+    status: text("status").default("active"), // active, triggered, paid_out
+    triggerConditions: jsonb("trigger_conditions"), // e.g. { rain_less_than: 10, days: 30 }
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Cold-Vault Storage Nodes Table
+const storageNodes = pgTable("storage_nodes", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    location: text("location").notNull(),
+    ownerId: uuid("owner_id").references(() => users.id),
+    type: text("type").default("cold_storage"), // cold_storage, dry_storage
+    temperature: numeric("temperature", { precision: 5, scale: 2 }),
+    humidity: numeric("humidity", { precision: 5, scale: 2 }),
+    capacity: integer("capacity"),
+    lastAlert: text("last_alert"),
+    status: text("status").default("optimal"), // optimal, warning, critical
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Heritage DNA / Passports Table
+const heritagePassports = pgTable("heritage_passports", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id").references(() => products.id),
+    farmerId: uuid("farmer_id").references(() => users.id),
+    dnaHash: text("dna_hash"), // Mock hash for soil/seed DNA
+    soilHealthScore: integer("soil_health_score"), // 0-100
+    pesticideFree: boolean("pesticide_free").default(true),
+    harvestVideoUrl: text("harvest_video_url"),
+    qrCodeUrl: text("qr_code_url"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Sovereign Energy / Waste Marketplace Table
+const energyMarketplace = pgTable("energy_marketplace", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sellerId: uuid("seller_id").references(() => users.id),
+    wasteType: text("waste_type").notNull(), // biomass, husk, compost
+    quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
+    unit: text("unit").default("kg"),
+    creditsOffered: integer("credits_offered").notNull(),
+    status: text("status").default("available"), // available, sold, processed
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 const usersRelations = relations(users, ({ many, one }) => ({
     blogPosts: many(blogPosts),
     vendor: one(vendors, {
@@ -483,6 +535,10 @@ module.exports = {
     investments,
     farmMonitoringData,
     tasks,
+    yieldShieldPolicies,
+    storageNodes,
+    heritagePassports,
+    energyMarketplace,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

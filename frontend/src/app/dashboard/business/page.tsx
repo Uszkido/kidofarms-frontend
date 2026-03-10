@@ -14,7 +14,8 @@ import {
     ArrowRight,
     Search,
     CreditCard,
-    Briefcase
+    Briefcase,
+    Dna
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -72,42 +73,74 @@ export default function BusinessDashboard() {
                         {/* Active Orders & Invoices */}
                         <div className="grid lg:grid-cols-12 gap-12">
                             {/* Procurement Feed */}
-                            <div className="lg:col-span-8 space-y-8">
-                                <div className="flex justify-between items-center">
-                                    <h2 className="text-3xl font-black font-serif uppercase italic tracking-tighter">Active <span className="text-secondary">Procurements</span></h2>
-                                    <Link href="/shop" className="text-xs font-black uppercase tracking-widest text-primary/40 hover:text-secondary transition-colors flex items-center gap-2">
-                                        Bulk Catalog <ArrowRight size={14} />
-                                    </Link>
+                            <div className="lg:col-span-8 space-y-12">
+                                <div className="space-y-8">
+                                    <div className="flex justify-between items-center">
+                                        <h2 className="text-3xl font-black font-serif uppercase italic tracking-tighter">Active <span className="text-secondary">Procurements</span></h2>
+                                        <Link href="/shop" className="text-xs font-black uppercase tracking-widest text-primary/40 hover:text-secondary transition-colors flex items-center gap-2">
+                                            Bulk Catalog <ArrowRight size={14} />
+                                        </Link>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        {[
+                                            { id: "PRO-4921", vendor: "Kano Tomato Node", volume: "400kg", status: "In Transit", date: "Mar 10" },
+                                            { id: "PRO-4882", vendor: "Grain Alliance", volume: "1.2 Tons", status: "Processing", date: "Mar 09" },
+                                            { id: "PRO-4712", vendor: "Fish-Tech Hub", volume: "50kg Fillet", status: "Delivered", date: "Mar 07" }
+                                        ].map((order, i) => (
+                                            <div key={i} className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:scale-[1.02] transition-all">
+                                                <div className="flex items-center gap-8">
+                                                    <div className="w-16 h-16 bg-cream/30 rounded-3xl flex items-center justify-center text-primary shadow-inner">
+                                                        <Briefcase size={28} />
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">{order.id} • {order.date}</p>
+                                                        <h3 className="text-2xl font-black font-serif">{order.vendor}</h3>
+                                                        <p className="text-sm font-bold text-primary/40 uppercase tracking-widest">{order.volume}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
+                                                    <div className="text-right">
+                                                        <p className={`text-sm font-black uppercase italic ${order.status === 'Delivered' ? 'text-green-500' : 'text-secondary'}`}>{order.status}</p>
+                                                        <p className="text-[10px] font-black text-primary/20 uppercase">Track Logistics</p>
+                                                    </div>
+                                                    <button className="bg-primary text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                                        <ArrowRight size={24} />
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
 
-                                <div className="space-y-6">
-                                    {[
-                                        { id: "PRO-4921", vendor: "Kano Tomato Node", volume: "400kg", status: "In Transit", date: "Mar 10" },
-                                        { id: "PRO-4882", vendor: "Grain Alliance", volume: "1.2 Tons", status: "Processing", date: "Mar 09" },
-                                        { id: "PRO-4712", vendor: "Fish-Tech Hub", volume: "50kg Fillet", status: "Delivered", date: "Mar 07" }
-                                    ].map((order, i) => (
-                                        <div key={i} className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:scale-[1.02] transition-all">
-                                            <div className="flex items-center gap-8">
-                                                <div className="w-16 h-16 bg-cream/30 rounded-3xl flex items-center justify-center text-primary shadow-inner">
-                                                    <Briefcase size={28} />
+                                {/* Heritage DNA Registry Section */}
+                                <div className="space-y-8 bg-primary/5 p-12 rounded-[4rem] border border-primary/5">
+                                    <h2 className="text-3xl font-black font-serif uppercase italic tracking-tighter">Provenance & <span className="text-secondary">DNA Verification</span></h2>
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        {[
+                                            { name: "Organic Plum Tomatoes", batch: "BATCH-882-X", quality: "Grade A+", id: "882" },
+                                            { name: "Sovereign Soybeans", batch: "BATCH-771-Y", quality: "Certified Organic", id: "771" }
+                                        ].map(item => (
+                                            <div key={item.id} className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl group hover:border-secondary transition-all">
+                                                <div className="flex justify-between items-start mb-6">
+                                                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center">
+                                                        <Dna size={24} />
+                                                    </div>
+                                                    <div className="bg-primary/5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest text-primary/40">
+                                                        Passport Verified
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">{order.id} • {order.date}</p>
-                                                    <h3 className="text-2xl font-black font-serif">{order.vendor}</h3>
-                                                    <p className="text-sm font-bold text-primary/40 uppercase tracking-widest">{order.volume}</p>
+                                                <h4 className="text-xl font-black font-serif">{item.name}</h4>
+                                                <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-1">Batch ID: {item.batch}</p>
+                                                <div className="mt-6 pt-6 border-t border-primary/5 flex justify-between items-center">
+                                                    <span className="text-[10px] font-black text-secondary italic tracking-widest">{item.quality}</span>
+                                                    <Link href={`/verify/${item.id}`} className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg">
+                                                        View Legacy Feed <ArrowRight size={10} />
+                                                    </Link>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-8 w-full md:w-auto justify-between md:justify-end">
-                                                <div className="text-right">
-                                                    <p className={`text-sm font-black uppercase italic ${order.status === 'Delivered' ? 'text-green-500' : 'text-secondary'}`}>{order.status}</p>
-                                                    <p className="text-[10px] font-black text-primary/20 uppercase">Track Logistics</p>
-                                                </div>
-                                                <button className="bg-primary text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-xl">
-                                                    <ArrowRight size={24} />
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
 
