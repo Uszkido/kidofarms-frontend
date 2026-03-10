@@ -82,8 +82,7 @@ export default function UserManagementPage() {
         }
     };
 
-    const toggleRole = async (userId: string, currentRole: string) => {
-        const nextRole = currentRole === "admin" ? "customer" : "admin";
+    const updateRole = async (userId: string, nextRole: string) => {
         try {
             const res = await fetch(getApiUrl(`/api/users/${userId}`), {
                 method: "PATCH",
@@ -198,16 +197,24 @@ export default function UserManagementPage() {
                                             )}
                                         </div>
 
-                                        <div className="pt-6 border-t border-primary/5 flex justify-between items-center">
+                                        <div className="pt-6 border-t border-primary/5 flex justify-between items-center gap-4">
                                             <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">
                                                 Joined {new Date(user.createdAt).toLocaleDateString()}
                                             </p>
-                                            <button
-                                                onClick={() => toggleRole(user.id, user.role)}
-                                                className="text-[10px] font-black uppercase tracking-widest text-secondary hover:underline"
+                                            <select
+                                                value={user.role}
+                                                onChange={(e) => updateRole(user.id, e.target.value)}
+                                                className="text-[10px] font-black uppercase tracking-widest text-secondary bg-transparent border-none outline-none cursor-pointer hover:underline"
                                             >
-                                                Make {user.role === 'admin' ? 'Customer' : 'Admin'}
-                                            </button>
+                                                <option value="customer">Customer</option>
+                                                <option value="admin">Admin</option>
+                                                <option value="farmer">Farmer</option>
+                                                <option value="vendor">Vendor</option>
+                                                <option value="subscriber">Subscriber</option>
+                                                <option value="wholesale_buyer">Wholesale</option>
+                                                <option value="retailer">Retailer</option>
+                                                <option value="distributor">Distributor</option>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -277,6 +284,11 @@ export default function UserManagementPage() {
                                             <option value="customer">Customer</option>
                                             <option value="admin">Administrator</option>
                                             <option value="farmer">Verified Farmer</option>
+                                            <option value="vendor">Vendor</option>
+                                            <option value="subscriber">Subscriber</option>
+                                            <option value="wholesale_buyer">Wholesale Buyer</option>
+                                            <option value="retailer">Retailer</option>
+                                            <option value="distributor">Distributor</option>
                                         </select>
                                     </div>
                                 </div>

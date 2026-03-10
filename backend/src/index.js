@@ -27,6 +27,9 @@ const agronomistRoutes = require('./routes/agronomist');
 const groupBuysRoutes = require('./routes/groupbuys');
 const flashRoutes = require('./routes/flash');
 const horizonRoutes = require('./routes/horizon');
+const teamRoutes = require('./routes/team');
+const impactRoutes = require('./routes/impact');
+const investmentsRoutes = require('./routes/investments');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -68,6 +71,9 @@ app.use('/api/agronomist', agronomistRoutes);
 app.use('/api/groupbuys', groupBuysRoutes);
 app.use('/api/flash', flashRoutes);
 app.use('/api/horizon', horizonRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/impact', impactRoutes);
+app.use('/api/investments', investmentsRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
