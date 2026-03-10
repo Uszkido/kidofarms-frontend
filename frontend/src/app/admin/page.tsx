@@ -19,7 +19,8 @@ import {
     Globe,
     Sprout,
     KeyRound,
-    Briefcase
+    Briefcase,
+    Camera
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -212,7 +213,8 @@ export default function AdminDashboard() {
                                 <SmallMenuLink href="/admin/team" label="Team" icon={<Users size={14} />} />
                                 <SmallMenuLink href="/admin/impact" label="Impact" icon={<Activity size={14} />} />
                                 <SmallMenuLink href="/admin/investments" label="Invest" icon={<DollarSign size={14} />} />
-                                <SmallMenuLink href="/admin/stories" label="Stories" icon={<Activity size={14} />} />
+                                <SmallMenuLink href="/admin/horizon" label="Bridge" icon={<Globe size={14} />} />
+                                <SmallMenuLink href="/admin/stories" label="Horizon" icon={<Camera size={14} />} />
                             </div>
                         </div>
 

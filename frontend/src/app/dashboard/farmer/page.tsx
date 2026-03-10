@@ -304,49 +304,193 @@ export default function FarmerDashboard() {
                             </div>
                         </div>
 
-                        {/* Kido Horizon (Phase 5) */}
+                        {/* Kido Horizon (Phase 5: The Sovereign System) */}
                         <div className="space-y-10">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-6 px-4">
                                 <div className="space-y-2 text-center md:text-left">
-                                    <h2 className="text-4xl font-black font-serif text-primary">Kido <span className="text-secondary italic">Horizon</span></h2>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Phase 5: Global Infrastructure</p>
+                                    <h2 className="text-4xl font-black font-serif text-primary">Kido <span className="text-secondary italic">Horizon 5.0</span></h2>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">The Sovereign Food Infrastructure</p>
                                 </div>
                                 <div className="flex bg-white p-2 rounded-[2rem] border border-primary/5 shadow-xl overflow-x-auto">
-                                    {['pods', 'exports', 'circular', 'academy'].map((tab) => (
+                                    {['shield', 'bridge', 'energy', 'academy'].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setHorizonTab(tab)}
-                                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${horizonTab === tab ? 'bg-primary text-white shadow-lg' : 'text-primary/40 hover:bg-cream'}`}
+                                            className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${horizonTab === tab ? 'bg-primary text-white shadow-lg' : 'text-primary/40 hover:bg-neutral-50'}`}
                                         >
-                                            {tab}
+                                            {tab === 'shield' ? 'Yield-Shield' : tab === 'bridge' ? 'Global Bridge' : tab === 'energy' ? 'Sovereign Energy' : 'Mastery Academy'}
                                         </button>
                                     ))}
                                 </div>
                             </div>
 
-                            <div className="bg-white rounded-[4rem] p-12 border border-primary/5 shadow-2xl relative overflow-hidden">
-                                {horizonTab === 'pods' && (
-                                    <div className="grid md:grid-cols-2 gap-12 animate-in fade-in">
-                                        {pods.map(pod => (
-                                            <div key={pod.id} className="bg-cream/30 p-8 rounded-[3rem] border border-primary/5 space-y-6">
-                                                <h4 className="text-2xl font-black font-serif">{pod.name}</h4>
-                                                <div className="grid grid-cols-2 gap-6 text-sm">
-                                                    <div>
-                                                        <p className="text-[8px] font-black uppercase text-primary/30">Crop</p>
-                                                        <p className="font-black italic text-secondary">{pod.crop}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-[8px] font-black uppercase text-primary/30">Health</p>
-                                                        <p className="font-black">{pod.health}%</p>
+                            <div className="bg-white rounded-[4rem] p-12 border border-primary/5 shadow-2xl relative overflow-hidden min-h-[500px]">
+                                {horizonTab === 'shield' && (
+                                    <div className="grid md:grid-cols-2 gap-12 animate-in fade-in duration-500">
+                                        <div className="space-y-8">
+                                            <div className="inline-flex items-center gap-2 bg-green-50 text-green-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
+                                                <ShieldCheck size={14} /> Active Protection
+                                            </div>
+                                            <h3 className="text-5xl font-black font-serif text-primary">Yield <br /><span className="text-secondary italic">Shield Node</span></h3>
+                                            <p className="text-primary/40 text-sm font-medium leading-relaxed">Your farm is protected by parametric micro-insurance. If local IoT sensors detect climate anomalies, your survival credits are released automatically.</p>
+                                            <div className="grid grid-cols-2 gap-6">
+                                                <div className="p-6 bg-neutral-50 rounded-[2rem] border border-primary/5">
+                                                    <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Risk Score</p>
+                                                    <p className="text-3xl font-black font-serif text-primary italic">12.4%</p>
+                                                </div>
+                                                <div className="p-6 bg-neutral-50 rounded-[2rem] border border-primary/5">
+                                                    <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Coverage</p>
+                                                    <p className="text-3xl font-black font-serif text-primary italic">₦5.0M</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-primary rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 -translate-y-1/2 translate-x-1/2 rounded-full blur-[80px]" />
+                                            <div className="space-y-6 relative">
+                                                <h4 className="text-xl font-black font-serif">Satellite Lock <br /><span className="text-secondary">Sentinel-2 Analysis</span></h4>
+                                                <div className="aspect-video bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center">
+                                                    <div className="text-center">
+                                                        <Globe className="mx-auto text-secondary mb-2 animate-pulse" size={32} />
+                                                        <p className="text-[8px] font-black uppercase tracking-widest text-white/40">Visualizing Sector 4A...</p>
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))}
+                                            <button className="bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all relative">
+                                                Download Risk Report
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
-                                {horizonTab === 'exports' && <p className="text-center py-20 text-primary/20 font-black uppercase">Global Route Network Active</p>}
-                                {horizonTab === 'circular' && <p className="text-center py-20 text-primary/20 font-black uppercase">Waste-to-Wealth Stream Live</p>}
-                                {horizonTab === 'academy' && <p className="text-center py-20 text-primary/20 font-black uppercase">Skill Mastery Academy Ready</p>}
+
+                                {horizonTab === 'bridge' && (
+                                    <div className="grid md:grid-cols-3 gap-8 animate-in fade-in duration-500">
+                                        <div className="md:col-span-2 space-y-8">
+                                            <h3 className="text-5xl font-black font-serif text-primary">Global <br /><span className="text-secondary italic">Export Bridge</span></h3>
+                                            <div className="bg-neutral-50 p-8 rounded-[3rem] border border-primary/5 space-y-6">
+                                                <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-primary/5 group hover:border-secondary transition-all">
+                                                    <div className="flex gap-4 items-center">
+                                                        <Building2 className="text-secondary" />
+                                                        <div>
+                                                            <p className="font-black text-sm uppercase">EU Organic Audit</p>
+                                                            <p className="text-[10px] text-primary/30 font-bold uppercase tracking-widest">Phytosanitary ID: #9028</p>
+                                                        </div>
+                                                    </div>
+                                                    <span className="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">Verified</span>
+                                                </div>
+                                                <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-primary/5 opacity-50">
+                                                    <div className="flex gap-4 items-center">
+                                                        <Globe className="text-primary/20" />
+                                                        <div>
+                                                            <p className="font-black text-sm uppercase">US FDA Compliance</p>
+                                                            <p className="text-[10px] text-primary/30 font-bold uppercase tracking-widest">Documentation Pending</p>
+                                                        </div>
+                                                    </div>
+                                                    <RefreshCw className="text-primary/20 animate-spin-slow" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="bg-secondary rounded-[3rem] p-10 flex flex-col justify-between">
+                                            <h4 className="text-2xl font-black font-serif italic text-primary">Active Routes</h4>
+                                            <div className="space-y-4">
+                                                {['Lagos Node -> London Hub', 'Kano Node -> Dubai Fresh', 'Jos Node -> NYC Bio'].map((route, i) => (
+                                                    <div key={route} className="flex items-center gap-3 text-[10px] font-black uppercase text-primary/60">
+                                                        <div className="w-2 h-2 rounded-full bg-primary" /> {route}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <button className="w-full bg-primary text-white py-5 rounded-xl font-black text-xs uppercase hover:bg-white hover:text-primary transition-all">
+                                                Apply for Export
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {horizonTab === 'energy' && (
+                                    <div className="space-y-12 animate-in fade-in duration-500">
+                                        <div className="flex justify-between items-end">
+                                            <div>
+                                                <h3 className="text-5xl font-black font-serif text-primary">Sovereign <br /><span className="text-secondary italic">Energy Node</span></h3>
+                                                <p className="text-primary/40 mt-2 text-sm font-medium">Trade your waste-to-wealth credits for next-gen farm tech.</p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-[10px] font-black uppercase text-primary/30 mb-1">Accumulated Waste Credits</p>
+                                                <p className="text-4xl font-black font-serif text-secondary italic">4,280 <span className="text-lg">Cr</span></p>
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-3 gap-8">
+                                            {[
+                                                { name: 'Solar Kit v2', cost: 1200, icon: Zap, img: 'https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?auto=format&fit=crop&q=80' },
+                                                { name: 'Biogas Unit', cost: 2500, icon: RefreshCw, img: 'https://images.unsplash.com/photo-1542332213-9b5a5a3fad35?auto=format&fit=crop&q=80' },
+                                                { name: 'Eco-Irrigation', cost: 800, icon: Droplets, img: 'https://images.unsplash.com/photo-1615811361523-6bd03d7748e7?auto=format&fit=crop&q=80' }
+                                            ].map(item => (
+                                                <div key={item.name} className="group bg-neutral-50 rounded-[3rem] overflow-hidden border border-primary/5 hover:border-secondary transition-all shadow-xl">
+                                                    <div className="h-40 relative">
+                                                        <img src={item.img} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                                                        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-black uppercase text-primary border border-primary/5">
+                                                            {item.cost} Cr
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-8 space-y-4">
+                                                        <h4 className="font-black font-serif text-xl">{item.name}</h4>
+                                                        <button className="w-full bg-primary text-white py-3 rounded-xl font-black text-[10px] uppercase hover:bg-secondary hover:text-primary transition-all">
+                                                            Redeem Credit
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {horizonTab === 'academy' && (
+                                    <div className="grid md:grid-cols-12 gap-12 animate-in fade-in duration-500">
+                                        <div className="md:col-span-4 space-y-8">
+                                            <div className="w-32 h-32 rounded-[2.5rem] bg-secondary flex items-center justify-center text-primary shadow-2xl relative">
+                                                <GraduationCap size={48} />
+                                                <div className="absolute -bottom-2 -right-2 bg-primary text-white w-10 h-10 rounded-full flex items-center justify-center text-xs font-black border-4 border-white">
+                                                    4
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <h3 className="text-4xl font-black font-serif text-primary">Mastery <br /><span className="text-secondary italic">Level 4</span></h3>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Rank: Elite Specialist</p>
+                                            </div>
+                                            <div className="space-y-4">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Active Achievements</p>
+                                                <div className="flex gap-3">
+                                                    {[Sparkles, ShieldCheck, MapPin].map((Icon, i) => (
+                                                        <div key={i} className="w-12 h-12 rounded-xl bg-neutral-50 flex items-center justify-center text-secondary border border-primary/5">
+                                                            <Icon size={20} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="md:col-span-8 space-y-8">
+                                            <div className="flex justify-between items-center px-4">
+                                                <h4 className="text-2xl font-black font-serif italic text-primary">Skill Modules</h4>
+                                                <span className="text-[10px] font-black uppercase text-secondary">2,400 XP to Level 5</span>
+                                            </div>
+                                            <div className="space-y-4">
+                                                {[
+                                                    { title: "Climate-Smart Irrigation", progress: 85, status: "Advanced" },
+                                                    { title: "Sovereign Supply Management", progress: 40, status: "Intermediate" },
+                                                    { title: "Export Quality Compliance", progress: 100, status: "Mastered" }
+                                                ].map(skill => (
+                                                    <div key={skill.title} className="bg-neutral-50 p-8 rounded-[2.5rem] border border-primary/5 space-y-4 group hover:border-secondary transition-all">
+                                                        <div className="flex justify-between items-center text-sm font-black uppercase">
+                                                            <p className="flex items-center gap-2"> <Sparkles size={14} className="text-secondary" /> {skill.title}</p>
+                                                            <span className="text-primary/30 italic">{skill.status}</span>
+                                                        </div>
+                                                        <div className="w-full h-2 bg-cream rounded-full overflow-hidden">
+                                                            <div className="h-full bg-secondary transition-all duration-[2000ms]" style={{ width: `${skill.progress}%` }} />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
