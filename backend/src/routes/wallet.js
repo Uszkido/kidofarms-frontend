@@ -57,4 +57,35 @@ router.post('/credit', async (req, res) => {
     }
 });
 
+// POST /api/wallet/cashout (Withdrawal)
+router.post('/cashout', async (req, res) => {
+    const { userId, amount, bankDetails } = req.body;
+    try {
+        const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, userId));
+        if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
+
+        if (Number(wallet.balance) < Number(amount)) {
+            return res.status(400).json({ error: 'Insufficient balance' });
+        }
+
+        const newBalance = (Number(wallet.balance) - Number(amount)).toString();
+
+        await db.update(wallets)
+            .set({ balance: newBalance, updatedAt: new Date() })
+            .where(eq(wallets.id, wallet.id));
+
+        const [tx] = await db.insert(walletTransactions).values({
+            walletId: wallet.id,
+            type: 'debit',
+            amount: amount.toString(),
+            description: `Cashout to ${bankDetails?.bankName || 'Bank Account'}`
+        }).returning();
+
+        res.json({ message: 'Cashout successful', tx, newBalance });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Cashout failed' });
+    }
+});
+
 module.exports = router;
