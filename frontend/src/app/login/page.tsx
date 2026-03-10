@@ -57,7 +57,13 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                 role === "farmer" ? "/dashboard/farmer" :
                     role === "vendor" ? "/dashboard/vendor" :
                         role === "subscriber" ? "/dashboard/subscriber" :
-                            "/dashboard/consumer";
+                            role === "business" ? "/dashboard/business" :
+                                role === "distributor" ? "/dashboard/distributor" :
+                                    role === "retailer" ? "/dashboard/retailer" :
+                                        role === "wholesale_buyer" ? "/dashboard/wholesaler" :
+                                            role === "team_member" ? "/dashboard/team" :
+                                                role === "affiliate" ? "/dashboard/affiliate" :
+                                                    "/dashboard/consumer";
 
             router.push(redirectPath);
             router.refresh();
@@ -86,7 +92,13 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
             const redirectPath = role === "farmer" ? "/dashboard/farmer" :
                 role === "vendor" ? "/dashboard/vendor" :
                     role === "subscriber" ? "/dashboard/subscriber" :
-                        "/dashboard/consumer";
+                        role === "business" ? "/dashboard/business" :
+                            role === "distributor" ? "/dashboard/distributor" :
+                                role === "retailer" ? "/dashboard/retailer" :
+                                    role === "wholesale_buyer" ? "/dashboard/wholesaler" :
+                                        role === "team_member" ? "/dashboard/team" :
+                                            role === "affiliate" ? "/dashboard/affiliate" :
+                                                "/dashboard/consumer";
             router.push(redirectPath);
             router.refresh();
         } catch (err: any) {
