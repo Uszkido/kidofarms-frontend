@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight, CreditCard, ShieldCheck, Plus, X, Loader2 } from "lucide-react";
+import { Package, Truck, Clock, Heart, Search, Filter, ArrowRight, CreditCard, ShieldCheck, Plus, X, Loader2, Globe } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
@@ -234,9 +234,14 @@ export default function ConsumerDashboard() {
                                         </div>
                                     ))}
                                     <div className="pt-8 border-t border-primary/5 flex justify-between items-center">
-                                        <button className="text-primary font-black text-sm flex items-center gap-2 hover:text-secondary">
-                                            Track Shipment <ArrowRight size={16} />
-                                        </button>
+                                        <div className="flex gap-4">
+                                            <button className="text-primary font-black text-sm flex items-center gap-2 hover:text-secondary group">
+                                                Track Shipment <ArrowRight size={16} />
+                                            </button>
+                                            <button className="text-secondary font-black text-sm flex items-center gap-2 hover:text-primary group border-l border-primary/10 pl-4">
+                                                <Globe size={16} className="group-hover:rotate-180 transition-transform duration-1000" /> Satellite Horizon Lock
+                                            </button>
+                                        </div>
                                         <div className="text-right">
                                             <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Total Paid</p>
                                             <p className="text-2xl font-black font-serif">₦39,000</p>

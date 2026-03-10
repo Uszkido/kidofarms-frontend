@@ -78,6 +78,8 @@ const harvests = pgTable("harvests", {
     region: text("region").notNull(), // Kano, Jos, Benue, etc.
     status: text("status").notNull(), // planted, growing, harvesting, ready
     progress: integer("progress").default(0).notNull(), // 0-100
+    isInsured: boolean("is_insured").default(false),
+    satelliteLock: text("satellite_lock"), // Coordinates or Plot ID
     estimatedReadyDate: timestamp("estimated_ready_date"),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -161,6 +163,9 @@ const farmers = pgTable("farmers", {
     farmingType: text("farming_type"), // Crop Farming, Livestock, Mixed
     primaryProduce: text("primary_produce"),
     isOrganicCertified: boolean("is_organic_certified").default(false),
+    isExportCertified: boolean("is_export_certified").default(false),
+    masteryLevel: integer("mastery_level").default(1),
+    masteryPoints: integer("mastery_points").default(0),
     yearsOfExperience: integer("years_of_experience"),
     bankName: text("bank_name"),
     accountNumber: text("account_number"),
