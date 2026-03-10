@@ -101,7 +101,7 @@ export default function AdminHorizonPage() {
                         </Link>
                         <h1 className="text-5xl font-extrabold font-serif uppercase tracking-tighter text-white">
                             Global <span className="text-secondary italic">Bridge</span>
-                        </h4>
+                        </h1>
                         <p className="text-white/40 font-medium text-sm mt-2">Manage international exports and customs compliance.</p>
                     </div>
                     <div className="flex gap-4 w-full md:w-auto">
@@ -137,8 +137,8 @@ export default function AdminHorizonPage() {
                                         <Globe size={28} />
                                     </div>
                                     <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest ${route.status === 'delivered' ? 'bg-green-500/10 text-green-400' :
-                                            route.status === 'in_transit' ? 'bg-blue-500/10 text-blue-400' :
-                                                'bg-white/5 text-white/20'
+                                        route.status === 'in_transit' ? 'bg-blue-500/10 text-blue-400' :
+                                            'bg-white/5 text-white/20'
                                         }`}>
                                         {route.status.replace('_', ' ')}
                                     </span>
