@@ -18,7 +18,8 @@ import {
     Box,
     Globe,
     Sprout,
-    KeyRound
+    KeyRound,
+    Briefcase
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -145,6 +146,13 @@ export default function AdminDashboard() {
                                 sub="Content & engagement"
                                 color="purple"
                             />
+                            <NavCard
+                                href="/admin/market"
+                                icon={<Briefcase size={24} />}
+                                title="Market & Buyers"
+                                sub="Wholesale & Distrib."
+                                color="secondary"
+                            />
                         </div>
 
                         {/* 3. ACTIVITY FEED */}
@@ -201,6 +209,9 @@ export default function AdminDashboard() {
                                 <SmallMenuLink href="/admin/landing" label="Landing" icon={<LayoutDashboard size={14} />} />
                                 <SmallMenuLink href="/admin/users" label="Users" icon={<Users size={14} />} />
                                 <SmallMenuLink href="/admin/notifications" label="Alerts" icon={<Bell size={14} />} />
+                                <SmallMenuLink href="/admin/team" label="Team" icon={<Users size={14} />} />
+                                <SmallMenuLink href="/admin/impact" label="Impact" icon={<Activity size={14} />} />
+                                <SmallMenuLink href="/admin/investments" label="Invest" icon={<DollarSign size={14} />} />
                             </div>
                         </div>
 

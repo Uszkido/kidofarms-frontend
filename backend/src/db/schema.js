@@ -12,8 +12,8 @@ const {
 const { relations } = require("drizzle-orm");
 
 // Enums
-const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate", "vendor"]);
-const unitEnum = pgEnum("unit", ["kg", "basket", "piece"]);
+const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor"]);
+const unitEnum = pgEnum("unit", ["kg", "basket", "piece", "head", "bunch", "pack", "bag", "crate"]);
 const paymentMethodEnum = pgEnum("payment_method", ["card", "transfer", "cash"]);
 const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
 const orderStatusEnum = pgEnum("order_status", ["processing", "shipped", "delivered", "cancelled"]);
@@ -325,6 +325,46 @@ const sensors = pgTable("sensors", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Team Members Table
+const teamMembers = pgTable("team_members", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    role: text("role").notNull(), // Founder, Agronomist, Farm manager, Marketing officer
+    bio: text("bio"),
+    image: text("image"),
+    socialLinks: jsonb("social_links").default({}),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Impact Metrics Table
+const impactMetrics = pgTable("impact_metrics", {
+    id: text("id").primaryKey().default("current_metrics"),
+    acresCultivated: integer("acres_cultivated").default(0),
+    farmersSupported: integer("farmers_supported").default(0),
+    productionCapacity: text("production_capacity").default("0 Tons"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Investments Table
+const investments = pgTable("investments", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
+    type: text("type").notNull(), // farm_expansion, kido_partnership
+    status: text("status").default("pending"), // pending, active, completed
+    yieldExpected: numeric("yield_expected", { precision: 5, scale: 2 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Farm Monitoring Data Table (For Future Farmer Dashboard)
+const farmMonitoringData = pgTable("farm_monitoring_data", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id).notNull(),
+    cropId: uuid("crop_id").references(() => harvests.id),
+    dataPoints: jsonb("data_points").notNull(), // crop monitoring, yield tracking, farm data
+    recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+});
+
 // Relations
 const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     author: one(users, {
@@ -414,6 +454,10 @@ module.exports = {
     groupBuyParticipants,
     notifications,
     sensors,
+    teamMembers,
+    impactMetrics,
+    investments,
+    farmMonitoringData,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

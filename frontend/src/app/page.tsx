@@ -11,6 +11,8 @@ import KidoConcierge from "@/components/KidoConcierge";
 import FadeInEntry from "@/components/FadeInEntry";
 import CategoryList from "@/components/CategoryList";
 import AdvantageSection from "@/components/AdvantageSection";
+import ImpactSection from "@/components/ImpactSection";
+import TeamSection from "@/components/TeamSection";
 
 export const dynamic = 'force-dynamic';
 
@@ -250,6 +252,16 @@ export default async function Home() {
         {/* Advantage Section */}
         <FadeInEntry>
           <AdvantageSection data={advantage} />
+        </FadeInEntry>
+
+        {/* Impact Section */}
+        <FadeInEntry>
+          <ImpactSection />
+        </FadeInEntry>
+
+        {/* Team Section */}
+        <FadeInEntry>
+          <TeamSection />
         </FadeInEntry>
 
         {/* Farmer CTA Section */}
