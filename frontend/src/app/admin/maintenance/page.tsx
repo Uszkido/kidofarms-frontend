@@ -22,7 +22,18 @@ export default function MaintenanceGateway() {
     const [stats, setStats] = useState<any>(null);
 
     useEffect(() => {
-        // Mocking check for maintenance status
+        const fetchStatus = async () => {
+            try {
+                const res = await fetch(getApiUrl("/api/admin/settings"));
+                if (res.ok) {
+                    const data = await res.json();
+                    setIsMaintenanceMode(data.isMaintenanceMode || false);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchStatus();
     }, []);
 
     const toggleMaintenance = async () => {
@@ -32,11 +43,22 @@ export default function MaintenanceGateway() {
 
         if (confirm(confirmMsg)) {
             setLoading(true);
-            setTimeout(() => {
-                setIsMaintenanceMode(!isMaintenanceMode);
+            try {
+                const res = await fetch(getApiUrl("/api/admin/settings"), {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ isMaintenanceMode: !isMaintenanceMode })
+                });
+                if (res.ok) {
+                    setIsMaintenanceMode(!isMaintenanceMode);
+                    alert(!isMaintenanceMode ? "Protocol Zero Active. Network Locked." : "System Nodes Re-synchronized (v5.2.0)");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Protocol sequence failed.");
+            } finally {
                 setLoading(false);
-                alert(isMaintenanceMode ? "System Nodes Re-synchronized (v5.2.0)" : "Protocol Zero Active. Network Locked.");
-            }, 2000);
+            }
         }
     };
 
@@ -87,8 +109,8 @@ export default function MaintenanceGateway() {
                             onClick={toggleMaintenance}
                             disabled={loading}
                             className={`px-12 py-6 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs transition-all shadow-2xl flex items-center gap-4 ${isMaintenanceMode ?
-                                    'bg-white text-primary hover:bg-red-500 hover:text-white' :
-                                    'bg-red-500 text-white hover:bg-white hover:text-red-600'
+                                'bg-white text-primary hover:bg-red-500 hover:text-white' :
+                                'bg-red-500 text-white hover:bg-white hover:text-red-600'
                                 }`}
                         >
                             {loading ? <Loader2 size={18} className="animate-spin" /> : (isMaintenanceMode ? <Unlock size={18} /> : <Lock size={18} />)}

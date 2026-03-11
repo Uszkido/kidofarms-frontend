@@ -137,18 +137,32 @@ router.post('/finance/credit', async (req, res) => {
             userId = user.id;
         }
 
+        // 1. Ensure Wallet Exists
+        let wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, userId) });
+        if (!wallet) {
+            [wallet] = await db.insert(wallets).values({ userId, balance: '0' }).returning();
+        }
+
+        // 2. Atomic Balance Update
+        await db.update(wallets)
+            .set({
+                balance: sql`balance + ${Number(amount)}`,
+                updatedAt: new Date()
+            })
+            .where(eq(wallets.userId, userId));
+
+        // 3. Record Transaction
         const [transaction] = await db.insert(walletTransactions).values({
-            userId,
-            amount: sql`${Number(amount)}`,
+            walletId: wallet.id,
             type: 'credit',
-            status: 'completed',
+            amount: sql`${Number(amount)}`,
             description: reason || 'Admin Infrastructure Credit'
         }).returning();
 
         await db.insert(activityLogs).values({
             action: 'ADMIN_CREDIT_INJECTION',
             entity: 'wallet',
-            details: { userId, amount, reason },
+            details: { userId, amount, reason, walletId: wallet.id },
         });
 
         res.json({ message: 'Credit injected successfully', transaction });

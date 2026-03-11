@@ -102,9 +102,14 @@ export default function RegisterCitizenPage() {
                                     <option value="sub-admin">Sub-Admin (Restricted)</option>
                                     <option value="farmer">Farmer</option>
                                     <option value="vendor">Vendor</option>
+                                    <option value="distributor">Distributor</option>
+                                    <option value="logistics_distributor">Logistics Distributor</option>
+                                    <option value="hotel">Hotel / Hospitality</option>
                                     <option value="retailer">Retailer</option>
-                                    <option value="wholesaler">Wholesaler</option>
+                                    <option value="wholesale_buyer">Wholesaler</option>
                                     <option value="business">Business</option>
+                                    <option value="team_member">Team Member</option>
+                                    <option value="affiliate">Affiliate</option>
                                     <option value="subscriber">Subscriber</option>
                                     <option value="consumer">Consumer</option>
                                 </select>
