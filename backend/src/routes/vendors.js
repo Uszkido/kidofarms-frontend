@@ -89,7 +89,26 @@ router.post('/register', async (req, res) => {
             status: 'pending'
         }).returning();
 
-        res.status(201).json({ vendor: newVendor, userId: finalUserId });
+        // Generate OTP for new user verification if created
+        let otpCode;
+        if (!userId) {
+            const { otps } = require('../db/schema');
+            otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+
+            await db.insert(otps).values({
+                userId: finalUserId,
+                code: otpCode,
+                expiresAt
+            });
+        }
+
+        res.status(201).json({
+            vendor: newVendor,
+            userId: finalUserId,
+            requiresOtp: !!otpCode,
+            otpCode: otpCode
+        });
     } catch (error) {
         if (error.code === '23505') {
             return res.status(400).json({ error: 'Email already registered' });

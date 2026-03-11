@@ -271,6 +271,34 @@ export default function AdminUsersPage() {
                                     <EditField label="Override Password" icon={<KeyRound size={14} />} type="password" placeholder="•••••••• (Leave blank to keep current)" value={editData.password} onChange={(val: string) => setEditData({ ...editData, password: val })} />
                                 </div>
 
+                                {/* Permissions Matrix */}
+                                {(['admin', 'sub-admin', 'staff', 'team_member'].includes(editData.role)) && (
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-1 bg-secondary rounded-full" />
+                                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Function Authorization Matrix</h4>
+                                        </div>
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                            {['inventory', 'orders', 'finance', 'users', 'warehouse', 'team', 'blog', 'settings'].map(perm => (
+                                                <button
+                                                    key={perm}
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const current = editData.permissions || [];
+                                                        const next = current.includes(perm)
+                                                            ? current.filter((p: string) => p !== perm)
+                                                            : [...current, perm];
+                                                        setEditData({ ...editData, permissions: next });
+                                                    }}
+                                                    className={`py-4 rounded-2xl border text-[9px] font-black uppercase tracking-widest transition-all ${editData.permissions?.includes(perm) ? 'bg-secondary text-primary border-secondary shadow-lg' : 'bg-white/5 border-white/5 text-white/20 hover:bg-white/10'}`}
+                                                >
+                                                    {perm}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Extra Profiles (Farmer/Vendor) */}
                                 {(editData.role === 'farmer' || editData.role === 'vendor') && (
                                     <div className="space-y-8 animate-in fade-in slide-in-from-left-4 duration-700">

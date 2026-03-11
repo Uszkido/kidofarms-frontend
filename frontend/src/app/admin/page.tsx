@@ -225,12 +225,48 @@ export default function AdminDashboard() {
                         <span className="text-[10px] font-black text-white/20 uppercase">Global Sync Status</span>
                     </div>
                     <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-                        <NodeStatus label="Distributors" status="Optimal" health={98} icon={<Truck size={14} />} />
-                        <NodeStatus label="Retailers" status="Active" health={92} icon={<Box size={14} />} />
-                        <NodeStatus label="Wholesale" status="Critical" health={45} icon={<Database size={14} />} />
-                        <NodeStatus label="Hotels/B2B" status="Optimal" health={99} icon={<Building2 size={14} />} />
-                        <NodeStatus label="Logistics" status="Syncing" health={88} icon={<Map size={14} />} />
-                        <NodeStatus label="Team Nodes" status="Root" health={100} icon={<ShieldCheck size={14} />} />
+                        <NodeStatus
+                            label="Distributors"
+                            status={stats?.networkNodes?.distributors?.total > 0 ? "Optimal" : "Offline"}
+                            health={stats?.networkNodes?.distributors?.total > 0 ? Math.round((stats.networkNodes.distributors.verified / stats.networkNodes.distributors.total) * 100) : 0}
+                            count={stats?.networkNodes?.distributors?.total || 0}
+                            icon={<Truck size={14} />}
+                        />
+                        <NodeStatus
+                            label="Retailers"
+                            status={stats?.networkNodes?.retailers?.total > 0 ? "Active" : "Offline"}
+                            health={stats?.networkNodes?.retailers?.total > 0 ? Math.round((stats.networkNodes.retailers.verified / stats.networkNodes.retailers.total) * 100) : 0}
+                            count={stats?.networkNodes?.retailers?.total || 0}
+                            icon={<Box size={14} />}
+                        />
+                        <NodeStatus
+                            label="Wholesale"
+                            status={stats?.networkNodes?.wholesale?.total > 0 ? "Optimal" : "Offline"}
+                            health={stats?.networkNodes?.wholesale?.total > 0 ? Math.round((stats.networkNodes.wholesale.verified / stats.networkNodes.wholesale.total) * 100) : 0}
+                            count={stats?.networkNodes?.wholesale?.total || 0}
+                            icon={<Database size={14} />}
+                        />
+                        <NodeStatus
+                            label="Hotels/B2B"
+                            status={stats?.networkNodes?.b2b?.total > 0 ? "Optimal" : "Offline"}
+                            health={stats?.networkNodes?.b2b?.total > 0 ? Math.round((stats.networkNodes.b2b.verified / stats.networkNodes.b2b.total) * 100) : 0}
+                            count={stats?.networkNodes?.b2b?.total || 0}
+                            icon={<Building2 size={14} />}
+                        />
+                        <NodeStatus
+                            label="Logistics"
+                            status={stats?.networkNodes?.logistics?.total > 0 ? "Syncing" : "Offline"}
+                            health={stats?.networkNodes?.logistics?.total > 0 ? Math.round((stats.networkNodes.logistics.verified / stats.networkNodes.logistics.total) * 100) : 0}
+                            count={stats?.networkNodes?.logistics?.total || 0}
+                            icon={<Map size={14} />}
+                        />
+                        <NodeStatus
+                            label="Team Nodes"
+                            status="Root"
+                            health={stats?.networkNodes?.team?.total > 0 ? Math.round((stats.networkNodes.team.verified / stats.networkNodes.team.total) * 100) : 100}
+                            count={stats?.networkNodes?.team?.total || 0}
+                            icon={<ShieldCheck size={14} />}
+                        />
                     </div>
                 </div>
 
@@ -274,6 +310,18 @@ export default function AdminDashboard() {
                                     title="Staff Network"
                                     sub="Core Team, Node Managers & Task Assignments"
                                     icon={<Shield size={24} />}
+                                />
+                                <InfrastructureCard
+                                    href="/admin/team"
+                                    title="Core Team (CMS)"
+                                    sub='Edit "The Minds Behind Kido" on Landing'
+                                    icon={<Users size={24} />}
+                                />
+                                <InfrastructureCard
+                                    href="/admin/about"
+                                    title="About Page (CMS)"
+                                    sub="Edit Mission, Vision and History"
+                                    icon={<FileText size={24} />}
                                 />
                                 <InfrastructureCard
                                     href="/admin/warehouse"
@@ -409,7 +457,7 @@ export default function AdminDashboard() {
 
 // --- RESTORED & NEW UI COMPONENTS ---
 
-function NodeStatus({ label, status, health, icon }: any) {
+function NodeStatus({ label, status, health, icon, count }: any) {
     return (
         <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] space-y-4 hover:border-secondary transition-all group cursor-help">
             <div className="flex justify-between items-center">
@@ -422,7 +470,7 @@ function NodeStatus({ label, status, health, icon }: any) {
                 <p className="text-[9px] font-black uppercase tracking-widest text-white/20 mb-1">{label}</p>
                 <div className="flex items-baseline gap-2">
                     <span className="text-sm font-black text-white uppercase">{status}</span>
-                    <span className="text-[8px] font-bold text-white/10">{health}%</span>
+                    <span className="text-[8px] font-bold text-white/10">{count} Nodes | {health}% Sync</span>
                 </div>
             </div>
             <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">

@@ -97,7 +97,8 @@ router.post('/signup/farmer', async (req, res) => {
                 email,
                 password: hashedPassword,
                 phone,
-                role: 'farmer'
+                role: 'farmer',
+                isVerified: false
             }).returning();
 
             await tx.insert(farmers).values({
@@ -116,10 +117,25 @@ router.post('/signup/farmer', async (req, res) => {
                 status: 'pending'
             });
 
-            return user;
+            // Generate OTP for Farmer node
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+
+            await tx.insert(otps).values({
+                userId: user.id,
+                code: otpCode,
+                expiresAt
+            });
+
+            return { user, otpCode };
         });
 
-        res.status(201).json(result);
+        res.status(201).json({
+            message: 'Farmer account created. OTP generated for activation.',
+            user: { id: result.user.id, email: result.user.email, role: result.user.role },
+            requiresOtp: true,
+            otpCode: result.otpCode
+        });
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
         console.error('Farmer Signup Error:', error);
@@ -145,7 +161,8 @@ router.post('/social-login', async (req, res) => {
                 name: name || email.split('@')[0],
                 email,
                 password: placeholderPassword,
-                role: 'customer'
+                role: 'customer',
+                isVerified: true
             }).returning();
             user = newUser;
         }
@@ -160,6 +177,38 @@ router.post('/social-login', async (req, res) => {
     } catch (error) {
         console.error('Social Login Error:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+// Verify OTP for Signup/Account Activation
+router.post('/verify-otp', async (req, res) => {
+    const { email, code } = req.body;
+    try {
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+
+        if (!user) return res.status(404).json({ error: 'Citizen not found' });
+
+        const validOtp = await db.query.otps.findFirst({
+            where: and(
+                eq(otps.userId, user.id),
+                eq(otps.code, code),
+                eq(otps.isUsed, false),
+                gt(otps.expiresAt, new Date())
+            )
+        });
+
+        if (!validOtp) return res.status(400).json({ error: 'Invalid or expired sequence' });
+
+        // Activate User Node
+        await db.update(otps).set({ isUsed: true }).where(eq(otps.id, validOtp.id));
+        await db.update(users).set({ isVerified: true }).where(eq(users.id, user.id));
+
+        res.json({ message: 'Node activated successfully' });
+    } catch (error) {
+        console.error('Verify OTP Error:', error);
+        res.status(500).json({ error: 'Protocol failed' });
     }
 });
 

@@ -37,7 +37,7 @@ import {
     ArrowDownLeft,
     ArrowUpRight,
     Download,
-    PlusCircle
+    CirclePlus
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -455,70 +455,80 @@ export default function BuyerDashboard() {
                                     </div>
                                 )}
 
-                                {activeTab === "wallet" && (
+                                {activeTab === "orders" && (
                                     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
-                                        {/* Financial Node Snapshot */}
-                                        <div className="grid md:grid-cols-2 gap-8">
-                                            <div className="bg-white p-8 md:p-12 rounded-[2.5rem] md:rounded-[4.5rem] border border-primary/5 shadow-2xl space-y-10">
-                                                <div className="flex justify-between items-center">
-                                                    <h3 className="text-2xl md:text-3xl font-black font-serif italic uppercase tracking-tighter text-primary">Kido <span className="text-secondary italic">Wallet</span></h3>
-                                                    <div className="w-16 h-16 bg-secondary text-primary rounded-3xl flex items-center justify-center shadow-2xl shrink-0">
-                                                        <Wallet size={32} />
+                                        <div className="flex justify-between items-center px-4">
+                                            <h2 className="text-3xl font-black font-serif italic text-primary uppercase tracking-tighter">Order <span className="text-secondary">Vault</span></h2>
+                                            <div className="flex gap-4">
+                                                <button className="p-3 bg-white rounded-2xl border border-primary/5 hover:bg-neutral-50 transition-all"><Filter size={18} className="text-primary/20" /></button>
+                                                <button className="px-6 py-3 bg-primary text-secondary rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl">Export Ledger</button>
+                                            </div>
+                                        </div>
+                                        <div className="grid gap-6">
+                                            {[
+                                                { id: "ORD-9921", product: "Jos Grade-A Saffron", type: "Premium Node", date: "March 10, 2026", status: "In Transit", price: "₦42,000" },
+                                                { id: "ORD-9918", product: "Extra Virgin Hibiscus", type: "Standard Node", date: "March 08, 2026", status: "Delivered", price: "₦12,500" },
+                                                { id: "ORD-9915", product: "Organic Shea Butter", type: "Bulk Batch", date: "March 05, 2026", status: "Delivered", price: "₦84,000" },
+                                            ].map((order, i) => (
+                                                <div key={i} className="bg-white p-8 md:p-10 rounded-[3rem] border border-primary/5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-secondary transition-all">
+                                                    <div className="flex items-center gap-8 w-full md:w-auto">
+                                                        <div className="w-16 h-16 bg-cream rounded-3xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                                            <Package size={28} />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[9px] font-black uppercase text-primary/20 mb-1">{order.id} • {order.type}</p>
+                                                            <h4 className="text-2xl font-black font-serif uppercase italic text-primary">{order.product}</h4>
+                                                            <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-2">{order.date}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto border-t md:border-t-0 pt-6 md:pt-0 border-primary/5">
+                                                        <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-500 text-white' : 'bg-secondary text-primary'}`}>{order.status}</span>
+                                                        <p className="text-2xl font-black font-serif italic text-primary mt-4">{order.price}</p>
                                                     </div>
                                                 </div>
-                                                <div className="space-y-2">
-                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 italic">Active Liquid Node Balance</p>
-                                                    <p className="text-3xl sm:text-5xl md:text-6xl font-black font-serif text-primary italic font-sans leading-none tracking-tighter">₦{Number(wallet?.balance || 0).toLocaleString()}</p>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === "oracle" && (
+                                    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
+                                        <div className="bg-primary p-10 md:p-16 rounded-[4rem] text-white space-y-12 relative overflow-hidden shadow-2xl">
+                                            <Zap className="absolute -bottom-20 -right-20 w-96 h-96 text-white/5 -rotate-12 transition-transform hover:rotate-0 duration-[3000ms]" />
+                                            <div className="relative z-10 space-y-8">
+                                                <div className="inline-flex items-center gap-2 bg-secondary text-primary px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
+                                                    Neural Indices Active
                                                 </div>
-                                                <button onClick={() => handleAction("Recharge Protocol")} className="w-full bg-primary text-secondary py-6 rounded-[2rem] md:rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[12px] shadow-2xl hover:bg-secondary hover:text-primary transition-all font-sans">Initialize Credit Refill</button>
-                                            </div>
-                                            <div className="bg-primary p-8 md:p-12 rounded-[2.5rem] md:rounded-[4.5rem] shadow-2xl text-white space-y-10 relative overflow-hidden group">
-                                                <Download className="absolute -bottom-10 -right-10 w-48 h-48 opacity-5 text-white group-hover:rotate-12 transition-transform duration-1000" />
-                                                <h3 className="text-2xl md:text-3xl font-black font-serif italic uppercase tracking-tighter leading-none">Access <br /><span className="text-secondary">Financial Registry</span></h3>
-                                                <div className="space-y-6">
-                                                    {[
-                                                        { label: "Annual Tax Ledger", status: "Ready" },
-                                                        { label: "B2B Requisition History", status: "Generated" }
-                                                    ].map((item, i) => (
-                                                        <div key={i} className="flex justify-between items-center p-5 bg-white/5 rounded-2xl border border-white/10 group-hover:bg-white/10 transition-all">
-                                                            <span className="text-[9px] font-black uppercase tracking-widest text-white/40">{item.label}</span>
-                                                            <span className="text-secondary text-[8px] font-black uppercase tracking-widest">{item.status}</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                <button className="w-full py-5 border-4 border-dashed border-white/10 rounded-[2rem] text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-white hover:border-white transition-all">Download Audit Node</button>
+                                                <h3 className="text-4xl md:text-7xl font-black font-serif leading-none italic uppercase tracking-tighter">Market <br /><span className="text-secondary italic">Pricing Oracle</span></h3>
+                                                <p className="text-white/40 text-sm font-black uppercase tracking-[0.2em] leading-relaxed italic max-w-2xl">Kido AI analyzes real-time harvest yields, regional logistics latency, and nutritional density to provide immutable pricing indices.</p>
                                             </div>
                                         </div>
 
-                                        {/* Transaction Ledger */}
-                                        <div className="bg-white rounded-[2.5rem] md:rounded-[4rem] border border-primary/5 shadow-2xl p-6 md:p-10 space-y-8">
-                                            <div className="flex justify-between items-center px-4">
-                                                <h3 className="text-2xl md:text-3xl font-black font-serif italic uppercase text-primary">Transaction <span className="text-secondary">Telemetry</span></h3>
-                                                <Clock size={24} className="text-primary/10 hidden md:block" />
-                                            </div>
-                                            <div className="space-y-4">
-                                                {walletTxs.length > 0 ? walletTxs.map((tx, i) => (
-                                                    <div key={i} className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-6 md:p-8 bg-neutral-50 rounded-[2rem] md:rounded-[3rem] hover:bg-white hover:shadow-2xl transition-all group gap-4 border border-transparent hover:border-secondary/20">
-                                                        <div className="flex items-center gap-6">
-                                                            <div className={`w-12 h-12 md:w-16 md:h-16 rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center ${tx.type === 'credit' ? 'bg-green-500 text-white' : 'bg-primary text-white'} shadow-lg group-hover:scale-110 transition-transform shrink-0`}>
-                                                                {tx.type === 'credit' ? <ArrowDownLeft size={24} /> : <ArrowUpRight size={24} />}
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-lg md:text-xl font-black font-serif italic uppercase text-primary leading-tight">{tx.description}</p>
-                                                                <p className="text-[9px] font-black text-primary/20 uppercase tracking-widest mt-1 italic">{new Date(tx.createdAt).toLocaleString()}</p>
-                                                            </div>
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            {[
+                                                { name: "Premium Sorghum", current: "₦420/kg", change: "+12%", trend: "up" },
+                                                { name: "White Maize", current: "₦380/kg", change: "-2%", trend: "down" },
+                                                { name: "Yellow Soybeans", current: "₦550/kg", change: "+4%", trend: "up" },
+                                                { name: "Hard Wheat", current: "₦610/kg", change: "+18%", trend: "up" }
+                                            ].map((index, i) => (
+                                                <div key={i} className="bg-white p-10 rounded-[3.5rem] border border-primary/5 shadow-2xl space-y-6 group hover:border-secondary transition-all">
+                                                    <div className="flex justify-between items-start">
+                                                        <h4 className="text-2xl font-black font-serif italic uppercase text-primary tracking-tighter">{index.name}</h4>
+                                                        <div className={`p-3 rounded-xl ${index.trend === 'up' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                                            {index.trend === 'up' ? <ArrowUpRight size={20} /> : <ArrowDownLeft size={20} />}
                                                         </div>
-                                                        <p className={`text-xl md:text-2xl font-black font-serif italic ${tx.type === 'credit' ? 'text-green-600' : 'text-primary'}`}>
-                                                            {tx.type === 'credit' ? '+' : '-'} ₦{Number(tx.amount).toLocaleString()}
+                                                    </div>
+                                                    <div className="flex justify-between items-end">
+                                                        <div>
+                                                            <p className="text-[9px] font-black uppercase text-primary/20 tracking-widest mb-1">Index Price</p>
+                                                            <p className="text-4xl font-black font-serif italic text-primary">{index.current}</p>
+                                                        </div>
+                                                        <p className={`text-[11px] font-black uppercase tracking-widest ${index.trend === 'up' ? 'text-green-600' : 'text-red-500'}`}>
+                                                            {index.change} 24H
                                                         </p>
                                                     </div>
-                                                )) : (
-                                                    <div className="py-24 text-center">
-                                                        <Activity className="mx-auto text-primary/5 mb-6" size={64} />
-                                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/20 italic">No Registry Data Detected.</p>
-                                                    </div>
-                                                )}
-                                            </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
@@ -553,7 +563,7 @@ export default function BuyerDashboard() {
                                             </div>
                                         )) : (
                                             <div className="py-16 text-center bg-cream/20 border-4 border-dashed border-primary/5 rounded-[3rem] group hover:border-secondary transition-all cursor-pointer" onClick={() => setIsAddCardOpen(true)}>
-                                                <PlusCircle className="mx-auto text-primary/5 group-hover:text-secondary group-hover:scale-110 transition-all" size={48} />
+                                                <CirclePlus className="mx-auto text-primary/5 group-hover:text-secondary group-hover:scale-110 transition-all" size={48} />
                                                 <p className="text-[9px] font-black uppercase tracking-widest text-primary/20 mt-4 italic">Initialize Card Registry</p>
                                             </div>
                                         )}
@@ -572,6 +582,21 @@ export default function BuyerDashboard() {
                                     </div>
                                     <button onClick={() => handleAction("Broadcast Referral")} className="w-full bg-primary text-secondary py-5 rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-2xl hover:bg-white hover:text-primary transition-all">Broadcast Node ID</button>
                                 </div>
+
+                                {/* Upgrade Node for Non-Subscribers */}
+                                {!isSubscriber && (
+                                    <div className="bg-primary p-10 rounded-[3.5rem] text-white space-y-8 relative overflow-hidden group shadow-2xl border-2 border-secondary/20">
+                                        <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-700" />
+                                        <div className="relative z-10 space-y-6">
+                                            <div className="w-16 h-16 bg-secondary text-primary rounded-2xl flex items-center justify-center shadow-2xl">
+                                                <Star size={32} />
+                                            </div>
+                                            <h3 className="text-3xl font-black font-serif italic uppercase leading-none">Upgrade to <br /><span className="text-secondary">Elite Protocol</span></h3>
+                                            <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed italic opacity-40">Unlock B2B procurement, cold-chain transparency, and periodic harvest drops.</p>
+                                            <Link href="/subscriptions" className="block w-full bg-secondary text-primary py-5 rounded-2xl font-black uppercase tracking-widest text-center text-[10px] shadow-2xl hover:bg-white transition-all">Activate Elite Access</Link>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Security Notification Console */}
                                 <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border border-primary/5 shadow-2xl space-y-8">
@@ -635,7 +660,7 @@ export default function BuyerDashboard() {
                                     <input required placeholder="***" className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black text-xs" />
                                 </div>
                             </div>
-                            <button type="submit" className="w-full bg-primary text-secondary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:bg-secondary hover:text-primary transition-all font-sans font-sans">
+                            <button type="submit" className="w-full bg-primary text-secondary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:bg-secondary hover:text-primary transition-all font-sans">
                                 Authorize Sovereign Linking
                             </button>
                         </form>

@@ -280,6 +280,7 @@ const tasks = pgTable("tasks", {
     priority: text("priority").default("medium"), // low, medium, high
     dueDate: timestamp("due_date"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // OTPs Table

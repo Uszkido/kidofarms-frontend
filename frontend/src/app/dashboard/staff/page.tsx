@@ -58,7 +58,7 @@ export default function StaffDashboard() {
     const fetchStaffData = async () => {
         try {
             const [tRes, sRes, uRes] = await Promise.all([
-                fetch(getApiUrl(`/api/team/tasks/all?userId=${(session?.user as any)?.id}`)),
+                fetch(getApiUrl(`/api/admin/tasks/user/${(session?.user as any)?.id}`)),
                 fetch(getApiUrl(`/api/tickets/all`)),
                 fetch(getApiUrl(`/api/admin/users?limit=10`))
             ]);
@@ -159,6 +159,7 @@ export default function StaffDashboard() {
                         <div className="flex border-b border-primary/5 gap-8 overflow-x-auto no-scrollbar scroll-smooth">
                             {[
                                 { id: "command", label: "Workflow Command", icon: CheckSquare },
+                                { id: "directives", label: "Neural Directives", icon: FileText },
                                 { id: "support", label: "Incident Desk", icon: MessageSquare },
                                 { id: "users", label: "Sovereign Registry", icon: Users },
                                 { id: "moderation", label: "Terminal Control", icon: ShieldAlert },
@@ -213,6 +214,42 @@ export default function StaffDashboard() {
                                                     <CheckCircle2 size={80} className="mx-auto text-primary/5 group-hover:text-secondary group-hover:scale-110 transition-all mb-8" />
                                                     <h3 className="text-3xl font-black font-serif text-primary uppercase italic tracking-tighter">Protocols Optimal</h3>
                                                     <p className="text-[10px] text-primary/30 font-black mt-2 uppercase tracking-widest">No assigned nodes detected in matrix.</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === "directives" && (
+                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6">
+                                        <div className="flex justify-between items-center px-4">
+                                            <h2 className="text-3xl md:text-4xl font-black font-serif italic text-primary uppercase tracking-tighter">Neural <span className="text-secondary italic">Directives</span></h2>
+                                            <Link href="/dashboard/staff/tasks" className="text-[10px] font-black uppercase tracking-widest text-secondary hover:underline flex items-center gap-2">
+                                                Full Matrix <ArrowRight size={14} />
+                                            </Link>
+                                        </div>
+
+                                        <div className="grid gap-6">
+                                            {(tasks || []).slice(0, 3).map((task, i) => (
+                                                <div key={i} className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl flex justify-between items-center group hover:border-secondary transition-all">
+                                                    <div className="space-y-2">
+                                                        <div className="flex items-center gap-3">
+                                                            <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${task.status === 'completed' ? 'bg-green-50 text-green-600' : 'bg-secondary/10 text-secondary'}`}>
+                                                                {task.status}
+                                                            </span>
+                                                            <span className="text-[8px] font-black text-primary/20 uppercase tracking-widest">{new Date(task.createdAt).toLocaleDateString()}</span>
+                                                        </div>
+                                                        <h3 className="text-xl font-black font-serif text-primary uppercase italic">{task.title}</h3>
+                                                    </div>
+                                                    <Link href="/dashboard/staff/tasks" className="w-12 h-12 rounded-full bg-primary/5 flex items-center justify-center text-primary group-hover:bg-secondary transition-all">
+                                                        <ArrowRight size={18} />
+                                                    </Link>
+                                                </div>
+                                            ))}
+                                            {(tasks || []).length === 0 && (
+                                                <div className="py-20 text-center opacity-20">
+                                                    <FileText size={48} className="mx-auto mb-4" />
+                                                    <p className="text-[10px] font-black uppercase tracking-[0.4em]">No active directives</p>
                                                 </div>
                                             )}
                                         </div>

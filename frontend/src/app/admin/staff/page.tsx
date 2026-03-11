@@ -96,8 +96,8 @@ export default function StaffManagementPage() {
                                         {member.image ? <img src={member.image} className="w-full h-full object-cover" /> : <Shield size={32} />}
                                     </div>
                                     <div className={`px-4 py-2 rounded-full border text-[9px] font-black uppercase tracking-widest ${member.role === 'admin' ? 'bg-red-500/10 border-red-500 text-red-500' :
-                                            member.role === 'sub-admin' ? 'bg-secondary/10 border-secondary text-secondary' :
-                                                'bg-blue-500/10 border-blue-500 text-blue-500'
+                                        member.role === 'sub-admin' ? 'bg-secondary/10 border-secondary text-secondary' :
+                                            'bg-blue-500/10 border-blue-500 text-blue-500'
                                         }`}>
                                         {member.role}
                                     </div>
@@ -123,8 +123,8 @@ export default function StaffManagementPage() {
                                 </div>
 
                                 <div className="pt-6 border-t border-white/5 flex justify-between items-center relative z-10">
-                                    <Link href={`/admin/users?edit=${member.id}`} className="px-6 py-2 bg-white/5 text-white/40 rounded-xl text-[9px] font-black uppercase tracking-widest hover:text-white transition-all">Configure Role</Link>
-                                    <button className="text-[9px] font-black uppercase text-secondary hover:underline underline-offset-4">View Task Matrix</button>
+                                    <Link href={`/admin/staff/${member.id}/configure`} className="px-6 py-2 bg-white/5 text-white/40 rounded-xl text-[9px] font-black uppercase tracking-widest hover:text-white transition-all">Configure Role</Link>
+                                    <Link href={`/admin/staff/${member.id}/tasks`} className="text-[9px] font-black uppercase text-secondary hover:underline underline-offset-4">View Task Matrix</Link>
                                 </div>
                             </div>
                         ))}
