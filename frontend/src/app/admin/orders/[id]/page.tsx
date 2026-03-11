@@ -87,7 +87,7 @@ export default function OrderDetailsPage({ params }: any) {
             <main className="container mx-auto max-w-7xl px-6 pt-12 space-y-10">
                 {/* 1. Track Progress */}
                 <section className="bg-white/5 p-10 md:p-16 rounded-[4rem] border border-white/5 shadow-2xl backdrop-blur-md">
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-12 relative">
+                    <div className="flex flex-col md:flex-row justify-between items-center gap-12 relative mb-16">
                         <div className="absolute top-1/2 left-0 w-full h-1 bg-white/5 -translate-y-1/2 hidden md:block" />
                         {statusSteps.map((step, i) => {
                             const isPast = i <= currentStepIndex;
@@ -105,6 +105,50 @@ export default function OrderDetailsPage({ params }: any) {
                                 </div>
                             );
                         })}
+                    </div>
+
+                    {/* 🛰️ SATELLITE RADAR OVERRIDE */}
+                    <div className="bg-black/40 rounded-[3rem] border border-white/5 p-10 h-[400px] relative overflow-hidden group cursor-crosshair">
+                        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=2000')] opacity-20 group-hover:opacity-30 transition-opacity duration-1000 grayscale select-none pointer-events-none" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-secondary/20 rounded-full animate-ping opacity-20" />
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] border border-white/5 rounded-full" />
+
+                        <div className="relative z-10 h-full flex flex-col justify-between">
+                            <div className="flex justify-between items-start">
+                                <div className="space-y-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 bg-secondary rounded-full animate-pulse" />
+                                        <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Awaiting Satellite Lock</h3>
+                                    </div>
+                                    <p className="text-xs font-mono text-white/40">Lat: 9.0765° N | Long: 7.3986° E (Abuja Hub)</p>
+                                </div>
+                                <div className="bg-white/5 px-4 py-2 rounded-xl text-[8px] font-black uppercase text-white/40 border border-white/10">
+                                    Sovereign Sentinel v5.0
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                                <div className="relative">
+                                    <MapPin size={48} className="text-secondary animate-bounce drop-shadow-[0_0_20px_rgba(244,180,6,0.6)]" />
+                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-1 bg-secondary/40 blur-sm rounded-full" />
+                                </div>
+                                <p className="mt-4 text-[10px] font-black uppercase tracking-widest text-white italic">Active Node: {order.city || "Abuja Central"}</p>
+                            </div>
+
+                            <div className="flex justify-between items-end border-t border-white/5 pt-6">
+                                <div className="space-y-4">
+                                    <p className="text-[9px] font-black uppercase tracking-widest text-white/20">Telemetry Feed</p>
+                                    <div className="flex gap-4">
+                                        <div className="bg-white/5 px-3 py-1 rounded-md text-[8px] font-mono text-secondary">ALT: 12.0k ft</div>
+                                        <div className="bg-white/5 px-3 py-1 rounded-md text-[8px] font-mono text-secondary">SPD: 0.0 km/h</div>
+                                        <div className="bg-white/5 px-3 py-1 rounded-md text-[8px] font-mono text-secondary">TMP: 24°C</div>
+                                    </div>
+                                </div>
+                                <button className="bg-secondary/10 hover:bg-secondary text-secondary hover:text-primary px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all border border-secondary/20">
+                                    Initialize Direct Link
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 

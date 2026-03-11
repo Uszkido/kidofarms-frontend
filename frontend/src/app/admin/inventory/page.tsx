@@ -3,48 +3,35 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-    LayoutDashboard,
     Package,
-    ShoppingCart,
-    Users,
-    TrendingUp,
-    Map,
-    AlertCircle,
-    ArrowUpRight,
-    TrendingDown,
-    Clock,
     Plus,
-    FileText,
-    ArrowLeft,
     Search,
     Filter,
-    MoreHorizontal,
-    Edit3,
+    ArrowLeft,
+    Loader2,
     Trash2,
+    Edit3,
     AlertTriangle,
-    Loader2
+    Database,
+    Boxes,
+    ShoppingCart
 } from "lucide-react";
 import Image from "next/image";
 import { getApiUrl } from "@/lib/api";
 
-export default function InventoryPage() {
+export default function AdminInventoryPage() {
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
 
     const fetchProducts = async () => {
+        setLoading(true);
         try {
             const res = await fetch(getApiUrl("/api/products"));
             const data = await res.json();
-            if (Array.isArray(data)) {
-                setProducts(data);
-            } else {
-                console.error("API did not return an array:", data);
-                setProducts([]);
-            }
+            setProducts(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Failed to fetch products:", error);
-            setProducts([]);
         } finally {
             setLoading(false);
         }
@@ -55,177 +42,168 @@ export default function InventoryPage() {
     }, []);
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this product?")) return;
-
+        if (!confirm("Confirm asset decomposition? This cannot be undone.")) return;
         try {
             const res = await fetch(getApiUrl(`/api/products/${id}`), { method: "DELETE" });
             if (res.ok) {
                 setProducts(products.filter(p => p.id !== id));
-            } else {
-                alert("Failed to delete product");
             }
         } catch (error) {
-            alert("An error occurred while deleting");
+            alert("Decomposition failed.");
         }
     };
 
     const filteredProducts = products.filter(p =>
         (p?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-        (p?.category?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+        (p?.category?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (p?.trackingId?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
     return (
-        <div className="flex flex-col min-h-screen bg-neutral-50 px-6">
-            <main className="flex-grow py-24">
-                <div className="container mx-auto px-6 max-w-7xl">
-                    {/* Header Controls */}
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-6">
-                        <div>
-                            <Link href="/admin" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary mb-4 transition-colors">
-                                <ArrowLeft size={14} /> Back to Hub
-                            </Link>
-                            <h1 className="text-4xl font-black font-serif uppercase tracking-tighter">Inventory <span className="text-secondary italic">Control</span></h1>
-                            <p className="text-primary/40 font-medium text-sm mt-2">Manage your marketplace listings and stock levels.</p>
+        <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-10 font-sans selection:bg-secondary selection:text-primary">
+            <div className="max-w-[1600px] mx-auto space-y-16">
+
+                {/* 🌌 HEADER */}
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+                    <div className="space-y-6">
+                        <Link href="/admin" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-secondary group transition-all mb-4">
+                            <ArrowLeft size={14} className="group-hover:-translate-x-2 transition-transform" /> Back To Hub
+                        </Link>
+                        <div className="flex items-center gap-4">
+                            <span className="w-16 h-1.5 bg-secondary rounded-full" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">Asset Infrastructure</h2>
                         </div>
-                        <div className="flex gap-4 w-full md:w-auto">
-                            <div className="relative flex-grow md:flex-grow-0 hidden md:block">
-                                <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/30" />
-                                <input
-                                    type="text"
-                                    placeholder="Search SKU or Name..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full md:w-64 bg-white border border-primary/10 rounded-2xl pl-12 pr-4 py-4 text-sm font-medium focus:ring-2 focus:ring-secondary/30 outline-none shadow-sm"
-                                />
-                            </div>
-                            <button className="bg-white border border-primary/10 p-4 rounded-2xl text-primary hover:bg-neutral-100 transition-all shadow-sm">
-                                <Filter size={20} />
-                            </button>
-                            <Link href="/admin/inventory/new" className="bg-primary text-white px-8 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center justify-center gap-2 shadow-xl shadow-primary/20 whitespace-nowrap">
-                                <Plus size={18} /> New Item
-                            </Link>
-                        </div>
+                        <h1 className="text-7xl lg:text-9xl font-black font-serif italic uppercase leading-[0.85] tracking-tighter text-white">
+                            Supply <span className="text-secondary block">Manifest</span>
+                        </h1>
                     </div>
 
-                    {/* Inventory Table Container */}
-                    <div className="bg-white rounded-[3rem] border border-primary/5 shadow-sm overflow-x-auto custom-scrollbar">
-                        <div className="min-w-[1000px]">
-                            <table className="w-full text-left border-collapse">
+                    <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
+                        <div className="relative group">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-secondary transition-colors" size={20} />
+                            <input
+                                placeholder="Search manifests by ID or Name..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full md:w-96 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
+                            />
+                        </div>
+                        <Link href="/admin/inventory/new" className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
+                            <Plus size={18} /> New manifest Entry
+                        </Link>
+                    </div>
+                </header>
+
+                {/* 📊 INVENTORY TABLE */}
+                <div className="bg-white/5 rounded-[4rem] border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+                    {loading ? (
+                        <div className="p-32 flex flex-col items-center gap-6">
+                            <Loader2 size={64} className="animate-spin text-secondary opacity-20" />
+                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Scanning Supply Nodes...</p>
+                        </div>
+                    ) : (
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left">
                                 <thead>
-                                    <tr className="border-b border-primary/5 bg-neutral-50/50">
-                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Product Info</th>
-                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Tracking ID</th>
-                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Category / Source</th>
-                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Stock Status</th>
-                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40">Price</th>
-                                        <th className="py-6 px-8 text-[10px] font-black uppercase tracking-widest text-primary/40 text-right">Actions</th>
+                                    <tr className="border-b border-white/10 bg-white/[0.02]">
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Asset Definition</th>
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-center">Protocol ID</th>
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Node Source</th>
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Liquidity (Price)</th>
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Control</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    {loading ? (
-                                        <tr>
-                                            <td colSpan={5} className="py-20 text-center">
-                                                <Loader2 size={48} className="animate-spin text-secondary mx-auto" />
-                                            </td>
-                                        </tr>
-                                    ) : filteredProducts.map((product) => (
-                                        <tr key={product.id} className="border-b border-primary/5 hover:bg-neutral-50/50 transition-colors group">
-                                            <td className="py-6 px-8">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-16 h-16 rounded-2xl bg-neutral-100 relative overflow-hidden shrink-0 border border-primary/5">
-                                                        {(product.images as string[])?.[0] ? (
-                                                            <Image src={(product.images as string[])[0]} alt={product.name} fill className="object-cover" />
+                                <tbody className="divide-y divide-white/5">
+                                    {filteredProducts.map(product => (
+                                        <tr key={product.id} className="group hover:bg-white/[0.03] transition-colors">
+                                            <td className="px-12 py-10">
+                                                <div className="flex items-center gap-8">
+                                                    <div className="w-24 h-24 rounded-[2rem] bg-white/5 border border-white/5 relative overflow-hidden shrink-0 group-hover:border-secondary/20 transition-all">
+                                                        {product.images?.[0] ? (
+                                                            <Image src={product.images[0]} alt={product.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
                                                         ) : (
-                                                            <div className="w-full h-full flex items-center justify-center text-primary/20">img</div>
+                                                            <div className="w-full h-full flex items-center justify-center text-white/10"><Boxes size={32} /></div>
                                                         )}
                                                     </div>
                                                     <div>
-                                                        <h3 className="font-black text-primary text-lg">{product.name}</h3>
-                                                        <div className="flex items-center gap-2 mt-1">
-                                                            <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-secondary/10 text-secondary">{product.unit || 'piece'}</span>
-                                                            {product.isFeatured && (
-                                                                <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md bg-blue-100 text-blue-600">Featured</span>
-                                                            )}
+                                                        <h3 className="text-2xl font-black font-serif italic text-white uppercase tracking-tight leading-none mb-2">{product.name}</h3>
+                                                        <div className="flex items-center gap-3">
+                                                            <span className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-white/40">{product.category}</span>
+                                                            <span className={`px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest ${product.stock > 0 ? 'text-secondary' : 'text-red-500'}`}>
+                                                                {product.stock} {product.unit} Available
+                                                            </span>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-6 px-8">
-                                                <span className="font-mono text-xs font-bold bg-neutral-100 px-3 py-1.5 rounded-lg border border-primary/5 text-primary/60">
-                                                    {product.trackingId || 'N/A'}
-                                                </span>
-                                            </td>
-                                            <td className="py-6 px-8">
-                                                <p className="font-bold text-sm text-primary">{product.category}</p>
-                                                <p className="text-xs font-medium text-primary/40 mt-1">{product.farmSource || 'Unknown Farm'}</p>
-                                            </td>
-                                            <td className="py-6 px-8">
-                                                <div className="flex items-center gap-2">
-                                                    {product.stock > 10 ? (
-                                                        <span className="w-2 h-2 rounded-full bg-green-500" />
-                                                    ) : product.stock > 0 ? (
-                                                        <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                                                    ) : (
-                                                        <span className="w-2 h-2 rounded-full bg-red-500" />
-                                                    )}
-                                                    <div>
-                                                        <p className="font-black text-sm">{product.stock}</p>
-                                                        <p className="text-[10px] uppercase tracking-widest text-primary/40 font-bold">
-                                                            {product.stock === 0 ? 'Out of Stock' : 'Available'}
-                                                        </p>
-                                                    </div>
+                                            <td className="px-12 py-10">
+                                                <div className="flex justify-center">
+                                                    <span className="font-mono text-xs font-bold text-white/20 group-hover:text-secondary transition-colors">
+                                                        {product.trackingId || 'UNTRACKED-NODE'}
+                                                    </span>
                                                 </div>
                                             </td>
-                                            <td className="py-6 px-8">
-                                                <p className="font-black font-serif text-xl">₦{(Number(product.price)).toLocaleString()}</p>
+                                            <td className="px-12 py-10">
+                                                <p className="text-sm font-black text-white/60 uppercase tracking-widest">{product.farmSource || 'Direct Network'}</p>
+                                                <p className="text-[10px] font-bold text-white/20 mt-1 italic">Authorized Producer</p>
                                             </td>
-                                            <td className="py-6 px-8 text-right">
-                                                <div className="flex items-center justify-end gap-3">
+                                            <td className="px-12 py-10">
+                                                <p className="text-3xl font-black font-serif italic text-white leading-none">₦{(Number(product.price)).toLocaleString()}</p>
+                                            </td>
+                                            <td className="px-12 py-10 text-right">
+                                                <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
                                                     <button
                                                         onClick={() => handleDelete(product.id)}
-                                                        className="p-3 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all rounded-xl shadow-sm"
-                                                        title="Delete Product"
+                                                        className="p-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-primary rounded-2xl transition-all shadow-xl"
+                                                        title="Decompose Asset"
                                                     >
-                                                        <Trash2 size={18} />
+                                                        <Trash2 size={20} />
                                                     </button>
                                                     <Link
-                                                        href={`/admin/inventory/${product.id ?? ""}/edit`}
-                                                        className="p-3 bg-secondary/10 text-secondary hover:bg-secondary hover:text-primary transition-all rounded-xl shadow-sm"
-                                                        title="Edit Product"
+                                                        href={`/admin/inventory/${product.id}/edit`}
+                                                        className="p-4 bg-white/5 text-white/60 hover:bg-white hover:text-primary rounded-2xl transition-all shadow-xl"
+                                                        title="Edit Manifest"
                                                     >
-                                                        <Edit3 size={18} />
+                                                        <Edit3 size={20} />
                                                     </Link>
                                                 </div>
                                             </td>
                                         </tr>
                                     ))}
-
-                                    {!loading && filteredProducts.length === 0 && (
-                                        <tr>
-                                            <td colSpan={5} className="py-20 text-center">
-                                                <div className="flex flex-col items-center justify-center text-primary/30">
-                                                    <AlertTriangle size={48} className="mb-4 text-amber-500/50" />
-                                                    <p className="font-black text-lg">No Results Found</p>
-                                                    <p className="text-sm font-medium mt-1">Try a different search term or add an item.</p>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
                                 </tbody>
                             </table>
                         </div>
+                    )}
+                </div>
 
-                        {/* Pagination footer */}
-                        <div className="p-6 border-t border-primary/5 flex items-center justify-between bg-neutral-50/30">
-                            <p className="text-xs font-black uppercase tracking-widest text-primary/40">Showing {products.length} Items</p>
-                            <div className="flex gap-2">
-                                <button className="px-4 py-2 rounded-xl text-xs font-black uppercase border border-primary/10 text-primary/40 hover:bg-white hover:text-primary transition-all disabled:opacity-50">Prev</button>
-                                <button className="px-4 py-2 rounded-xl text-xs font-black uppercase border border-primary/10 text-primary/40 hover:bg-white hover:text-primary transition-all disabled:opacity-50">Next</button>
-                            </div>
+                {/* 📊 FOOTER STATS */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-20">
+                    <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 backdrop-blur-3xl flex items-center justify-between group">
+                        <div className="space-y-2">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Total Assets</h4>
+                            <p className="text-5xl font-black font-serif italic text-white">{products.length}</p>
+                        </div>
+                        <div className="w-16 h-16 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-primary transition-all">
+                            <Package size={32} />
                         </div>
                     </div>
+                    <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 backdrop-blur-3xl flex items-center justify-between group">
+                        <div className="space-y-2">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Active Orders</h4>
+                            <p className="text-5xl font-black font-serif italic text-secondary">42</p>
+                        </div>
+                        <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 group-hover:bg-white group-hover:text-primary transition-all">
+                            <ShoppingCart size={32} />
+                        </div>
+                    </div>
+                    <div className="bg-secondary rounded-[3rem] p-10 text-primary shadow-2xl relative overflow-hidden group flex flex-col justify-center">
+                        <Database className="absolute -bottom-10 -right-10 text-primary/10 w-48 h-48 -rotate-12 group-hover:rotate-0 transition-all duration-700" />
+                        <h3 className="text-3xl font-black font-serif italic uppercase leading-none mb-2">Manifest <br /> Verified</h3>
+                        <p className="text-primary/60 text-[10px] font-black uppercase tracking-widest">Global Ledger Synced</p>
+                    </div>
                 </div>
-            </main>
+
+            </div>
         </div>
     );
 }

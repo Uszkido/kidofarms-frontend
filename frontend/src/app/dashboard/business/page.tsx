@@ -23,6 +23,10 @@ import Link from "next/link";
 export default function BusinessDashboard() {
     const { data: session } = useSession();
 
+    const handleAction = (label: string) => {
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
             <Header />
@@ -44,7 +48,10 @@ export default function BusinessDashboard() {
                                     <p className="text-4xl font-black font-serif text-secondary leading-none">₦4.2M</p>
                                     <p className="text-[10px] font-black uppercase tracking-widest text-white/30 mt-2">Cycle Spend</p>
                                 </div>
-                                <button className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-xl">
+                                <button
+                                    onClick={() => handleAction("RFQ Request")}
+                                    className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-xl"
+                                >
                                     RFQ Request
                                 </button>
                             </div>
@@ -58,7 +65,11 @@ export default function BusinessDashboard() {
                                 { label: "Loyalty Points", value: "450k", icon: BarChart3 },
                                 { label: "Last Audit", value: "Mar 08", icon: ShieldCheck },
                             ].map((s, i) => (
-                                <div key={i} className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl space-y-4 hover:border-secondary/20 transition-all cursor-pointer">
+                                <div
+                                    key={i}
+                                    onClick={() => handleAction(s.label)}
+                                    className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl space-y-4 hover:border-secondary/20 transition-all cursor-pointer group"
+                                >
                                     <div className="w-12 h-12 bg-primary/5 rounded-2xl flex items-center justify-center text-primary group-hover:bg-secondary transition-colors">
                                         <s.icon size={22} />
                                     </div>
@@ -104,7 +115,10 @@ export default function BusinessDashboard() {
                                                         <p className={`text-sm font-black uppercase italic ${order.status === 'Delivered' ? 'text-green-500' : 'text-secondary'}`}>{order.status}</p>
                                                         <p className="text-[10px] font-black text-primary/20 uppercase">Track Logistics</p>
                                                     </div>
-                                                    <button className="bg-primary text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                                    <button
+                                                        onClick={() => handleAction(`Tracking ${order.id}`)}
+                                                        className="bg-primary text-white w-14 h-14 rounded-2xl flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-xl"
+                                                    >
                                                         <ArrowRight size={24} />
                                                     </button>
                                                 </div>
@@ -134,9 +148,12 @@ export default function BusinessDashboard() {
                                                 <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-1">Batch ID: {item.batch}</p>
                                                 <div className="mt-6 pt-6 border-t border-primary/5 flex justify-between items-center">
                                                     <span className="text-[10px] font-black text-secondary italic tracking-widest">{item.quality}</span>
-                                                    <Link href={`/verify/${item.id}`} className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg">
+                                                    <button
+                                                        onClick={() => handleAction(`Legacy Feed for ${item.batch}`)}
+                                                        className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl text-[8px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg"
+                                                    >
                                                         View Legacy Feed <ArrowRight size={10} />
-                                                    </Link>
+                                                    </button>
                                                 </div>
                                             </div>
                                         ))}
@@ -157,7 +174,11 @@ export default function BusinessDashboard() {
                                             { month: "January 2026", amount: "₦0.8M", id: "INV-01-26" },
                                             { month: "December 2025", amount: "₦2.1M", id: "INV-12-25" }
                                         ].map((inv, i) => (
-                                            <div key={i} className="flex justify-between items-center p-6 bg-cream/10 rounded-2xl group hover:bg-secondary/5 transition-all">
+                                            <div
+                                                key={i}
+                                                onClick={() => handleAction(`Download ${inv.id}`)}
+                                                className="flex justify-between items-center p-6 bg-cream/10 rounded-2xl group hover:bg-secondary/5 transition-all cursor-pointer"
+                                            >
                                                 <div>
                                                     <p className="text-xs font-black uppercase text-primary">{inv.month}</p>
                                                     <p className="text-[10px] font-bold text-primary/30">{inv.id}</p>
@@ -168,7 +189,12 @@ export default function BusinessDashboard() {
                                             </div>
                                         ))}
                                     </div>
-                                    <button className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/20 hover:text-secondary hover:border-secondary transition-all">Download All Statements</button>
+                                    <button
+                                        onClick={() => handleAction("Download All Statements")}
+                                        className="w-full py-4 border-2 border-dashed border-primary/10 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/20 hover:text-secondary hover:border-secondary transition-all"
+                                    >
+                                        Download All Statements
+                                    </button>
                                 </div>
 
                                 <div className="bg-secondary rounded-[4rem] p-10 text-primary shadow-2xl space-y-6">

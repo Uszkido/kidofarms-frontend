@@ -12,6 +12,13 @@ import { getApiUrl } from "@/lib/api";
 
 export default function AdminLandingPage() {
     const [activeTab, setActiveTab] = useState("hero");
+
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const tab = params.get("tab");
+        if (tab) setActiveTab(tab);
+    }, []);
+
     const [data, setData] = useState<any>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);

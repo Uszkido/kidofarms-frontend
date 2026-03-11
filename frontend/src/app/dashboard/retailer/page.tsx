@@ -21,6 +21,10 @@ import { useSession } from "next-auth/react";
 export default function RetailerDashboard() {
     const { data: session } = useSession();
 
+    const handleAction = (label: string) => {
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
             <Header />
@@ -37,9 +41,12 @@ export default function RetailerDashboard() {
                                 </h1>
                                 <p className="text-primary/40 font-bold text-sm tracking-widest uppercase italic">Node: {session?.user?.name || "Retail Partner"}</p>
                                 <div className="pt-4">
-                                    <Link href="/shop" className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-2xl inline-flex items-center gap-4">
+                                    <button
+                                        onClick={() => handleAction("Inventory Restock")}
+                                        className="bg-primary text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-2xl inline-flex items-center gap-4"
+                                    >
                                         Restock Inventory <ArrowRight size={20} />
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                             <div className="relative z-10 shrink-0">
@@ -52,13 +59,17 @@ export default function RetailerDashboard() {
                         {/* Stats */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
                             {[
-                                { label: "Monthly Spand", value: "₦1.4M", icon: TrendingUp },
+                                { label: "Monthly Spend", value: "₦1.4M", icon: TrendingUp },
                                 { label: "Stock Levels", value: "78%", icon: Package },
                                 { label: "Active Orders", value: "3", icon: ShoppingCart },
                                 { label: "Profit Delta", value: "+22%", icon: BarChart3 },
                             ].map((s, i) => (
-                                <div key={i} className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl space-y-4 hover:shadow-2xl transition-all">
-                                    <div className="w-12 h-12 bg-cream/30 rounded-2xl flex items-center justify-center text-primary">
+                                <div
+                                    key={i}
+                                    onClick={() => handleAction(s.label)}
+                                    className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-xl space-y-4 hover:shadow-2xl transition-all cursor-pointer group"
+                                >
+                                    <div className="w-12 h-12 bg-cream/30 rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                                         <s.icon size={24} />
                                     </div>
                                     <div>
@@ -74,17 +85,26 @@ export default function RetailerDashboard() {
                             <div className="lg:col-span-8 bg-white/50 backdrop-blur-md border border-white rounded-[4rem] p-12 shadow-2xl space-y-10">
                                 <div className="flex justify-between items-center">
                                     <h2 className="text-3xl font-black font-serif uppercase italic tracking-tight">Active <span className="text-secondary">Restocks</span></h2>
-                                    <button className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-secondary underline underline-offset-8 transition-colors">Order History</button>
+                                    <button
+                                        onClick={() => handleAction("Restock Ledger")}
+                                        className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-secondary underline underline-offset-8 transition-colors"
+                                    >
+                                        Order History
+                                    </button>
                                 </div>
                                 <div className="space-y-6">
                                     {[
-                                        { item: "Organic Tomato Crate", qty: "12 Units", price: "₦45,000", status: "In Transit" },
-                                        { item: "Fresh Cabbage Mix", qty: "5 Bags", price: "₦12,500", status: "Delivered" },
-                                        { item: "White Onion (Sacks)", qty: "10 Sacks", price: "₦120,000", status: "Processing" }
+                                        { id: "RET-101", item: "Organic Tomato Crate", qty: "12 Units", price: "₦45,000", status: "In Transit" },
+                                        { id: "RET-102", item: "Fresh Cabbage Mix", qty: "5 Bags", price: "₦12,500", status: "Delivered" },
+                                        { id: "RET-103", item: "White Onion (Sacks)", qty: "10 Sacks", price: "₦120,000", status: "Processing" }
                                     ].map((order, i) => (
-                                        <div key={i} className="flex justify-between items-center bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm group hover:border-secondary/20 transition-all">
+                                        <div
+                                            key={i}
+                                            onClick={() => handleAction(`Restock Detail for ${order.id}`)}
+                                            className="flex justify-between items-center bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm group hover:border-secondary/20 transition-all cursor-pointer"
+                                        >
                                             <div className="flex items-center gap-6">
-                                                <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary">
+                                                <div className="w-12 h-12 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-primary transition-all">
                                                     <Tag size={20} />
                                                 </div>
                                                 <div>
@@ -107,11 +127,26 @@ export default function RetailerDashboard() {
                                         <h3 className="text-4xl font-black font-serif leading-none italic uppercase">Retailer <br />Trust Badges</h3>
                                         <p className="text-cream/40 text-[10px] font-black uppercase tracking-widest leading-relaxed">Display these on your storefront to show your customers you source directly from the Kido Farm Network.</p>
                                         <div className="flex gap-4">
-                                            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10"><ShieldCheck className="text-secondary" /></div>
-                                            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10"><MapPin className="text-secondary" /></div>
+                                            <div
+                                                onClick={() => handleAction("Badge Manifest")}
+                                                className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 cursor-pointer hover:bg-white/20 transition-all"
+                                            >
+                                                <ShieldCheck className="text-secondary" />
+                                            </div>
+                                            <div
+                                                onClick={() => handleAction("Location Manifest")}
+                                                className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center border border-white/10 cursor-pointer hover:bg-white/20 transition-all"
+                                            >
+                                                <MapPin className="text-secondary" />
+                                            </div>
                                         </div>
                                     </div>
-                                    <button className="w-full bg-secondary text-primary py-5 rounded-2xl font-black text-xs uppercase tracking-widest relative z-10 hover:bg-white transition-all shadow-xl">Get Marketing Kit</button>
+                                    <button
+                                        onClick={() => handleAction("Marketing Kit Download")}
+                                        className="w-full bg-secondary text-primary py-5 rounded-2xl font-black text-xs uppercase tracking-widest relative z-10 hover:bg-white transition-all shadow-xl"
+                                    >
+                                        Get Marketing Kit
+                                    </button>
                                 </div>
                             </div>
                         </div>

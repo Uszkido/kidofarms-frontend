@@ -36,7 +36,8 @@ import {
     Cpu,
     Lock,
     Scale,
-    CreditCard
+    CreditCard,
+    Palette
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
@@ -87,53 +88,47 @@ export default function AdminDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-6 lg:p-10 font-sans">
-            <div className="container mx-auto px-6 max-w-7xl">
-
-                {/* 🚀 SUPREME COMMAND HEADER */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16 gap-8">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center text-primary shadow-2xl">
-                                <Cpu size={24} className="animate-pulse" />
-                            </div>
-                            <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary">Sovereign OS v5.0</h2>
+        <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-10 font-sans selection:bg-secondary selection:text-primary">
+            <div className="max-w-[1600px] mx-auto space-y-20">
+                {/* 🌌 COMMAND HEADER */}
+                <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+                    <div className="space-y-6">
+                        <div className="flex items-center gap-4">
+                            <span className="w-16 h-1.5 bg-secondary rounded-full" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">Sovereign Control Node</h2>
                         </div>
-                        <h1 className="text-6xl md:text-7xl font-black font-serif uppercase tracking-tighter text-white leading-none">
-                            System <span className="text-secondary italic">God-Mode</span>
+                        <h1 className="text-7xl lg:text-[10rem] font-black font-serif italic uppercase leading-[0.85] tracking-tighter text-white">
+                            The <span className="text-secondary block">Command</span> <span className="text-white">Nexus</span>
                         </h1>
-                        <p className="text-white/40 font-bold text-sm tracking-widest uppercase flex items-center gap-3">
-                            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                            Chief Administrator Authorized • All Nodes Responsive
+                        <p className="text-white/30 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
+                            <Activity size={14} className="text-secondary animate-pulse" /> Live Regional Infrastructure Access: JOS-01-NG
                         </p>
                     </div>
 
-                    {/* SHADOW IMPERSONATION WIDGET */}
-                    <div className="bg-white/5 border border-white/10 rounded-[2.5rem] p-6 flex flex-col gap-4 backdrop-blur-3xl shadow-2xl w-full md:w-80">
-                        <div className="flex items-center gap-2 mb-2">
-                            <UserCircle size={18} className="text-secondary" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-white/60">Ghost Protocol</span>
+                    <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
+                        <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
+                            <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-xl">
+                                <Users size={28} />
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20">Citizen Volume</h4>
+                                <p className="text-2xl font-black font-serif italic text-white">{stats?.users || 0}</p>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <input
-                                value={impersonationId}
-                                onChange={(e) => setImpersonationId(e.target.value)}
-                                placeholder="Citizen UUID / Email"
-                                className="bg-white/5 border border-white/5 rounded-xl px-4 py-2 text-xs flex-grow outline-none focus:border-secondary transition-all"
-                            />
-                            <button
-                                onClick={handleImpersonate}
-                                disabled={isImpersonating}
-                                className="bg-secondary text-primary px-4 py-2 rounded-xl text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg"
-                            >
-                                {isImpersonating ? <Loader2 size={14} className="animate-spin" /> : "Infiltrate"}
-                            </button>
+                        <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
+                            <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-secondary shadow-xl">
+                                <Activity size={28} />
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20">Network Growth</h4>
+                                <p className="text-2xl font-black font-serif italic text-secondary">{stats?.lastMonthGrowth || '+0%'}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </header>
 
-                {/* 📊 CORE VITALITY METRICS */}
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+                {/* 🚀 QUICK ACTION PROTOCOLS */}
+                <div className="bg-white/5 rounded-[4rem] p-10 lg:p-12 border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
                     <MetricCard
                         label="Platform Liquidity"
                         value={`₦${(stats?.revenue || 0).toLocaleString()}`}
@@ -175,12 +170,12 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 relative z-10">
-                        <ActionBtn href="/admin/products/new" icon={<Package size={20} />} label="Inject Product" />
-                        <ActionBtn href="/admin/users/new" icon={<Users size={20} />} label="Register Citizen" />
-                        <ActionBtn href="/admin/landing" icon={<ImagePlus size={20} />} label="Design Portal" />
-                        <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Global Restock" />
-                        <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" />
-                        <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" />
+                        <ActionBtn href="/admin/inventory/new" icon={<Package size={20} />} label="Inject Asset" permission="inventory" />
+                        <ActionBtn href="/admin/users/new" icon={<Users size={20} />} label="Register Citizen" permission="users" />
+                        <ActionBtn href="/admin/landing" icon={<ImagePlus size={20} />} label="Design Portal" permission="content" />
+                        <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Global Restock" permission="inventory" />
+                        <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" permission="orders" />
+                        <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />
                     </div>
                 </div>
 
@@ -193,18 +188,18 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                        <SmallMenuLink href="/admin/vendors" label="Vendors" icon={<Users size={20} />} />
-                        <SmallMenuLink href="/admin/farmers" label="Farmers" icon={<Sprout size={20} />} />
-                        <SmallMenuLink href="/admin/otps" label="OTP Gate" icon={<KeyRound size={20} />} />
-                        <SmallMenuLink href="/admin/promotions" label="Network Promos" icon={<Zap size={20} />} />
-                        <SmallMenuLink href="/admin/payments" label="Financial Hub" icon={<DollarSign size={20} />} />
-                        <SmallMenuLink href="/admin/landing" label="Landing CMS" icon={<Settings2 size={20} />} />
-                        <SmallMenuLink href="/admin/reviews" label="Trust Matrix" icon={<Star size={20} />} />
-                        <SmallMenuLink href="/admin/reports" label="Neural Intel" icon={<Activity size={20} />} />
-                        <SmallMenuLink href="/admin/settings" label="Global Setup" icon={<Map size={20} />} />
-                        <SmallMenuLink href="/admin/subscribers" label="Tiered Subs" icon={<Globe size={20} />} />
-                        <SmallMenuLink href="/admin/orders" label="Sat-Tracking" icon={<Truck size={20} />} />
-                        <SmallMenuLink href="/admin/users" label="Citizen Registry" icon={<Users size={20} />} />
+                        <SmallMenuLink href="/admin/vendors" label="Vendors" icon={<Users size={20} />} permission="users" />
+                        <SmallMenuLink href="/admin/farmers" label="Farmers" icon={<Sprout size={20} />} permission="users" />
+                        <SmallMenuLink href="/admin/otps" label="OTP Gate" icon={<KeyRound size={20} />} permission="users" />
+                        <SmallMenuLink href="/admin/promotions" label="Network Promos" icon={<Zap size={20} />} permission="promos" />
+                        <SmallMenuLink href="/admin/payments" label="Financial Hub" icon={<DollarSign size={20} />} permission="finance" />
+                        <SmallMenuLink href="/admin/landing" label="Landing CMS" icon={<Settings2 size={20} />} permission="content" />
+                        <SmallMenuLink href="/admin/reviews" label="Trust Matrix" icon={<Star size={20} />} permission="content" />
+                        <SmallMenuLink href="/admin/reports" label="Neural Intel" icon={<Activity size={20} />} permission="finance" />
+                        <SmallMenuLink href="/admin/settings" label="Aesthetic Hub" icon={<Palette size={20} />} permission="content" />
+                        <SmallMenuLink href="/admin/subscribers" label="Tiered Subs" icon={<Globe size={20} />} permission="users" />
+                        <SmallMenuLink href="/admin/orders" label="Sat-Tracking" icon={<Truck size={20} />} permission="orders" />
+                        <SmallMenuLink href="/admin/users" label="Citizen Registry" icon={<Users size={20} />} permission="users" />
                         <SmallMenuLink href="/admin/notifications" label="Alert Nodes" icon={<Bell size={20} />} />
                         <SmallMenuLink href="/admin/horizon" label="Export Bridge" icon={<Globe size={20} />} />
                     </div>
@@ -308,7 +303,9 @@ export default function AdminDashboard() {
                             <div className="relative z-10 space-y-6">
                                 <h3 className="text-3xl font-black font-serif leading-none italic uppercase tracking-tighter">Finance <br />Controller</h3>
                                 <p className="text-primary/60 text-[10px] font-black uppercase leading-relaxed tracking-widest">Approve high-value B2B credits and manual wire transfers instantly.</p>
-                                <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl">Manage Credits</button>
+                                <Link href="/admin/finance" className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl text-center block">
+                                    Manage Credits
+                                </Link>
                             </div>
                         </div>
 
@@ -323,12 +320,44 @@ export default function AdminDashboard() {
                                 ].map((alert, i) => (
                                     <div key={i} className="flex gap-4 p-4 bg-white/5 rounded-2xl border border-white/5 items-center">
                                         <div className={`w-2 h-2 rounded-full shrink-0 ${alert.type === 'warning' ? 'bg-orange-400' :
-                                                alert.type === 'urgent' ? 'bg-red-400' : 'bg-blue-400'
+                                            alert.type === 'urgent' ? 'bg-red-400' : 'bg-blue-400'
                                             }`} />
                                         <p className="text-[10px] font-bold text-white/40 tracking-tight leading-snug">{alert.msg}</p>
                                     </div>
                                 ))}
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 🌌 NEBULA TICKER MASTER (FLOATING CONTROLLER) */}
+                <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-[800px] animate-in slide-in-from-bottom-10 duration-700">
+                    <div className="bg-[#1a3c34] border-2 border-secondary/20 rounded-[2.5rem] p-4 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)] backdrop-blur-3xl flex items-center justify-between gap-6 group">
+                        <div className="flex items-center gap-4 pl-4 overflow-hidden">
+                            <div className="w-10 h-10 rounded-2xl bg-secondary flex items-center justify-center shrink-0 animate-pulse">
+                                <TrendingUp size={20} className="text-primary" />
+                            </div>
+                            <div className="hidden md:block">
+                                <h4 className="text-[10px] font-black uppercase tracking-tighter text-secondary leading-none mb-1">Live <span className="italic">Price strip</span></h4>
+                                <div className="flex items-center gap-2 whitespace-nowrap">
+                                    <span className="text-[8px] font-bold text-white/40 uppercase">Broadcast: </span>
+                                    <span className="text-[10px] font-black text-white italic">"Kido Market Ticker Responsive 24/7"</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Link
+                                href="/admin/landing?tab=ticker"
+                                className="bg-white/5 border border-white/10 hover:bg-secondary hover:text-primary px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all text-white flex items-center gap-2"
+                            >
+                                <Settings2 size={14} /> Edit Floating Text
+                            </Link>
+                            <button
+                                className="p-3 bg-red-500/10 text-red-400 rounded-2xl border border-red-500/20 hover:bg-red-500 hover:text-white transition-all"
+                                onClick={() => alert("Ticker broadcast halted. (Protocol Zero)")}
+                            >
+                                <ZapOff size={16} />
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -370,7 +399,13 @@ function MetricCard({ label, value, icon, color, loading }: any) {
     );
 }
 
-function SmallMenuLink({ href, label, icon }: any) {
+function SmallMenuLink({ href, label, icon, permission }: any) {
+    const { data: session } = useSession();
+    const userPermissions = (session?.user as any)?.permissions || [];
+    const role = (session?.user as any)?.role;
+
+    if (role === 'sub-admin' && permission && !userPermissions.includes(permission)) return null;
+
     return (
         <Link href={href} className="flex flex-col items-center gap-3 p-6 rounded-3xl border border-white/5 bg-white/5 hover:bg-secondary transition-all group text-white hover:text-primary shadow-xl cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-[#1a3c34] group-hover:bg-white/20 flex items-center justify-center transition-colors">
@@ -381,7 +416,13 @@ function SmallMenuLink({ href, label, icon }: any) {
     );
 }
 
-function ActionBtn({ href, icon, label }: any) {
+function ActionBtn({ href, icon, label, permission }: any) {
+    const { data: session } = useSession();
+    const userPermissions = (session?.user as any)?.permissions || [];
+    const role = (session?.user as any)?.role;
+
+    if (role === 'sub-admin' && permission && !userPermissions.includes(permission)) return null;
+
     return (
         <Link href={href} className="flex flex-col items-center justify-center gap-4 bg-white/5 hover:bg-secondary border border-white/5 hover:border-secondary p-6 rounded-3xl transition-all group text-white hover:text-primary shadow-lg cursor-pointer">
             <div className="w-14 h-14 rounded-2xl bg-[#1a3c34] group-hover:bg-white/20 flex items-center justify-center transition-colors shadow-inner">

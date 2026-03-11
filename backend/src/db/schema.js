@@ -34,6 +34,7 @@ const users = pgTable("users", {
     zip: text("zip"),
     isVerified: boolean("is_verified").default(false),
     verificationMark: text("verification_mark"), // Badge type: Gold, Green, etc.
+    permissions: jsonb("permissions").default([]), // For Sub-Admins: ['inventory', 'orders', etc.]
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -229,6 +230,17 @@ const settings = pgTable("settings", {
     currency: text("currency").default("NGN"),
     taxRate: numeric("tax_rate", { precision: 5, scale: 2 }).default("0"),
     shippingOptions: jsonb("shipping_options").default([]),
+    themeConfig: jsonb("theme_config").default({
+        primaryColor: "#06120e",
+        secondaryColor: "#C5A059",
+        accentColor: "#1a3c34",
+        fontFamily: "Outfit, sans-serif"
+    }),
+    logoConfig: jsonb("logo_config").default({
+        mainLogo: "/logo-kido.png",
+        overlayType: "none", // none, christmas, halloween, ramadan
+        isOverlayActive: false
+    }),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 

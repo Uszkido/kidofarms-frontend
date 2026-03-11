@@ -1,9 +1,15 @@
+"use client";
+
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Calendar, CreditCard, Settings, Truck, Leaf, RefreshCw, ChevronRight, AlertCircle } from "lucide-react";
 
 export default function SubscriberDashboard() {
+    const handleAction = (label: string) => {
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
+    };
+
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -30,7 +36,10 @@ export default function SubscriberDashboard() {
                                         <p className="text-[8px] font-black uppercase tracking-widest text-secondary mb-1">Next Delivery In</p>
                                         <p className="text-5xl font-black font-serif">72h</p>
                                     </div>
-                                    <button className="bg-secondary text-primary px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl">
+                                    <button
+                                        onClick={() => handleAction("Skip Week")}
+                                        className="bg-secondary text-primary px-8 py-3 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl"
+                                    >
                                         Skip This Week
                                     </button>
                                 </div>
@@ -95,7 +104,10 @@ export default function SubscriberDashboard() {
                                             </div>
                                         </div>
                                     ))}
-                                    <button className="w-full bg-primary text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                    <button
+                                        onClick={() => handleAction("Full Consumption Detail")}
+                                        className="w-full bg-primary text-white py-6 rounded-3xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl"
+                                    >
                                         View Full Consumption History
                                     </button>
                                 </div>
@@ -113,7 +125,10 @@ export default function SubscriberDashboard() {
                                     <p className="text-xs text-primary/40 font-medium">Vacation mode allows you to pause your deliveries for up to 4 weeks with zero fees.</p>
                                 </div>
                             </div>
-                            <button className="bg-white border-2 border-primary/5 text-primary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all">
+                            <button
+                                onClick={() => handleAction("Vacation Mode")}
+                                className="bg-white border-2 border-primary/5 text-primary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-primary hover:text-white transition-all"
+                            >
                                 Enable Vacation Mode
                             </button>
                         </div>
