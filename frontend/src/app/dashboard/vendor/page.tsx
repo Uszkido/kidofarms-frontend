@@ -1,4 +1,6 @@
 "use client";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import {
     LayoutDashboard,
@@ -27,6 +29,10 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
 export default function VendorDashboard() {
+    const router = useRouter();
+    useEffect(() => {
+        router.push("/dashboard/supplier");
+    }, [router]);
     const stats = {
         totalSales: "₦1.2M",
         activeOrders: 12,

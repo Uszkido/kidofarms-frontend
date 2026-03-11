@@ -201,21 +201,20 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
-                        <SmallMenuLink href="/admin/vendors" label="Vendors" icon={<Users size={20} />} permission="users" />
-                        <SmallMenuLink href="/admin/farmers" label="Farmers" icon={<Sprout size={20} />} permission="users" />
+                        <SmallMenuLink href="/dashboard/supplier" label="Supplier Portal" icon={<Briefcase size={20} />} />
+                        <SmallMenuLink href="/dashboard/buyer" label="Buyer Portal" icon={<ShoppingCart size={20} />} />
+                        <SmallMenuLink href="/dashboard/logistics" label="Logistics Portal" icon={<Truck size={20} />} />
+                        <SmallMenuLink href="/dashboard/staff" label="Staff Terminal" icon={<ShieldCheck size={20} />} />
+                        <div className="col-span-full h-px bg-white/5 my-4" />
+                        <SmallMenuLink href="/admin/finance/escrow" label="Escrow Node" icon={<Lock size={20} />} permission="finance" />
+                        <SmallMenuLink href="/admin/market/pricing" label="Pricing Oracle" icon={<Zap size={20} />} permission="finance" />
+                        <SmallMenuLink href="/admin/warehouse" label="Warehouse Mesh" icon={<Warehouse size={20} />} permission="inventory" />
                         <SmallMenuLink href="/admin/otps" label="OTP Gate" icon={<KeyRound size={20} />} permission="users" />
                         <SmallMenuLink href="/admin/promotions" label="Network Promos" icon={<Zap size={20} />} permission="promos" />
-                        <SmallMenuLink href="/admin/payments" label="Financial Hub" icon={<DollarSign size={20} />} permission="finance" />
                         <SmallMenuLink href="/admin/landing" label="Landing CMS" icon={<Settings2 size={20} />} permission="content" />
                         <SmallMenuLink href="/admin/reviews" label="Trust Matrix" icon={<Star size={20} />} permission="content" />
                         <SmallMenuLink href="/admin/reports" label="Neural Intel" icon={<Activity size={20} />} permission="finance" />
-                        <SmallMenuLink href="/admin/settings" label="Aesthetic Hub" icon={<Palette size={20} />} permission="content" />
-                        <SmallMenuLink href="/admin/subscribers" label="Tiered Subs" icon={<Globe size={20} />} permission="users" />
-                        <SmallMenuLink href="/admin/orders" label="Sat-Tracking" icon={<Truck size={20} />} permission="orders" />
                         <SmallMenuLink href="/admin/users" label="Citizen Registry" icon={<Users size={20} />} permission="users" />
-                        <SmallMenuLink href="/admin/notifications" label="Alert Nodes" icon={<Bell size={20} />} />
-                        <SmallMenuLink href="/admin/tickets" label="Resolutions" icon={<MessageSquare size={20} />} />
-                        <SmallMenuLink href="/admin/horizon" label="Export Bridge" icon={<Globe size={20} />} />
                     </div>
                 </div>
 

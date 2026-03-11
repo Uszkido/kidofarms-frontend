@@ -55,14 +55,12 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
     };
 
     const redirectToDashboard = (role: string) => {
-        const path = role === "admin" || role === "sub-admin" ? "/admin" :
-            role === "farmer" ? "/dashboard/farmer" :
-                role === "vendor" ? "/dashboard/vendor" :
-                    role === "subscriber" ? "/dashboard/subscriber" :
-                        role === "business" ? "/dashboard/business" :
-                            role === "wholesale_buyer" ? "/dashboard/wholesaler" :
-                                role === "retailer" ? "/dashboard/retailer" :
-                                    "/dashboard/consumer";
+        const path = (role === "admin" || role === "sub-admin") ? "/admin" :
+            (role === "farmer" || role === "vendor" || role === "farm_cooperative" || role === "producer") ? "/dashboard/supplier" :
+                (role === "subscriber" || role === "business" || role === "wholesale_buyer" || role === "retailer" || role === "consumer" || role === "customer") ? "/dashboard/buyer" :
+                    (role === "logistics" || role === "distributor" || role === "warehouse_staff") ? "/dashboard/logistics" :
+                        (role === "staff" || role === "support" || role === "team" || role === "moderator" || role === "platform_moderator") ? "/dashboard/staff" :
+                            "/dashboard/buyer";
         router.push(path);
     };
 
