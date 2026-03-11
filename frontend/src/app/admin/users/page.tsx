@@ -208,6 +208,28 @@ export default function AdminUsersPage() {
                                                     <button onClick={() => handleEdit(user)} className="p-4 bg-white/5 text-white/60 hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl" title="Edit Profile">
                                                         <Edit3 size={20} />
                                                     </button>
+                                                    <button
+                                                        onClick={async () => {
+                                                            try {
+                                                                const res = await fetch(getApiUrl("/api/admin/impersonate"), {
+                                                                    method: "POST",
+                                                                    headers: { "Content-Type": "application/json" },
+                                                                    body: JSON.stringify({ userId: user.id })
+                                                                });
+                                                                const data = await res.json();
+                                                                if (data.token) {
+                                                                    alert(`GHOST PROTOCOL: Synchronizing with ${user.name}'s node...`);
+                                                                    window.location.href = `/login?token=${data.token}`;
+                                                                }
+                                                            } catch (err) {
+                                                                console.error(err);
+                                                            }
+                                                        }}
+                                                        className="p-4 bg-secondary/10 text-secondary hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl"
+                                                        title="Impersonate (Ghost Protocol)"
+                                                    >
+                                                        <Ghost size={20} />
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>

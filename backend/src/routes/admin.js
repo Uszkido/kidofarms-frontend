@@ -310,4 +310,15 @@ router.post('/storage/:id/toggle', async (req, res) => {
     }
 });
 
+// 14. GET /api/admin/users - Retrieve full registry of citizens
+router.get('/users', async (req, res) => {
+    try {
+        const data = await db.select().from(users).orderBy(desc(users.createdAt));
+        res.json(data);
+    } catch (error) {
+        console.error('Fetch Users Error:', error);
+        res.status(500).json({ error: 'Failed to fetch users' });
+    }
+});
+
 module.exports = router;
