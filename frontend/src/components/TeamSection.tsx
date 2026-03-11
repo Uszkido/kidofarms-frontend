@@ -1,17 +1,20 @@
 "use client";
-import Image from "next/image";
+
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Linkedin, Twitter } from "lucide-react";
+import { getApiUrl } from "@/lib/api";
 
 export default function TeamSection() {
     const [team, setTeam] = useState([]);
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/team`)
+        fetch(getApiUrl("/api/team"))
             .then(res => res.json())
             .then(data => setTeam(data))
             .catch(err => console.error(err));
     }, []);
+
 
     if (team.length === 0) return null;
 
@@ -30,11 +33,12 @@ export default function TeamSection() {
                         <div key={member.id} className="group text-center">
                             <div className="relative w-48 h-48 mx-auto mb-8 rounded-[3rem] overflow-hidden border-2 border-white/5 group-hover:border-secondary transition-colors">
                                 <Image
-                                    src={member.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=1a1a1a&color=facc15&size=512`}
+                                    src={member.image ? (member.image.startsWith('http') ? member.image : getApiUrl(member.image).replace('/api/', '/')) : `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}&background=1a1a1a&color=facc15&size=512`}
                                     alt={member.name}
                                     fill
                                     className="object-cover grayscale group-hover:grayscale-0 transition-all duration-700"
                                 />
+
                                 <div className="absolute inset-x-0 bottom-0 py-4 bg-secondary translate-y-full group-hover:translate-y-0 transition-transform flex justify-center gap-4">
                                     <Linkedin size={18} className="text-primary cursor-pointer hover:scale-110" />
                                     <Twitter size={18} className="text-primary cursor-pointer hover:scale-110" />

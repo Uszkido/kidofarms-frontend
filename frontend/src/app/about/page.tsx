@@ -56,7 +56,7 @@ export default function AboutPage() {
                         <div className="grid md:grid-cols-2 gap-20 items-center">
                             <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl group">
                                 <Image
-                                    src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop"
+                                    src={content.image?.startsWith('http') ? content.image : getApiUrl(content.image)}
                                     alt="Farmer in the field"
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-[3000ms]"
