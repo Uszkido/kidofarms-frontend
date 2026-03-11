@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { products } from "@/db/schema";
 import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
+import ProductReviews from "@/components/ProductReviews";
 
 export default async function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -109,6 +110,14 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                             </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Customer Reviews */}
+                <div className="container mx-auto px-6 max-w-7xl mt-20 pt-16 border-t border-primary/5">
+                    <h2 className="text-4xl font-black font-serif uppercase tracking-tighter mb-12">
+                        Customer <span className="text-secondary italic">Reviews</span>
+                    </h2>
+                    <ProductReviews productId={id} productName={product.name} />
                 </div>
             </main>
         </div>

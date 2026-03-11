@@ -138,8 +138,11 @@ const reviews = pgTable("reviews", {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id).notNull(),
     productId: uuid("product_id").references(() => products.id).notNull(),
-    rating: integer("rating").notNull(),
+    rating: integer("rating").notNull(), // 1-5
     comment: text("comment"),
+    status: text("status").default("pending"), // pending, approved, rejected
+    adminNote: text("admin_note"),
+    helpfulCount: integer("helpful_count").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -483,6 +486,57 @@ const energyMarketplace = pgTable("energy_marketplace", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Price Oracle Table
+const priceOracle = pgTable("price_oracle", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cropName: text("crop_name").notNull(),
+    region: text("region").notNull(),
+    currentPrice: numeric("current_price", { precision: 12, scale: 2 }).notNull(),
+    predictedPriceLow: numeric("predicted_price_low", { precision: 12, scale: 2 }),
+    predictedPriceHigh: numeric("predicted_price_high", { precision: 12, scale: 2 }),
+    confidence: integer("confidence").default(85), // 0-100
+    trend: text("trend").default("stable"), // rising, falling, stable
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Farm Sponsorships Table (Agri-Crowdfunding)
+const farmSponsorships = pgTable("farm_sponsorships", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    harvestId: uuid("harvest_id").references(() => harvests.id),
+    sponsorId: uuid("sponsor_id").references(() => users.id),
+    amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
+    status: text("status").default("pending"), // pending, active, completed
+    rewardType: text("reward_type").default("discount"), // discount, equity, fixed_return
+    rewardValue: numeric("reward_value", { precision: 12, scale: 2 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Logistics Shipments (Last-Mile Node)
+const shipments = pgTable("shipments", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id").references(() => orders.id),
+    distributorId: uuid("distributor_id").references(() => users.id),
+    currentLat: numeric("current_lat", { precision: 10, scale: 7 }),
+    currentLng: numeric("current_lng", { precision: 10, scale: 7 }),
+    status: text("status").default("pending"), // pending, picked_up, in_transit, delivered
+    origin: text("origin"),
+    destination: text("destination"),
+    temperatureAlert: boolean("temperature_alert").default(false),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Global Bridge / Export Table
+const globalBridge = pgTable("global_bridge", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id),
+    produceType: text("produce_type").notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
+    destination: text("destination").notNull(), // USA, EU, Asia
+    status: text("status").default("certification_pending"), // pending, certified, shipped, arrived
+    certifications: jsonb("certifications").default([]), // ISO, Organic, etc.
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 const usersRelations = relations(users, ({ many, one }) => ({
     blogPosts: many(blogPosts),
     vendor: one(vendors, {
@@ -573,6 +627,10 @@ module.exports = {
     storageNodes,
     heritagePassports,
     energyMarketplace,
+    priceOracle,
+    farmSponsorships,
+    shipments,
+    globalBridge,
     tickets,
     ticketMessages,
     blogPostsRelations,

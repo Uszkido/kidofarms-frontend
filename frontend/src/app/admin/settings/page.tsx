@@ -21,11 +21,25 @@ import {
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 
+const DEFAULT_SETTINGS = {
+    themeConfig: {
+        primaryColor: "#06120e",
+        secondaryColor: "#C5A059",
+        accentColor: "#1a3c34",
+        fontFamily: "Outfit, sans-serif"
+    },
+    logoConfig: {
+        mainLogo: "/logo-kido.png",
+        overlayType: "none",
+        isOverlayActive: false
+    }
+};
+
 export default function AdminSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [settings, setSettings] = useState<any>(null);
-    const [previewTheme, setPreviewTheme] = useState<any>(null);
+    const [previewTheme, setPreviewTheme] = useState<any>(DEFAULT_SETTINGS.themeConfig);
 
     useEffect(() => {
         fetchSettings();
@@ -36,11 +50,21 @@ export default function AdminSettingsPage() {
             const res = await fetch(getApiUrl("/api/admin/settings"));
             if (res.ok) {
                 const data = await res.json();
-                setSettings(data);
-                setPreviewTheme(data.themeConfig);
+                // Merge with defaults to prevent crashes
+                const mergedSettings = {
+                    ...DEFAULT_SETTINGS,
+                    ...data,
+                    themeConfig: { ...DEFAULT_SETTINGS.themeConfig, ...data.themeConfig },
+                    logoConfig: { ...DEFAULT_SETTINGS.logoConfig, ...data.logoConfig }
+                };
+                setSettings(mergedSettings);
+                setPreviewTheme(mergedSettings.themeConfig);
+            } else {
+                setSettings(DEFAULT_SETTINGS);
             }
         } catch (err) {
             console.error(err);
+            setSettings(DEFAULT_SETTINGS);
         } finally {
             setLoading(false);
         }
@@ -66,14 +90,17 @@ export default function AdminSettingsPage() {
     };
 
     const updateThemeField = (field: string, value: string) => {
+        if (!settings) return;
+        const newTheme = { ...settings.themeConfig, [field]: value };
         setSettings({
             ...settings,
-            themeConfig: { ...settings.themeConfig, [field]: value }
+            themeConfig: newTheme
         });
-        setPreviewTheme({ ...settings.themeConfig, [field]: value });
+        setPreviewTheme(newTheme);
     };
 
     const toggleOverlay = (type: string) => {
+        if (!settings) return;
         setSettings({
             ...settings,
             logoConfig: {
@@ -84,7 +111,7 @@ export default function AdminSettingsPage() {
         });
     };
 
-    if (loading) return (
+    if (loading || !settings) return (
         <div className="min-h-screen bg-[#040d0a] flex items-center justify-center">
             <Loader2 size={64} className="animate-spin text-secondary opacity-10" />
         </div>
@@ -134,23 +161,23 @@ export default function AdminSettingsPage() {
                                 <div className="grid md:grid-cols-2 gap-10">
                                     <ColorInput
                                         label="Primary Hub (Background)"
-                                        value={settings.themeConfig.primaryColor}
+                                        value={settings.themeConfig?.primaryColor || DEFAULT_SETTINGS.themeConfig.primaryColor}
                                         onChange={(v: string) => updateThemeField('primaryColor', v)}
                                     />
                                     <ColorInput
                                         label="Secondary Payout (Buttons/Accents)"
-                                        value={settings.themeConfig.secondaryColor}
+                                        value={settings.themeConfig?.secondaryColor || DEFAULT_SETTINGS.themeConfig.secondaryColor}
                                         onChange={(v: string) => updateThemeField('secondaryColor', v)}
                                     />
                                     <ColorInput
                                         label="Surface Node (Cards/Modals)"
-                                        value={settings.themeConfig.accentColor}
+                                        value={settings.themeConfig?.accentColor || DEFAULT_SETTINGS.themeConfig.accentColor}
                                         onChange={(v: string) => updateThemeField('accentColor', v)}
                                     />
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Neural Font Stack</label>
                                         <select
-                                            value={settings.themeConfig.fontFamily}
+                                            value={settings.themeConfig?.fontFamily || DEFAULT_SETTINGS.themeConfig.fontFamily}
                                             onChange={(e) => updateThemeField('fontFamily', e.target.value)}
                                             className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-5 outline-none focus:border-secondary transition-all text-sm font-black uppercase tracking-widest appearance-none"
                                         >
@@ -179,28 +206,28 @@ export default function AdminSettingsPage() {
                                     <OverlayCard
                                         label="No Ghosting"
                                         type="none"
-                                        active={settings.logoConfig.overlayType === 'none'}
+                                        active={settings.logoConfig?.overlayType === 'none'}
                                         onClick={() => toggleOverlay('none')}
                                         icon={<ImageIcon size={24} />}
                                     />
                                     <OverlayCard
                                         label="Christmas Cap"
                                         type="christmas"
-                                        active={settings.logoConfig.overlayType === 'christmas'}
+                                        active={settings.logoConfig?.overlayType === 'christmas'}
                                         onClick={() => toggleOverlay('christmas')}
                                         icon={<Gift size={24} className="text-red-500" />}
                                     />
                                     <OverlayCard
                                         label="Halloween Soul"
                                         type="halloween"
-                                        active={settings.logoConfig.overlayType === 'halloween'}
+                                        active={settings.logoConfig?.overlayType === 'halloween'}
                                         onClick={() => toggleOverlay('halloween')}
                                         icon={<Moon size={24} className="text-orange-500" />}
                                     />
                                     <OverlayCard
                                         label="Ramadan Moon"
                                         type="ramadan"
-                                        active={settings.logoConfig.overlayType === 'ramadan'}
+                                        active={settings.logoConfig?.overlayType === 'ramadan'}
                                         onClick={() => toggleOverlay('ramadan')}
                                         icon={<Sun size={24} className="text-emerald-400" />}
                                     />
@@ -210,12 +237,12 @@ export default function AdminSettingsPage() {
                                     <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Main Site Logo URL</label>
                                     <div className="flex gap-4">
                                         <input
-                                            value={settings.logoConfig.mainLogo}
+                                            value={settings.logoConfig?.mainLogo || DEFAULT_SETTINGS.logoConfig.mainLogo}
                                             onChange={(e) => setSettings({ ...settings, logoConfig: { ...settings.logoConfig, mainLogo: e.target.value } })}
                                             className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-xs font-mono"
                                         />
                                         <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden">
-                                            <img src={settings.logoConfig.mainLogo} className="w-full h-full object-contain p-2" />
+                                            <img src={settings.logoConfig?.mainLogo || DEFAULT_SETTINGS.logoConfig.mainLogo} className="w-full h-full object-contain p-2" />
                                         </div>
                                     </div>
                                 </div>
@@ -236,8 +263,8 @@ export default function AdminSettingsPage() {
                                     {/* Mock Logo Preview */}
                                     <div className="p-8 bg-gray-900 rounded-[2.5rem] border border-white/10 flex items-center justify-center relative overflow-hidden">
                                         <div className="relative group">
-                                            <img src={settings.logoConfig.mainLogo} className="h-10 w-auto" />
-                                            {settings.logoConfig.overlayType === 'christmas' && (
+                                            <img src={settings.logoConfig?.mainLogo} className="h-10 w-auto" />
+                                            {settings.logoConfig?.overlayType === 'christmas' && (
                                                 <div className="absolute -top-3 -left-3 -rotate-12 animate-bounce">
                                                     <Gift className="text-red-500" size={24} />
                                                 </div>
@@ -248,11 +275,11 @@ export default function AdminSettingsPage() {
 
                                     {/* Component Previews */}
                                     <div className="space-y-4">
-                                        <div className="h-10 rounded-xl flex items-center justify-center p-4 text-[9px] font-black uppercase tracking-widest border border-white/5" style={{ backgroundColor: previewTheme.secondaryColor, color: previewTheme.primaryColor }}>
+                                        <div className="h-10 rounded-xl flex items-center justify-center p-4 text-[9px] font-black uppercase tracking-widest border border-white/5" style={{ backgroundColor: previewTheme?.secondaryColor, color: previewTheme?.primaryColor }}>
                                             Primary Action Button
                                         </div>
-                                        <div className="p-6 rounded-2xl border border-white/10 space-y-3" style={{ backgroundColor: previewTheme.accentColor }}>
-                                            <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: previewTheme.secondaryColor + '20' }} />
+                                        <div className="p-6 rounded-2xl border border-white/10 space-y-3" style={{ backgroundColor: previewTheme?.accentColor }}>
+                                            <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: previewTheme?.secondaryColor + '20' }} />
                                             <div className="h-2 w-full bg-white/10 rounded-full" />
                                             <div className="h-2 w-1/2 bg-white/5 rounded-full" />
                                         </div>
@@ -288,12 +315,12 @@ function ColorInput({ label, value, onChange }: ColorInputProps) {
             <div className="flex gap-4">
                 <input
                     type="color"
-                    value={value}
+                    value={value || "#000000"}
                     onChange={(e) => onChange(e.target.value)}
                     className="w-14 h-14 bg-transparent border-none cursor-pointer rounded-2xl overflow-hidden"
                 />
                 <input
-                    value={value}
+                    value={value || ""}
                     onChange={(e) => onChange(e.target.value)}
                     className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-sm font-mono"
                 />

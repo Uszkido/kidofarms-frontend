@@ -38,7 +38,10 @@ import {
     Scale,
     CreditCard,
     Palette,
-    MessageSquare
+    MessageSquare,
+    Fingerprint,
+    Database,
+    Phone
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
@@ -216,6 +219,22 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* 🧬 SOVEREIGN NETWORK NODES (STATUS MAP) */}
+                <div className="mb-20 space-y-10">
+                    <div className="flex items-center gap-4 border-l-4 border-secondary pl-4">
+                        <h2 className="text-sm font-black uppercase tracking-[0.3em] text-secondary">Sovereign Network Nodes</h2>
+                        <span className="text-[10px] font-black text-white/20 uppercase">Global Sync Status</span>
+                    </div>
+                    <div className="grid grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6">
+                        <NodeStatus label="Distributors" status="Optimal" health={98} icon={<Truck size={14} />} />
+                        <NodeStatus label="Retailers" status="Active" health={92} icon={<Box size={14} />} />
+                        <NodeStatus label="Wholesale" status="Critical" health={45} icon={<Database size={14} />} />
+                        <NodeStatus label="Hotels/B2B" status="Optimal" health={99} icon={<Building2 size={14} />} />
+                        <NodeStatus label="Logistics" status="Syncing" health={88} icon={<Map size={14} />} />
+                        <NodeStatus label="Team Nodes" status="Root" health={100} icon={<ShieldCheck size={14} />} />
+                    </div>
+                </div>
+
                 {/* 🧬 HORIZON 5.0 VITALITY (RESTORED FEATURES) */}
                 <div className="mb-20 space-y-10">
                     <div className="bg-[#1a3c34]/20 rounded-[4rem] p-12 border border-secondary/10 backdrop-blur-xl shadow-2xl space-y-10 relative overflow-hidden">
@@ -233,7 +252,7 @@ export default function AdminDashboard() {
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                             <HorizonWidget label="Insurance Risk" value="Low (12%)" detail="Yield-Shield Active" icon={<Shield size={18} />} color="text-green-400" />
                             <HorizonWidget label="Cold-Vault Status" value="-2°C / 65%" detail="All Nodes Optimal" icon={<Warehouse size={18} />} color="text-blue-400" />
-                            <HorizonWidget label="DNA Passports" value="4,280" detail="85% Batch Verified" icon={<Fingerprint size={18} />} color="text-secondary" />
+                            <HorizonWidget label="DNA Passports" value="4,280" detail="85% Batch Verified" icon={<Activity size={18} />} color="text-secondary" />
                             <HorizonWidget label="Energy Credits" value="2.8 Tons" detail="480 Waste Credits" icon={<Zap size={18} />} color="text-orange-400" />
                         </div>
                     </div>
@@ -379,7 +398,30 @@ export default function AdminDashboard() {
 
 // --- RESTORED & NEW UI COMPONENTS ---
 
-const Fingerprint = ({ size, className }: any) => <Shield size={size} className={className} />;
+function NodeStatus({ label, status, health, icon }: any) {
+    return (
+        <div className="bg-white/5 border border-white/5 p-6 rounded-[2rem] space-y-4 hover:border-secondary transition-all group cursor-help">
+            <div className="flex justify-between items-center">
+                <div className="p-3 rounded-xl bg-[#1a3c34] text-secondary group-hover:scale-110 transition-transform">
+                    {icon}
+                </div>
+                <div className={`w-1.5 h-1.5 rounded-full ${health > 90 ? 'bg-green-500' : health > 50 ? 'bg-amber-500' : 'bg-red-500'} animate-pulse`} />
+            </div>
+            <div>
+                <p className="text-[9px] font-black uppercase tracking-widest text-white/20 mb-1">{label}</p>
+                <div className="flex items-baseline gap-2">
+                    <span className="text-sm font-black text-white uppercase">{status}</span>
+                    <span className="text-[8px] font-bold text-white/10">{health}%</span>
+                </div>
+            </div>
+            <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className={`h-full ${health > 90 ? 'bg-green-500' : health > 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${health}%` }} />
+            </div>
+        </div>
+    );
+}
+
+// --- RESTORED & NEW UI COMPONENTS ---
 
 function HorizonWidget({ label, value, detail, icon, color }: any) {
     return (

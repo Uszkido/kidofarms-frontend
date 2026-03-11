@@ -10,9 +10,13 @@ const {
     storageNodes,
     heritagePassports,
     energyMarketplace,
-    products
+    products,
+    priceOracle,
+    farmSponsorships,
+    shipments,
+    globalBridge
 } = require('../db/schema');
-const { eq, desc } = require('drizzle-orm');
+const { eq, desc, and } = require('drizzle-orm');
 
 // --- THE YIELD-SHIELD (INSURANCE) ---
 router.get('/shield/status/:farmerId', async (req, res) => {
@@ -121,16 +125,89 @@ router.post('/energy/list', async (req, res) => {
     }
 });
 
-// --- GLOBAL BRIDGE ---
-let exportRoutes = []; // Mock for now until we move to real bridge table
-router.get('/exports', async (req, res) => {
-    res.json(exportRoutes);
+// --- KIDO PRICE ORACLE ---
+router.get('/oracle/price/:cropName', async (req, res) => {
+    try {
+        const prices = await db.select()
+            .from(priceOracle)
+            .where(eq(priceOracle.cropName, req.params.cropName))
+            .orderBy(desc(priceOracle.updatedAt));
+        res.json(prices[0] || {
+            cropName: req.params.cropName,
+            currentPrice: 0,
+            predictedPriceLow: 0,
+            predictedPriceHigh: 0,
+            trend: 'stable'
+        });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
-router.post('/exports', async (req, res) => {
-    const newExport = { id: Math.random().toString(36).substr(2, 9), ...req.body, createdAt: new Date() };
-    exportRoutes.push(newExport);
-    res.status(201).json(newExport);
+// --- FARM-SPONSOR (CROWDFUNDING) ---
+router.get('/sponsorships/available', async (req, res) => {
+    try {
+        const availableSponsorships = await db.select()
+            .from(harvests)
+            .where(eq(harvests.status, 'growing'));
+        res.json(availableSponsorships);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/sponsorships/fund', async (req, res) => {
+    try {
+        const [funding] = await db.insert(farmSponsorships).values(req.body).returning();
+        res.status(201).json(funding);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- LAST-MILE NODE (LOGISTICS) ---
+router.get('/logistics/shipments/:distributorId', async (req, res) => {
+    try {
+        const activeShipments = await db.select()
+            .from(shipments)
+            .where(eq(shipments.distributorId, req.params.distributorId));
+        res.json(activeShipments);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.patch('/logistics/shipments/:id', async (req, res) => {
+    try {
+        const [updated] = await db.update(shipments)
+            .set(req.body)
+            .where(eq(shipments.id, req.params.id))
+            .returning();
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// --- GLOBAL BRIDGE (EXPORTS) ---
+router.get('/exports/:farmerId', async (req, res) => {
+    try {
+        const exports = await db.select()
+            .from(globalBridge)
+            .where(eq(globalBridge.farmerId, req.params.farmerId));
+        res.json(exports);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/exports/apply', async (req, res) => {
+    try {
+        const [newExport] = await db.insert(globalBridge).values(req.body).returning();
+        res.status(201).json(newExport);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 module.exports = router;
