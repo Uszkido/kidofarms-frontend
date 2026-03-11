@@ -12,7 +12,7 @@ const {
 const { relations } = require("drizzle-orm");
 
 // Enums
-const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor", "team_member", "business"]);
+const roleEnum = pgEnum("role", ["customer", "admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor", "team_member", "business", "hotel", "logistics_distributor"]);
 const unitEnum = pgEnum("unit", ["kg", "basket", "piece", "head", "bunch", "pack", "bag", "crate"]);
 const paymentMethodEnum = pgEnum("payment_method", ["card", "transfer", "cash"]);
 const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
@@ -241,6 +241,7 @@ const settings = pgTable("settings", {
         overlayType: "none", // none, christmas, halloween, ramadan
         isOverlayActive: false
     }),
+    isMaintenanceMode: boolean("is_maintenance_mode").default(false),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
@@ -436,6 +437,27 @@ const storageNodes = pgTable("storage_nodes", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Tickets Table (Support System)
+const tickets = pgTable("tickets", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    subject: text("subject").notNull(),
+    status: text("status").default("open"), // open, pending, resolved, closed
+    priority: text("priority").default("medium"), // low, medium, high
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Ticket Messages Table
+const ticketMessages = pgTable("ticket_messages", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ticketId: uuid("ticket_id").references(() => tickets.id).notNull(),
+    senderId: uuid("sender_id").references(() => users.id).notNull(),
+    message: text("message").notNull(),
+    attachmentUrl: text("attachment_url"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Heritage DNA / Passports Table
 const heritagePassports = pgTable("heritage_passports", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -551,6 +573,8 @@ module.exports = {
     storageNodes,
     heritagePassports,
     energyMarketplace,
+    tickets,
+    ticketMessages,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,

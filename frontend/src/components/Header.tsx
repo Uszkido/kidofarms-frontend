@@ -18,6 +18,7 @@ export const Header = () => {
         { label: "Subscriptions", href: "/subscriptions" },
         { label: "Our Vision", href: "/about" },
         { label: "Farm Blog", href: "/blog" },
+        ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
     ];
 
     return (

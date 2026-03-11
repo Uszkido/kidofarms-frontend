@@ -37,7 +37,8 @@ import {
     Lock,
     Scale,
     CreditCard,
-    Palette
+    Palette,
+    MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
@@ -106,6 +107,15 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
+                        <Link href="/admin/settings" className="bg-white/5 p-6 rounded-[2.5rem] border border-secondary/30 hover:bg-secondary hover:text-primary backdrop-blur-3xl flex items-center gap-5 shadow-2xl transition-all group">
+                            <div className="w-14 h-14 rounded-2xl bg-secondary/10 group-hover:bg-white/20 flex items-center justify-center text-secondary shadow-xl transition-colors">
+                                <Palette size={28} />
+                            </div>
+                            <div>
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20 group-hover:text-primary/60">Design Hub</h4>
+                                <p className="text-[10px] font-black font-serif italic text-white group-hover:text-primary uppercase tracking-widest">Logo & Theme</p>
+                            </div>
+                        </Link>
                         <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
                             <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-xl">
                                 <Users size={28} />
@@ -201,6 +211,7 @@ export default function AdminDashboard() {
                         <SmallMenuLink href="/admin/orders" label="Sat-Tracking" icon={<Truck size={20} />} permission="orders" />
                         <SmallMenuLink href="/admin/users" label="Citizen Registry" icon={<Users size={20} />} permission="users" />
                         <SmallMenuLink href="/admin/notifications" label="Alert Nodes" icon={<Bell size={20} />} />
+                        <SmallMenuLink href="/admin/tickets" label="Resolutions" icon={<MessageSquare size={20} />} />
                         <SmallMenuLink href="/admin/horizon" label="Export Bridge" icon={<Globe size={20} />} />
                     </div>
                 </div>

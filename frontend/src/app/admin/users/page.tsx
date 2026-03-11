@@ -243,10 +243,10 @@ export default function AdminUsersPage() {
                             <div className="p-10 lg:p-12 overflow-y-auto space-y-12">
                                 {/* Base User Data */}
                                 <div className="grid md:grid-cols-2 gap-8">
-                                    <EditField label="Biological Name" icon={<UserCircle size={14} />} value={editData.name} onChange={(val) => setEditData({ ...editData, name: val })} />
-                                    <EditField label="Secure Link (Email)" icon={<Mail size={14} />} value={editData.email} onChange={(val) => setEditData({ ...editData, email: val })} />
-                                    <EditField label="Protocol Class (Role)" icon={<Shield size={14} />} isSelect options={['customer', 'admin', 'sub-admin', 'farmer', 'vendor', 'business', 'subscriber']} value={editData.role} onChange={(val) => setEditData({ ...editData, role: val })} />
-                                    <EditField label="Override Password" icon={<KeyRound size={14} />} type="password" placeholder="•••••••• (Leave blank to keep current)" value={editData.password} onChange={(val) => setEditData({ ...editData, password: val })} />
+                                    <EditField label="Biological Name" icon={<UserCircle size={14} />} value={editData.name} onChange={(val: string) => setEditData({ ...editData, name: val })} />
+                                    <EditField label="Secure Link (Email)" icon={<Mail size={14} />} value={editData.email} onChange={(val: string) => setEditData({ ...editData, email: val })} />
+                                    <EditField label="Protocol Class (Role)" icon={<Shield size={14} />} isSelect options={['customer', 'admin', 'sub-admin', 'farmer', 'vendor', 'business', 'subscriber', 'affiliate', 'wholesale_buyer', 'retailer', 'distributor', 'team_member', 'hotel', 'logistics_distributor']} value={editData.role} onChange={(val: string) => setEditData({ ...editData, role: val })} />
+                                    <EditField label="Override Password" icon={<KeyRound size={14} />} type="password" placeholder="•••••••• (Leave blank to keep current)" value={editData.password} onChange={(val: string) => setEditData({ ...editData, password: val })} />
                                 </div>
 
                                 {/* Extra Profiles (Farmer/Vendor) */}
@@ -268,16 +268,16 @@ export default function AdminUsersPage() {
                                             <div className="grid md:grid-cols-2 gap-8 bg-white/[0.02] p-8 rounded-[3rem] border border-white/5">
                                                 {editData.role === 'farmer' ? (
                                                     <>
-                                                        <EditField label="Farm Designation" icon={<Sprout size={14} />} value={editData.farmerData?.farmName} onChange={(val) => setEditData({ ...editData, farmerData: { ...editData.farmerData, farmName: val } })} />
-                                                        <EditField label="Geo-Location (State)" icon={<Activity size={14} />} value={editData.farmerData?.farmLocationState} onChange={(val) => setEditData({ ...editData, farmerData: { ...editData.farmerData, farmLocationState: val } })} />
-                                                        <EditField label="Harvest Focus" value={editData.farmerData?.primaryProduce} onChange={(val) => setEditData({ ...editData, farmerData: { ...editData.farmerData, primaryProduce: val } })} />
-                                                        <EditField label="Mastery Tier" type="number" value={editData.farmerData?.masteryLevel} onChange={(val) => setEditData({ ...editData, farmerData: { ...editData.farmerData, masteryLevel: Number(val) } })} />
+                                                        <EditField label="Farm Designation" icon={<Sprout size={14} />} value={editData.farmerData?.farmName} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, farmName: val } })} />
+                                                        <EditField label="Geo-Location (State)" icon={<Activity size={14} />} value={editData.farmerData?.farmLocationState} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, farmLocationState: val } })} />
+                                                        <EditField label="Harvest Focus" value={editData.farmerData?.primaryProduce} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, primaryProduce: val } })} />
+                                                        <EditField label="Mastery Tier" type="number" value={editData.farmerData?.masteryLevel} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, masteryLevel: Number(val) } })} />
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <EditField label="Guild Business Name" icon={<Building2 size={14} />} value={editData.vendorData?.businessName} onChange={(val) => setEditData({ ...editData, vendorData: { ...editData.vendorData, businessName: val } })} />
-                                                        <EditField label="Commission Ratio (%)" type="number" value={editData.vendorData?.commissionRate} onChange={(val) => setEditData({ ...editData, vendorData: { ...editData.vendorData, commissionRate: val } })} />
-                                                        <EditField label="Guild Focus (Description)" value={editData.vendorData?.description} onChange={(val) => setEditData({ ...editData, vendorData: { ...editData.vendorData, description: val } })} />
+                                                        <EditField label="Guild Business Name" icon={<Building2 size={14} />} value={editData.vendorData?.businessName} onChange={(val: string) => setEditData({ ...editData, vendorData: { ...editData.vendorData, businessName: val } })} />
+                                                        <EditField label="Commission Ratio (%)" type="number" value={editData.vendorData?.commissionRate} onChange={(val: string) => setEditData({ ...editData, vendorData: { ...editData.vendorData, commissionRate: val } })} />
+                                                        <EditField label="Guild Focus (Description)" value={editData.vendorData?.description} onChange={(val: string) => setEditData({ ...editData, vendorData: { ...editData.vendorData, description: val } })} />
                                                         <div className="space-y-2">
                                                             <label className="text-[9px] font-black uppercase tracking-widest text-white/30 ml-4">Verification State</label>
                                                             <div className="flex gap-4">
