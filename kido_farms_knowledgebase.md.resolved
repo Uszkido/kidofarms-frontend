@@ -1,0 +1,81 @@
+# KIDO FARMS: SOVEREIGN FOOD SYSTEM & BIO-DIGITAL NEXUS
+**Comprehensive Platform Knowledge Base & Architecture Document**
+
+## OVERVIEW
+Kido Farms is Nigeria’s most trusted digital farm marketplace. It connects premium community farmers directly to consumers, restaurants, and distributors, bypassing traditional middlemen. Established in 2020 in Jos, Plateau State, the platform guarantees 100% organic produce delivered directly from the farm to the table.
+
+## TECH STACK
+- **Frontend**: Next.js (App Router), React, Tailwind CSS, Framer Motion, NextAuth.js
+- **Backend**: Express.js, Node.js (Deployed Serverless)
+- **Database**: Drizzle ORM, PostgreSQL (Neon Serverless)
+- **Deployment**: Vercel (Frontend & Serverless Backend APIs)
+
+---
+
+## THE KIDO ECOSYSTEM LAYERS (V1.0 - V5.0)
+
+### Layer 1.0 & 2.0: The Foundation (Marketplace & Supply Chain)
+- **B2C Marketplace**: Direct-to-consumer sales for fresh organic produce, meats, and grains.
+- **Weekly Basket Plans (Subscriptions)**: Curated weekly deliveries for households.
+- **Verification System**: Every farmer goes through a vetting process. Produce listings include harvest tracking dates and source fields.
+
+### Layer 3.0: Financial & Community Infrastructure
+- **Farm Sponsor (Agri-Crowdfunding)**: Allows users and investors to fund entirely new planting cycles or aquaculture ponds in exchange for a share of the yield or guaranteed discounts.
+- **Last-Mile Nodes (P2P Logistics)**: Decentralized dispatch system. Instead of centralized warehouse delivery, localized transport partners act as nodes.
+- **Price Oracle**: Real-time market data API providing regional harvest volume indices and automated pricing intelligence.
+
+### Layer 4.0: B2B Scaling & Risk Mitigation
+- **Chef-Direct**: Dedicated B2B portal for hotels, restaurants, and bulk wholesale buyers. Features automated recurring bulk procurement and bulk discount modeling.
+- **Yield-Shield (Micro-Insurance)**: Parametric insurance protecting harvests. If a smart sensor detects drought or floods, farmers receive automated micro-payouts to cover the specific loss.
+- **Cold-Vault**: Smart tracking of cold-storage facilities. Monitors the exact temperature of perishable goods like strawberries and live catfish during transport.
+- **Heritage Passport**: Digital footprint tracing seeds, soil reports, and harvest genealogy to prove 100% organic authenticity.
+
+### Layer 5.0: The Bio-Digital Future
+- **Sovereign Energy Marketplace**: Waste-to-Wealth system. Organic farm waste is converted into bio-fuel/fertilizer, earning farmers tradeable carbon credits and energy tokens.
+- **City-Nodes (Urban Farming Integration)**: Incorporation of vertical farms and rooftop hydroponic systems in major cities (e.g., Lagos, Abuja) for hyper-local delivery.
+- **Global Bridge**: Export certification system automating the tracking and compliance required to bridge Nigerian produce into the international market.
+- **Mastery Academy**: Gamified education for farmers. Completing sustainable farming modules grants algorithmic marketplace boosts and "Master level" badges.
+
+---
+
+## ROLE-BASED ACCESS CONTROL (RBAC)
+
+The Kido Farms network features an extensive user-role ecosystem, each with custom dashboards:
+
+1. **Administration**:
+   - `admin`: Full system control, analytics, and platform governance.
+   - `team_member`: Staff members acting as operations operators.
+   - `support`: Support agents handling customer and vendor tickets.
+
+2. **Supply / Production**:
+   - `farmer`: Verified growers. Can manage smart harvests, apply for Yield-Shield, and track weather.
+   - `vendor`: Merchants who sell produce or farming equipment.
+
+3. **Demand / Consumption**:
+   - `customer`: Standard B2C buyers.
+   - `subscriber`: Users on automated recurring "Basket Plans".
+   - `business` / `hotel`: Premium B2B buyers using the Chef-Direct layer.
+   - `retailer`: Mid-sized buyers stocking up supermarkets.
+   - `wholesale_buyer`: Large scale procurement agents.
+
+4. **Distribution**:
+   - `distributor`: Warehouse operators or bulk logistics handlers.
+   - `logistics_distributor`: Transport dispatch nodes handling last-mile.
+
+---
+
+## DATABASE ENTITIES (Core Schema Map)
+
+- **Users**: Central identity table storing accounts, roles, verification marks, and permission levels.
+- **Products**: The marketplace inventory. Tracks stock, pricing, tracking ID, harvesting dates, and source fields.
+- **Farmers**: Deep profiles for growers. Includes coordinates, certification details, Yield-Shield policy status, and export readiness.
+- **Harvests**: Tracks specific crop cycles from planting to projected yield dates. Links to crops and owners.
+- **Orders & Shipments**: Transaction records, fulfillment statuses, and tracking codes.
+- **Reviews**: Product rating system supporting star-ratings, moderation (approve/reject), and admin notes.
+- **Affiliates & Commissions**: Referral tracking network allowing users to earn percentages for bringing in new buyers or farmers.
+- **Energy Marketplace**: Logs waste-to-wealth transactions, converting organic mass into credits.
+- **Heritage Passports**: Traceability logs ensuring crop origin authenticity.
+- **Tickets**: Custom support issue tracking with real-time bidirectional messaging (`ticket_messages`).
+
+## ARCHITECTURAL PHILOSOPHY
+Kido Farms is built not just as a store, but as a heavily interconnected *neural network* routing physical food. It uses serverless scaling (Vercel + Neon DB) to handle massive concurrent traffic, while the layered architecture allows B2B operations to coexist securely alongside consumer marketplaces without data overlap. The platform fundamentally disrupts traditional agrarian logistics through its emphasis on transparent data and decentralized nodes.
