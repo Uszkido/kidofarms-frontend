@@ -311,8 +311,11 @@ const wallets = pgTable("wallets", {
     userId: uuid("user_id").references(() => users.id).notNull().unique(),
     balance: numeric("balance", { precision: 12, scale: 2 }).default("0.00"),
     currency: text("currency").default("NGN"),
+    trustScore: integer("trust_score").default(50), // 0-100, baseline 50
+    creditLimit: numeric("credit_limit", { precision: 12, scale: 2 }).default("0.00"),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
+
 
 // Wallet Transactions Table
 const walletTransactions = pgTable("wallet_transactions", {

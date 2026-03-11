@@ -34,6 +34,7 @@ const adminRoutes = require('./routes/admin');
 const ticketsRoutes = require('./routes/tickets');
 const reviewsRoutes = require('./routes/reviews');
 const uploadRoutes = require('./routes/upload');
+const aiRoutes = require('./routes/ai');
 const path = require('path');
 
 
@@ -86,6 +87,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/ai', aiRoutes);
 
 
 app.listen(PORT, () => {

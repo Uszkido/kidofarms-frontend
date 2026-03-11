@@ -12,7 +12,10 @@ import {
     Activity,
     Zap,
     Scale,
-    Send
+    Send,
+    RotateCcw,
+    Brain,
+    AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -27,6 +30,8 @@ export default function FinanceNode() {
         amount: "",
         reason: ""
     });
+    const [aiInsight, setAiInsight] = useState<any>(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
 
     useEffect(() => {
         fetchStats();
@@ -43,7 +48,44 @@ export default function FinanceNode() {
         }
     };
 
+    const fetchAiInsights = async (userId: string) => {
+        if (!userId) {
+            setAiInsight(null);
+            return;
+        }
+        setIsAnalyzing(true);
+        try {
+            const res = await fetch(getApiUrl(`/api/ai/insights/${userId}`));
+            if (res.ok) {
+                setAiInsight(await res.json());
+            } else {
+                setAiInsight(null);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsAnalyzing(false);
+        }
+    };
+
+    const runGlobalOracleScan = async () => {
+        if (!confirm("Run Global Trust Ledger Scan? This will analyze all network nodes and adjust credit ceilings.")) return;
+        setIsSubmitting(true);
+        try {
+            const res = await fetch(getApiUrl("/api/ai/scan-trust"), { method: "POST" });
+            if (res.ok) {
+                alert("Global Trust Oracle Sync Complete.");
+                fetchStats();
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
     const handleFinanceAction = async (e: React.FormEvent) => {
+
         e.preventDefault();
         setIsSubmitting(true);
         const endpoint = mode === "credit" ? "/api/admin/finance/credit" : "/api/admin/finance/debit";
@@ -85,6 +127,21 @@ export default function FinanceNode() {
                             Liquidity <span className="text-secondary italic">& Oversight</span>
                         </h1>
                     </div>
+                    <div className="flex gap-4">
+                        <button
+                            onClick={runGlobalOracleScan}
+                            disabled={isSubmitting}
+                            className="bg-white/5 border border-white/10 text-white/60 hover:text-secondary hover:border-secondary px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-[10px] transition-all flex items-center gap-3"
+                        >
+                            <Zap size={16} className={isSubmitting ? "animate-pulse" : ""} /> Consult Oracle
+                        </button>
+                        <button
+                            onClick={() => setMode(mode === "credit" ? "debit" : "credit")}
+                            className={`px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs transition-all shadow-xl flex items-center justify-center gap-3 ${mode === "credit" ? "bg-red-500/10 text-red-500 border border-red-500/20" : "bg-secondary text-primary border border-secondary"}`}
+                        >
+                            <RotateCcw size={20} /> Switch to {mode === "credit" ? "Extraction" : "Injection"}
+                        </button>
+                    </div>
                 </div>
 
                 {/* 📊 BUDGET VITALITY */}
@@ -123,7 +180,54 @@ export default function FinanceNode() {
 
                         <form onSubmit={handleFinanceAction} className="relative z-10 space-y-8">
                             <div className="grid md:grid-cols-2 gap-8">
-                                <FormInput label="Recipient ID / Email" value={formData.userId} onChange={(val: string) => setFormData({ ...formData, userId: val })} placeholder="aminu@kido.com" />
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-6 italic">Recipient Node (USER ID)</label>
+                                    <div className="relative">
+                                        <input
+                                            value={formData.userId}
+                                            onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
+                                            onBlur={() => fetchAiInsights(formData.userId)}
+                                            className="w-full bg-white/5 border border-white/10 rounded-3xl px-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
+                                            placeholder="Enter target node identification"
+                                        />
+                                        {isAnalyzing && (
+                                            <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                                                <Loader2 size={16} className="animate-spin text-secondary" />
+                                                <span className="text-[8px] font-black text-secondary uppercase tracking-[0.2em]">Analyzing...</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* AI Trust Card */}
+                                {aiInsight && (
+                                    <div className="bg-secondary/5 border border-secondary/20 rounded-[2.5rem] p-8 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-10 h-10 rounded-xl bg-secondary/20 flex items-center justify-center text-secondary">
+                                                    <Brain size={20} />
+                                                </div>
+                                                <div>
+                                                    <h4 className="text-[9px] font-black uppercase tracking-widest text-secondary">Trust Oracle Verdict</h4>
+                                                    <p className="text-white font-black text-xs uppercase tracking-tight">Status: {aiInsight.status.replace('_', ' ')}</p>
+                                                </div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-3xl font-black font-serif italic text-secondary leading-none">{aiInsight.trustScore}%</div>
+                                                <div className="text-[8px] font-black uppercase tracking-widest text-white/30">Trust Index</div>
+                                            </div>
+                                        </div>
+
+                                        <p className="text-white/60 text-[10px] font-medium leading-relaxed italic border-l-2 border-secondary/40 pl-4">
+                                            "{aiInsight.narrative}"
+                                        </p>
+
+                                        <div className="pt-4 border-t border-secondary/10 flex justify-between items-center">
+                                            <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Suggested Credit Ceiling</span>
+                                            <span className="text-secondary font-black font-serif italic">₦{Number(aiInsight.creditLimit).toLocaleString()}</span>
+                                        </div>
+                                    </div>
+                                )}
                                 <FormInput label="Amount (NGN)" type="number" value={formData.amount} onChange={(val: string) => setFormData({ ...formData, amount: val })} placeholder="500,000" />
                             </div>
                             <FormInput label="Auth Reason / Description" value={formData.reason} onChange={(val: string) => setFormData({ ...formData, reason: val })} placeholder={mode === "credit" ? "Bulk Wheat Pre-financing" : "Service fee deduction / Penalty"} />
