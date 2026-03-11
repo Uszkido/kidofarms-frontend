@@ -40,8 +40,8 @@ router.post('/signup', async (req, res) => {
         if (!name || !email || !password) return res.status(400).json({ error: 'Missing fields' });
 
         // Role Validation
-        const allowedRoles = ['customer', 'farmer', 'subscriber', 'vendor'];
-        const validatedRole = allowedRoles.includes(role) ? role : 'customer';
+        const allowedRoles = ['customer', 'consumer', 'farmer', 'subscriber', 'vendor'];
+        const validatedRole = allowedRoles.includes(role) ? role : 'consumer';
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const [user] = await db.insert(users).values({
@@ -49,10 +49,26 @@ router.post('/signup', async (req, res) => {
             email,
             password: hashedPassword,
             phone,
-            role: validatedRole
+            role: validatedRole,
+            isVerified: false
         }).returning();
 
-        res.status(201).json(user);
+        // Generate OTP
+        const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 mins expiry
+
+        await db.insert(otps).values({
+            userId: user.id,
+            code: otpCode,
+            expiresAt
+        });
+
+        res.status(201).json({
+            message: 'User created. OTP generated for verification.',
+            user: { id: user.id, email: user.email, role: user.role },
+            requiresOtp: true,
+            otpCode: otpCode // In real app, send via email/SMS. For simulator, return it.
+        });
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
         console.error('Signup Error:', error);

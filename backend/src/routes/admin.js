@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes } = require('../db/schema');
 const { desc, eq, sql, or } = require('drizzle-orm');
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -278,6 +279,34 @@ router.get('/full-audit', async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ error: 'Audit failed' });
+    }
+});
+
+// 12. GET /api/admin/storage - Fetch all storage nodes/warehouses
+router.get('/storage', async (req, res) => {
+    try {
+        const nodes = await db.select().from(storageNodes).orderBy(desc(storageNodes.createdAt));
+        res.json(nodes);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch storage nodes' });
+    }
+});
+
+// 13. POST /api/admin/storage/:id/toggle - Toggle storage node status
+router.post('/storage/:id/toggle', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const node = await db.query.storageNodes.findFirst({ where: eq(storageNodes.id, id) });
+        if (!node) return res.status(404).json({ error: 'Node not found' });
+
+        const [updated] = await db.update(storageNodes)
+            .set({ isActive: !node.isActive })
+            .where(eq(storageNodes.id, id))
+            .returning();
+
+        res.json(updated);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to toggle node status' });
     }
 });
 
