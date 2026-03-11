@@ -102,10 +102,10 @@ export default function FinanceNode() {
 
                         <form onSubmit={handleCreditInjection} className="relative z-10 space-y-8">
                             <div className="grid md:grid-cols-2 gap-8">
-                                <FormInput label="Recipient ID / Email" value={formData.userId} onChange={(val) => setFormData({ ...formData, userId: val })} placeholder="aminu@kido.com" />
-                                <FormInput label="Amount (NGN)" type="number" value={formData.amount} onChange={(val) => setFormData({ ...formData, amount: val })} placeholder="500,000" />
+                                <FormInput label="Recipient ID / Email" value={formData.userId} onChange={(val: string) => setFormData({ ...formData, userId: val })} placeholder="aminu@kido.com" />
+                                <FormInput label="Amount (NGN)" type="number" value={formData.amount} onChange={(val: string) => setFormData({ ...formData, amount: val })} placeholder="500,000" />
                             </div>
-                            <FormInput label="Auth Reason / Description" value={formData.reason} onChange={(val) => setFormData({ ...formData, reason: val })} placeholder="Bulk Wheat Pre-financing" />
+                            <FormInput label="Auth Reason / Description" value={formData.reason} onChange={(val: string) => setFormData({ ...formData, reason: val })} placeholder="Bulk Wheat Pre-financing" />
 
                             <button
                                 type="submit"
@@ -157,7 +157,15 @@ function FinanceMetric({ label, value, icon, color }: any) {
     );
 }
 
-function FormInput({ label, value, onChange, type = "text", placeholder }: any) {
+interface FormInputProps {
+    label: string;
+    value: string;
+    onChange: (val: string) => void;
+    type?: string;
+    placeholder?: string;
+}
+
+function FormInput({ label, value, onChange, type = "text", placeholder }: FormInputProps) {
     return (
         <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">{label}</label>

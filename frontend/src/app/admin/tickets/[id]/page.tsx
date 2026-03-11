@@ -157,7 +157,7 @@ export default function TicketDetailPage() {
 
                     {/* Chat Messages */}
                     <div ref={scrollRef} className="flex-1 overflow-y-auto p-12 space-y-10 scroll-smooth custom-scrollbar">
-                        {ticket.messages?.map((msg: any) => {
+                        {ticket.messages?.map((msg: { id: string; senderId: string; senderRole: string; message: string; createdAt: string; senderName?: string }) => {
                             const isMe = msg.senderId === (session?.user as any)?.id;
                             return (
                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group animate-in slide-in-from-bottom-4 duration-500`}>
