@@ -36,9 +36,14 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
 
 export default function FarmerDashboard() {
+    const router = useRouter();
+    useEffect(() => {
+        router.push("/dashboard/supplier");
+    }, [router]);
     const [sensors, setSensors] = useState<any[]>([]);
     const [loadingSensors, setLoadingSensors] = useState(true);
     const [isAgronomistOpen, setIsAgronomistOpen] = useState(false);
