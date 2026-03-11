@@ -56,7 +56,7 @@ export default function FarmerRegistrationPage() {
             });
 
             if (res.ok) {
-                setIsSuccess(true);
+                router.push(`/verify-account?email=${encodeURIComponent(formData.email)}`);
             } else {
                 const data = await res.json();
                 setError(data.error || "Registration failed");

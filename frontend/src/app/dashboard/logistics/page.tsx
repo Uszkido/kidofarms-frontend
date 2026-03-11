@@ -39,28 +39,57 @@ export default function LogisticsDashboard() {
     const userRole = (session?.user as any)?.role;
 
     // States
-    const [deliveries, setDeliveries] = useState([
-        { id: "NODE-LGS-42", origin: "Jos Node", dest: "Lagos Hub", status: "In Transit", eta: "4h 20m", items: "20kg Grains", temp: "21°C", progress: 70, driver: "Musa A." },
-        { id: "NODE-LGS-88", origin: "Kano Node", dest: "Abuja Store", status: "Sorting", eta: "1d 2h", items: "50kg Onions", temp: "24°C", progress: 20, driver: "Ayo B." },
-        { id: "NODE-LGS-12", origin: "Owerri Node", dest: "P/H Node", status: "Delivered", eta: "Done", items: "15kg Tubers", temp: "22°C", progress: 100, driver: "Chinedu K." }
-    ]);
-    const [hubs, setHubs] = useState([
-        { name: "Lagos Atlantic Hub", capacity: "84%", activeShipments: 124, status: "High Demand" },
-        { name: "Kano North Hub", capacity: "42%", activeShipments: 52, status: "Stable" },
-        { name: "Onitsha East Hub", capacity: "65%", activeShipments: 89, status: "Processing" }
-    ]);
+    const [deliveries, setDeliveries] = useState<any[]>([]);
+    const [hubs, setHubs] = useState<any[]>([]);
+    const [logs, setLogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("fleet");
     const [stats, setStats] = useState({
         fuelCredits: "₦142,500",
         emissionOffset: "1.2 Tons",
-        activeRoutes: 38,
+        activeRoutes: 0,
         fulfillmentRate: "98.4%"
     });
 
     useEffect(() => {
-        setTimeout(() => setLoading(false), 2000);
-    }, []);
+        if ((session?.user as any)?.id) {
+            fetchAllLogisticsData();
+        }
+    }, [(session?.user as any)?.id]);
+
+    const fetchAllLogisticsData = async () => {
+        setLoading(true);
+        try {
+            // 1. Fetch Shipments (Fleet)
+            const shipRes = await fetch(getApiUrl(`/api/horizon/logistics/shipments/${(session?.user as any)?.id}`));
+            const shipData = await shipRes.json();
+            if (Array.isArray(shipData)) setDeliveries(shipData);
+
+            // 2. Fetch Storage Nodes (Hubs & Vaults)
+            const storageRes = await fetch(getApiUrl('/api/admin/storage'));
+            const storageData = await storageRes.json();
+            if (Array.isArray(storageData)) {
+                setHubs(storageData.map(node => ({
+                    name: node.name,
+                    capacity: `${Math.round((node.currentLoad || 0) / (node.capacity || 100) * 100)}%`,
+                    activeShipments: node.activeShipmentCount || 0,
+                    status: node.status || 'Stable',
+                    location: node.location
+                })));
+                setStats(prev => ({ ...prev, activeRoutes: storageData.length }));
+            }
+
+            // 3. Fetch Registry Logs
+            const logsRes = await fetch(getApiUrl('/api/admin/logs'));
+            const logsData = await logsRes.json();
+            if (Array.isArray(logsData)) setLogs(logsData);
+
+        } catch (err) {
+            console.error('Logistics Sync Error:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleAction = (label: string) => {
         alert(`${label} protocol initiated. Node synchronization in progress.`);
@@ -200,19 +229,18 @@ export default function LogisticsDashboard() {
                                                 <button onClick={() => handleAction("Export Mesh Data")} className="px-8 py-4 bg-white/5 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">Export KML</button>
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
-                                            {[
-                                                { label: "Active Nodes", val: "1,204", status: "ONLINE" },
-                                                { label: "Freight Vol", val: "42.8T", status: "HIGH" },
-                                                { label: "Transit Risk", val: "3.2%", status: "LOW" },
-                                                { label: "Grid Health", val: "99.9%", status: "STABLE" }
-                                            ].map((s, i) => (
-                                                <div key={i} className="bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
-                                                    <p className="text-[8px] font-black uppercase text-white/30 tracking-widest mb-1">{s.label}</p>
-                                                    <p className="text-2xl font-black font-serif text-white italic">{s.val}</p>
-                                                    <p className={`text-[7px] font-black tracking-widest mt-2 ${s.status === 'LOW' || s.status === 'ONLINE' || s.status === 'STABLE' ? 'text-green-500' : 'text-secondary'}`}>● {s.status}</p>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 w-full md:w-auto">
+                                            {hubs.length > 0 ? hubs.slice(0, 8).map((node, i) => (
+                                                <div key={i} className="bg-white/5 p-4 rounded-2xl border border-white/5 backdrop-blur-md group hover:border-secondary transition-all">
+                                                    <p className="text-[8px] font-black uppercase text-white/30 mb-1">{node.name}</p>
+                                                    <p className="text-[9px] font-black tracking-widest text-green-500 uppercase italic leading-none">● {node.status}</p>
+                                                    <p className="text-[7px] font-black text-white/20 mt-1 uppercase tracking-tighter">Loc: {node.location}</p>
                                                 </div>
-                                            ))}
+                                            )) : (
+                                                <div className="col-span-full py-10 text-center text-white/10 uppercase font-black text-[10px] tracking-widest italic">
+                                                    No active nodes detected in local mesh.
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 </div>
@@ -231,7 +259,7 @@ export default function LogisticsDashboard() {
                                         </div>
 
                                         <div className="grid gap-6">
-                                            {deliveries.map((d, i) => (
+                                            {deliveries.length > 0 ? deliveries.map((d, i) => (
                                                 <div key={d.id} className="bg-white p-6 md:p-12 rounded-[2.5rem] md:rounded-[4rem] border border-primary/5 shadow-2xl group hover:border-secondary transition-all cursor-pointer relative overflow-hidden">
                                                     <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-3xl -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform" />
 
@@ -242,43 +270,40 @@ export default function LogisticsDashboard() {
                                                             </div>
                                                             <div className="flex-grow">
                                                                 <div className="flex items-center gap-2 mb-2">
-                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">{d.id}</p>
+                                                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">#{d.id.slice(0, 8)}</p>
                                                                     <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
                                                                 </div>
-                                                                <h3 className="text-2xl md:text-3xl font-black font-serif text-primary uppercase italic tracking-tighter">{d.items}</h3>
+                                                                <h3 className="text-2xl md:text-3xl font-black font-serif text-primary uppercase italic tracking-tighter">{d.productName || "Generic Cargo"}</h3>
                                                                 <div className="flex items-center gap-4 mt-2">
-                                                                    <p className="text-[10px] font-black text-secondary uppercase tracking-widest italic">{d.temp} Cold-Chain</p>
-                                                                    <span className="text-[10px] font-black text-primary/20 uppercase tracking-widest">Pilot: {d.driver}</span>
+                                                                    <p className="text-[10px] font-black text-secondary uppercase tracking-widest italic">{d.temperature || "---"} Cold-Chain</p>
+                                                                    <span className="text-[10px] font-black text-primary/20 uppercase tracking-widest">Nodes: {d.origin} → {d.destination}</span>
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <div className="flex-grow flex items-center justify-center gap-4 md:gap-10 group-hover:gap-14 transition-all">
-                                                            <div className="text-center space-y-1">
-                                                                <p className="text-[10px] font-black uppercase text-primary/10 tracking-[0.2em]">Origin</p>
-                                                                <p className="text-[11px] md:text-sm font-black uppercase tracking-widest text-primary">{d.origin}</p>
-                                                            </div>
-                                                            <div className="relative flex items-center justify-center">
-                                                                <div className="w-12 md:w-16 h-[2px] bg-primary/5" />
-                                                                <ArrowRight size={20} className="text-secondary absolute animate-pulse" />
-                                                            </div>
-                                                            <div className="text-center space-y-1">
-                                                                <p className="text-[10px] font-black uppercase text-primary/10 tracking-[0.2em]">Destination</p>
-                                                                <p className="text-[11px] md:text-sm font-black uppercase tracking-widest text-primary">{d.dest}</p>
+                                                        <div className="flex-grow flex items-center justify-center gap-4 md:gap-10 group-hover:gap-14 transition-all text-center">
+                                                            <div>
+                                                                <p className="text-[8px] font-black uppercase text-primary/10 tracking-[0.2em]">Logistics Status</p>
+                                                                <p className="text-[12px] font-black uppercase text-primary group-hover:text-secondary mb-1">In Transit</p>
                                                             </div>
                                                         </div>
 
                                                         <div className="text-right w-full md:w-auto flex flex-row md:flex-col justify-between items-center md:items-end border-t md:border-t-0 pt-8 md:pt-0 mt-2 md:mt-0 border-primary/5">
-                                                            <span className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg ${d.status === 'Delivered' ? 'bg-green-500 text-white' : 'bg-primary text-white animate-pulse'}`}>{d.status}</span>
-                                                            <p className="text-xl font-black font-serif italic text-primary mt-4">ETA: {d.eta}</p>
+                                                            <span className="px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg bg-primary text-white animate-pulse">{d.status}</span>
+                                                            <p className="text-xl font-black font-serif italic text-primary mt-4">SEQ: {d.id.slice(0, 4)}</p>
                                                         </div>
                                                     </div>
 
                                                     <div className="mt-10 h-2 w-full bg-cream rounded-full overflow-hidden p-0.5 border border-primary/5">
-                                                        <div className={`h-full rounded-full transition-all duration-[3000ms] ${d.status === 'In Transit' ? 'bg-secondary' : d.status === 'Delivered' ? 'bg-green-500' : 'bg-primary'}`} style={{ width: `${d.progress}%` }} />
+                                                        <div className="h-full rounded-full transition-all duration-[3000ms] bg-secondary" style={{ width: `65%` }} />
                                                     </div>
                                                 </div>
-                                            ))}
+                                            )) : (
+                                                <div className="py-24 text-center bg-white rounded-[4rem] border-4 border-dashed border-primary/5 group hover:border-secondary transition-all">
+                                                    <Truck size={48} className="mx-auto text-primary/5 group-hover:text-secondary transition-all mb-4" />
+                                                    <p className="text-[11px] font-black uppercase tracking-[0.3em] text-primary/20 italic">No assigned shipments found in registry logs.</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}
@@ -407,20 +432,18 @@ export default function LogisticsDashboard() {
                                             <button onClick={() => handleAction("Export CSV")} className="text-[10px] font-black uppercase tracking-widest text-primary/30 hover:text-secondary underline underline-offset-8 transition-colors">Download History</button>
                                         </div>
                                         <div className="bg-[#06120e] p-10 rounded-[4rem] shadow-2xl border border-white/5 space-y-6 font-mono">
-                                            {[
-                                                { time: "22:42:01", event: "NODE_SYNC_SUCCESS", node: "LGS-H1", msg: "Encryption vector verified." },
-                                                { time: "22:40:48", event: "TEMP_FLUCTUATION_ALERT", node: "VLT-A2", msg: "Delta 0.4°C detected in Sector 4." },
-                                                { time: "22:38:12", event: "MANIFEST_BROADCAST", node: "SYS-M1", msg: "Batch #4192 authorized for transit." },
-                                                { time: "22:35:55", event: "SECURITY_SWEEP_COMPLETE", node: "NET-S0", msg: "Registry integrity: 100%." },
-                                                { time: "22:30:14", event: "FUEL_CREDIT_INJECTION", node: "FIN-C1", msg: "₦142,500 allocated to Fleet X." }
-                                            ].map((log, i) => (
-                                                <div key={i} className="flex gap-6 text-[10px] hover:bg-white/5 p-4 rounded-xl transition-all group">
-                                                    <span className="text-secondary/40 group-hover:text-secondary">{log.time}</span>
-                                                    <span className="text-white font-black group-hover:text-secondary">[{log.event}]</span>
-                                                    <span className="text-white/20">@{log.node}</span>
-                                                    <span className="text-white/40 italic flex-grow text-right">{log.msg}</span>
+                                            {logs.length > 0 ? logs.map((log, i) => (
+                                                <div key={i} className="flex flex-col md:flex-row gap-2 md:gap-6 text-[10px] hover:bg-white/5 p-4 rounded-xl transition-all group">
+                                                    <span className="text-secondary/40 group-hover:text-secondary">{new Date(log.createdAt).toLocaleTimeString()}</span>
+                                                    <span className="text-white font-black group-hover:text-secondary">[{log.action}]</span>
+                                                    <span className="text-white/20">@{log.userName || log.userEmail?.split('@')[0]}</span>
+                                                    <span className="text-white/40 italic flex-grow text-right">{log.entity}: {JSON.stringify(log.details).slice(0, 50)}...</span>
                                                 </div>
-                                            ))}
+                                            )) : (
+                                                <div className="py-20 text-center text-white/5 uppercase font-black text-[12px] tracking-[0.6em] italic">
+                                                    Registry Log Buffer Empty.
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
                                 )}

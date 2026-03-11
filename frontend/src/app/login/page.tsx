@@ -106,10 +106,8 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
             const data = await res.json();
             if (!res.ok) throw new Error(data.error || "Signup failed");
 
-            await signIn("credentials", { redirect: false, email: form.email, password: form.password });
-            const session = await getSession();
-            const userRole = (session?.user as any)?.role || role;
-            redirectToDashboard(userRole);
+            // Redirect to OTP verification
+            router.push(`/verify-account?email=${encodeURIComponent(form.email)}`);
         } catch (err: any) {
             if (err.message?.includes("fetch") || err.name === "TypeError") {
                 setError("Cannot reach server. Please check your connection and try again.");

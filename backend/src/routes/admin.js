@@ -19,13 +19,37 @@ router.get('/stats', async (req, res) => {
 
         const recentOrders = await db.select().from(orders).orderBy(desc(orders.createdAt)).limit(5);
 
-        // Mocking some network-specific health data
+        // Role-based counts for Sovereign Network Nodes
+        const roleStats = await db.select({
+            role: users.role,
+            count: sql`count(*)`,
+            verified: sql`count(case when is_verified = true then 1 end)`
+        }).from(users).groupBy(users.role);
+
+        const getRoleCount = (roles) => {
+            const data = roleStats.filter(rs => roles.includes(rs.role));
+            return {
+                total: data.reduce((acc, curr) => acc + Number(curr.count), 0),
+                verified: data.reduce((acc, curr) => acc + Number(curr.verified || 0), 0)
+            };
+        };
+
+        const networkNodes = {
+            distributors: getRoleCount(['distributor']),
+            retailers: getRoleCount(['retailer']),
+            wholesale: getRoleCount(['wholesale_buyer']),
+            b2b: getRoleCount(['business', 'hotel']),
+            logistics: getRoleCount(['logistics_distributor', 'logistics']),
+            team: getRoleCount(['admin', 'sub-admin', 'team_member', 'staff'])
+        };
+
         res.json({
             users: userCount.count,
             orders: orderCount.count,
             revenue: totalRevenue.sum || 0,
             pending: pendingOrders.count,
             recentOrders,
+            networkNodes,
             activeNodes: 1204, // Mock
             trustIndex: '98.2%', // Mock
             lastMonthGrowth: '+14%' // Mock
@@ -33,6 +57,29 @@ router.get('/stats', async (req, res) => {
     } catch (error) {
         console.error('Admin Stats Error:', error);
         res.status(500).json({ error: 'Failed to fetch admin statistics' });
+    }
+});
+
+// 1.5. GET /api/admin/logs - Fetch all system activity logs
+router.get('/logs', async (req, res) => {
+    try {
+        const logs = await db.select({
+            id: activityLogs.id,
+            action: activityLogs.action,
+            entity: activityLogs.entity,
+            details: activityLogs.details,
+            createdAt: activityLogs.createdAt,
+            userName: users.name,
+            userEmail: users.email
+        })
+            .from(activityLogs)
+            .leftJoin(users, eq(activityLogs.userId, users.id))
+            .orderBy(desc(activityLogs.createdAt))
+            .limit(50);
+        res.json(logs);
+    } catch (error) {
+        console.error('Fetch Logs Error:', error);
+        res.status(500).json({ error: 'Failed to fetch registry logs' });
     }
 });
 
@@ -402,6 +449,80 @@ router.post('/storage', async (req, res) => {
     } catch (error) {
         console.error('Create Warehouse Error:', error);
         res.status(500).json({ error: 'Failed to initialize node' });
+    }
+});
+
+// 19. GET /api/admin/tasks - Fetch all tasks
+router.get('/tasks', async (req, res) => {
+    try {
+        const allTasks = await db.select({
+            id: tasks.id,
+            title: tasks.title,
+            description: tasks.description,
+            status: tasks.status,
+            priority: tasks.priority,
+            dueDate: tasks.dueDate,
+            createdAt: tasks.createdAt,
+            assignedToId: tasks.assignedToId,
+            assignedById: tasks.assignedById,
+            assignedToName: users.name,
+            assignedToEmail: users.email
+        })
+            .from(tasks)
+            .leftJoin(users, eq(tasks.assignedToId, users.id))
+            .orderBy(desc(tasks.createdAt));
+
+        res.json(allTasks);
+    } catch (error) {
+        console.error('Fetch All Tasks Error:', error);
+        res.status(500).json({ error: 'Failed to fetch task ledger' });
+    }
+});
+
+// 20. POST /api/admin/tasks - Create/Assign new task
+router.post('/tasks', async (req, res) => {
+    const { assignedToId, assignedById, title, description, priority, dueDate } = req.body;
+    try {
+        const [newTask] = await db.insert(tasks).values({
+            assignedToId,
+            assignedById,
+            title,
+            description,
+            priority: priority || 'medium',
+            dueDate: dueDate ? new Date(dueDate) : null,
+            status: 'pending'
+        }).returning();
+        res.status(201).json(newTask);
+    } catch (error) {
+        console.error('Create Task Error:', error);
+        res.status(500).json({ error: 'Failed to deploy task node' });
+    }
+});
+
+// 21. GET /api/admin/tasks/user/:userId - Fetch tasks for a specific user
+router.get('/tasks/user/:userId', async (req, res) => {
+    const { userId } = req.params;
+    try {
+        const userTasks = await db.select().from(tasks).where(eq(tasks.assignedToId, userId)).orderBy(desc(tasks.createdAt));
+        res.json(userTasks);
+    } catch (error) {
+        console.error('Fetch User Tasks Error:', error);
+        res.status(500).json({ error: 'Failed to fetch user tasks' });
+    }
+});
+
+// 22. PATCH /api/admin/tasks/:id/status - Update task status (Staff side)
+router.patch('/tasks/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        await db.update(tasks)
+            .set({ status, updatedAt: new Date() })
+            .where(eq(tasks.id, id));
+        res.json({ message: 'Directive status updated' });
+    } catch (error) {
+        console.error('Update Task Status Error:', error);
+        res.status(500).json({ error: 'Failed to update task node' });
     }
 });
 
