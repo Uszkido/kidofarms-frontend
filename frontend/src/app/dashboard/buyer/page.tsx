@@ -35,7 +35,8 @@ import {
     Star,
     CheckCircle2,
     ArrowDownLeft,
-    ArrowUpRight
+    ArrowUpRight,
+    Download
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
