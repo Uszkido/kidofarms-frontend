@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
@@ -8,7 +8,7 @@ import Image from "next/image";
 import { Leaf, Eye, EyeOff, Loader2, ShieldAlert } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
-export default function LoginPage({ initialRole = "customer" }: { initialRole?: string }) {
+function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const impersonationToken = searchParams.get("token");
@@ -263,5 +263,17 @@ export default function LoginPage({ initialRole = "customer" }: { initialRole?: 
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function LoginPage({ initialRole }: { initialRole?: string }) {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-primary flex items-center justify-center">
+                <Loader2 className="animate-spin text-secondary" size={64} />
+            </div>
+        }>
+            <LoginForm initialRole={initialRole} />
+        </Suspense>
     );
 }
