@@ -76,13 +76,20 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                 email: form.email,
                 password: form.password,
             });
-            if (res?.error) throw new Error(res.error);
+            if (res?.error) {
+                // NextAuth returns "CredentialsSignin" for auth fails
+                if (res.error === "CredentialsSignin") {
+                    throw new Error("Invalid email or password.");
+                }
+                throw new Error(res.error);
+            }
 
             const session = await getSession();
             const role = (session?.user as any)?.role;
+            if (!role) throw new Error("Session could not be established. Please try again.");
             redirectToDashboard(role);
         } catch (err: any) {
-            setError(err.message || "Entrance denied.");
+            setError(err.message || "Login failed. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -99,14 +106,18 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                 body: JSON.stringify({ ...form, role }),
             });
             const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
+            if (!res.ok) throw new Error(data.error || "Signup failed");
 
             await signIn("credentials", { redirect: false, email: form.email, password: form.password });
             const session = await getSession();
             const userRole = (session?.user as any)?.role || role;
             redirectToDashboard(userRole);
         } catch (err: any) {
-            setError(err.message);
+            if (err.message?.includes("fetch") || err.name === "TypeError") {
+                setError("Cannot reach server. Please check your connection and try again.");
+            } else {
+                setError(err.message || "Signup failed. Please try again.");
+            }
         } finally {
             setLoading(false);
         }
@@ -191,7 +202,7 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                             </button>
                         </div>
                         <h2 className="text-4xl font-black font-serif text-primary uppercase tracking-tighter italic">
-                            {mode === 'login' ? 'Welcome Back' : 'Join The Nexus'}
+                            {mode === 'login' ? 'Welcome Back' : 'Join Kido Farms'}
                         </h2>
                     </div>
 
