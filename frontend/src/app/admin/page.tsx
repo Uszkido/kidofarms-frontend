@@ -266,8 +266,14 @@ export default function AdminDashboard() {
                                 <InfrastructureCard
                                     href="/admin/users"
                                     title="Citizen Directory"
-                                    sub="Farmer, Vendor, B2B, Team Management"
+                                    sub="Farmer, Vendor, B2B, Consumer Matrix"
                                     icon={<Users size={24} />}
+                                />
+                                <InfrastructureCard
+                                    href="/admin/staff"
+                                    title="Staff Network"
+                                    sub="Core Team, Node Managers & Task Assignments"
+                                    icon={<Shield size={24} />}
                                 />
                                 <InfrastructureCard
                                     href="/admin/warehouse"

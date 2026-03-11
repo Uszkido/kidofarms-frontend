@@ -33,8 +33,9 @@ import {
     Wallet,
     ShoppingBag,
     Star,
-    PlusCircle,
-    Download
+    CheckCircle2,
+    ArrowDownLeft,
+    ArrowUpRight
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";

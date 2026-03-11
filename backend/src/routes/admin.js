@@ -321,4 +321,88 @@ router.get('/users', async (req, res) => {
     }
 });
 
+// 15. GET /api/admin/storage/:id/inventory - Fetch warehouse inventory
+router.get('/storage/:id/inventory', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const data = await db.select({
+            id: warehouseInventory.id,
+            productId: warehouseInventory.productId,
+            quantity: warehouseInventory.quantity,
+            productName: products.name,
+            productImage: products.image
+        })
+            .from(warehouseInventory)
+            .leftJoin(products, eq(warehouseInventory.productId, products.id))
+            .where(eq(warehouseInventory.warehouseId, id));
+
+        res.json(data);
+    } catch (error) {
+        console.error('Fetch Warehouse Inventory Error:', error);
+        res.status(500).json({ error: 'Failed to fetch inventory' });
+    }
+});
+
+// 16. PATCH /api/admin/storage/:id/inventory - Update product stock in warehouse
+router.post('/storage/:id/inventory', async (req, res) => {
+    const { id } = req.params;
+    const { productId, quantity } = req.body;
+    try {
+        // Simple upsert logic
+        const existing = await db.query.warehouseInventory.findFirst({
+            where: sql`${warehouseInventory.warehouseId} = ${id} AND ${warehouseInventory.productId} = ${productId}`
+        });
+
+        if (existing) {
+            await db.update(warehouseInventory)
+                .set({ quantity, updatedAt: new Date() })
+                .where(eq(warehouseInventory.id, existing.id));
+        } else {
+            await db.insert(warehouseInventory).values({
+                warehouseId: id,
+                productId,
+                quantity
+            });
+        }
+        res.json({ message: 'Inventory synchronization successful' });
+    } catch (error) {
+        console.error('Update Warehouse Inventory Error:', error);
+        res.status(500).json({ error: 'Failed to sync inventory' });
+    }
+});
+
+// 17. PATCH /api/admin/storage/:id/manager - Assign warehouse manager
+router.patch('/storage/:id/manager', async (req, res) => {
+    const { id } = req.params;
+    const { managerId } = req.body;
+    try {
+        await db.update(storageNodes)
+            .set({ managerId, updatedAt: new Date() })
+            .where(eq(storageNodes.id, id));
+        res.json({ message: 'Warehouse manager assigned successfully' });
+    } catch (error) {
+        console.error('Assign Manager Error:', error);
+        res.status(500).json({ error: 'Failed to assign manager' });
+    }
+});
+
+// 18. POST /api/admin/storage - Create new warehouse node
+router.post('/storage', async (req, res) => {
+    const { name, location, type, capacity } = req.body;
+    try {
+        const [newNode] = await db.insert(storageNodes).values({
+            name,
+            location,
+            type: type || 'cold_storage',
+            capacity: parseInt(capacity) || 1000,
+            status: 'optimal',
+            isActive: true
+        }).returning();
+        res.status(201).json(newNode);
+    } catch (error) {
+        console.error('Create Warehouse Error:', error);
+        res.status(500).json({ error: 'Failed to initialize node' });
+    }
+});
+
 module.exports = router;
