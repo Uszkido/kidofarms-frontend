@@ -270,6 +270,12 @@ export default function AdminDashboard() {
                                     icon={<Users size={24} />}
                                 />
                                 <InfrastructureCard
+                                    href="/admin/warehouse"
+                                    title="Warehouse Nodes"
+                                    sub="Storage, Cold-Chain & Stock Inventory"
+                                    icon={<Warehouse size={24} />}
+                                />
+                                <InfrastructureCard
                                     href="/admin/otps"
                                     title="OTP Master Intercept"
                                     sub="Universal Verification Recall"

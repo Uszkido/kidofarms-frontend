@@ -186,6 +186,38 @@ export default function LogisticsDashboard() {
 
                         {/* Content Area */}
                         <div className="grid lg:grid-cols-12 gap-12">
+                            <div className="lg:col-span-12 space-y-8">
+                                <div className="bg-[#05110d] p-10 md:p-16 rounded-[4rem] border border-white/5 relative overflow-hidden shadow-2xl group">
+                                    <div className="absolute inset-0 opacity-20 flex items-center justify-center">
+                                        <Globe className="w-[600px] h-[600px] text-secondary/30 animate-[spin_60s_linear_infinite]" />
+                                    </div>
+                                    <div className="relative z-10 flex flex-col md:flex-row justify-between items-center gap-12">
+                                        <div className="space-y-6 text-center md:text-left">
+                                            <h3 className="text-4xl md:text-6xl font-black font-serif italic text-white uppercase tracking-tighter leading-none">Global <br /><span className="text-secondary">Supply Mesh</span></h3>
+                                            <p className="text-white/40 text-xs font-black uppercase tracking-[0.3em] italic">Real-time Node Connectivity: <span className="text-green-500">OPTIMAL</span></p>
+                                            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                                                <button onClick={() => handleAction("Global Mesh Refresh")} className="px-8 py-4 bg-secondary text-primary rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all">Pulse Network</button>
+                                                <button onClick={() => handleAction("Export Mesh Data")} className="px-8 py-4 bg-white/5 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest border border-white/10 hover:bg-white/10 transition-all">Export KML</button>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
+                                            {[
+                                                { label: "Active Nodes", val: "1,204", status: "ONLINE" },
+                                                { label: "Freight Vol", val: "42.8T", status: "HIGH" },
+                                                { label: "Transit Risk", val: "3.2%", status: "LOW" },
+                                                { label: "Grid Health", val: "99.9%", status: "STABLE" }
+                                            ].map((s, i) => (
+                                                <div key={i} className="bg-white/5 p-6 rounded-3xl border border-white/5 backdrop-blur-md">
+                                                    <p className="text-[8px] font-black uppercase text-white/30 tracking-widest mb-1">{s.label}</p>
+                                                    <p className="text-2xl font-black font-serif text-white italic">{s.val}</p>
+                                                    <p className={`text-[7px] font-black tracking-widest mt-2 ${s.status === 'LOW' || s.status === 'ONLINE' || s.status === 'STABLE' ? 'text-green-500' : 'text-secondary'}`}>● {s.status}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Main Stream Area */}
                             <div className="lg:col-span-8 space-y-12">
                                 {activeTab === "fleet" && (
@@ -318,6 +350,75 @@ export default function LogisticsDashboard() {
                                                         <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">{sensor.label}</p>
                                                         <p className="text-4xl font-black font-serif text-primary italic font-sans">{sensor.value}</p>
                                                     </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === "routes" && (
+                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6">
+                                        <div className="flex justify-between items-center px-4">
+                                            <h2 className="text-4xl font-black font-serif italic text-primary uppercase tracking-tighter">Route <span className="text-secondary italic">Optimizer</span></h2>
+                                            <button onClick={() => handleAction("Recalculate All")} className="bg-primary text-secondary px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-xl">Recalculate Mesh</button>
+                                        </div>
+                                        <div className="bg-white p-12 rounded-[4rem] border border-primary/5 shadow-2xl space-y-8 relative overflow-hidden">
+                                            <div className="absolute inset-0 opacity-5 pointer-events-none">
+                                                <MapPin className="absolute top-10 left-10 w-40 h-40 rotate-12" />
+                                                <Navigation className="absolute bottom-10 right-10 w-40 h-40 -rotate-12" />
+                                            </div>
+                                            <div className="relative z-10 space-y-8">
+                                                <div className="p-8 bg-cream/30 rounded-[3rem] border border-primary/5 space-y-4">
+                                                    <div className="flex justify-between items-center">
+                                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/40">Active Optimization Vector</p>
+                                                        <span className="text-green-500 text-[8px] font-black uppercase tracking-widest animate-pulse">Efficiency: +18.4%</span>
+                                                    </div>
+                                                    <p className="text-2xl font-black font-serif text-primary uppercase italic">Kano-Lagos Express Mesh</p>
+                                                    <div className="flex gap-4">
+                                                        <div className="px-4 py-2 bg-white rounded-xl text-[8px] font-black uppercase tracking-widest border border-primary/5">3 Waypoints</div>
+                                                        <div className="px-4 py-2 bg-white rounded-xl text-[8px] font-black uppercase tracking-widest border border-primary/5">420km Total</div>
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {[
+                                                        { route: "Abuja - Port Harcourt", status: "Congested", delay: "+45m", color: "text-red-500" },
+                                                        { route: "Jos - Onitsha Hub", status: "Optimal", delay: "±0m", color: "text-green-500" }
+                                                    ].map((r, i) => (
+                                                        <div key={i} className="p-6 bg-white border border-primary/5 rounded-[2.5rem] flex justify-between items-center hover:border-secondary transition-all cursor-pointer">
+                                                            <div>
+                                                                <p className="text-[10px] font-black uppercase text-primary mb-1">{r.route}</p>
+                                                                <p className={`text-[8px] font-black uppercase tracking-widest ${r.color}`}>{r.status}</p>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-lg font-black font-serif italic text-primary">{r.delay}</p>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === "logs" && (
+                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6">
+                                        <div className="flex justify-between items-center px-4">
+                                            <h2 className="text-4xl font-black font-serif italic text-primary uppercase tracking-tighter">Registry <span className="text-secondary italic">Logs</span></h2>
+                                            <button onClick={() => handleAction("Export CSV")} className="text-[10px] font-black uppercase tracking-widest text-primary/30 hover:text-secondary underline underline-offset-8 transition-colors">Download History</button>
+                                        </div>
+                                        <div className="bg-[#06120e] p-10 rounded-[4rem] shadow-2xl border border-white/5 space-y-6 font-mono">
+                                            {[
+                                                { time: "22:42:01", event: "NODE_SYNC_SUCCESS", node: "LGS-H1", msg: "Encryption vector verified." },
+                                                { time: "22:40:48", event: "TEMP_FLUCTUATION_ALERT", node: "VLT-A2", msg: "Delta 0.4°C detected in Sector 4." },
+                                                { time: "22:38:12", event: "MANIFEST_BROADCAST", node: "SYS-M1", msg: "Batch #4192 authorized for transit." },
+                                                { time: "22:35:55", event: "SECURITY_SWEEP_COMPLETE", node: "NET-S0", msg: "Registry integrity: 100%." },
+                                                { time: "22:30:14", event: "FUEL_CREDIT_INJECTION", node: "FIN-C1", msg: "₦142,500 allocated to Fleet X." }
+                                            ].map((log, i) => (
+                                                <div key={i} className="flex gap-6 text-[10px] hover:bg-white/5 p-4 rounded-xl transition-all group">
+                                                    <span className="text-secondary/40 group-hover:text-secondary">{log.time}</span>
+                                                    <span className="text-white font-black group-hover:text-secondary">[{log.event}]</span>
+                                                    <span className="text-white/20">@{log.node}</span>
+                                                    <span className="text-white/40 italic flex-grow text-right">{log.msg}</span>
                                                 </div>
                                             ))}
                                         </div>

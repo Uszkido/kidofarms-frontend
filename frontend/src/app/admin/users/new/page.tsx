@@ -137,7 +137,11 @@ export default function RegisterCitizenPage() {
                                         { id: 'finance', label: 'Finance' },
                                         { id: 'users', label: 'Users' },
                                         { id: 'content', label: 'CMS' },
-                                        { id: 'promos', label: 'Promos' }
+                                        { id: 'promos', label: 'Promos' },
+                                        { id: 'warehouse', label: 'Warehouse' },
+                                        { id: 'support', label: 'Support' },
+                                        { id: 'analytics', label: 'Analytics' },
+                                        { id: 'settings', label: 'Core Config' }
                                     ].map(p => (
                                         <button
                                             key={p.id}

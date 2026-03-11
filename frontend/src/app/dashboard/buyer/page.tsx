@@ -210,24 +210,36 @@ export default function BuyerDashboard() {
                         </div>
 
                         {/* Module Navigator */}
-                        <div className="flex border-b border-primary/5 gap-8 overflow-x-auto no-scrollbar scroll-smooth">
-                            {[
-                                { id: "overview", label: "Commerce Node", icon: LayoutDashboard },
-                                { id: "subscriptions", label: "Elite Baskets", icon: Leaf, hidden: !isSubscriber },
-                                { id: "procurement", label: "B2B Procurement", icon: Briefcase, hidden: !isBusiness },
-                                { id: "orders", label: "Order Vault", icon: Clock },
-                                { id: "wallet", label: "Financial Registry", icon: CreditCard },
-                                { id: "oracle", label: "Market Oracle", icon: Zap },
-                            ].map(tab => !tab.hidden && (
+                        <div className="flex border-b border-primary/5 gap-8 overflow-x-auto no-scrollbar scroll-smooth items-center justify-between">
+                            <div className="flex gap-8 overflow-x-auto no-scrollbar scroll-smooth">
+                                {[
+                                    { id: "overview", label: "Commerce Node", icon: LayoutDashboard },
+                                    { id: "subscriptions", label: "Elite Baskets", icon: Leaf, hidden: !isSubscriber },
+                                    { id: "bulk", label: "Bulk Order", icon: ShoppingBag, hidden: !isBusiness },
+                                    { id: "procurement", label: "B2B Procurement", icon: Briefcase, hidden: !isBusiness },
+                                    { id: "orders", label: "Order Vault", icon: Clock },
+                                    { id: "wallet", label: "Financial Registry", icon: CreditCard },
+                                    { id: "oracle", label: "Market Oracle", icon: Zap },
+                                ].map(tab => !tab.hidden && (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex items-center gap-3 pb-6 text-[10px] font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === tab.id ? 'text-primary' : 'text-primary/30 hover:text-primary'}`}
+                                    >
+                                        <tab.icon size={16} /> {tab.label}
+                                        {activeTab === tab.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-secondary rounded-full" />}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {!isSubscriber && (
                                 <button
-                                    key={tab.id}
-                                    onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-3 pb-6 text-[10px] font-black uppercase tracking-widest transition-all relative shrink-0 ${activeTab === tab.id ? 'text-primary' : 'text-primary/30 hover:text-primary'}`}
+                                    onClick={() => handleAction("Upgrade to Elite")}
+                                    className="mb-6 px-6 py-3 bg-secondary text-primary rounded-xl font-black text-[9px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap"
                                 >
-                                    <tab.icon size={16} /> {tab.label}
-                                    {activeTab === tab.id && <div className="absolute bottom-0 left-0 w-full h-1 bg-secondary rounded-full" />}
+                                    <Star size={14} /> Upgrade to Elite
                                 </button>
-                            ))}
+                            )}
                         </div>
 
                         {/* Dynamic Feed Content */}
@@ -361,6 +373,43 @@ export default function BuyerDashboard() {
                                                 <p className="text-primary/30 text-[9px] font-black uppercase tracking-widest">Scheduled Node Sync: Tuesdays @ 09:00 AM</p>
                                                 <button onClick={() => handleAction("Modify Schedule")} className="inline-block pt-6 text-[10px] font-black uppercase tracking-[0.2em] border-b-4 border-secondary">Update Delivery Frequency</button>
                                             </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === "bulk" && isBusiness && (
+                                    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
+                                        <div className="flex justify-between items-center px-4">
+                                            <h2 className="text-3xl font-black font-serif text-primary uppercase italic tracking-tighter">Bulk <span className="text-secondary">Harvest Batches</span></h2>
+                                            <button onClick={() => handleAction("Bulk Market")} className="bg-primary text-secondary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">Open Bulk Market</button>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-8">
+                                            {[
+                                                { id: "BLK-101", product: "Industrial Maize Nodes", amount: "5.0 Tons", progress: 65, status: "Processing" },
+                                                { id: "BLK-102", product: "Restaurant Yam Batch", amount: "800kg", progress: 90, status: "Logistics Sync" }
+                                            ].map((batch, i) => (
+                                                <div key={i} className="bg-white p-8 md:p-12 rounded-[3.5rem] border border-primary/5 shadow-2xl space-y-8 group hover:border-secondary transition-all">
+                                                    <div className="flex justify-between items-start">
+                                                        <div className="w-16 h-16 bg-cream rounded-3xl flex items-center justify-center text-primary group-hover:bg-secondary transition-colors shrink-0 shadow-inner">
+                                                            <Package size={28} />
+                                                        </div>
+                                                        <span className="px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest bg-neutral-100 text-primary">{batch.status}</span>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-primary/20 mb-1">{batch.id} • {batch.amount}</p>
+                                                        <h3 className="text-3xl font-black font-serif text-primary uppercase italic tracking-tighter">{batch.product}</h3>
+                                                        <div className="mt-8 space-y-4">
+                                                            <div className="flex justify-between items-end">
+                                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Harvest/Processing Progress</p>
+                                                                <p className="text-2xl font-black font-serif italic text-primary">{batch.progress}%</p>
+                                                            </div>
+                                                            <div className="h-2 w-full bg-cream rounded-full overflow-hidden p-0.5 border border-primary/5">
+                                                                <div className="h-full bg-secondary rounded-full transition-all duration-[2000ms]" style={{ width: `${batch.progress}%` }} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
                                 )}
