@@ -13,8 +13,10 @@ import {
     Image as ImageIcon,
     Linkedin,
     Twitter,
-    Shield
+    Shield,
+    Upload
 } from "lucide-react";
+
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 
@@ -32,6 +34,8 @@ export default function AdminTeamPage() {
         linkedin: ""
     });
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
+
 
     useEffect(() => {
         fetchTeam();
@@ -75,6 +79,34 @@ export default function AdminTeamPage() {
         });
         setIsEditing(true);
     };
+
+    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+        const formDataUpload = new FormData();
+        formDataUpload.append("image", file);
+
+        try {
+            const res = await fetch(getApiUrl("/api/upload"), {
+                method: "POST",
+                body: formDataUpload
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setFormData(prev => ({ ...prev, image: data.url }));
+            } else {
+                alert(data.error || "Upload failed");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Network error during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
 
     const handleSave = async () => {
         setIsSaving(true);
@@ -224,17 +256,54 @@ export default function AdminTeamPage() {
                                         />
                                     </div>
                                     <div className="space-y-4">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-6 italic">Visual ID (Image URL)</label>
-                                        <div className="relative">
-                                            <ImageIcon size={18} className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20" />
-                                            <input
-                                                value={formData.image}
-                                                onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                                className="w-full bg-white/5 border border-white/10 rounded-3xl pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
-                                                placeholder="https://..."
-                                            />
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-6 italic">Visual ID (Image Upload)</label>
+                                        <div className="relative group/upload">
+                                            <div
+                                                onClick={() => document.getElementById('image-upload')?.click()}
+                                                className="w-full bg-white/5 border border-white/10 rounded-3xl px-8 py-10 outline-none focus:border-secondary transition-all font-bold text-sm flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/10"
+                                            >
+                                                {formData.image ? (
+                                                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden border border-secondary/20 shadow-2xl">
+                                                        <img
+                                                            src={formData.image.startsWith('http') ? formData.image : (getApiUrl(formData.image).replace('/api/', '/'))}
+                                                            alt="Preview"
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover/upload:opacity-100 transition-opacity">
+                                                            <Upload size={20} className="text-white" />
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col items-center gap-2">
+                                                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center text-white/20 group-hover/upload:text-secondary transition-colors">
+                                                            {isUploading ? <Loader2 size={24} className="animate-spin" /> : <Upload size={24} />}
+                                                        </div>
+                                                        <span className="text-[10px] text-white/20 uppercase tracking-widest group-hover/upload:text-white transition-colors">
+                                                            {isUploading ? "Uploading Mind..." : "Initiate Upload"}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                                <input
+                                                    id="image-upload"
+                                                    type="file"
+                                                    accept="image/*"
+                                                    onChange={handleImageUpload}
+                                                    className="hidden"
+                                                />
+                                            </div>
+                                            {formData.image && (
+                                                <div className="absolute -top-3 -right-3">
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setFormData({ ...formData, image: "" }) }}
+                                                        className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                                                    >
+                                                        <X size={14} />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
+
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-6 italic">Professional Mesh (LinkedIn/Twitter)</label>
                                         <div className="flex gap-4">

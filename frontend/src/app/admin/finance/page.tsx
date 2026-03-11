@@ -21,6 +21,7 @@ export default function FinanceNode() {
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [stats, setStats] = useState<any>(null);
+    const [mode, setMode] = useState<"credit" | "debit">("credit");
     const [formData, setFormData] = useState({
         userId: "",
         amount: "",
@@ -42,21 +43,23 @@ export default function FinanceNode() {
         }
     };
 
-    const handleCreditInjection = async (e: React.FormEvent) => {
+    const handleFinanceAction = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        const endpoint = mode === "credit" ? "/api/admin/finance/credit" : "/api/admin/finance/debit";
         try {
-            const res = await fetch(getApiUrl("/api/admin/finance/credit"), {
+            const res = await fetch(getApiUrl(endpoint), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                alert("Financial injection successful.");
+                alert(`${mode === "credit" ? "Financial injection" : "Liquidity extraction"} successful.`);
                 setFormData({ userId: "", amount: "", reason: "" });
+                fetchStats();
             } else {
                 const error = await res.json();
-                alert(error.error || "Injection failed.");
+                alert(error.error || "Operation failed.");
             }
         } catch (err) {
             console.error(err);
@@ -92,30 +95,49 @@ export default function FinanceNode() {
                 </div>
 
                 <div className="grid lg:grid-cols-12 gap-12">
-                    {/* 💰 CREDIT INJECTION PORTAL */}
+                    {/* 💰 TRANSACTION PORTAL */}
                     <div className="lg:col-span-7 bg-white/5 border border-white/10 rounded-[4rem] p-12 backdrop-blur-3xl shadow-2xl space-y-10 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-[80px]" />
-                        <div className="relative z-10">
-                            <h3 className="text-3xl font-black font-serif italic text-white mb-2 uppercase">Financial <span className="text-secondary">Injection</span></h3>
-                            <p className="text-white/40 text-xs font-bold uppercase tracking-widest">Manually credit a citizen's account or B2B loan facility.</p>
+                        <div className={`absolute top-0 right-0 w-64 h-64 ${mode === "credit" ? "bg-secondary/5" : "bg-red-500/5"} rounded-full blur-[80px] transition-colors`} />
+
+                        <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                            <div>
+                                <h3 className="text-3xl font-black font-serif italic text-white mb-2 uppercase">Financial <span className={mode === "credit" ? "text-secondary" : "text-red-500"}>{mode === "credit" ? "Injection" : "Extraction"}</span></h3>
+                                <p className="text-white/40 text-xs font-bold uppercase tracking-widest">{mode === "credit" ? "Manually credit a citizen's account or B2B loan facility." : "Deduct liquidity from a citizen's wallet node."}</p>
+                            </div>
+
+                            <div className="flex bg-black/40 p-1.5 rounded-2xl border border-white/5">
+                                <button
+                                    onClick={() => setMode("credit")}
+                                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${mode === "credit" ? "bg-secondary text-primary shadow-lg" : "text-white/40 hover:text-white"}`}
+                                >
+                                    Credit
+                                </button>
+                                <button
+                                    onClick={() => setMode("debit")}
+                                    className={`px-6 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${mode === "debit" ? "bg-red-600 text-white shadow-lg" : "text-white/40 hover:text-white"}`}
+                                >
+                                    Debit
+                                </button>
+                            </div>
                         </div>
 
-                        <form onSubmit={handleCreditInjection} className="relative z-10 space-y-8">
+                        <form onSubmit={handleFinanceAction} className="relative z-10 space-y-8">
                             <div className="grid md:grid-cols-2 gap-8">
                                 <FormInput label="Recipient ID / Email" value={formData.userId} onChange={(val: string) => setFormData({ ...formData, userId: val })} placeholder="aminu@kido.com" />
                                 <FormInput label="Amount (NGN)" type="number" value={formData.amount} onChange={(val: string) => setFormData({ ...formData, amount: val })} placeholder="500,000" />
                             </div>
-                            <FormInput label="Auth Reason / Description" value={formData.reason} onChange={(val: string) => setFormData({ ...formData, reason: val })} placeholder="Bulk Wheat Pre-financing" />
+                            <FormInput label="Auth Reason / Description" value={formData.reason} onChange={(val: string) => setFormData({ ...formData, reason: val })} placeholder={mode === "credit" ? "Bulk Wheat Pre-financing" : "Service fee deduction / Penalty"} />
 
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-secondary text-primary py-6 rounded-3xl font-black uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-4 mt-8"
+                                className={`w-full ${mode === "credit" ? "bg-secondary text-primary" : "bg-red-600 text-white"} py-6 rounded-3xl font-black uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-4 mt-8`}
                             >
-                                {isSubmitting ? <Loader2 className="animate-spin" /> : <> <Zap size={20} /> Authorize Injection </>}
+                                {isSubmitting ? <Loader2 className="animate-spin" /> : <> {mode === "credit" ? <Zap size={20} /> : <TrendingDown size={20} />} {mode === "credit" ? "Authorize Injection" : "Execute Extraction"} </>}
                             </button>
                         </form>
                     </div>
+
 
                     {/* 🛡️ GOVERNANCE PANEL */}
                     <div className="lg:col-span-5 space-y-8">

@@ -232,6 +232,56 @@ router.post('/finance/credit', async (req, res) => {
     }
 });
 
+
+// 6.5. POST /api/admin/finance/debit - Credit Extraction (Debit)
+router.post('/finance/debit', async (req, res) => {
+    let { userId, amount, reason } = req.body;
+    try {
+        // Resolve email to userId if needed
+        if (userId.includes('@')) {
+            const user = await db.query.users.findFirst({ where: eq(users.email, userId) });
+            if (!user) return res.status(404).json({ error: 'Citizen email not found.' });
+            userId = user.id;
+        }
+
+        // 1. Ensure Wallet Exists
+        let wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, userId) });
+        if (!wallet) {
+            return res.status(400).json({ error: 'Target has no active wallet node.' });
+        }
+
+        // 2. Atomic Balance Update (Subtraction)
+        // Note: Using Number(amount) to ensure it's a value. 
+        // We allow negative balance if needed for "debts", or we could add a check here.
+        await db.update(wallets)
+            .set({
+                balance: sql`balance - ${Number(amount)}`,
+                updatedAt: new Date()
+            })
+            .where(eq(wallets.userId, userId));
+
+        // 3. Record Transaction
+        const [transaction] = await db.insert(walletTransactions).values({
+            walletId: wallet.id,
+            type: 'debit',
+            amount: sql`${Number(amount)}`,
+            description: reason || 'Admin Infrastructure Debit'
+        }).returning();
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_DEBIT_EXTRACTION',
+            entity: 'wallet',
+            details: { userId, amount, reason, walletId: wallet.id },
+        });
+
+        res.json({ message: 'Liquidity extracted successfully', transaction });
+    } catch (error) {
+        console.error('Debit Error:', error);
+        res.status(500).json({ error: 'Debit extraction failed' });
+    }
+});
+
+
 // 7. PATCH /api/admin/users/:id - Universal User Control (God Mode)
 router.patch('/users/:id', async (req, res) => {
     const { id } = req.params;

@@ -18,10 +18,12 @@ import { getApiUrl } from "@/lib/api";
 export default function AdminAboutCMS() {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isUploading, setIsUploading] = useState(false);
     const [content, setContent] = useState<any>({
         founded: "2020",
         title: "Born From Passion & Purpose",
         description: "Kido Farms & Orchard was founded in 2020 with a bold vision — connecting Nigeria's most talented farmers directly with consumers through technology.",
+        image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=2026&auto=format&fit=crop",
         missionTitle: "Our Mission & Vision",
         missionSubtitle: "Rooted in history, growing for the future. We believe in food that heals the body and respects the land.",
         pillars: [
@@ -142,6 +144,59 @@ export default function AdminAboutCMS() {
                                 rows={4}
                                 className="w-full bg-white/5 border border-white/5 rounded-3xl px-6 py-5 outline-none focus:border-secondary transition-all font-bold resize-none"
                             />
+                        </div>
+
+                        <div className="space-y-4">
+                            <label className="text-[9px] font-black uppercase tracking-[0.3em] text-white/20 ml-2">Heritage Visual (HERO IMAGE)</label>
+                            <div className="flex flex-col md:flex-row gap-8 items-start">
+                                <div className="w-48 h-48 rounded-3xl overflow-hidden border border-white/10 bg-black/40 relative">
+                                    <img
+                                        src={content.image?.startsWith('http') ? content.image : getApiUrl(content.image)}
+                                        className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
+                                    />
+                                    {isUploading && (
+                                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                                            <Loader2 className="animate-spin text-secondary" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 space-y-4 w-full">
+                                    <input
+                                        type="file"
+                                        id="aboutImage"
+                                        className="hidden"
+                                        accept="image/*"
+                                        onChange={async (e) => {
+                                            const file = e.target.files?.[0];
+                                            if (!file) return;
+                                            setIsUploading(true);
+                                            const formData = new FormData();
+                                            formData.append('image', file);
+                                            try {
+                                                const res = await fetch(getApiUrl('/api/upload'), {
+                                                    method: 'POST',
+                                                    body: formData
+                                                });
+                                                if (res.ok) {
+                                                    const { url } = await res.json();
+                                                    setContent({ ...content, image: url });
+                                                }
+                                            } catch (err) {
+                                                console.error(err);
+                                            } finally {
+                                                setIsUploading(false);
+                                            }
+                                        }}
+                                    />
+                                    <label
+                                        htmlFor="aboutImage"
+                                        className="inline-flex items-center gap-2 bg-white/5 border border-white/10 px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest text-white hover:bg-white hover:text-primary transition-all cursor-pointer"
+                                    >
+                                        <Zap size={14} className="text-secondary" /> {isUploading ? "Uploading Data..." : "Change Heritage Visual"}
+                                    </label>
+                                    <p className="text-[9px] font-bold text-white/20 italic uppercase tracking-widest">Recommended: Landscape orientation (1920x1080)</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
