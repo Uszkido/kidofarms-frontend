@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { getApiUrl } from "@/lib/api";
 
 export default function WholesalerDashboard() {
     const { data: session } = useSession();
@@ -27,6 +26,10 @@ export default function WholesalerDashboard() {
         pendingQuotes: 12,
         savings: "₦1.2M"
     });
+
+    const handleAction = (label: string) => {
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
+    };
 
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
@@ -49,9 +52,12 @@ export default function WholesalerDashboard() {
                                     </div>
                                     <h1 className="text-6xl font-black font-serif leading-tight">Bulk Supply <br /><span className="text-secondary italic">Command</span></h1>
                                 </div>
-                                <Link href="/shop" className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-sm hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center gap-3">
+                                <button
+                                    onClick={() => handleAction("Bulk Market")}
+                                    className="bg-white text-primary px-10 py-5 rounded-2xl font-black text-sm hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center gap-3"
+                                >
                                     Open Bulk Market <ArrowRight size={18} />
-                                </Link>
+                                </button>
                             </div>
                         </div>
 
@@ -63,8 +69,12 @@ export default function WholesalerDashboard() {
                                 { label: "Open Quotes", value: stats.pendingQuotes, icon: FileText, color: "bg-secondary/20 text-secondary" },
                                 { label: "Cost Savings", value: stats.savings, icon: TrendingUp, color: "bg-purple-50 text-purple-600" },
                             ].map((stat, i) => (
-                                <div key={i} className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
-                                    <div className={`w-12 h-12 rounded-2xl ${stat.color} flex items-center justify-center`}>
+                                <div
+                                    key={i}
+                                    onClick={() => handleAction(stat.label)}
+                                    className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all cursor-pointer group"
+                                >
+                                    <div className={`w-12 h-12 rounded-2xl ${stat.color} flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all`}>
                                         <stat.icon size={24} />
                                     </div>
                                     <div>
@@ -78,20 +88,25 @@ export default function WholesalerDashboard() {
                         {/* Logistics Stream */}
                         <div className="grid lg:grid-cols-12 gap-10">
                             <div className="lg:col-span-8 space-y-8">
-                                <div className="flex justify-between items-center">
+                                <div className="flex justify-between items-center px-4">
                                     <h2 className="text-3xl font-black font-serif uppercase tracking-tight">Active <span className="text-secondary italic">Freight Stream</span></h2>
-                                    <button className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-secondary underline underline-offset-8 transition-colors">Track All Routes</button>
+                                    <button
+                                        onClick={() => handleAction("Track All Routes")}
+                                        className="text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-secondary underline underline-offset-8 transition-colors"
+                                    >
+                                        Track All Routes
+                                    </button>
                                 </div>
 
                                 <div className="space-y-6">
                                     {[
-                                        { route: "Kano -> Lagos", load: "12.5 Tons Maize", status: "In Transit", eta: "4h 20m" },
-                                        { route: "Benue -> Abuja", load: "3k Baskets Yams", status: "Loading", eta: "18h" },
-                                        { route: "Jos -> Port Harcourt", load: "2 Tons Strawberries", status: "Cold-Chain Active", eta: "12h" }
+                                        { id: "WHL-901", route: "Kano -> Lagos", load: "12.5 Tons Maize", status: "In Transit", eta: "4h 20m" },
+                                        { id: "WHL-902", route: "Benue -> Abuja", load: "3k Baskets Yams", status: "Loading", eta: "18h" },
+                                        { id: "WHL-903", route: "Jos -> Port Harcourt", load: "2 Tons Strawberries", status: "Cold-Chain Active", eta: "12h" }
                                     ].map((sh, i) => (
                                         <div key={i} className="bg-white rounded-[2.5rem] p-10 border border-primary/5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-secondary/30 transition-all">
                                             <div className="flex gap-8 items-center w-full">
-                                                <div className="w-16 h-16 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0">
+                                                <div className="w-16 h-16 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center shrink-0 group-hover:bg-secondary group-hover:text-primary transition-all">
                                                     <Truck size={32} />
                                                 </div>
                                                 <div className="space-y-1">
@@ -104,7 +119,10 @@ export default function WholesalerDashboard() {
                                                     <p className="text-sm font-black text-secondary uppercase italic">{sh.status}</p>
                                                     <p className="text-[10px] font-bold text-primary/20 uppercase tracking-widest">ETA: {sh.eta}</p>
                                                 </div>
-                                                <button className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-secondary transition-all">
+                                                <button
+                                                    onClick={() => handleAction(`Freight Tracking for ${sh.id}`)}
+                                                    className="w-12 h-12 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-secondary transition-all shadow-sm"
+                                                >
                                                     <ArrowRight size={20} />
                                                 </button>
                                             </div>
@@ -136,7 +154,12 @@ export default function WholesalerDashboard() {
                                             </div>
                                         ))}
                                     </div>
-                                    <button className="w-full bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest relative z-10 hover:bg-white transition-all shadow-xl">Complete Onboarding</button>
+                                    <button
+                                        onClick={() => handleAction("Global Onboarding")}
+                                        className="w-full bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest relative z-10 hover:bg-white transition-all shadow-xl"
+                                    >
+                                        Complete Onboarding
+                                    </button>
                                 </div>
 
                                 <div className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-xl space-y-6">
@@ -147,8 +170,12 @@ export default function WholesalerDashboard() {
                                             { name: "Sorghum (Kaduna)", price: "₦920k/Ton", change: "-2%" },
                                             { name: "White Beans (Jos)", price: "₦1.1M/Ton", change: "+5%" }
                                         ].map((m, i) => (
-                                            <div key={i} className="flex justify-between items-center py-2 border-b border-primary/5 last:border-0">
-                                                <span className="text-xs font-bold">{m.name}</span>
+                                            <div
+                                                key={i}
+                                                onClick={() => handleAction(`Market Detail for ${m.name}`)}
+                                                className="flex justify-between items-center py-2 border-b border-primary/5 last:border-0 cursor-pointer group hover:bg-neutral-50"
+                                            >
+                                                <span className="text-xs font-bold group-hover:text-secondary transition-colors">{m.name}</span>
                                                 <div className="text-right">
                                                     <p className="text-xs font-black">{m.price}</p>
                                                     <p className={`text-[8px] font-bold ${m.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>{m.change}</p>

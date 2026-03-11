@@ -45,6 +45,22 @@ export default function FarmerDashboard() {
     const [isVoiceListingOpen, setIsVoiceListingOpen] = useState(false);
     const [voiceResult, setVoiceResult] = useState<any>(null);
     const [isRecording, setIsRecording] = useState(false);
+    const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
+    const [farmProfile, setFarmProfile] = useState({
+        name: "Kido Alpha Node",
+        location: "Kano State, Nigeria",
+        description: "Leading producer of organic grains and tubers in the northern belt.",
+        crops: ["Maize", "Onion", "Pepper", "Rice"],
+        profileImg: "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80"
+    });
+
+    const handleAction = (label: string) => {
+        if (label === "Edit Farm Profile") {
+            setIsEditProfileOpen(true);
+            return;
+        }
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
+    };
 
     // Horizon Phase 5 States
     const [horizonTab, setHorizonTab] = useState('pods');
@@ -140,10 +156,13 @@ export default function FarmerDashboard() {
                                         <Sprout className="w-2.5 h-2.5 md:w-3 md:h-3" strokeWidth={3} />
                                         Soil Integrity Verified
                                     </div>
-                                    <h1 className="text-3xl md:text-6xl font-black font-serif text-white leading-tight">Farmer <br /><span className="text-secondary italic">Command Center</span></h1>
+                                    <h1 className="text-3xl md:text-6xl font-black font-serif text-white leading-tight">{farmProfile.name} <br /><span className="text-secondary italic">Command Center</span></h1>
                                 </div>
                                 <div className="flex gap-4 w-full md:w-auto">
-                                    <button className="flex-1 md:flex-none border-2 border-primary/5 px-8 py-4 rounded-2xl font-black text-sm hover:bg-cream transition-all flex items-center justify-center gap-3">
+                                    <button
+                                        onClick={() => handleAction("Edit Farm Profile")}
+                                        className="flex-1 md:flex-none border-2 border-primary/5 px-8 py-4 rounded-2xl font-black text-sm hover:bg-cream transition-all flex items-center justify-center gap-3"
+                                    >
                                         Edit Farm Profile
                                     </button>
                                     <Link href="/dashboard/farmer/harvest/new" className="flex-1 md:flex-none bg-primary text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-secondary hover:text-primary transition-all shadow-xl flex items-center justify-center gap-3">
@@ -355,7 +374,10 @@ export default function FarmerDashboard() {
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button className="bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all relative">
+                                            <button
+                                                onClick={() => handleAction("Risk Report Download")}
+                                                className="bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all relative"
+                                            >
                                                 Download Risk Report
                                             </button>
                                         </div>
@@ -398,7 +420,10 @@ export default function FarmerDashboard() {
                                                     </div>
                                                 ))}
                                             </div>
-                                            <button className="w-full bg-primary text-white py-5 rounded-xl font-black text-xs uppercase hover:bg-white hover:text-primary transition-all">
+                                            <button
+                                                onClick={() => handleAction("Global Export Application")}
+                                                className="w-full bg-primary text-white py-5 rounded-xl font-black text-xs uppercase hover:bg-white hover:text-primary transition-all"
+                                            >
                                                 Apply for Export
                                             </button>
                                         </div>
@@ -432,7 +457,10 @@ export default function FarmerDashboard() {
                                                     </div>
                                                     <div className="p-8 space-y-4">
                                                         <h4 className="font-black font-serif text-xl">{item.name}</h4>
-                                                        <button className="w-full bg-primary text-white py-3 rounded-xl font-black text-[10px] uppercase hover:bg-secondary hover:text-primary transition-all">
+                                                        <button
+                                                            onClick={() => handleAction(`Redeem Credit for ${item.name}`)}
+                                                            className="w-full bg-primary text-white py-3 rounded-xl font-black text-[10px] uppercase hover:bg-secondary hover:text-primary transition-all"
+                                                        >
                                                             Redeem Credit
                                                         </button>
                                                     </div>
@@ -477,7 +505,11 @@ export default function FarmerDashboard() {
                                                     { title: "Sovereign Supply Management", progress: 40, status: "Intermediate" },
                                                     { title: "Export Quality Compliance", progress: 100, status: "Mastered" }
                                                 ].map(skill => (
-                                                    <div key={skill.title} className="bg-neutral-50 p-8 rounded-[2.5rem] border border-primary/5 space-y-4 group hover:border-secondary transition-all">
+                                                    <div
+                                                        key={skill.title}
+                                                        onClick={() => handleAction(`Mastery Module: ${skill.title}`)}
+                                                        className="bg-neutral-50 p-8 rounded-[2.5rem] border border-primary/5 space-y-4 group hover:border-secondary transition-all cursor-pointer shadow-sm hover:shadow-xl"
+                                                    >
                                                         <div className="flex justify-between items-center text-sm font-black uppercase">
                                                             <p className="flex items-center gap-2"> <Sparkles size={14} className="text-secondary" /> {skill.title}</p>
                                                             <span className="text-primary/30 italic">{skill.status}</span>
@@ -513,13 +545,35 @@ export default function FarmerDashboard() {
                         </div>
                         {!diagnosis ? (
                             <div className="space-y-8">
-                                <div className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer">
-                                    <Camera size={32} />
-                                    <p className="font-black text-sm uppercase">Upload Crop Photo</p>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    {['Maize', 'Onion', 'Pepper'].map(crop => (
-                                        <button key={crop} onClick={() => handleDiagnose(crop)} className="bg-cream hover:bg-secondary py-4 rounded-2xl font-black text-[10px] uppercase">
+                                <label className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer transition-all">
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        onChange={(e) => {
+                                            if (e.target.files?.[0]) {
+                                                handleDiagnose("Uploaded Image Analysis");
+                                            }
+                                        }}
+                                        accept="image/*"
+                                    />
+                                    <div className="relative">
+                                        {diagnosing ? (
+                                            <Loader2 size={32} className="animate-spin text-secondary" />
+                                        ) : (
+                                            <Camera size={32} className="text-primary/20 group-hover:text-secondary group-hover:scale-110 transition-all" />
+                                        )}
+                                    </div>
+                                    <p className="font-black text-[10px] uppercase tracking-widest text-primary/40 group-hover:text-primary transition-all">
+                                        {diagnosing ? "Analyzing Bio-Data..." : "Upload Crop Scan"}
+                                    </p>
+                                </label>
+                                <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                                    {['Maize', 'Onion', 'Pepper', 'Rice', 'Wheat', 'Cocoa', 'Cassava', 'Yam', 'Tomato', 'Ginger', 'Cashew', 'Sorghum'].map(crop => (
+                                        <button
+                                            key={crop}
+                                            onClick={() => handleDiagnose(crop)}
+                                            className="bg-cream/50 hover:bg-secondary hover:text-primary py-4 rounded-2xl font-black text-[8px] uppercase tracking-widest transition-all border border-primary/5 hover:border-secondary shadow-sm hover:shadow-xl"
+                                        >
                                             {crop}
                                         </button>
                                     ))}
@@ -544,6 +598,77 @@ export default function FarmerDashboard() {
                         </div>
                         <h4 className="text-2xl font-black font-serif">Voice Assistant</h4>
                         <p className="mt-4 text-white/40">{isRecording ? "Listening..." : "Tap the mic to start listing"}</p>
+                    </div>
+                </div>
+            )}
+
+            {isEditProfileOpen && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/95 backdrop-blur-xl transition-all">
+                    <div className="bg-white w-full max-w-2xl rounded-[4rem] p-12 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] -translate-y-32 translate-x-32" />
+
+                        <button onClick={() => setIsEditProfileOpen(false)} className="absolute top-10 right-10 text-primary/20 hover:text-primary z-50">
+                            <X size={28} />
+                        </button>
+
+                        <div className="space-y-10 relative z-10">
+                            <div className="space-y-4">
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary">Profile Configuration</h2>
+                                <h3 className="text-4xl font-black font-serif uppercase tracking-tighter italic">Edit <span className="text-secondary">Farm Node</span></h3>
+                            </div>
+
+                            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setIsEditProfileOpen(false); alert("Horizon Node Updated Successfully."); }}>
+                                <div className="grid md:grid-cols-2 gap-8">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Farm Identity Name</label>
+                                        <input
+                                            value={farmProfile.name}
+                                            onChange={(e) => setFarmProfile({ ...farmProfile, name: e.target.value })}
+                                            className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-[10px]"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Geographic Node (Location)</label>
+                                        <input
+                                            value={farmProfile.location}
+                                            onChange={(e) => setFarmProfile({ ...farmProfile, location: e.target.value })}
+                                            className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-[10px]"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Node Bio (Description)</label>
+                                    <textarea
+                                        value={farmProfile.description}
+                                        onChange={(e) => setFarmProfile({ ...farmProfile, description: e.target.value })}
+                                        className="w-full h-32 bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-medium text-xs leading-relaxed"
+                                    />
+                                </div>
+
+                                <div className="space-y-4">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4 text-center block">Visual Auth (Profile Logo)</label>
+                                    <label className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-10 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer transition-all">
+                                        <input
+                                            type="file"
+                                            className="hidden"
+                                            onChange={(e) => {
+                                                if (e.target.files?.[0]) {
+                                                    alert("Visual data captured. Uploading to Horizon...");
+                                                }
+                                            }}
+                                            accept="image/*"
+                                        />
+                                        <Camera size={32} className="text-primary/20 group-hover:text-secondary group-hover:scale-110 transition-all" />
+                                        <p className="font-black text-[10px] uppercase tracking-widest text-primary/40 group-hover:text-primary">Change Profile Photo</p>
+                                    </label>
+                                </div>
+
+                                <button type="submit" className="w-full bg-primary text-secondary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-xs hover:bg-secondary hover:text-primary transition-all shadow-2xl">
+                                    Broadcast Profile Update
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             )}

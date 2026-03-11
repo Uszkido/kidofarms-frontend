@@ -1,3 +1,4 @@
+"use client";
 
 import {
     LayoutDashboard,
@@ -24,14 +25,17 @@ import {
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { getApiUrl } from "@/lib/api";
 
-export default async function VendorDashboard() {
+export default function VendorDashboard() {
     const stats = {
         totalSales: "₦1.2M",
         activeOrders: 12,
         stockItems: 45,
         growth: "+18%"
+    };
+
+    const handleAction = (label: string) => {
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
     };
 
     return (
@@ -66,9 +70,8 @@ export default async function VendorDashboard() {
                         </header>
 
                         {/* Growth Stats */}
-                        {/* Growth Stats */}
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all cursor-pointer">
                                 <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
                                     <ShoppingBag size={24} />
                                 </div>
@@ -81,7 +84,7 @@ export default async function VendorDashboard() {
                                 </div>
                             </div>
 
-                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all cursor-pointer">
                                 <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
                                     <Activity size={24} />
                                 </div>
@@ -91,7 +94,7 @@ export default async function VendorDashboard() {
                                 </div>
                             </div>
 
-                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all">
+                            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-sm space-y-4 hover:shadow-xl transition-all cursor-pointer">
                                 <div className="w-12 h-12 bg-cream rounded-2xl flex items-center justify-center text-primary">
                                     <Box size={24} />
                                 </div>
@@ -139,11 +142,17 @@ export default async function VendorDashboard() {
                                 </div>
                             </Link>
 
-                            <div className="bg-primary text-white p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px] border border-white/5">
-                                <CheckCircle className="text-secondary" size={40} />
+                            <div
+                                onClick={() => handleAction("Support Ticket")}
+                                className="bg-primary text-white p-10 rounded-[3.5rem] shadow-2xl flex flex-col justify-between min-h-[300px] border border-white/5 cursor-pointer group"
+                            >
+                                <CheckCircle className="text-secondary group-hover:scale-110 transition-transform" size={40} />
                                 <div className="space-y-4">
                                     <h4 className="text-2xl font-black font-serif italic">Support Node</h4>
                                     <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest leading-relaxed">Direct line to Kido Farms logistics and vendor success agents.</p>
+                                </div>
+                                <div className="mt-8 inline-flex items-center gap-2 text-secondary font-black text-[10px] uppercase tracking-widest">
+                                    Open Terminal <ArrowUpRight size={14} />
                                 </div>
                             </div>
                         </div>
@@ -173,7 +182,7 @@ export default async function VendorDashboard() {
                                                 { name: "Dried Plantain Chips", stock: 56, price: "₦1,200", img: "https://images.unsplash.com/photo-1613511721526-78810e7b886c?auto=format&fit=crop&q=80" },
                                                 { name: "Cold Pressed Palm Oil", stock: 12, price: "₦8,900", img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&q=80" }
                                             ].map((item, i) => (
-                                                <tr key={i} className="group hover:bg-neutral-50/50 transition-colors">
+                                                <tr key={i} className="group hover:bg-neutral-50/50 transition-colors cursor-pointer" onClick={() => handleAction(`Edit ${item.name}`)}>
                                                     <td className="px-4 py-6 flex items-center gap-4">
                                                         <img src={item.img} className="w-14 h-14 rounded-2xl object-cover shadow-lg group-hover:scale-110 transition-transform" />
                                                         <div>
@@ -220,7 +229,10 @@ export default async function VendorDashboard() {
                                             </div>
                                         ))}
                                     </div>
-                                    <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl">
+                                    <button
+                                        onClick={() => handleAction("Payout Summary Request")}
+                                        className="w-full bg-primary text-white py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl"
+                                    >
                                         Request Summary
                                     </button>
                                 </div>
@@ -230,7 +242,10 @@ export default async function VendorDashboard() {
                                     <div className="relative space-y-4">
                                         <h4 className="text-xl font-black font-serif leading-tight">Need Support <br />From the Network?</h4>
                                         <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">Connect with specialized logistics and supply chain experts.</p>
-                                        <button className="flex items-center gap-2 font-black text-xs uppercase tracking-widest border-b-2 border-white/20 hover:border-white transition-all pb-1">
+                                        <button
+                                            onClick={() => handleAction("Support Ticket Request")}
+                                            className="flex items-center gap-2 font-black text-xs uppercase tracking-widest border-b-2 border-white/20 hover:border-white transition-all pb-1"
+                                        >
                                             Open Support Ticket <ArrowRight size={14} />
                                         </button>
                                     </div>

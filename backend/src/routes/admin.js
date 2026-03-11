@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings } = require('../db/schema');
 const { desc, eq, sql, or } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -56,13 +56,14 @@ router.post('/users/create', async (req, res) => {
             email,
             password: hashedPassword,
             role,
-            isVerified: true
+            isVerified: true,
+            permissions: req.body.permissions || []
         }).returning();
 
         await db.insert(activityLogs).values({
             action: 'ADMIN_USER_CREATE',
             entity: 'users',
-            details: { email, role },
+            details: { email, role, permissions: req.body.permissions },
             userId: newUser.id
         });
 
@@ -127,11 +128,18 @@ router.post('/impersonate', async (req, res) => {
 
 // 6. POST /api/admin/finance/credit - Credit Injection
 router.post('/finance/credit', async (req, res) => {
-    const { userId, amount, reason } = req.body;
+    let { userId, amount, reason } = req.body;
     try {
+        // Resolve email to userId if needed
+        if (userId.includes('@')) {
+            const user = await db.query.users.findFirst({ where: eq(users.email, userId) });
+            if (!user) return res.status(404).json({ error: 'Citizen email not found.' });
+            userId = user.id;
+        }
+
         const [transaction] = await db.insert(walletTransactions).values({
             userId,
-            amount: sql`${amount}`,
+            amount: sql`${Number(amount)}`,
             type: 'credit',
             status: 'completed',
             description: reason || 'Admin Infrastructure Credit'
@@ -150,7 +158,87 @@ router.post('/finance/credit', async (req, res) => {
     }
 });
 
-// 7. GET /api/admin/full-audit - Integrated view of everything
+// 7. PATCH /api/admin/users/:id - Universal User Control (God Mode)
+router.patch('/users/:id', async (req, res) => {
+    const { id } = req.params;
+    const { farmerData, vendorData, ...userData } = req.body;
+    try {
+        const updateData = { ...userData };
+
+        // Handle password hashing if provided
+        if (updateData.password) {
+            updateData.password = await bcrypt.hash(updateData.password, 10);
+        }
+
+        // Remove ID from body to prevent Drizzle error
+        delete updateData.id;
+
+        // 1. Update User Table
+        const [updatedUser] = await db.update(users)
+            .set(updateData)
+            .where(eq(users.id, id))
+            .returning();
+
+        // 2. Update Associated Farmer Data if provided
+        if (farmerData) {
+            await db.update(farmers)
+                .set(farmerData)
+                .where(eq(farmers.userId, id))
+                .execute();
+        }
+
+        // 3. Update Associated Vendor Data if provided
+        if (vendorData) {
+            await db.update(vendors)
+                .set(vendorData)
+                .where(eq(vendors.userId, id))
+                .execute();
+        }
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_GOD_MODE_UPDATE',
+            entity: 'users',
+            details: { userId: id, updatedFields: Object.keys(userData), hasFarmerData: !!farmerData, hasVendorData: !!vendorData },
+        });
+
+        res.json({ message: 'Citizen record modified by Supreme Admin', user: updatedUser });
+    } catch (error) {
+        console.error('God Mode Update Error:', error);
+        res.status(400).json({ error: 'Failed to modify citizen record: ' + error.message });
+    }
+});
+
+// 9. GET /api/admin/settings - Retrieve global site config
+router.get('/settings', async (req, res) => {
+    try {
+        const [siteSettings] = await db.select().from(settings).limit(1);
+        res.json(siteSettings || {});
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch node configuration' });
+    }
+});
+
+// 10. PATCH /api/admin/settings - Global Aesthetic & Theme Override
+router.patch('/settings', async (req, res) => {
+    try {
+        const [updated] = await db.update(settings)
+            .set({ ...req.body, updatedAt: new Date() })
+            .returning();
+
+        await db.insert(activityLogs).values({
+            action: 'GLOBAL_THEME_RECONFIG',
+            entity: 'settings',
+            details: req.body,
+        });
+
+        res.json({ message: 'Global aesthetic nodes reconfigured.', settings: updated });
+    } catch (error) {
+        console.error('Settings Update Error:', error);
+        res.status(400).json({ error: 'Failed to sync global nodes' });
+    }
+});
+
+// 11. GET /api/admin/full-audit - Integrated view of everything
 router.get('/full-audit', async (req, res) => {
     try {
         const recentUsers = await db.select().from(users).orderBy(desc(users.createdAt)).limit(10);

@@ -21,6 +21,10 @@ import { useSession } from "next-auth/react";
 export default function DistributorDashboard() {
     const { data: session } = useSession();
 
+    const handleAction = (label: string) => {
+        alert(`${label} protocol initiated. Node synchronization in progress.`);
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
             <Header />
@@ -59,8 +63,18 @@ export default function DistributorDashboard() {
                                 <div className="flex justify-between items-center">
                                     <h2 className="text-3xl font-black font-serif uppercase italic tracking-tight">Fleet <span className="text-secondary">Stream</span></h2>
                                     <div className="flex gap-2">
-                                        <button className="p-3 bg-white border border-primary/5 rounded-2xl text-primary/40 hover:text-secondary transition-all shadow-sm"><Settings size={20} /></button>
-                                        <button className="p-3 bg-white border border-primary/5 rounded-2xl text-primary/40 hover:text-secondary transition-all shadow-sm"><Bell size={20} /></button>
+                                        <button
+                                            onClick={() => handleAction("Fleet Settings")}
+                                            className="p-3 bg-white border border-primary/5 rounded-2xl text-primary/40 hover:text-secondary transition-all shadow-sm"
+                                        >
+                                            <Settings size={20} />
+                                        </button>
+                                        <button
+                                            onClick={() => handleAction("Logistics Alerts")}
+                                            className="p-3 bg-white border border-primary/5 rounded-2xl text-primary/40 hover:text-secondary transition-all shadow-sm"
+                                        >
+                                            <Bell size={20} />
+                                        </button>
                                     </div>
                                 </div>
 
@@ -86,7 +100,10 @@ export default function DistributorDashboard() {
                                                     <p className={`text-sm font-black uppercase italic ${ship.status === 'Delayed' ? 'text-red-500' : 'text-secondary'}`}>{ship.status}</p>
                                                     <p className="text-[10px] font-bold text-primary/20 uppercase tracking-widest">{ship.time}</p>
                                                 </div>
-                                                <button className="bg-primary text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                                                <button
+                                                    onClick={() => handleAction(`Logistics Manifest for ${ship.id}`)}
+                                                    className="bg-primary text-white px-8 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl"
+                                                >
                                                     Open Logistics
                                                 </button>
                                             </div>
@@ -108,7 +125,7 @@ export default function DistributorDashboard() {
                                     </div>
                                 </div>
 
-                                <div className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-xl space-y-8">
+                                <div className="bg-white rounded-[4rem] p-10 border border-primary/5 shadow-xl space-y-8">
                                     <h3 className="text-xl font-black font-serif uppercase tracking-tighter">Recent <span className="text-secondary italic">Terminal Logs</span></h3>
                                     <div className="space-y-6">
                                         {[
@@ -128,7 +145,12 @@ export default function DistributorDashboard() {
                                             </div>
                                         ))}
                                     </div>
-                                    <button className="w-full text-center text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-secondary transition-colors py-2 border-t border-primary/5 pt-6">Manifest History</button>
+                                    <button
+                                        onClick={() => handleAction("Full Manifest History")}
+                                        className="w-full text-center text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-secondary transition-colors py-2 border-t border-primary/5 pt-6"
+                                    >
+                                        Manifest History
+                                    </button>
                                 </div>
                             </div>
                         </div>

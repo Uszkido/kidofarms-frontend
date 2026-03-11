@@ -1,39 +1,44 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Settings, Shield, Activity, Save, ArrowLeft, Loader2, Globe, Mail, Coins } from "lucide-react";
+import {
+    ArrowLeft,
+    Palette,
+    Image as ImageIcon,
+    Loader2,
+    Shield,
+    Activity,
+    Save,
+    Settings,
+    Moon,
+    Sun,
+    Layers,
+    Check,
+    Gift,
+    Zap,
+    Layout
+} from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 
-export default function SettingsPage() {
-    const [activeTab, setActiveTab] = useState("config");
-    const [config, setConfig] = useState<any>({
-        siteName: "Kido Farms",
-        contactEmail: "",
-        currency: "NGN",
-        taxRate: "0"
-    });
-    const [logs, setLogs] = useState<any[]>([]);
+export default function AdminSettingsPage() {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
+    const [settings, setSettings] = useState<any>(null);
+    const [previewTheme, setPreviewTheme] = useState<any>(null);
 
     useEffect(() => {
-        fetchData();
+        fetchSettings();
     }, []);
 
-    const fetchData = async () => {
-        setLoading(true);
+    const fetchSettings = async () => {
         try {
-            const [settingsRes, logsRes] = await Promise.all([
-                fetch(getApiUrl("/api/security/settings")),
-                fetch(getApiUrl("/api/security/logs"))
-            ]);
-
-            const settingsData = await settingsRes.json();
-            const logsData = await logsRes.json();
-
-            if (settingsData && Object.keys(settingsData).length > 0) setConfig(settingsData);
-            setLogs(logsData);
+            const res = await fetch(getApiUrl("/api/admin/settings"));
+            if (res.ok) {
+                const data = await res.json();
+                setSettings(data);
+                setPreviewTheme(data.themeConfig);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -41,16 +46,18 @@ export default function SettingsPage() {
         }
     };
 
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSave = async () => {
         setSaving(true);
         try {
-            const res = await fetch(getApiUrl("/api/security/settings"), {
+            const res = await fetch(getApiUrl("/api/admin/settings"), {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(config)
+                body: JSON.stringify(settings)
             });
-            if (res.ok) alert("Settings synchronized across nodes!");
+            if (res.ok) {
+                alert("Global Nexus reconfigured. Refreshing dashboard...");
+                window.location.reload();
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -58,129 +65,248 @@ export default function SettingsPage() {
         }
     };
 
-    return (
-        <div className="min-h-screen bg-cream/30 p-6 lg:p-12">
-            <div className="max-w-[1000px] mx-auto space-y-8">
-                <header className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/admin" className="p-3 bg-white rounded-xl border border-primary/5 hover:bg-neutral-50 transition-all">
-                            <ArrowLeft size={20} />
-                        </Link>
-                        <div>
-                            <h1 className="text-3xl font-black font-serif text-primary">System <span className="text-primary/40 italic">Control</span></h1>
-                            <p className="text-sm font-medium text-primary/40">Global configuration and activity oversight</p>
-                        </div>
-                    </div>
-                </header>
+    const updateThemeField = (field: string, value: string) => {
+        setSettings({
+            ...settings,
+            themeConfig: { ...settings.themeConfig, [field]: value }
+        });
+        setPreviewTheme({ ...settings.themeConfig, [field]: value });
+    };
 
-                <div className="flex gap-2 p-1 bg-white rounded-2xl border border-primary/5 w-fit">
+    const toggleOverlay = (type: string) => {
+        setSettings({
+            ...settings,
+            logoConfig: {
+                ...settings.logoConfig,
+                overlayType: type,
+                isOverlayActive: type !== 'none'
+            }
+        });
+    };
+
+    if (loading) return (
+        <div className="min-h-screen bg-[#040d0a] flex items-center justify-center">
+            <Loader2 size={64} className="animate-spin text-secondary opacity-10" />
+        </div>
+    );
+
+    return (
+        <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-10 font-sans">
+            <div className="max-w-7xl mx-auto space-y-16">
+                <Link href="/admin" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-secondary group transition-all">
+                    <ArrowLeft size={14} className="group-hover:-translate-x-2 transition-transform" /> Back To Command
+                </Link>
+
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <span className="w-12 h-1 bg-secondary rounded-full" />
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.5em] text-secondary">Aesthetic Governance</h2>
+                        </div>
+                        <h1 className="text-7xl font-black font-serif uppercase tracking-tighter text-white italic">
+                            Site <span className="text-secondary">Nexus <br /> Stylist</span>
+                        </h1>
+                    </div>
+
                     <button
-                        onClick={() => setActiveTab("config")}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'config' ? 'bg-primary text-white shadow-lg' : 'text-primary/40 hover:text-primary'}`}
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="bg-secondary text-primary px-10 py-6 rounded-3xl font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center gap-4"
                     >
-                        Config
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("logs")}
-                        className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'logs' ? 'bg-primary text-white shadow-lg' : 'text-primary/40 hover:text-primary'}`}
-                    >
-                        Audit Logs
+                        {saving ? <Loader2 className="animate-spin" /> : <> <Save size={20} /> Authorize Changes </>}
                     </button>
                 </div>
 
-                <div className="bg-white rounded-[3rem] border border-primary/5 shadow-xl p-10">
-                    {loading ? (
-                        <div className="py-20 flex flex-col items-center gap-4 text-primary/20">
-                            <Loader2 className="animate-spin" size={40} />
-                            <p className="font-black text-[10px] uppercase tracking-widest">Intercepting System Stream...</p>
-                        </div>
-                    ) : activeTab === 'config' ? (
-                        <form onSubmit={handleSave} className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 flex items-center gap-2">
-                                        <Globe size={12} /> Site Name
-                                    </label>
-                                    <input
-                                        value={config.siteName}
-                                        onChange={(e) => setConfig({ ...config, siteName: e.target.value })}
-                                        className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold"
-                                    />
+                <div className="grid lg:grid-cols-12 gap-12 pb-20">
+
+                    {/* 🎨 THEME RECONFIG */}
+                    <div className="lg:col-span-12 xl:col-span-8 space-y-12">
+                        <section className="bg-white/5 border border-white/10 rounded-[4rem] p-12 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-80 h-80 bg-secondary/5 rounded-full blur-[100px]" />
+                            <div className="relative z-10 space-y-10">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-4 bg-secondary/10 rounded-2xl text-secondary">
+                                        <Palette size={24} />
+                                    </div>
+                                    <h3 className="text-3xl font-black font-serif italic text-white uppercase">Neural <span className="text-secondary">Colors</span></h3>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 flex items-center gap-2">
-                                        <Mail size={12} /> Contact Email
-                                    </label>
-                                    <input
-                                        value={config.contactEmail}
-                                        onChange={(e) => setConfig({ ...config, contactEmail: e.target.value })}
-                                        className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold"
+
+                                <div className="grid md:grid-cols-2 gap-10">
+                                    <ColorInput
+                                        label="Primary Hub (Background)"
+                                        value={settings.themeConfig.primaryColor}
+                                        onChange={(v) => updateThemeField('primaryColor', v)}
                                     />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 flex items-center gap-2">
-                                        <Coins size={12} /> Currency
-                                    </label>
-                                    <select
-                                        value={config.currency}
-                                        onChange={(e) => setConfig({ ...config, currency: e.target.value })}
-                                        className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold"
-                                    >
-                                        <option value="NGN">Naira (₦)</option>
-                                        <option value="USD">Dollar ($)</option>
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/20 flex items-center gap-2">
-                                        <Shield size={12} /> Tax Rate (%)
-                                    </label>
-                                    <input
-                                        type="number"
-                                        value={config.taxRate}
-                                        onChange={(e) => setConfig({ ...config, taxRate: e.target.value })}
-                                        className="w-full bg-neutral-50 border border-primary/5 p-4 rounded-xl font-bold"
+                                    <ColorInput
+                                        label="Secondary Payout (Buttons/Accents)"
+                                        value={settings.themeConfig.secondaryColor}
+                                        onChange={(v) => updateThemeField('secondaryColor', v)}
                                     />
+                                    <ColorInput
+                                        label="Surface Node (Cards/Modals)"
+                                        value={settings.themeConfig.accentColor}
+                                        onChange={(v) => updateThemeField('accentColor', v)}
+                                    />
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Neural Font Stack</label>
+                                        <select
+                                            value={settings.themeConfig.fontFamily}
+                                            onChange={(e) => updateThemeField('fontFamily', e.target.value)}
+                                            className="w-full bg-black/40 border border-white/10 rounded-2xl px-6 py-5 outline-none focus:border-secondary transition-all text-sm font-black uppercase tracking-widest appearance-none"
+                                        >
+                                            <option value="Outfit, sans-serif">Outfit (Default Sovereign)</option>
+                                            <option value="Inter, sans-serif">Inter (Precision)</option>
+                                            <option value="Playfair Display, serif">Playfair (Heritage)</option>
+                                            <option value="Space Grotesk, sans-serif">Space (Futuristic)</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
-                            <button
-                                disabled={saving}
-                                type="submit"
-                                className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-secondary transition-all"
-                            >
-                                {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
-                                Synchronize Updates
-                            </button>
-                        </form>
-                    ) : (
-                        <div className="space-y-6">
-                            {logs.map((log: any) => (
-                                <div key={log.id} className="flex gap-6 pb-6 border-b border-primary/5 last:border-0">
-                                    <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center shrink-0">
-                                        <Activity size={18} className="text-secondary" />
+                        </section>
+
+                        {/* 🛡️ LOGO OVERLAYS */}
+                        <section className="bg-[#1a3c34]/20 border border-secondary/10 rounded-[4rem] p-12 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-secondary/40 to-transparent" />
+                            <div className="relative z-10 space-y-10">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-4 bg-secondary/10 rounded-2xl text-secondary">
+                                        <Gift size={24} />
                                     </div>
-                                    <div className="flex-grow">
-                                        <div className="flex justify-between items-start">
-                                            <p className="text-xs font-black uppercase tracking-tight text-primary">
-                                                {log.userName} <span className="text-primary/30 font-medium">performed</span> {log.action}
-                                            </p>
-                                            <span className="text-[8px] font-black text-primary/10 uppercase tracking-widest">
-                                                {new Date(log.createdAt).toLocaleString()}
-                                            </span>
+                                    <h3 className="text-3xl font-black font-serif italic text-white uppercase">Seasonal <span className="text-secondary">Logo Ops</span></h3>
+                                </div>
+
+                                <div className="grid md:grid-cols-4 gap-6">
+                                    <OverlayCard
+                                        label="No Ghosting"
+                                        type="none"
+                                        active={settings.logoConfig.overlayType === 'none'}
+                                        onClick={() => toggleOverlay('none')}
+                                        icon={<ImageIcon size={24} />}
+                                    />
+                                    <OverlayCard
+                                        label="Christmas Cap"
+                                        type="christmas"
+                                        active={settings.logoConfig.overlayType === 'christmas'}
+                                        onClick={() => toggleOverlay('christmas')}
+                                        icon={<Gift size={24} className="text-red-500" />}
+                                    />
+                                    <OverlayCard
+                                        label="Halloween Soul"
+                                        type="halloween"
+                                        active={settings.logoConfig.overlayType === 'halloween'}
+                                        onClick={() => toggleOverlay('halloween')}
+                                        icon={<Moon size={24} className="text-orange-500" />}
+                                    />
+                                    <OverlayCard
+                                        label="Ramadan Moon"
+                                        type="ramadan"
+                                        active={settings.logoConfig.overlayType === 'ramadan'}
+                                        onClick={() => toggleOverlay('ramadan')}
+                                        icon={<Sun size={24} className="text-emerald-400" />}
+                                    />
+                                </div>
+
+                                <div className="bg-white/5 p-8 rounded-3xl border border-white/5 space-y-4">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Main Site Logo URL</label>
+                                    <div className="flex gap-4">
+                                        <input
+                                            value={settings.logoConfig.mainLogo}
+                                            onChange={(e) => setSettings({ ...settings, logoConfig: { ...settings.logoConfig, mainLogo: e.target.value } })}
+                                            className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-xs font-mono"
+                                        />
+                                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden">
+                                            <img src={settings.logoConfig.mainLogo} className="w-full h-full object-contain p-2" />
                                         </div>
-                                        <p className="text-[10px] text-primary/40 font-medium mt-1">Entity: {log.entity}</p>
                                     </div>
                                 </div>
-                            ))}
-                            {logs.length === 0 && (
-                                <div className="text-center py-10 opacity-20">
-                                    <Shield size={48} className="mx-auto mb-4" />
-                                    <p className="font-black text-[10px] uppercase">No suspicious activity recorded.</p>
+                            </div>
+                        </section>
+                    </div>
+
+                    {/* 🧬 LIVE PREVIEW HUD */}
+                    <div className="lg:col-span-12 xl:col-span-4 space-y-8">
+                        <div className="sticky top-10 space-y-8">
+                            <div className="bg-white/5 border border-white/10 p-10 rounded-[3.5rem] shadow-2xl space-y-8">
+                                <div className="flex justify-between items-center">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-secondary">Sovereign Preview</h4>
+                                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                                 </div>
-                            )}
+
+                                <div className="space-y-6">
+                                    {/* Mock Logo Preview */}
+                                    <div className="p-8 bg-gray-900 rounded-[2.5rem] border border-white/10 flex items-center justify-center relative overflow-hidden">
+                                        <div className="relative group">
+                                            <img src={settings.logoConfig.mainLogo} className="h-10 w-auto" />
+                                            {settings.logoConfig.overlayType === 'christmas' && (
+                                                <div className="absolute -top-3 -left-3 -rotate-12 animate-bounce">
+                                                    <Gift className="text-red-500" size={24} />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-50" />
+                                    </div>
+
+                                    {/* Component Previews */}
+                                    <div className="space-y-4">
+                                        <div className="h-10 rounded-xl flex items-center justify-center p-4 text-[9px] font-black uppercase tracking-widest border border-white/5" style={{ backgroundColor: previewTheme.secondaryColor, color: previewTheme.primaryColor }}>
+                                            Primary Action Button
+                                        </div>
+                                        <div className="p-6 rounded-2xl border border-white/10 space-y-3" style={{ backgroundColor: previewTheme.accentColor }}>
+                                            <div className="w-8 h-8 rounded-lg" style={{ backgroundColor: previewTheme.secondaryColor + '20' }} />
+                                            <div className="h-2 w-full bg-white/10 rounded-full" />
+                                            <div className="h-2 w-1/2 bg-white/5 rounded-full" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-secondary rounded-[3rem] p-10 text-primary shadow-2xl relative overflow-hidden group">
+                                <Zap className="absolute -bottom-10 -right-10 text-primary/10 w-48 h-48 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
+                                <div className="relative z-10 space-y-6">
+                                    <h3 className="text-3xl font-black font-serif italic uppercase">Sync Portal</h3>
+                                    <p className="text-primary/60 text-[10px] font-black uppercase tracking-widest leading-relaxed">Changes will propagate to all endpoints instantly upon authorization.</p>
+                                </div>
+                            </div>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
+        </div>
+    );
+}
+
+function ColorInput({ label, value, onChange }: any) {
+    return (
+        <div className="space-y-4">
+            <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">{label}</label>
+            <div className="flex gap-4">
+                <input
+                    type="color"
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="w-14 h-14 bg-transparent border-none cursor-pointer rounded-2xl overflow-hidden"
+                />
+                <input
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-sm font-mono"
+                />
+            </div>
+        </div>
+    );
+}
+
+function OverlayCard({ label, active, onClick, icon }: any) {
+    return (
+        <div
+            onClick={onClick}
+            className={`cursor-pointer p-6 rounded-3xl border transition-all flex flex-col items-center gap-4 text-center ${active ? 'bg-secondary text-primary border-secondary shadow-xl scale-105' : 'bg-white/5 border-white/5 text-white/40 hover:border-white/20'}`}
+        >
+            <div className={`p-3 rounded-xl ${active ? 'bg-primary/10' : 'bg-white/5'}`}>
+                {icon}
+            </div>
+            <span className="text-[9px] font-black uppercase tracking-widest">{label}</span>
+            {active && <Check size={14} className="mt-1" />}
         </div>
     );
 }

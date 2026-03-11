@@ -16,6 +16,7 @@ export const metadata: Metadata = {
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ReferralTracker } from "@/components/ReferralTracker";
+import ThemeHub from "@/components/ThemeHub";
 import { Suspense } from "react";
 
 export default function RootLayout({
@@ -27,10 +28,12 @@ export default function RootLayout({
     <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
       <body className="antialiased flex flex-col min-h-screen">
         <Providers>
-          <Suspense fallback={null}>
-            <ReferralTracker />
-          </Suspense>
-          <main className="flex-grow">{children}</main>
+          <ThemeHub>
+            <Suspense fallback={null}>
+              <ReferralTracker />
+            </Suspense>
+            <main className="flex-grow">{children}</main>
+          </ThemeHub>
         </Providers>
       </body>
     </html>
