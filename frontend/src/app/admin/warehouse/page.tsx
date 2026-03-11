@@ -67,6 +67,27 @@ export default function WarehouseManagementPage() {
         n.location.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    const [isAdding, setIsAdding] = useState(false);
+    const [newNodeData, setNewNodeData] = useState({ name: "", location: "", type: "cold_storage", capacity: "" });
+
+    const handleAddNode = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const res = await fetch(getApiUrl("/api/admin/storage"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(newNodeData)
+            });
+            if (res.ok) {
+                setIsAdding(false);
+                setNewNodeData({ name: "", location: "", type: "cold_storage", capacity: "" });
+                fetchNodes();
+            }
+        } catch (error) {
+            console.error("Failed to create node:", error);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#040d0a] text-white p-6 lg:p-12 font-sans">
             <div className="max-w-7xl mx-auto space-y-12">
@@ -80,7 +101,10 @@ export default function WarehouseManagementPage() {
                             Warehouse <br /><span className="text-secondary">Nodes</span>
                         </h1>
                     </div>
-                    <button className="bg-secondary text-primary px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-2xl">
+                    <button
+                        onClick={() => setIsAdding(true)}
+                        className="bg-secondary text-primary px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-3 hover:scale-105 transition-all shadow-2xl"
+                    >
                         <Plus size={20} /> Initialize New Node
                     </button>
                 </div>
@@ -95,9 +119,6 @@ export default function WarehouseManagementPage() {
                             placeholder="Scan by Node Name or Geospatial ID..."
                             className="w-full bg-white/5 border border-white/5 rounded-2xl pl-16 pr-6 py-4 outline-none focus:border-secondary transition-all text-sm font-bold uppercase tracking-wider"
                         />
-                    </div>
-                    <div className="flex gap-4">
-                        <button className="px-8 py-4 bg-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/5 hover:border-secondary transition-all">Export Metadata</button>
                     </div>
                 </div>
 
@@ -140,9 +161,9 @@ export default function WarehouseManagementPage() {
                                         </div>
                                     </div>
                                     <div className="bg-white/5 p-4 rounded-2xl space-y-1">
-                                        <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Load Status</p>
+                                        <p className="text-[8px] font-black uppercase text-white/20 tracking-widest">Capacity</p>
                                         <div className="flex items-center gap-2 text-white font-serif italic text-xl">
-                                            <Activity size={14} /> {node.currentLoad || "82%"}
+                                            <Activity size={14} /> {node.capacity || "1000"} Units
                                         </div>
                                     </div>
                                 </div>
@@ -152,7 +173,7 @@ export default function WarehouseManagementPage() {
                                         <ShieldCheck size={14} className="text-secondary" />
                                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Encryption Active</span>
                                     </div>
-                                    <Link href={`/admin/warehouse/${node.id}`} className="text-[10px] font-black uppercase text-secondary hover:underline underline-offset-4">Full Audit</Link>
+                                    <Link href={`/admin/warehouse/${node.id}`} className="px-6 py-2 bg-secondary/10 text-secondary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all">Audit Node</Link>
                                 </div>
                             </div>
                         )) : (
@@ -164,6 +185,68 @@ export default function WarehouseManagementPage() {
                     </div>
                 )}
             </div>
+
+            {/* Initialization Modal */}
+            {isAdding && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 backdrop-blur-3xl bg-black/60">
+                    <div className="bg-[#0a1612] border border-white/10 w-full max-w-xl rounded-[3rem] p-12 shadow-[0_32px_128px_-32px_rgba(197,160,89,0.3)] animate-in zoom-in-95 duration-300">
+                        <div className="mb-10 text-center">
+                            <h2 className="text-4xl font-black font-serif italic uppercase text-secondary mb-2">Initialize Node</h2>
+                            <p className="text-white/40 text-[10px] font-black uppercase tracking-[0.3em]">Deploy new regional storage infrastructure</p>
+                        </div>
+                        <form onSubmit={handleAddNode} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-4">Node Name</label>
+                                <input
+                                    required
+                                    value={newNodeData.name}
+                                    onChange={(e) => setNewNodeData({ ...newNodeData, name: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/5 rounded-2xl px-8 py-5 text-sm outline-none focus:border-secondary"
+                                    placeholder="JOS-01-EXPANSION"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-4">Geospatial Location</label>
+                                <input
+                                    required
+                                    value={newNodeData.location}
+                                    onChange={(e) => setNewNodeData({ ...newNodeData, location: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/5 rounded-2xl px-8 py-5 text-sm outline-none focus:border-secondary"
+                                    placeholder="Plateau State, Nigeria"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-6">
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-4">Node Type</label>
+                                    <select
+                                        value={newNodeData.type}
+                                        onChange={(e) => setNewNodeData({ ...newNodeData, type: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/5 rounded-2xl px-8 py-5 text-sm outline-none focus:border-secondary appearance-none"
+                                    >
+                                        <option value="cold_storage">Cold-Chain</option>
+                                        <option value="dry_storage">Dry Storage</option>
+                                        <option value="fulfillment">Fulfillment</option>
+                                    </select>
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-4">Units Capacity</label>
+                                    <input
+                                        type="number"
+                                        value={newNodeData.capacity}
+                                        onChange={(e) => setNewNodeData({ ...newNodeData, capacity: e.target.value })}
+                                        className="w-full bg-white/5 border border-white/5 rounded-2xl px-8 py-5 text-sm outline-none focus:border-secondary"
+                                        placeholder="5000"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex gap-4 pt-4">
+                                <button type="button" onClick={() => setIsAdding(false)} className="flex-1 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-white/10 hover:bg-white/5 transition-all">Abort</button>
+                                <button type="submit" className="flex-1 bg-secondary text-primary py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">Deploy Node</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -430,13 +430,28 @@ const storageNodes = pgTable("storage_nodes", {
     id: uuid("id").primaryKey().defaultRandom(),
     name: text("name").notNull(),
     location: text("location").notNull(),
-    ownerId: uuid("owner_id").references(() => users.id),
+    managerId: uuid("manager_id").references(() => users.id), // Assigned Staff/Manager
     type: text("type").default("cold_storage"), // cold_storage, dry_storage
     temperature: numeric("temperature", { precision: 5, scale: 2 }),
     humidity: numeric("humidity", { precision: 5, scale: 2 }),
     capacity: integer("capacity"),
+    currentLoad: integer("current_load").default(0),
     lastAlert: text("last_alert"),
+    isActive: boolean("is_active").default(true),
     status: text("status").default("optimal"), // optimal, warning, critical
+    updatedAt: timestamp("updated_at").defaultNow(),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Warehouse-Specific Inventory Table
+const warehouseInventory = pgTable("warehouse_inventory", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    warehouseId: uuid("warehouse_id").references(() => storageNodes.id).notNull(),
+    productId: uuid("product_id").references(() => products.id).notNull(),
+    quantity: integer("quantity").notNull().default(0),
+    batchNumber: text("batch_number"),
+    expiryDate: timestamp("expiry_date"),
+    lastCountedAt: timestamp("last_counted_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
@@ -625,6 +640,7 @@ module.exports = {
     tasks,
     yieldShieldPolicies,
     storageNodes,
+    warehouseInventory,
     heritagePassports,
     energyMarketplace,
     priceOracle,
