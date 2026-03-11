@@ -55,6 +55,9 @@ export default function ReportIssueModal() {
         }
     };
 
+    // Only show the support hub to authenticated users
+    if (!session) return null;
+
     return (
         <>
             {/* Floating Toggle Button */}

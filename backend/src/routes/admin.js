@@ -38,7 +38,19 @@ router.get('/stats', async (req, res) => {
 // 2. GET /api/admin/otps - View all active OTPs (OTP Recall)
 router.get('/otps', async (req, res) => {
     try {
-        const data = await db.select().from(otps).orderBy(desc(otps.createdAt));
+        const data = await db.select({
+            id: otps.id,
+            code: otps.code,
+            expiresAt: otps.expiresAt,
+            isUsed: otps.isUsed,
+            createdAt: otps.createdAt,
+            userName: users.name,
+            userEmail: users.email
+        })
+            .from(otps)
+            .leftJoin(users, eq(otps.userId, users.id))
+            .orderBy(desc(otps.createdAt));
+
         res.json(data);
     } catch (error) {
         console.error('OTP Fetch Error:', error);

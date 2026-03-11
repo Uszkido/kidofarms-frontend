@@ -60,7 +60,7 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                 role === "vendor" ? "/dashboard/vendor" :
                     role === "subscriber" ? "/dashboard/subscriber" :
                         role === "business" ? "/dashboard/business" :
-                            role === "wholesale_buyer" ? "/dashboard/wholesale" :
+                            role === "wholesale_buyer" ? "/dashboard/wholesaler" :
                                 role === "retailer" ? "/dashboard/retailer" :
                                     "/dashboard/consumer";
         router.push(path);
@@ -93,7 +93,7 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
         setLoading(true);
         setError("");
         try {
-            const res = await fetch(getApiUrl("/auth/signup"), {
+            const res = await fetch(getApiUrl("/api/auth/signup"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ ...form, role }),
@@ -107,6 +107,17 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
             redirectToDashboard(userRole);
         } catch (err: any) {
             setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleGoogleLogin = async () => {
+        setLoading(true);
+        try {
+            await signIn("google", { callbackUrl: "/dashboard/consumer" });
+        } catch (err) {
+            setError("Google linkage failed.");
         } finally {
             setLoading(false);
         }
@@ -235,6 +246,13 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                             >
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                             </button>
+                            {mode === 'login' && (
+                                <div className="flex justify-end mt-2">
+                                    <Link href="/forgot-password" id="forgot-password" className="text-[9px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors">
+                                        Forgot Security Key?
+                                    </Link>
+                                </div>
+                            )}
                         </div>
 
                         <button
@@ -243,6 +261,29 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                             className="w-full bg-primary text-white py-6 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-secondary hover:text-primary hover:scale-[1.02] active:scale-95 transition-all shadow-xl flex items-center justify-center gap-4"
                         >
                             {loading ? <Loader2 className="animate-spin" /> : mode === 'login' ? 'Authorize Access' : 'Register Core'}
+                        </button>
+
+                        <div className="relative py-4">
+                            <div className="absolute inset-0 flex items-center">
+                                <div className="w-full border-t border-gray-100 italic" />
+                            </div>
+                            <div className="relative flex justify-center">
+                                <span className="bg-white px-4 text-[9px] font-black uppercase tracking-widest text-gray-300">Or Mesh With Social</span>
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            className="w-full bg-white border border-gray-100 text-primary py-6 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-gray-50 hover:scale-[1.02] active:scale-95 transition-all shadow-sm flex items-center justify-center gap-4"
+                        >
+                            <svg className="w-5 h-5" viewBox="0 0 24 24">
+                                <path fill="#EA4335" d="M12.48,10.92V14.51h6.64a5.67,5.67,0,0,1-2.47,3.72l3.05,2.37a10.42,10.42,0,0,0,3.3-8.68,10.87,10.87,0,0,0-.17-1.12H12.48Z" transform="translate(-0.48 -0.05)" />
+                                <path fill="#FBBC05" d="M12.48,23.97a10.74,10.74,0,0,0,7.38-2.69l-3.05-2.37a6.76,6.76,0,0,1-4.33,1.3A6.87,6.87,0,0,1,6,15.68l-3.15,2.44A11.13,11.13,0,0,0,12.48,23.97Z" transform="translate(-0.48 -0.05)" />
+                                <path fill="#34A853" d="M6,15.68A7.3,7.3,0,0,1,5.67,12,7.3,7.3,0,0,1,6,8.32L2.85,5.88A11.12,11.12,0,0,0,1.48,12a11.12,11.12,0,0,0,1.37,6.12L6,15.68Z" transform="translate(-0.48 -0.05)" />
+                                <path fill="#4285F4" d="M12.48,3.53a5.94,5.94,0,0,1,4.2,1.65l3.14-3.14A10.8,10.8,0,0,0,12.48.05a11.13,11.13,0,0,0-9.63,5.83L6,8.32A6.87,6.87,0,0,1,12.48,3.53Z" transform="translate(-0.48 -0.05)" />
+                            </svg>
+                            Continue with Google
                         </button>
                     </form>
 

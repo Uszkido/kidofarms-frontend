@@ -30,7 +30,9 @@ import {
     RefreshCw,
     GraduationCap,
     Sparkles,
-    Activity
+    Activity,
+    Warehouse,
+    Fingerprint
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -331,13 +333,13 @@ export default function FarmerDashboard() {
                                     <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">The Sovereign Food Infrastructure</p>
                                 </div>
                                 <div className="flex bg-white p-2 rounded-[2rem] border border-primary/5 shadow-xl overflow-x-auto">
-                                    {['shield', 'bridge', 'energy', 'academy'].map((tab) => (
+                                    {['shield', 'bridge', 'energy', 'academy', 'oracle', 'logistics'].map((tab) => (
                                         <button
                                             key={tab}
                                             onClick={() => setHorizonTab(tab)}
                                             className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${horizonTab === tab ? 'bg-primary text-white shadow-lg' : 'text-primary/40 hover:bg-neutral-50'}`}
                                         >
-                                            {tab === 'shield' ? 'Yield-Shield' : tab === 'bridge' ? 'Global Bridge' : tab === 'energy' ? 'Sovereign Energy' : 'Mastery Academy'}
+                                            {tab === 'shield' ? 'Yield-Shield' : tab === 'bridge' ? 'Global Bridge' : tab === 'energy' ? 'Sovereign Energy' : tab === 'academy' ? 'Mastery Academy' : tab === 'oracle' ? 'Price Oracle' : 'Logistics Node'}
                                         </button>
                                     ))}
                                 </div>
@@ -519,6 +521,93 @@ export default function FarmerDashboard() {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {horizonTab === 'oracle' && (
+                                    <div className="space-y-12 animate-in fade-in duration-500">
+                                        <div className="flex justify-between items-end">
+                                            <div>
+                                                <h3 className="text-5xl font-black font-serif text-primary italic">Kido <span className="text-secondary tracking-tighter">Price Oracle</span></h3>
+                                                <p className="text-primary/40 mt-2 text-sm font-medium">Neural market predictions for next-cycle harvests.</p>
+                                            </div>
+                                            <div className="bg-primary/5 px-6 py-4 rounded-[2rem] border border-primary/5">
+                                                <p className="text-[10px] font-black uppercase text-secondary mb-1">Oracle Trust Index</p>
+                                                <p className="text-2xl font-black font-serif text-primary">98.4%</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-3 gap-8">
+                                            {[
+                                                { crop: 'Maize (Yellow)', current: '₦450/kg', predicted: '₦520/kg', trend: 'up' },
+                                                { crop: 'Onions (Red)', current: '₦320/kg', predicted: '₦280/kg', trend: 'down' },
+                                                { crop: 'Rice (Short)', current: '₦650/kg', predicted: '₦690/kg', trend: 'up' }
+                                            ].map(item => (
+                                                <div key={item.crop} className="bg-neutral-50 p-10 rounded-[3rem] border border-primary/5 space-y-6 group hover:border-secondary transition-all">
+                                                    <div className="flex justify-between items-center">
+                                                        <h4 className="font-black font-serif text-2xl">{item.crop}</h4>
+                                                        {item.trend === 'up' ? <TrendingUp className="text-green-500" /> : <TrendingUp className="text-red-500 rotate-180" />}
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div>
+                                                            <p className="text-[8px] font-black uppercase text-primary/30">Current</p>
+                                                            <p className="text-xl font-black font-serif text-primary">{item.current}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[8px] font-black uppercase text-secondary/40">Predicted</p>
+                                                            <p className="text-xl font-black font-serif text-secondary italic">{item.predicted}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="bg-primary text-white p-10 rounded-[3.5rem] flex flex-col md:flex-row items-center justify-between gap-10">
+                                            <div className="space-y-4">
+                                                <h4 className="text-3xl font-black font-serif italic text-secondary">Neural Insight</h4>
+                                                <p className="text-white/40 text-sm font-medium leading-relaxed max-w-xl">"Localized supply shortages in Plateau district indicate a potential price spike for Grains in Q3. Recommendation: Optimize storage Node for late-release."</p>
+                                            </div>
+                                            <button className="bg-white text-primary px-12 py-5 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl shrink-0">Connect Price Feed</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {horizonTab === 'logistics' && (
+                                    <div className="space-y-12 animate-in fade-in duration-500">
+                                        <div className="flex justify-between items-center px-4">
+                                            <h3 className="text-5xl font-black font-serif text-primary">Last-Mile <br /><span className="text-secondary italic">Logistics Node</span></h3>
+                                            <div className="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center text-blue-500">
+                                                <MapPin size={32} />
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-10">
+                                            <div className="bg-neutral-50 p-12 rounded-[4rem] border border-primary/5 space-y-8">
+                                                <h4 className="text-2xl font-black font-serif italic text-primary">Active Shipments</h4>
+                                                <div className="space-y-6">
+                                                    {[
+                                                        { id: '#NODE-LGS-42', dest: 'Lagos Main Hub', status: 'In Transit', progress: 65 },
+                                                        { id: '#NODE-PH-09', dest: 'P/Harcourt Node', status: 'Pending Pickup', progress: 5 }
+                                                    ].map(shipment => (
+                                                        <div key={shipment.id} className="space-y-3 bg-white p-6 rounded-2xl border border-primary/5">
+                                                            <div className="flex justify-between items-center text-[10px] font-black uppercase">
+                                                                <p className="text-primary">{shipment.dest}</p>
+                                                                <span className="text-secondary">{shipment.status}</span>
+                                                            </div>
+                                                            <div className="h-2 w-full bg-cream rounded-full overflow-hidden">
+                                                                <div className="h-full bg-secondary" style={{ width: `${shipment.progress}%` }} />
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                <button className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase text-[10px] hover:bg-secondary hover:text-primary transition-all">Book Global Shipment</button>
+                                            </div>
+                                            <div className="bg-primary/5 rounded-[4rem] border border-primary/5 p-12 flex flex-col items-center justify-center space-y-8 text-center">
+                                                <Globe className="text-secondary animate-spin-slow" size={64} />
+                                                <div>
+                                                    <h4 className="text-2xl font-black font-serif italic text-primary uppercase">Track Node</h4>
+                                                    <p className="text-primary/40 text-[10px] font-bold uppercase tracking-widest mt-2">Open the visual tracking portal</p>
+                                                </div>
+                                                <Link href="/dashboard/logistics" className="bg-primary text-white px-10 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl">Enter Tracking System</Link>
                                             </div>
                                         </div>
                                     </div>

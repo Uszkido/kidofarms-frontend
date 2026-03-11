@@ -42,9 +42,9 @@ export default function AdminTicketsPage() {
     }, []);
 
     const filteredTickets = tickets.filter(t =>
-        t.subject.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.userName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        t.userEmail?.toLowerCase().includes(searchTerm.toLowerCase())
+        (t.subject?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (t.userName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (t.userEmail?.toLowerCase() || "").includes(searchTerm.toLowerCase())
     );
 
     return (
