@@ -14,15 +14,21 @@ import {
     AlertTriangle,
     Database,
     Boxes,
-    ShoppingCart
+    ShoppingCart,
+    Star
 } from "lucide-react";
 import Image from "next/image";
 import { getApiUrl } from "@/lib/api";
+import AddReviewModal from "@/components/AddReviewModal";
+import { useSession } from "next-auth/react";
 
 export default function AdminInventoryPage() {
+    const { data: session } = useSession();
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -51,6 +57,11 @@ export default function AdminInventoryPage() {
         } catch (error) {
             alert("Decomposition failed.");
         }
+    };
+
+    const handleRate = (product: any) => {
+        setSelectedProduct(product);
+        setIsReviewModalOpen(true);
     };
 
     const filteredProducts = products.filter(p =>
@@ -153,6 +164,13 @@ export default function AdminInventoryPage() {
                                             <td className="px-12 py-10 text-right">
                                                 <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
                                                     <button
+                                                        onClick={() => handleRate(product)}
+                                                        className="p-4 bg-secondary/10 text-secondary hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl"
+                                                        title="Rate Product Asset"
+                                                    >
+                                                        <Star size={20} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleDelete(product.id)}
                                                         className="p-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-primary rounded-2xl transition-all shadow-xl"
                                                         title="Decompose Asset"
@@ -204,6 +222,15 @@ export default function AdminInventoryPage() {
                 </div>
 
             </div>
+
+            <AddReviewModal
+                productId={selectedProduct?.id}
+                productName={selectedProduct?.name}
+                userId={(session?.user as any)?.id}
+                isOpen={isReviewModalOpen}
+                onClose={() => setIsReviewModalOpen(false)}
+                onSuccess={() => alert("Verification Rating Dispatched Successfully")}
+            />
         </div>
     );
 }

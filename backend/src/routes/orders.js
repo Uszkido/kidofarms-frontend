@@ -156,4 +156,24 @@ router.get('/vendor/:userId', async (req, res) => {
     }
 });
 
+// GET /api/orders/user/:userId
+router.get('/user/:userId', async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const data = await db.query.orders.findMany({
+            where: eq(orders.userId, userId),
+            with: {
+                items: {
+                    with: { product: true }
+                }
+            },
+            orderBy: [desc(orders.createdAt)]
+        });
+        res.json(data);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Failed to fetch user orders' });
+    }
+});
+
 module.exports = router;
