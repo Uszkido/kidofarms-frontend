@@ -151,7 +151,13 @@ export default function MaintenanceGateway() {
     );
 }
 
-function StatusRow({ label, value, active }: any) {
+interface StatusRowProps {
+    label: string;
+    value: string;
+    active?: boolean;
+}
+
+function StatusRow({ label, value, active }: StatusRowProps) {
     return (
         <div className="flex justify-between items-center py-4 border-b border-white/5 last:border-none">
             <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{label}</span>

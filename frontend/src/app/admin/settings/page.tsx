@@ -135,17 +135,17 @@ export default function AdminSettingsPage() {
                                     <ColorInput
                                         label="Primary Hub (Background)"
                                         value={settings.themeConfig.primaryColor}
-                                        onChange={(v) => updateThemeField('primaryColor', v)}
+                                        onChange={(v: string) => updateThemeField('primaryColor', v)}
                                     />
                                     <ColorInput
                                         label="Secondary Payout (Buttons/Accents)"
                                         value={settings.themeConfig.secondaryColor}
-                                        onChange={(v) => updateThemeField('secondaryColor', v)}
+                                        onChange={(v: string) => updateThemeField('secondaryColor', v)}
                                     />
                                     <ColorInput
                                         label="Surface Node (Cards/Modals)"
                                         value={settings.themeConfig.accentColor}
-                                        onChange={(v) => updateThemeField('accentColor', v)}
+                                        onChange={(v: string) => updateThemeField('accentColor', v)}
                                     />
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Neural Font Stack</label>
@@ -275,7 +275,13 @@ export default function AdminSettingsPage() {
     );
 }
 
-function ColorInput({ label, value, onChange }: any) {
+interface ColorInputProps {
+    label: string;
+    value: string;
+    onChange: (val: string) => void;
+}
+
+function ColorInput({ label, value, onChange }: ColorInputProps) {
     return (
         <div className="space-y-4">
             <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">{label}</label>
@@ -296,7 +302,15 @@ function ColorInput({ label, value, onChange }: any) {
     );
 }
 
-function OverlayCard({ label, active, onClick, icon }: any) {
+interface OverlayCardProps {
+    label: string;
+    active: boolean;
+    onClick: () => void;
+    icon: React.ReactNode;
+    type: string;
+}
+
+function OverlayCard({ label, active, onClick, icon }: OverlayCardProps) {
     return (
         <div
             onClick={onClick}

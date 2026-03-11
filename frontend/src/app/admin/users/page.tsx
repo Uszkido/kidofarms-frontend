@@ -325,7 +325,18 @@ export default function AdminUsersPage() {
     );
 }
 
-function EditField({ label, value, onChange, type = "text", placeholder, icon, isSelect, options }: any) {
+interface EditFieldProps {
+    label: string;
+    value: any;
+    onChange: (val: string) => void;
+    type?: string;
+    placeholder?: string;
+    icon?: React.ReactNode;
+    isSelect?: boolean;
+    options?: string[];
+}
+
+function EditField({ label, value, onChange, type = "text", placeholder, icon, isSelect, options }: EditFieldProps) {
     return (
         <div className="space-y-3 group">
             <label className="flex items-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/20 ml-6 group-focus-within:text-secondary transition-colors">
@@ -337,7 +348,7 @@ function EditField({ label, value, onChange, type = "text", placeholder, icon, i
                     onChange={(e) => onChange(e.target.value)}
                     className="w-full bg-[#1a3c34]/20 border border-white/10 rounded-3xl px-8 py-6 outline-none focus:border-secondary transition-all font-black uppercase tracking-widest text-xs appearance-none cursor-pointer"
                 >
-                    {options.map((opt: string) => <option key={opt} value={opt}>{opt.toUpperCase()}</option>)}
+                    {options?.map((opt: string) => <option key={opt} value={opt}>{opt.toUpperCase()}</option>)}
                 </select>
             ) : (
                 <input
