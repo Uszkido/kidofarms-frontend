@@ -30,6 +30,7 @@ backend/build/
 .env.production.local
 frontend/.env
 backend/.env
+*.env.vercel-check
 !frontend/.env.example
 !backend/.env.example
 
