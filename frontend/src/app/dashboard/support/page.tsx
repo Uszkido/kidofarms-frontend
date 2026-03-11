@@ -77,15 +77,15 @@ export default function UserSupportHistory() {
                                 </div>
                             ) : tickets.length > 0 ? (
                                 <div className="grid gap-6">
-                                    {tickets.map(ticket => (
+                                    {tickets.map((ticket: { id: string; subject: string; status: string; updatedAt: string; createdAt: string }) => (
                                         <Link key={ticket.id} href={`/dashboard/support/${ticket.id}`}>
                                             <div className="bg-white border border-primary/5 rounded-[2.5rem] p-8 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
                                                 <div className="flex justify-between items-start">
                                                     <div className="space-y-3">
                                                         <div className="flex items-center gap-3">
                                                             <span className={`px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${ticket.status === 'open' ? 'bg-amber-100 text-amber-600' :
-                                                                    ticket.status === 'resolved' ? 'bg-green-100 text-green-600' :
-                                                                        'bg-gray-100 text-gray-500'
+                                                                ticket.status === 'resolved' ? 'bg-green-100 text-green-600' :
+                                                                    'bg-gray-100 text-gray-500'
                                                                 }`}>
                                                                 {ticket.status}
                                                             </span>

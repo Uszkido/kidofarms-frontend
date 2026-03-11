@@ -108,8 +108,8 @@ export default function UserTicketDetailPage() {
                                 </h1>
                                 <div className="flex items-center gap-4">
                                     <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest border ${ticket.status === 'open' ? 'bg-amber-100 text-amber-600 border-amber-200' :
-                                            ticket.status === 'resolved' ? 'bg-green-100 text-green-600 border-green-200' :
-                                                'bg-gray-100 text-gray-500 border-gray-200'
+                                        ticket.status === 'resolved' ? 'bg-green-100 text-green-600 border-green-200' :
+                                            'bg-gray-100 text-gray-500 border-gray-200'
                                         }`}>
                                         Status: {ticket.status}
                                     </span>
@@ -122,7 +122,7 @@ export default function UserTicketDetailPage() {
                             <div className="absolute top-0 right-0 w-80 h-80 bg-secondary/5 rounded-full blur-[100px]" />
 
                             <div ref={scrollRef} className="flex-1 overflow-y-auto p-10 space-y-8 scroll-smooth custom-scrollbar">
-                                {ticket.messages?.map((msg: any) => {
+                                {ticket.messages?.map((msg: { id: string; senderId: string; senderRole: string; message: string; createdAt: string; senderName?: string }) => {
                                     const isMe = msg.senderId === (session?.user as any)?.id;
                                     return (
                                         <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'} group animate-in slide-in-from-bottom-2`}>
@@ -131,7 +131,7 @@ export default function UserTicketDetailPage() {
                                                     <span className="text-[9px] font-black uppercase tracking-widest text-primary/30">{msg.senderRole === 'admin' ? 'Kido Infrastructure Admin' : 'You'}</span>
                                                 </div>
                                                 <div className={`p-6 rounded-[2rem] text-[13px] leading-relaxed ${isMe ? 'bg-secondary text-primary font-bold shadow-lg rounded-tr-none' :
-                                                        'bg-cream/40 border border-primary/5 text-primary/80 rounded-tl-none'
+                                                    'bg-cream/40 border border-primary/5 text-primary/80 rounded-tl-none'
                                                     }`}>
                                                     {msg.message}
                                                 </div>

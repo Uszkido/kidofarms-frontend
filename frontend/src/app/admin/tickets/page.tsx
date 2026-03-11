@@ -132,20 +132,20 @@ export default function AdminTicketsPage() {
                                             </td>
                                             <td className="px-12 py-10">
                                                 <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${ticket.priority === 'high' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
-                                                        ticket.priority === 'medium' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                                                            'bg-blue-500/10 text-blue-400 border-blue-400/20'
+                                                    ticket.priority === 'medium' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                                        'bg-blue-500/10 text-blue-400 border-blue-400/20'
                                                     }`}>
                                                     {ticket.priority} Protocol
                                                 </span>
                                             </td>
                                             <td className="px-12 py-10">
                                                 <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit ${ticket.status === 'open' ? 'text-amber-500 animate-pulse' :
-                                                        ticket.status === 'pending' ? 'text-secondary' :
-                                                            'text-green-500'
+                                                    ticket.status === 'pending' ? 'text-secondary' :
+                                                        'text-green-500'
                                                     }`}>
                                                     <div className={`w-1.5 h-1.5 rounded-full ${ticket.status === 'open' ? 'bg-amber-500' :
-                                                            ticket.status === 'pending' ? 'bg-secondary' :
-                                                                'bg-green-500'
+                                                        ticket.status === 'pending' ? 'bg-secondary' :
+                                                            'bg-green-500'
                                                         }`} />
                                                     {ticket.status}
                                                 </span>
@@ -178,7 +178,14 @@ export default function AdminTicketsPage() {
     );
 }
 
-function StatusVital({ label, value, icon, color }: any) {
+interface StatusVitalProps {
+    label: string;
+    value: string | number;
+    icon: React.ReactNode;
+    color: string;
+}
+
+function StatusVital({ label, value, icon, color }: StatusVitalProps) {
     return (
         <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 backdrop-blur-3xl flex items-center justify-between group">
             <div>
