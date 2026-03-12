@@ -4,9 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, ShoppingCart, Search, Info, Leaf, Sparkles, Send, Bot, User } from "lucide-react";
 import Link from "next/link";
-import axios from "axios";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
+import { getApiUrl } from "@/lib/api";
 
 type Message = {
     role: "user" | "bot";
@@ -37,15 +35,21 @@ export default function KidoConcierge() {
         setIsLoading(true);
 
         try {
-            const response = await axios.post(`${API_URL}/ai/chat`, {
-                message: userMessage,
-                history: messages.map(m => ({
-                    role: m.role === "bot" ? "model" : "user",
-                    parts: [{ text: m.text }]
-                }))
+            const response = await fetch(getApiUrl("/api/ai/chat"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: userMessage,
+                    history: messages.slice(1, -1).map(m => ({ // Previous messages only
+                        role: m.role === "bot" ? "model" : "user",
+                        parts: [{ text: m.text }]
+                    }))
+                })
             });
 
-            setMessages(prev => [...prev, { role: "bot", text: response.data.reply }]);
+            if (!response.ok) throw new Error("API failed");
+            const data = await response.json();
+            setMessages(prev => [...prev, { role: "bot", text: data.reply }]);
         } catch (error) {
             console.error("Chat Error:", error);
             setMessages(prev => [...prev, { role: "bot", text: "Forgive me, my neural circuits are a bit tangled. Please try again in a moment." }]);
@@ -88,8 +92,8 @@ export default function KidoConcierge() {
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                                     <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium leading-relaxed ${msg.role === "user"
-                                            ? "bg-secondary text-primary rounded-tr-none"
-                                            : "bg-cream text-primary rounded-tl-none border border-primary/5"
+                                        ? "bg-secondary text-primary rounded-tr-none"
+                                        : "bg-cream text-primary rounded-tl-none border border-primary/5"
                                         }`}>
                                         {msg.text}
                                     </div>

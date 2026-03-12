@@ -104,23 +104,28 @@ router.post('/chat', async (req, res) => {
     try {
         const { message, history } = req.body;
 
-        if (!process.env.GEMINI_API_KEY) {
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
             return res.json({
-                reply: "I'm currently in training mode (API key not configured). How can I help you with Kido Farms today?",
+                reply: "I'm currently in training mode (AI Node syncing). Harvests are looking great though! How can I help you navigate Kido Farms today?",
                 isMock: true
             });
         }
 
+        const systemPrompt = "You are the Kido Farms Concierge, a helpful assistant for an agricultural e-commerce platform in Nigeria. You help users find organic produce, track harvests, and manage their farm nodes. Be professional, friendly, and use a bit of Nigerian flair where appropriate. Answer concisely.";
+
+        const chatContext = history && history.length > 0 ? history : [
+            { role: "user", parts: [{ text: systemPrompt }] },
+            { role: "model", parts: [{ text: "Understood. I am ready to assist Kido Farms citizens. How can I help today?" }] }
+        ];
+
         const chat = model.startChat({
-            history: history || [],
+            history: chatContext,
             generationConfig: {
                 maxOutputTokens: 500,
             },
         });
 
-        const systemPrompt = "You are the Kido Farms Concierge, a helpful assistant for an agricultural e-commerce platform in Nigeria. You help users find organic produce, track harvests, and manage their farm nodes. Be professional, friendly, and use a bit of Nigerian flair where appropriate (e.g., 'Welcome to the farm!').";
-
-        const result = await chat.sendMessage(`${systemPrompt}\n\nUser: ${message}`);
+        const result = await chat.sendMessage(message);
         const response = await result.response;
         const text = response.text();
 
