@@ -13,9 +13,12 @@ export const Header = () => {
     const { data: session } = useSession();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+    const userRole = (session?.user as any)?.role;
+    const isBusiness = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'distributor'].includes(userRole);
+
     const navLinks = [
         { label: "Marketplace", href: "/shop" },
-        { label: "Subscriptions", href: "/subscriptions" },
+        ...(!isBusiness ? [{ label: "Subscriptions", href: "/subscriptions" }] : []),
         { label: "Our Vision", href: "/about" },
         { label: "Farm Blog", href: "/blog" },
         ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),

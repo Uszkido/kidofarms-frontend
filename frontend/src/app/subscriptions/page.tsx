@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -8,6 +10,17 @@ import { Check, ArrowRight, Loader2, ShieldCheck, Truck } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
 export default function SubscriptionPage() {
+    const { data: session } = useSession();
+    const router = useRouter();
+
+    useEffect(() => {
+        const userRole = (session?.user as any)?.role;
+        const isBusiness = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'distributor'].includes(userRole);
+        if (isBusiness) {
+            router.push('/dashboard/buyer');
+        }
+    }, [session, router]);
+
     const [email, setEmail] = useState("");
     const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
     const [submitting, setSubmitting] = useState(false);
