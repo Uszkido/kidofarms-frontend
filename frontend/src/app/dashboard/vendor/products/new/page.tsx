@@ -2,14 +2,17 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Save, Info, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Loader2, Save, Info, ShoppingBag, Sparkles } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 import { getApiUrl } from "@/lib/api";
+import axios from "axios";
 
 export default function VendorNewProductPage() {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [generating, setGenerating] = useState(false);
     const [error, setError] = useState("");
+    const [freshnessTip, setFreshnessTip] = useState("");
     const [form, setForm] = useState({
         name: "",
         description: "",
@@ -40,6 +43,27 @@ export default function VendorNewProductPage() {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setForm({ ...form, [name]: value });
+    };
+
+    const handleGenerateDescription = async () => {
+        if (!form.name) {
+            setError("Please enter a product name first.");
+            return;
+        }
+        setGenerating(true);
+        setError("");
+        try {
+            const res = await axios.post(getApiUrl("/api/ai/describe-product"), {
+                productName: form.name,
+                category: form.category
+            });
+            setForm(f => ({ ...f, description: res.data.description }));
+            setFreshnessTip(res.data.freshnessTip);
+        } catch (err) {
+            setError("AI Generator failed. Please try manual entry.");
+        } finally {
+            setGenerating(false);
+        }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -121,12 +145,29 @@ export default function VendorNewProductPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Description</label>
+                                <div className="flex justify-between items-center">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Description</label>
+                                    <button
+                                        type="button"
+                                        onClick={handleGenerateDescription}
+                                        disabled={generating}
+                                        className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors disabled:opacity-50"
+                                    >
+                                        {generating ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                        Magic Auto-Fill
+                                    </button>
+                                </div>
                                 <textarea
                                     name="description" required rows={4} value={form.description} onChange={handleChange}
                                     placeholder="Briefly describe your product..."
                                     className="w-full bg-neutral-50 border border-primary/10 rounded-2xl px-6 py-4 text-sm font-medium focus:ring-2 focus:ring-secondary/30 outline-none resize-none"
                                 />
+                                {freshnessTip && (
+                                    <div className="mt-4 p-4 bg-secondary/5 rounded-2xl border border-secondary/10 flex gap-3">
+                                        <Info size={16} className="text-secondary shrink-0" />
+                                        <p className="text-[10px] font-bold text-primary/60 italic">AI Freshness Tip: {freshnessTip}</p>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

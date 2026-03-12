@@ -40,6 +40,7 @@ import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
 
 import { ActionStatus } from "@/components/ActionStatus";
+import axios from "axios";
 
 export default function FarmerDashboard() {
     const router = useRouter();
@@ -104,6 +105,11 @@ export default function FarmerDashboard() {
     const [exports, setExports] = useState<any[]>([]);
     const [circular, setCircular] = useState<any>(null);
     const [academy, setAcademy] = useState<any[]>([]);
+    const [yieldRisk, setYieldRisk] = useState<any>(null);
+    const [analyzingRisk, setAnalyzingRisk] = useState(false);
+    const [tutorInput, setTutorInput] = useState("");
+    const [tutorAnswer, setTutorAnswer] = useState("");
+    const [askingTutor, setAskingTutor] = useState(false);
 
     useEffect(() => {
         const fetchSensors = async () => {
@@ -166,6 +172,39 @@ export default function FarmerDashboard() {
             console.error(err);
         } finally {
             setDiagnosing(false);
+        }
+    };
+
+    const handleYieldShield = async () => {
+        setAnalyzingRisk(true);
+        try {
+            const res = await axios.post(getApiUrl("/api/ai/yield-shield"), {
+                location: farmProfile.location,
+                crop: farmProfile.crops[0],
+                month: new Date().toLocaleString('default', { month: 'long' })
+            });
+            setYieldRisk(res.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setAnalyzingRisk(false);
+        }
+    };
+
+    const handleAskTutor = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!tutorInput) return;
+        setAskingTutor(true);
+        try {
+            const res = await axios.post(getApiUrl("/api/ai/mastery-tutor"), {
+                question: tutorInput,
+                topic: "General Farming"
+            });
+            setTutorAnswer(res.data.answer);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setAskingTutor(false);
         }
     };
 
@@ -398,13 +437,22 @@ export default function FarmerDashboard() {
                                             <div className="grid grid-cols-2 gap-6">
                                                 <div className="p-6 bg-neutral-50 rounded-[2rem] border border-primary/5">
                                                     <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Risk Score</p>
-                                                    <p className="text-3xl font-black font-serif text-primary italic">12.4%</p>
+                                                    <p className="text-3xl font-black font-serif text-primary italic">
+                                                        {yieldRisk ? `${yieldRisk.score}%` : "12.4%"}
+                                                    </p>
                                                 </div>
                                                 <div className="p-6 bg-neutral-50 rounded-[2rem] border border-primary/5">
                                                     <p className="text-[8px] font-black uppercase text-primary/30 mb-1">Coverage</p>
                                                     <p className="text-3xl font-black font-serif text-primary italic">₦5.0M</p>
                                                 </div>
                                             </div>
+                                            {yieldRisk && (
+                                                <div className="p-6 bg-secondary/10 rounded-[2rem] border border-secondary/20 space-y-2">
+                                                    <p className="text-[10px] font-black uppercase text-secondary">AI Forecast:</p>
+                                                    <p className="text-xs font-bold text-primary">Threat: <span className="text-red-500">{yieldRisk.threat}</span></p>
+                                                    <p className="text-[10px] font-medium text-primary/60">{yieldRisk.mitigation}</p>
+                                                </div>
+                                            )}
                                         </div>
                                         <div className="bg-primary rounded-[3rem] p-10 text-white flex flex-col justify-between relative overflow-hidden">
                                             <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 -translate-y-1/2 translate-x-1/2 rounded-full blur-[80px]" />
@@ -418,10 +466,12 @@ export default function FarmerDashboard() {
                                                 </div>
                                             </div>
                                             <button
-                                                onClick={() => handleAction("Risk Report Download")}
-                                                className="bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all relative"
+                                                onClick={handleYieldShield}
+                                                disabled={analyzingRisk}
+                                                className="bg-secondary text-primary py-4 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all relative flex items-center justify-center gap-2"
                                             >
-                                                Download Risk Report
+                                                {analyzingRisk ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
+                                                {analyzingRisk ? "Scanning Node..." : "Run AI Risk Scan"}
                                             </button>
                                         </div>
                                     </div>
@@ -562,6 +612,48 @@ export default function FarmerDashboard() {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+
+                                            {/* Mastery Tutor Interaction */}
+                                            <div className="mt-12 p-10 bg-primary rounded-[3rem] text-white space-y-8 shadow-2xl relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-16 translate-x-16" />
+                                                <div className="space-y-2 relative">
+                                                    <h4 className="text-xl font-black font-serif italic flex items-center gap-3">
+                                                        <GraduationCap size={20} className="text-secondary" />
+                                                        Mastery <span className="text-secondary">Tutor</span>
+                                                    </h4>
+                                                    <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Ask our Master Agronomist anything.</p>
+                                                </div>
+
+                                                <form onSubmit={handleAskTutor} className="space-y-6 relative">
+                                                    <textarea
+                                                        value={tutorInput}
+                                                        onChange={(e) => setTutorInput(e.target.value)}
+                                                        placeholder="How can I improve my maize yield in Kano?"
+                                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-sm font-medium focus:ring-2 focus:ring-secondary/30 outline-none resize-none"
+                                                        rows={3}
+                                                    />
+                                                    <button
+                                                        type="submit"
+                                                        disabled={askingTutor}
+                                                        className="bg-secondary text-primary px-8 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2"
+                                                    >
+                                                        {askingTutor ? <Loader2 size={14} className="animate-spin" /> : <Zap size={14} />}
+                                                        {askingTutor ? "Thinking..." : "Get Master Advice"}
+                                                    </button>
+                                                </form>
+
+                                                {tutorAnswer && (
+                                                    <div className="p-8 bg-white/5 rounded-[2rem] border border-white/10 animate-in fade-in slide-in-from-top-4 duration-500">
+                                                        <p className="text-xs font-medium leading-relaxed text-white/80 whitespace-pre-wrap">{tutorAnswer}</p>
+                                                        <button
+                                                            onClick={() => setTutorAnswer("")}
+                                                            className="mt-4 text-[8px] font-black uppercase text-white/20 hover:text-white"
+                                                        >
+                                                            Clear Answer
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
