@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, farmers, otps } = require('../db/schema');
+const { users, farmers, affiliates, carriers, jobApplications, otps } = require('../db/schema');
 const { eq, and, gt } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -145,6 +145,158 @@ router.post('/signup/farmer', async (req, res) => {
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
         console.error('Farmer Signup Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/signup/affiliate', async (req, res) => {
+    try {
+        const {
+            name, email, password, phone,
+            channelType, channelUrl, experience, location,
+            bankName, accountNumber, accountName
+        } = req.body;
+
+        if (!name || !email || !password) return res.status(400).json({ error: 'Missing required fields' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const referralCode = `KIDO-${name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        const result = await db.transaction(async (tx) => {
+            const [user] = await tx.insert(users).values({
+                name,
+                email,
+                password: hashedPassword,
+                phone,
+                role: 'affiliate',
+                state: location,
+                isVerified: false
+            }).returning();
+
+            await tx.insert(affiliates).values({
+                userId: user.id,
+                referralCode,
+                channelType,
+                channelUrl,
+                experience,
+                bankName,
+                accountNumber,
+                accountName,
+                status: 'pending'
+            });
+
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            await tx.insert(otps).values({
+                userId: user.id,
+                code: otpCode,
+                expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+            });
+
+            return { user, otpCode };
+        });
+
+        await sendOtpEmail(email, result.otpCode);
+        res.status(201).json({ message: 'Affiliate account created. OTP sent.', user: result.user, requiresOtp: true });
+    } catch (error) {
+        if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
+        console.error('Affiliate Signup Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/signup/carrier', async (req, res) => {
+    try {
+        const {
+            name, email, password, phone,
+            companyName, vehicleType, coverageArea, hasColdChain,
+            bankName, accountNumber, accountName
+        } = req.body;
+
+        if (!name || !email || !password) return res.status(400).json({ error: 'Missing required fields' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const result = await db.transaction(async (tx) => {
+            const [user] = await tx.insert(users).values({
+                name,
+                email,
+                password: hashedPassword,
+                phone,
+                role: 'carrier',
+                state: coverageArea,
+                isVerified: false
+            }).returning();
+
+            await tx.insert(carriers).values({
+                userId: user.id,
+                companyName,
+                vehicleType,
+                coverageArea,
+                hasColdChain,
+                bankName,
+                accountNumber,
+                accountName,
+                status: 'pending'
+            });
+
+            const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+            await tx.insert(otps).values({
+                userId: user.id,
+                code: otpCode,
+                expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+            });
+
+            return { user, otpCode };
+        });
+
+        await sendOtpEmail(email, result.otpCode);
+        res.status(201).json({ message: 'Carrier account created. OTP sent.', user: result.user, requiresOtp: true });
+    } catch (error) {
+        if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
+        console.error('Carrier Signup Error:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+router.post('/signup/career', async (req, res) => {
+    try {
+        const {
+            name, email, password, phone,
+            position, experience, location, resumeLink, bio
+        } = req.body;
+
+        if (!name || !email || !password) return res.status(400).json({ error: 'Missing required fields' });
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const result = await db.transaction(async (tx) => {
+            const [user] = await tx.insert(users).values({
+                name,
+                email,
+                password: hashedPassword,
+                phone,
+                role: 'candidate',
+                state: location,
+                isVerified: true // Candidates don't necessarily need OTP for activation, but let's be consistent if desired
+            }).returning();
+
+            await tx.insert(jobApplications).values({
+                userId: user.id,
+                position,
+                experience,
+                location,
+                resumeLink,
+                bio,
+                status: 'pending'
+            });
+
+            return { user };
+        });
+
+        res.status(201).json({ message: 'Application submitted successfully', user: result.user });
+    } catch (error) {
+        if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
+        console.error('Career Signup Error:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
