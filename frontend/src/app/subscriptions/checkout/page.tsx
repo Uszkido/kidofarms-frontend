@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Check, CreditCard, MapPin, Phone, User, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
@@ -8,7 +9,17 @@ import { getApiUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function SubscriptionCheckoutPage() {
+    const { data: session } = useSession();
     const router = useRouter();
+
+    useEffect(() => {
+        const userRole = (session?.user as any)?.role;
+        const isBusiness = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'distributor'].includes(userRole);
+        if (isBusiness) {
+            router.push('/dashboard/buyer');
+        }
+    }, [session, router]);
+
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [formData, setFormData] = useState({

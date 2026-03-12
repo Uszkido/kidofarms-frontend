@@ -21,7 +21,9 @@ import {
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function HorizonPage() {
+import { Suspense } from "react";
+
+function HorizonContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const sub = searchParams.get('sub') || 'shield';
@@ -340,5 +342,17 @@ export default function HorizonPage() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function HorizonPage() {
+    return (
+        <Suspense fallback={
+            <div className="w-full h-[600px] flex items-center justify-center">
+                <RefreshCw className="animate-spin text-secondary" size={48} />
+            </div>
+        }>
+            <HorizonContent />
+        </Suspense>
     );
 }

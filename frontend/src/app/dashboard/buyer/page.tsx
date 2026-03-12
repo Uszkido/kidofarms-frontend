@@ -41,10 +41,12 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
 
 export default function BuyerDashboard() {
     const { data: session } = useSession();
+    const router = useRouter();
     const userRole = (session?.user as any)?.role;
 
     // States from Consumer
@@ -66,8 +68,19 @@ export default function BuyerDashboard() {
 
     // Role Logic
     const isSubscriber = userRole === 'subscriber' || userRole === 'admin';
-    const isBusiness = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'admin'].includes(userRole);
+    const isBusiness = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'distributor', 'admin'].includes(userRole);
     const isWholesaler = userRole === 'wholesale_buyer' || userRole === 'admin';
+
+    useEffect(() => {
+        const businessRoles = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'distributor'];
+        if (businessRoles.includes(userRole)) {
+            // Business roles stay on the dashboard but have restricted view, 
+            // except if they try to access consumer-only bits.
+            // However, the user said they should be redirected TO /dashboard/buyer 
+            // from subscription pages. 
+            // If they are ALREADY on /dashboard/buyer, we just ensure the UI is clean.
+        }
+    }, [userRole]);
 
     useEffect(() => {
         if ((session?.user as any)?.id) {
@@ -127,6 +140,14 @@ export default function BuyerDashboard() {
     };
 
     const handleAction = (label: string) => {
+        if (label === "Fund Wallet") {
+            router.push("/dashboard/buyer/payment");
+            return;
+        }
+        if (label === "Upgrade to Elite") {
+            router.push("/subscriptions");
+            return;
+        }
         alert(`${label} protocol initiated. Node synchronization in progress.`);
     };
 
@@ -235,12 +256,12 @@ export default function BuyerDashboard() {
                                 ))}
                             </div>
 
-                            {!isSubscriber && (
+                            {userRole === 'consumer' && (
                                 <button
                                     onClick={() => handleAction("Upgrade to Elite")}
                                     className="mb-6 px-6 py-3 bg-secondary text-primary rounded-xl font-black text-[9px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap"
                                 >
-                                    <Star size={14} /> Upgrade to Elite
+                                    <Star size={14} /> Get Weekly Farm Basket
                                 </button>
                             )}
                         </div>
@@ -583,17 +604,17 @@ export default function BuyerDashboard() {
                                     <button onClick={() => handleAction("Broadcast Referral")} className="w-full bg-primary text-secondary py-5 rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-2xl hover:bg-white hover:text-primary transition-all">Broadcast Node ID</button>
                                 </div>
 
-                                {/* Upgrade Node for Non-Subscribers */}
-                                {!isSubscriber && (
+                                {/* Upgrade Node for Consumers Only */}
+                                {userRole === 'consumer' && (
                                     <div className="bg-primary p-10 rounded-[3.5rem] text-white space-y-8 relative overflow-hidden group shadow-2xl border-2 border-secondary/20">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-700" />
                                         <div className="relative z-10 space-y-6">
                                             <div className="w-16 h-16 bg-secondary text-primary rounded-2xl flex items-center justify-center shadow-2xl">
                                                 <Star size={32} />
                                             </div>
-                                            <h3 className="text-3xl font-black font-serif italic uppercase leading-none">Upgrade to <br /><span className="text-secondary">Elite Protocol</span></h3>
-                                            <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed italic opacity-40">Unlock B2B procurement, cold-chain transparency, and periodic harvest drops.</p>
-                                            <Link href="/subscriptions" className="block w-full bg-secondary text-primary py-5 rounded-2xl font-black uppercase tracking-widest text-center text-[10px] shadow-2xl hover:bg-white transition-all">Activate Elite Access</Link>
+                                            <h3 className="text-3xl font-black font-serif italic uppercase leading-none">Activate Your <br /><span className="text-secondary">Weekly Farm Basket</span></h3>
+                                            <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed italic opacity-40">Upgrade to Elite Protocol for weekly curated harvests, B2B procurement, and cold-chain transparency.</p>
+                                            <Link href="/subscriptions" className="block w-full bg-secondary text-primary py-5 rounded-2xl font-black uppercase tracking-widest text-center text-[10px] shadow-2xl hover:bg-white transition-all">Start Subscription</Link>
                                         </div>
                                     </div>
                                 )}
