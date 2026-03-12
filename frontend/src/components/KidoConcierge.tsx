@@ -1,19 +1,58 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
-import { MessageCircle, X, ShoppingCart, Search, Info, Leaf, Sparkles } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { MessageCircle, X, ShoppingCart, Search, Info, Leaf, Sparkles, Send, Bot, User } from "lucide-react";
 import Link from "next/link";
+import axios from "axios";
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api";
+
+type Message = {
+    role: "user" | "bot";
+    text: string;
+};
 
 export default function KidoConcierge() {
     const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState<Message[]>([
+        { role: "bot", text: "Welcome to Kido Farms! I'm your AI Concierge. How can I help you harvest success today?" }
+    ]);
+    const [input, setInput] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+    const scrollRef = useRef<HTMLDivElement>(null);
 
-    const menuItems = [
-        { icon: ShoppingCart, label: "View Cart", link: "/cart", color: "bg-primary text-white" },
-        { icon: Search, label: "Search Store", link: "/shop", color: "bg-secondary text-primary" },
-        { icon: Leaf, label: "Track Harvest", link: "/track-harvest", color: "bg-green-100 text-green-700" },
-        { icon: Info, label: "Our Story", link: "/about", color: "bg-cream text-primary" },
-    ];
+    useEffect(() => {
+        if (scrollRef.current) {
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+        }
+    }, [messages]);
+
+    const handleSend = async () => {
+        if (!input.trim() || isLoading) return;
+
+        const userMessage = input.trim();
+        setInput("");
+        setMessages(prev => [...prev, { role: "user", text: userMessage }]);
+        setIsLoading(true);
+
+        try {
+            const response = await axios.post(`${API_URL}/ai/chat`, {
+                message: userMessage,
+                history: messages.map(m => ({
+                    role: m.role === "bot" ? "model" : "user",
+                    parts: [{ text: m.text }]
+                }))
+            });
+
+            setMessages(prev => [...prev, { role: "bot", text: response.data.reply }]);
+        } catch (error) {
+            console.error("Chat Error:", error);
+            setMessages(prev => [...prev, { role: "bot", text: "Forgive me, my neural circuits are a bit tangled. Please try again in a moment." }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
     return (
         <div className="fixed bottom-12 right-12 z-50">
@@ -23,41 +62,68 @@ export default function KidoConcierge() {
                         initial={{ opacity: 0, scale: 0.8, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                        className="absolute bottom-20 right-0 w-72 bg-white/60 backdrop-blur-2xl rounded-[3rem] p-8 shadow-2xl border border-primary/5 space-y-8"
+                        className="absolute bottom-20 right-0 w-96 bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-primary/10 flex flex-col overflow-hidden h-[500px]"
                     >
-                        <div className="space-y-2">
-                            <div className="flex items-center gap-2">
-                                <Sparkles size={16} className="text-secondary" />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">Kido Concierge</span>
+                        {/* Header */}
+                        <div className="p-6 bg-primary text-white flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="p-2 bg-secondary rounded-xl text-primary">
+                                    <Sparkles size={18} />
+                                </div>
+                                <div>
+                                    <h4 className="text-lg font-black font-serif">Kido AI Concierge</h4>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-secondary/80">Always Bloom Logic</p>
+                                </div>
                             </div>
-                            <h4 className="text-2xl font-black font-serif text-primary">How can we help you today?</h4>
+                            <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                                <X size={20} />
+                            </button>
                         </div>
 
-                        <div className="grid grid-cols-1 gap-3">
-                            {menuItems.map((item, i) => (
-                                <Link key={i} href={item.link} onClick={() => setIsOpen(false)}>
-                                    <motion.div
-                                        whileHover={{ scale: 1.02 }}
-                                        whileTap={{ scale: 0.98 }}
-                                        className="flex items-center gap-4 p-4 rounded-2xl bg-white/40 hover:bg-white transition-colors border border-primary/5 group"
-                                    >
-                                        <div className={`p-2.5 rounded-xl ${item.color} shadow-sm group-hover:shadow-md transition-shadow`}>
-                                            <item.icon size={18} />
-                                        </div>
-                                        <span className="text-sm font-black text-primary uppercase tracking-tight">{item.label}</span>
-                                    </motion.div>
-                                </Link>
+                        {/* Chat Area */}
+                        <div
+                            ref={scrollRef}
+                            className="flex-1 overflow-y-auto p-6 space-y-4 scroll-smooth"
+                        >
+                            {messages.map((msg, i) => (
+                                <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                                    <div className={`max-w-[80%] p-4 rounded-2xl text-sm font-medium leading-relaxed ${msg.role === "user"
+                                            ? "bg-secondary text-primary rounded-tr-none"
+                                            : "bg-cream text-primary rounded-tl-none border border-primary/5"
+                                        }`}>
+                                        {msg.text}
+                                    </div>
+                                </div>
                             ))}
+                            {isLoading && (
+                                <div className="flex justify-start">
+                                    <div className="bg-cream p-4 rounded-2xl rounded-tl-none border border-primary/5 flex gap-1">
+                                        <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1 }} className="w-2 h-2 bg-primary/30 rounded-full" />
+                                        <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1, delay: 0.2 }} className="w-2 h-2 bg-primary/30 rounded-full" />
+                                        <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 1, delay: 0.4 }} className="w-2 h-2 bg-primary/30 rounded-full" />
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
-                        <div className="pt-6 border-t border-primary/5">
-                            <div className="bg-secondary/10 p-5 rounded-[2rem] space-y-3">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary flex items-center gap-2">
-                                    <Leaf size={12} /> Daily Freshness Tip
-                                </p>
-                                <p className="text-xs font-bold text-primary/70 leading-relaxed">
-                                    "Keep your tomatoes at room temperature for maximum flavor. Cold storage kills the organic aroma!"
-                                </p>
+                        {/* Input Area */}
+                        <div className="p-6 border-t border-primary/5 bg-white">
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    value={input}
+                                    onChange={(e) => setInput(e.target.value)}
+                                    onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                                    placeholder="Message concierge..."
+                                    className="w-full pl-6 pr-14 py-4 bg-cream rounded-2xl text-sm font-bold text-primary placeholder:text-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/10 border border-primary/5"
+                                />
+                                <button
+                                    onClick={handleSend}
+                                    disabled={!input.trim() || isLoading}
+                                    className="absolute right-2 top-2 p-2.5 bg-primary text-white rounded-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
+                                >
+                                    <Send size={18} />
+                                </button>
                             </div>
                         </div>
                     </motion.div>
@@ -68,7 +134,7 @@ export default function KidoConcierge() {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all ${isOpen ? "bg-primary text-white" : "bg-secondary text-primary"
+                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all ${isOpen ? "bg-primary text-white" : "bg-primary text-secondary border-4 border-secondary shadow-[0_0_20px_rgba(242,201,76,0.3)]"
                     }`}
             >
                 {isOpen ? <X size={28} strokeWidth={2.5} /> : <MessageCircle size={28} strokeWidth={2.5} />}

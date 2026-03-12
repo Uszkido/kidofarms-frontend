@@ -3,6 +3,8 @@ const router = express.Router();
 const { db } = require('../db');
 const { orders, orderItems, affiliates, commissions, products } = require('../db/schema');
 const { desc, eq, and, inArray } = require('drizzle-orm');
+const { sendOrderToBot } = require('../lib/bot');
+
 
 router.get('/', async (req, res) => {
     try {
@@ -81,7 +83,25 @@ router.post('/', async (req, res) => {
             });
         }
 
+        // Send notification to bot
+        // Fetch product names for a descriptive message
+        try {
+            const productDetails = await db.query.products.findMany({
+                where: inArray(products.id, items.map(i => i.id))
+            });
+
+            const enrichedItems = items.map(item => {
+                const p = productDetails.find(p => p.id === item.id);
+                return { ...item, name: p ? p.name : `Product ${item.id}` };
+            });
+
+            await sendOrderToBot(order, enrichedItems);
+        } catch (botError) {
+            console.error("Bot Notification failed, but order was saved:", botError);
+        }
+
         res.status(201).json(order);
+
     } catch (error) {
         console.error(error);
         res.status(400).json({ error: 'Failed' });
