@@ -279,7 +279,7 @@ export default function AdminUsersPage() {
                                             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Function Authorization Matrix</h4>
                                         </div>
                                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                            {['inventory', 'orders', 'finance', 'users', 'warehouse', 'team', 'blog', 'settings'].map(perm => (
+                                            {['inventory', 'orders', 'finance', 'users', 'warehouse', 'team', 'blog', 'settings', 'global_data_command'].map(perm => (
                                                 <button
                                                     key={perm}
                                                     type="button"

@@ -220,6 +220,7 @@ export default function AdminDashboard() {
                         <SmallMenuLink href="/admin/reviews" label="Trust Matrix" icon={<Star size={20} />} permission="content" />
                         <SmallMenuLink href="/admin/reports" label="Neural Intel" icon={<Activity size={20} />} permission="finance" />
                         <SmallMenuLink href="/admin/users" label="Citizen Registry" icon={<Users size={20} />} permission="users" />
+                        <SmallMenuLink href="/admin/registry" label="Universal Console" icon={<Database size={20} />} permission="global_data_command" />
                     </div>
                 </div>
 

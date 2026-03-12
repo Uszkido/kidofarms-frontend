@@ -170,6 +170,17 @@ export default function CarrierRegistrationPage() {
                                             />
                                         </div>
                                         <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Account Password</label>
+                                            <input
+                                                required
+                                                type="password"
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-sm font-bold text-primary"
+                                                placeholder="••••••••"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Coverage Area</label>
                                             <select
                                                 required

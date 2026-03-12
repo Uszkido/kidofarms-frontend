@@ -40,7 +40,7 @@ export default function KidoConcierge() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     message: userMessage,
-                    history: messages.slice(1, -1).map(m => ({ // Previous messages only
+                    history: messages.slice(1).map(m => ({ // Previous messages only
                         role: m.role === "bot" ? "model" : "user",
                         parts: [{ text: m.text }]
                     }))

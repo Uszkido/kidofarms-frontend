@@ -6,7 +6,6 @@ const { eq, sql, desc, or } = require('drizzle-orm');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy-key");
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // 1. POST /api/admin/ai/scan-trust - Master Trust Oracle Logic
 router.post('/scan-trust', async (req, res) => {
@@ -99,40 +98,51 @@ router.get('/insights/:userId', async (req, res) => {
     }
 });
 
+const SYSTEM_PROMPT = "You are the Kido Farms Concierge, a helpful assistant for an agricultural e-commerce platform in Nigeria. You help users find organic produce, track harvests, and manage their farm nodes. Be professional, friendly, and use a bit of Nigerian flair where appropriate. Answer concisely.";
+
+const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: SYSTEM_PROMPT
+});
+
 // 3. POST /api/ai/chat - Gemini Chat Integration
 router.post('/chat', async (req, res) => {
     try {
         const { message, history } = req.body;
+        const apiKey = process.env.GEMINI_API_KEY;
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
+        const isDummy = !apiKey || apiKey === 'your-gemini-api-key' || apiKey.includes('dummy');
+
+        if (isDummy) {
             return res.json({
                 reply: "I'm currently in training mode (AI Node syncing). Harvests are looking great though! How can I help you navigate Kido Farms today?",
                 isMock: true
             });
         }
 
-        const systemPrompt = "You are the Kido Farms Concierge, a helpful assistant for an agricultural e-commerce platform in Nigeria. You help users find organic produce, track harvests, and manage their farm nodes. Be professional, friendly, and use a bit of Nigerian flair where appropriate. Answer concisely.";
+        try {
+            const chat = model.startChat({
+                history: history || [],
+                generationConfig: {
+                    maxOutputTokens: 500,
+                },
+            });
 
-        const chatContext = history && history.length > 0 ? history : [
-            { role: "user", parts: [{ text: systemPrompt }] },
-            { role: "model", parts: [{ text: "Understood. I am ready to assist Kido Farms citizens. How can I help today?" }] }
-        ];
+            const result = await chat.sendMessage(message);
+            const response = await result.response;
+            const text = response.text();
 
-        const chat = model.startChat({
-            history: chatContext,
-            generationConfig: {
-                maxOutputTokens: 500,
-            },
-        });
-
-        const result = await chat.sendMessage(message);
-        const response = await result.response;
-        const text = response.text();
-
-        res.json({ reply: text });
+            res.json({ reply: text });
+        } catch (apiError) {
+            console.error('Gemini API Reality Failure:', apiError);
+            return res.json({
+                reply: "Our neural nodes are experiencing high latency, but I'm still here! Kido Farms is buzzing with activity. How can I assist you with our organic harvests today?",
+                isMock: true
+            });
+        }
     } catch (error) {
-        console.error('Gemini Chat Error:', error);
-        res.status(500).json({ error: 'AI Protocol disruption. Please try again later.' });
+        console.error('Gemini Global Chat Error:', error);
+        res.status(500).json({ error: 'AI Protocol disruption. Our neural nodes are currently re-aligning.' });
     }
 });
 
@@ -183,6 +193,14 @@ router.post('/suggest-recipe', async (req, res) => {
         
         Format as JSON: { "recipeName": "...", "instructions": "...", "missingIngredients": ["...", "..."] }`;
 
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
+            return res.json({
+                recipeName: "Kido Special Jollof",
+                instructions: "1. Rinse Kido Organic Rice. 2. Blend Kido Tomatoes and Peppers. 3. Sauté and simmer with your choice of farm-fresh protein.",
+                missingIngredients: ["Kido Thyme", "Smoked Paprika"]
+            });
+        }
+
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text().replace(/```json|```/g, '').trim();
@@ -211,6 +229,14 @@ router.post('/yield-shield', async (req, res) => {
         
         Format as JSON: { "score": 85, "threat": "...", "mitigation": "..." }`;
 
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
+            return res.json({
+                score: 15,
+                threat: "Normal weather patterns detected.",
+                mitigation: "Continue standard irrigation protocol."
+            });
+        }
+
         const result = await model.generateContent(prompt);
         const response = await result.response;
         const text = response.text().replace(/```json|```/g, '').trim();
@@ -232,6 +258,12 @@ router.post('/mastery-tutor', async (req, res) => {
         Question: ${question}
         
         Provide a detailed, practical answer for a Nigerian farmer. Use local context.`;
+
+        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
+            return res.json({
+                answer: "As a Master Agronomist, I recommend observing your soil pH and moisture levels. Our training node is currently syncing for more specific data."
+            });
+        }
 
         const result = await model.generateContent(prompt);
         const response = await result.response;

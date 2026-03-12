@@ -1,8 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates } = require('../db/schema');
 const { desc, eq, sql, or } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles, authorizePermissions } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
+router.use(authorizeRoles('admin', 'sub-admin', 'team_member'));
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
@@ -573,6 +577,49 @@ router.patch('/tasks/:id/status', async (req, res) => {
     } catch (error) {
         console.error('Update Task Status Error:', error);
         res.status(500).json({ error: 'Failed to update task node' });
+    }
+});
+
+// 23. GET /api/admin/entities/:entity - Universal Entity Retrieval
+router.get('/entities/:entity', async (req, res) => {
+    const { entity } = req.params;
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes };
+
+    if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
+
+    try {
+        const data = await db.select().from(tables[entity]).orderBy(desc(tables[entity].createdAt || tables[entity].id));
+        res.json(data);
+    } catch (error) {
+        console.error(`Fetch ${entity} Error:`, error);
+        res.status(500).json({ error: `Failed to fetch ${entity}` });
+    }
+});
+
+// 24. PATCH /api/admin/entities/:entity/:id - Universal Entity Modification
+router.patch('/entities/:entity/:id', authorizePermissions('global_data_command'), async (req, res) => {
+    const { entity, id } = req.params;
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes };
+
+    if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
+
+    try {
+        const [updated] = await db.update(tables[entity])
+            .set({ ...req.body, updatedAt: new Date() })
+            .where(eq(tables[entity].id, id))
+            .returning();
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_GLOBAL_EDIT',
+            entity: entity,
+            details: { id, fields: Object.keys(req.body) },
+            userId: req.user.id
+        });
+
+        res.json(updated);
+    } catch (error) {
+        console.error(`Update ${entity} Error:`, error);
+        res.status(500).json({ error: `Failed to update ${entity}` });
     }
 });
 

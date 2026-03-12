@@ -180,6 +180,17 @@ export default function CareerRegistrationPage() {
                                                 placeholder="+234..."
                                             />
                                         </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Account Password</label>
+                                            <input
+                                                required
+                                                type="password"
+                                                value={formData.password}
+                                                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                                                className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-sm font-bold text-primary"
+                                                placeholder="••••••••"
+                                            />
+                                        </div>
                                     </div>
                                 </section>
 
@@ -207,6 +218,15 @@ export default function CareerRegistrationPage() {
                                                 <option value="Social Media Manager">Social Media Manager</option>
                                                 <option value="Tech Support">Tech Support / Dev</option>
                                                 <option value="Administrative">Administrative</option>
+                                                <option value="AI Data Trainer">AI & Neural Data Trainer</option>
+                                                <option value="Soil Scientist">Soil Health Scientist</option>
+                                                <option value="Export Lead">Export Compliance Lead</option>
+                                                <option value="Insurance Adjuster">Agro-Insurance Adjuster</option>
+                                                <option value="Bio-Gas Technician">Bio-Gas & Energy Technician</option>
+                                                <option value="Course Instructor">Mastery Academy Instructor</option>
+                                                <option value="Blockchain Analyst">Escrow Compliance Analyst</option>
+                                                <option value="Drone Pilot">Drone Mapping Pilot</option>
+                                                <option value="Sustainability Lead">Sustainability Lead</option>
                                             </select>
                                         </div>
                                         <div className="space-y-2">
