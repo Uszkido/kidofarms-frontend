@@ -2,7 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
 const { users, orders, wallets, walletTransactions, activityLogs } = require('../db/schema');
-const { eq, sql, desc } = require('drizzle-orm');
+const { eq, sql, desc, or } = require('drizzle-orm');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy-key");
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // 1. POST /api/admin/ai/scan-trust - Master Trust Oracle Logic
 router.post('/scan-trust', async (req, res) => {
@@ -92,6 +96,38 @@ router.get('/insights/:userId', async (req, res) => {
         res.json(insights);
     } catch (error) {
         res.status(500).json({ error: 'Failed to retrieve AI data' });
+    }
+});
+
+// 3. POST /api/ai/chat - Gemini Chat Integration
+router.post('/chat', async (req, res) => {
+    try {
+        const { message, history } = req.body;
+
+        if (!process.env.GEMINI_API_KEY) {
+            return res.json({
+                reply: "I'm currently in training mode (API key not configured). How can I help you with Kido Farms today?",
+                isMock: true
+            });
+        }
+
+        const chat = model.startChat({
+            history: history || [],
+            generationConfig: {
+                maxOutputTokens: 500,
+            },
+        });
+
+        const systemPrompt = "You are the Kido Farms Concierge, a helpful assistant for an agricultural e-commerce platform in Nigeria. You help users find organic produce, track harvests, and manage their farm nodes. Be professional, friendly, and use a bit of Nigerian flair where appropriate (e.g., 'Welcome to the farm!').";
+
+        const result = await chat.sendMessage(`${systemPrompt}\n\nUser: ${message}`);
+        const response = await result.response;
+        const text = response.text();
+
+        res.json({ reply: text });
+    } catch (error) {
+        console.error('Gemini Chat Error:', error);
+        res.status(500).json({ error: 'AI Protocol disruption. Please try again later.' });
     }
 });
 

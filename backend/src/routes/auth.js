@@ -5,6 +5,8 @@ const { users, farmers, otps } = require('../db/schema');
 const { eq, and, gt } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { sendOtpEmail } = require('../lib/email');
+
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
 
@@ -63,11 +65,13 @@ router.post('/signup', async (req, res) => {
             expiresAt
         });
 
+        await sendOtpEmail(email, otpCode);
+
         res.status(201).json({
-            message: 'User created. OTP generated for verification.',
+            message: 'User created. OTP sent to your email.',
             user: { id: user.id, email: user.email, role: user.role },
             requiresOtp: true,
-            otpCode: otpCode // In real app, send via email/SMS. For simulator, return it.
+            // otpCode: otpCode // No longer returning it directly for security
         });
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
@@ -130,11 +134,13 @@ router.post('/signup/farmer', async (req, res) => {
             return { user, otpCode };
         });
 
+        await sendOtpEmail(email, result.otpCode);
+
         res.status(201).json({
-            message: 'Farmer account created. OTP generated for activation.',
+            message: 'Farmer account created. OTP sent to your email for activation.',
             user: { id: result.user.id, email: result.user.email, role: result.user.role },
             requiresOtp: true,
-            otpCode: result.otpCode
+            // otpCode: result.otpCode
         });
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
@@ -258,7 +264,9 @@ router.post('/forgot-password', async (req, res) => {
             expiresAt
         });
 
-        res.json({ message: 'OTP sent to your registered channel. (Check Admin Dashboard if simulated)', requiresOtp: true });
+        await sendOtpEmail(email, otpCode);
+
+        res.json({ message: 'OTP sent to your registered email.', requiresOtp: true });
     } catch (error) {
         console.error('Forgot Password Error:', error);
         res.status(500).json({ error: 'Internal server error' });
