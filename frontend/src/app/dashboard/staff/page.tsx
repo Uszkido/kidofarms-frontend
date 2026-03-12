@@ -31,17 +31,31 @@ import {
     Trash2,
     RotateCcw,
     FileText,
-    Mail
+    Mail,
+    Plus
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 import Link from "next/link";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function StaffDashboard() {
     const { data: session } = useSession();
     const userRole = (session?.user as any)?.role;
 
     // States
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const [activeTab, setActiveTab] = useState("command");
     const [tasks, setTasks] = useState<any[]>([]);
     const [tickets, setTickets] = useState<any[]>([]);
@@ -73,12 +87,32 @@ export default function StaffDashboard() {
     };
 
     const handleAction = (label: string) => {
-        alert(`${label} protocol initiated. Master Node synchronization in progress.`);
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Master Node synchronization in progress...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. Master Node synchronization complete.`,
+                status: "success"
+            }));
+        }, 2000);
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
 
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6">
@@ -427,12 +461,4 @@ export default function StaffDashboard() {
             <Footer />
         </div>
     );
-}
-
-function LayoutDashboard({ size, className }: any) {
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>;
-}
-
-function Plus({ size, className }: any) {
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M5 12h14" /><path d="M12 5v14" /></svg>;
 }

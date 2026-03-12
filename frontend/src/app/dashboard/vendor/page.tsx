@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -27,12 +27,26 @@ import {
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function VendorDashboard() {
     const router = useRouter();
     useEffect(() => {
         router.push("/dashboard/supplier");
     }, [router]);
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const stats = {
         totalSales: "₦1.2M",
         activeOrders: 12,
@@ -41,12 +55,32 @@ export default function VendorDashboard() {
     };
 
     const handleAction = (label: string) => {
-        alert(`${label} protocol initiated. Node synchronization in progress.`);
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Node synchronization in progress...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. Node synchronization complete.`,
+                status: "success"
+            }));
+        }, 2000);
     };
 
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto space-y-12">

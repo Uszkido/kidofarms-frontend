@@ -14,6 +14,8 @@ import {
 import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
 
+import { ActionStatus } from "@/components/ActionStatus";
+
 export default function ReportIssueModal() {
     const { data: session } = useSession();
     const [isOpen, setIsOpen] = useState(false);
@@ -25,10 +27,30 @@ export default function ReportIssueModal() {
         priority: "medium"
     });
 
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const userId = (session?.user as any)?.id;
-        if (!userId) return alert("System Auth required for Reporting.");
+        if (!userId) {
+            setActionState({
+                isOpen: true,
+                title: "Authentication Required",
+                message: "System Auth required for Reporting.",
+                status: "error"
+            });
+            return;
+        }
 
         setIsSubmitting(true);
         try {
@@ -60,6 +82,13 @@ export default function ReportIssueModal() {
 
     return (
         <>
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             {/* Floating Toggle Button */}
             <button
                 onClick={() => setIsOpen(true)}

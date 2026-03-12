@@ -33,10 +33,23 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function LogisticsDashboard() {
     const { data: session } = useSession();
     const userRole = (session?.user as any)?.role;
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
 
     // States
     const [deliveries, setDeliveries] = useState<any[]>([]);
@@ -92,7 +105,20 @@ export default function LogisticsDashboard() {
     };
 
     const handleAction = (label: string) => {
-        alert(`${label} protocol initiated. Node synchronization in progress.`);
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Synchronizing logistics mesh nodes...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. All transit nodes are active.`,
+                status: "success"
+            }));
+        }, 2000);
     };
 
     if (loading) return (
@@ -111,6 +137,13 @@ export default function LogisticsDashboard() {
     return (
         <div className="flex flex-col min-h-screen bg-cream/10">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
 
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6">

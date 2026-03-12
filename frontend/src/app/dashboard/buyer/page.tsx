@@ -43,11 +43,24 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function BuyerDashboard() {
     const { data: session } = useSession();
     const router = useRouter();
     const userRole = (session?.user as any)?.role;
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
 
     // States from Consumer
     const [cards, setCards] = useState<any[]>([]);
@@ -148,12 +161,33 @@ export default function BuyerDashboard() {
             router.push("/subscriptions");
             return;
         }
-        alert(`${label} protocol initiated. Node synchronization in progress.`);
+
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Node synchronization in progress...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. Gateway nodes online.`,
+                status: "success"
+            }));
+        }, 2000);
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-cream/10">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
 
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6">
@@ -662,7 +696,7 @@ export default function BuyerDashboard() {
                             <p className="text-[9px] font-black uppercase tracking-widest text-primary/30 italic">Authorized Secure Protocol Gateway</p>
                         </div>
 
-                        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsAddCardOpen(false); alert("Financial Node Securely Linked."); }}>
+                        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsAddCardOpen(false); handleAction("Financial Node Link"); }}>
                             <div className="space-y-2">
                                 <label className="text-[9px] font-black uppercase tracking-widest text-primary/30 ml-6 italic">Registry Name</label>
                                 <input required placeholder="J. DOE" className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-xs" />

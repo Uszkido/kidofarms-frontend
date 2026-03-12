@@ -7,6 +7,7 @@ import { Footer } from "@/components/Footer";
 import { Check, CreditCard, MapPin, Phone, User, Loader2, ArrowRight, ArrowLeft } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function SubscriptionCheckoutPage() {
     const { data: session } = useSession();
@@ -19,6 +20,18 @@ export default function SubscriptionCheckoutPage() {
             router.push('/dashboard/buyer');
         }
     }, [session, router]);
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
 
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -46,6 +59,13 @@ export default function SubscriptionCheckoutPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setActionState({
+            isOpen: true,
+            title: "Subscription",
+            message: "Securing your farm node and processing payment...",
+            status: "processing"
+        });
+
         try {
             const res = await fetch(getApiUrl("/api/subscribers"), {
                 method: "POST",
@@ -53,14 +73,31 @@ export default function SubscriptionCheckoutPage() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                // Success! Redirect to subscriber dashboard
-                router.push("/dashboard/subscriber?status=success");
+                setActionState(prev => ({
+                    ...prev,
+                    message: "Welcome to Elite Protocol. Your node is now active.",
+                    status: "success"
+                }));
+                // Success! Redirect to subscriber dashboard after a delay
+                setTimeout(() => {
+                    router.push("/dashboard/subscriber?status=success");
+                }, 2000);
             } else {
-                alert("Failed to process subscription. Please try again.");
+                setActionState({
+                    isOpen: true,
+                    title: "Status",
+                    message: "Failed to process subscription. Please try again.",
+                    status: "error"
+                });
             }
         } catch (error) {
             console.error(error);
-            alert("An error occurred. Please check your connection.");
+            setActionState({
+                isOpen: true,
+                title: "Error",
+                message: "An error occurred. Please check your connection.",
+                status: "error"
+            });
         } finally {
             setIsSubmitting(false);
         }
@@ -68,7 +105,15 @@ export default function SubscriptionCheckoutPage() {
 
     return (
         <div className="flex flex-col min-h-screen">
-            <Header />            <main className="flex-grow pt-32 pb-24 bg-cream/10">
+            <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
+            <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
                     <div className="max-w-3xl mx-auto space-y-12">
                         {/* Progress Stepper */}
