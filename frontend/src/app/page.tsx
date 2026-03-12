@@ -264,9 +264,9 @@ export default async function Home() {
           <TeamSection />
         </FadeInEntry>
 
-        {/* Farmer CTA Section */}
+        {/* Farmer & Vendor CTA Section */}
         <FadeInEntry>
-          <section className="py-20 md:py-40 mb-12 md:mb-24 px-4 md:px-12">
+          <section className="py-20 md:py-40 px-4 md:px-12">
             <div className="container mx-auto">
               <div className="bg-neutral-950 rounded-[3rem] md:rounded-[6rem] p-10 md:p-40 text-white shadow-2xl relative overflow-hidden border border-white/5">
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
@@ -297,6 +297,55 @@ export default async function Home() {
                         <span className="text-[8px] md:text-[11px] font-black uppercase tracking-[0.3em] group-hover:text-primary text-white/20 transition-colors">Unit #{i * 256}</span>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </FadeInEntry>
+
+        {/* Affiliate & Carriers Section */}
+        <FadeInEntry>
+          <section className="py-20 md:py-40 bg-white overflow-hidden">
+            <div className="container mx-auto px-6">
+              <div className="flex flex-col md:flex-row gap-20 items-stretch">
+                {/* Affiliate Side */}
+                <div className="flex-1 bg-primary rounded-[3rem] md:rounded-[5rem] p-10 md:p-24 text-white relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] group-hover:scale-150 transition-transform duration-1000" />
+                  <div className="relative z-10 space-y-12">
+                    <div className="space-y-6">
+                      <span className="inline-block bg-secondary text-primary px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-secondary/20">Become an Affiliate</span>
+                      <h3 className="text-4xl md:text-7xl font-black font-serif leading-[0.9] tracking-tighter uppercase italic">
+                        Spread <br />
+                        <span className="text-secondary italic">The Harvest.</span>
+                      </h3>
+                      <p className="text-white/40 text-lg leading-relaxed font-medium max-w-md">
+                        Monetize your influence by connecting your community to premium organic food. Highest commission rates in West Africa.
+                      </p>
+                    </div>
+                    <Link href="/register/affiliate" className="inline-flex items-center gap-4 bg-secondary text-primary px-10 py-6 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 group-hover:scale-105">
+                      Join Affiliate Network <ArrowRight size={20} />
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Careers Side */}
+                <div className="flex-1 bg-cream rounded-[3rem] md:rounded-[5rem] p-10 md:p-24 text-primary relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] group-hover:scale-150 transition-transform duration-1000" />
+                  <div className="relative z-10 space-y-12">
+                    <div className="space-y-6">
+                      <span className="inline-block bg-primary text-secondary px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20">Join Our Team</span>
+                      <h3 className="text-4xl md:text-7xl font-black font-serif leading-[0.9] tracking-tighter uppercase italic">
+                        Cultivate <br />
+                        <span className="text-primary italic">Your Career.</span>
+                      </h3>
+                      <p className="text-primary/40 text-lg leading-relaxed font-medium max-w-md">
+                        Seeking a job in Kido Farms and Orchard? Apply to join our expert team of farm hands, managers, and logistics specialists.
+                      </p>
+                    </div>
+                    <Link href="/register/careers" className="inline-flex items-center gap-4 bg-primary text-white px-10 py-6 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-2xl shadow-primary/20 group-hover:scale-105">
+                      Apply for a Position <ArrowRight size={20} />
+                    </Link>
                   </div>
                 </div>
               </div>

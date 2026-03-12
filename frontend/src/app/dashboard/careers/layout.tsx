@@ -4,23 +4,24 @@ import { useState, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import {
-    Sprout,
-    ShoppingBag,
-    TrendingUp,
-    Plus,
-    Wallet,
-    Droplets,
-    Activity,
-    Box,
+    Briefcase,
+    FileText,
+    Clock,
+    User,
     CheckCircle2,
-    Sparkles,
+    Activity,
+    ShieldCheck,
+    MessageSquare,
+    Zap,
+    Trophy,
+    Target
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 
-export default function SupplierLayout({
+export default function CareerDashboardLayout({
     children,
 }: {
     children: React.ReactNode;
@@ -28,39 +29,12 @@ export default function SupplierLayout({
     const pathname = usePathname();
     const { data: session } = useSession();
 
-    const [sensors, setSensors] = useState<any[]>([]);
-    const [stats, setStats] = useState({
-        totalSales: "₦1.8M",
-        activeOrders: 15,
-        stockItems: 52,
-        growth: "+22%"
-    });
-
-    const [farmProfile] = useState({
-        name: "Kido Alpha Node",
-        profileImg: "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80"
-    });
-
-    useEffect(() => {
-        const fetchSensors = async () => {
-            try {
-                const res = await fetch(getApiUrl("/api/sensors"));
-                if (res.ok) setSensors(await res.json());
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchSensors();
-    }, []);
-
-    const getSensorVal = (type: string) => sensors.find(s => s.type === type)?.value || "--";
-
     const tabs = [
-        { id: "overview", label: "Command Center", icon: LayoutDashboard, href: "/dashboard/supplier" },
-        { id: "inventory", label: "Inventory Vault", icon: ShoppingBag, href: "/dashboard/supplier/inventory" },
-        { id: "horizon", label: "Horizon 5.0", icon: Sparkles, href: "/dashboard/supplier/horizon" },
-        { id: "monitoring", label: "Precision Node", icon: Activity, href: "/dashboard/supplier/monitoring" },
-        { id: "financials", label: "Payout Registry", icon: Wallet, href: "/dashboard/supplier/financials" },
+        { id: "overview", label: "Talent Node", icon: Target, href: "/dashboard/careers" },
+        { id: "applications", label: "Mission Status", icon: Activity, href: "/dashboard/careers/applications" },
+        { id: "profile", label: "Professional DNA", icon: User, href: "/dashboard/careers/profile" },
+        { id: "documents", label: "Credential Vault", icon: ShieldCheck, href: "/dashboard/careers/documents" },
+        { id: "messages", label: "Recruiter Comms", icon: MessageSquare, href: "/dashboard/careers/messages" },
     ];
 
     return (
@@ -71,33 +45,27 @@ export default function SupplierLayout({
                 <div className="container mx-auto px-6">
                     <div className="max-w-7xl mx-auto space-y-12">
 
-                        {/* Hero Section */}
+                        {/* Career Hero Section */}
                         <header className="relative py-12 md:py-16 px-6 md:px-10 bg-primary rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-2xl group">
                             <div className="absolute top-0 right-0 w-[45%] h-full bg-secondary/10 -skew-x-12 translate-x-1/2 group-hover:bg-secondary/20 transition-all duration-[3000ms]" />
                             <div className="absolute top-10 right-20 w-64 h-64 bg-secondary rounded-full blur-[120px] opacity-20 animate-pulse" />
 
-                            <img
-                                src={farmProfile.profileImg}
-                                alt="Farm Profile"
-                                className="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:scale-105 transition-transform duration-[5000ms]"
-                            />
-
                             <div className="relative z-10 grid md:grid-cols-2 gap-12 items-center text-white">
                                 <div className="space-y-6">
                                     <div className="inline-flex items-center gap-2 bg-secondary text-primary px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
-                                        <Sprout size={14} /> {farmProfile.name} • Sovereign Node
+                                        <Briefcase size={14} /> Network Talent • Candidate Node
                                     </div>
                                     <h1 className="text-4xl sm:text-6xl md:text-8xl font-black font-serif leading-none tracking-tighter">
                                         Hello, <br />
                                         <span className="text-secondary italic">
                                             {session?.user?.name ?
                                                 (session.user.name.split(' ').length > 1 ? session.user.name.split(' ').pop()?.toUpperCase() : session.user.name.toUpperCase())
-                                                : "SUPPLIER"}
+                                                : "CANDIDATE"}
                                         </span>
                                     </h1>
                                     <div className="flex flex-wrap gap-4 pt-4">
-                                        <Link href="/dashboard/supplier/products/new" className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center gap-2">
-                                            <Plus size={16} /> New Harvest Listing
+                                        <Link href="/register/careers" className="bg-secondary text-primary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center gap-2">
+                                            <Zap size={16} /> Update Profile DNA
                                         </Link>
                                     </div>
                                 </div>
@@ -105,32 +73,32 @@ export default function SupplierLayout({
                                     <div className="bg-white/5 backdrop-blur-2xl p-10 rounded-[3.5rem] border border-white/10 shadow-2xl space-y-8 w-full max-w-sm">
                                         <div className="flex justify-between items-start">
                                             <div>
-                                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-2">Available Payout</p>
-                                                <p className="text-4xl font-black font-serif text-white leading-none">{stats.totalSales}</p>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-2">Application Status</p>
+                                                <p className="text-4xl font-black font-serif text-white leading-none">PENDING</p>
                                             </div>
                                             <div className="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center text-primary shadow-xl">
-                                                <Wallet size={24} />
+                                                <Activity size={24} />
                                             </div>
                                         </div>
                                         <div className="pt-6 border-t border-white/5 flex justify-between items-center text-white/40 font-black text-[10px] uppercase tracking-widest">
-                                            <span>Network Sync: High</span>
-                                            <span className="text-secondary">{stats.growth}</span>
+                                            <span>Profile Sync: 85%</span>
+                                            <span className="text-secondary italic">Vetted: No</span>
                                         </div>
-                                        <Link href="/dashboard/supplier/cashout" className="block w-full text-center bg-white text-primary py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all shadow-xl font-sans">
-                                            Access Funds Node
-                                        </Link>
+                                        <button className="block w-full text-center bg-white text-primary py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all shadow-xl font-sans">
+                                            Complete Onboarding
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         </header>
 
-                        {/* Mixed Stats Row */}
+                        {/* Talent Stats Row */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                             {[
-                                { label: "Total Yield", value: "2.4 Tons", icon: Sprout, color: "bg-green-500", detail: "+12% vs last cycle" },
-                                { label: "Moisture Node", value: getSensorVal('moisture') + (getSensorVal('moisture') !== '--' ? '%' : ''), icon: Droplets, color: "bg-secondary", detail: "Sector 4A Optimal" },
-                                { label: "Active Orders", value: stats.activeOrders, icon: ShoppingBag, color: "bg-blue-500", detail: "Awaiting Logistics" },
-                                { label: "Stock Items", value: stats.stockItems, icon: Box, color: "bg-orange-500", detail: "Warehouse Active" },
+                                { label: "Nodes Applied", value: "01", icon: FileText, color: "bg-blue-500", detail: "Farm Manager • Jos" },
+                                { label: "Waitlist Pos", value: "#42", icon: Zap, color: "bg-secondary", detail: "Tier 1 Priority" },
+                                { label: "Skills Vetted", value: "05", icon: Trophy, color: "bg-green-500", detail: "Agronomy, Logistics+" },
+                                { label: "Security Clear.", value: "OK", icon: ShieldCheck, color: "bg-orange-500", detail: "Background Sync Done" },
                             ].map((stat, i) => (
                                 <div key={i} className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-primary/5 shadow-sm space-y-4 group hover:shadow-xl transition-all relative overflow-hidden">
                                     <div className={`w-14 h-14 rounded-2xl ${stat.color} flex items-center justify-center text-white mb-6 shadow-lg group-hover:scale-110 transition-transform`}>
@@ -153,10 +121,10 @@ export default function SupplierLayout({
                                 <Link
                                     key={tab.id}
                                     href={tab.href}
-                                    className={`flex items-center gap-3 pb-6 text-[10px] font-black uppercase tracking-widest transition-all relative shrink-0 ${pathname === tab.href || (tab.id === 'overview' && pathname === '/dashboard/supplier') ? 'text-primary' : 'text-primary/30 hover:text-primary'}`}
+                                    className={`flex items-center gap-3 pb-6 text-[10px] font-black uppercase tracking-widest transition-all relative shrink-0 ${pathname === tab.href ? 'text-primary' : 'text-primary/30 hover:text-primary'}`}
                                 >
                                     <tab.icon size={16} /> {tab.label}
-                                    {(pathname === tab.href || (tab.id === 'overview' && pathname === '/dashboard/supplier')) && <div className="absolute bottom-0 left-0 w-full h-1 bg-secondary rounded-full" />}
+                                    {pathname === tab.href && <div className="absolute bottom-0 left-0 w-full h-1 bg-secondary rounded-full" />}
                                 </Link>
                             ))}
                         </div>
@@ -174,8 +142,4 @@ export default function SupplierLayout({
             <Footer />
         </div>
     );
-}
-
-function LayoutDashboard({ size, className }: any) {
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>;
 }

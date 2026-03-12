@@ -14,14 +14,65 @@ import {
     Search,
     ChevronRight,
     MapPin,
-    Droplets
+    Droplets,
+    Brain,
+    QrCode,
+    Smartphone,
+    HandCoins,
+    Gem,
+    Workflow
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { getApiUrl } from "@/lib/api";
+import { AgronomyVisionModal } from "@/components/AgronomyVisionModal";
+import { ActionStatus } from "@/components/ActionStatus";
+import { NegotiationTradeFloor } from "@/components/NegotiationTradeFloor";
+import { MessageSquare, Gavel } from "lucide-react";
 
 export default function SupplierDashboard() {
     const [sensors, setSensors] = useState<any[]>([]);
+    const [isVisionOpen, setIsVisionOpen] = useState(false);
+    const [isNegotiationOpen, setIsNegotiationOpen] = useState(false);
+    const [negotiationData, setNegotiationData] = useState<any>(null);
+
+    const openNegotiation = (item: any) => {
+        setNegotiationData({
+            batchId: `BTH-${Math.floor(Math.random() * 1000)}`,
+            productName: item.crop,
+            initialPrice: "380,000/Ton"
+        });
+        setIsNegotiationOpen(true);
+    };
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
+    const handleAction = (label: string) => {
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Node synchronization in progress...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. Master Registry updated.`,
+                status: "success"
+            }));
+        }, 2000);
+    };
 
     useEffect(() => {
         const fetchSensors = async () => {
@@ -39,21 +90,51 @@ export default function SupplierDashboard() {
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
+            <AgronomyVisionModal
+                isOpen={isVisionOpen}
+                onClose={() => setIsVisionOpen(false)}
+            />
+            {negotiationData && (
+                <NegotiationTradeFloor
+                    isOpen={isNegotiationOpen}
+                    onClose={() => setIsNegotiationOpen(false)}
+                    batchId={negotiationData.batchId}
+                    productName={negotiationData.productName}
+                    initialPrice={negotiationData.initialPrice}
+                />
+            )}
             {/* Quick Actions Bar */}
             <div className="flex flex-wrap gap-4 px-4 overflow-x-auto no-scrollbar pb-2">
                 {[
                     { label: "New Harvest", icon: Plus, href: "/dashboard/supplier/products/new", color: "bg-primary text-white" },
                     { label: "Withdraw Funds", icon: Wallet, href: "/dashboard/supplier/cashout", color: "bg-white text-primary border border-primary/5" },
-                    { label: "Analyze Soil", icon: Activity, href: "/dashboard/supplier/monitoring", color: "bg-white text-primary border border-primary/5" },
+                    { label: "Analyze Soil", icon: Activity, onClick: () => setIsVisionOpen(true), color: "bg-white text-primary border border-primary/5" },
                     { label: "Go Live", icon: Camera, href: "/dashboard/supplier/stories", color: "bg-white text-primary border border-primary/5" },
                 ].map((action, i) => (
-                    <Link
-                        key={i}
-                        href={action.href}
-                        className={`flex items-center gap-3 px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all whitespace-nowrap ${action.color}`}
-                    >
-                        <action.icon size={16} /> {action.label}
-                    </Link>
+                    action.onClick ? (
+                        <button
+                            key={i}
+                            onClick={action.onClick}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all whitespace-nowrap ${action.color}`}
+                        >
+                            <action.icon size={16} /> {action.label}
+                        </button>
+                    ) : (
+                        <Link
+                            key={i}
+                            href={action.href || "#"}
+                            className={`flex items-center gap-3 px-8 py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all whitespace-nowrap ${action.color}`}
+                        >
+                            <action.icon size={16} /> {action.label}
+                        </Link>
+                    )
                 ))}
             </div>
 
@@ -90,9 +171,17 @@ export default function SupplierDashboard() {
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <span className="text-4xl font-black font-serif text-primary italic leading-none">{item.progress}%</span>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-secondary italic mt-1">{item.stage}</p>
+                                    <div className="flex items-center gap-4">
+                                        <button
+                                            onClick={() => openNegotiation(item)}
+                                            className="flex items-center gap-2 bg-secondary text-primary px-6 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-primary hover:text-white transition-all shadow-xl"
+                                        >
+                                            <MessageSquare size={14} /> Trade Floor
+                                        </button>
+                                        <div className="text-right">
+                                            <span className="text-4xl font-black font-serif text-primary italic leading-none">{item.progress}%</span>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary italic mt-1">{item.stage}</p>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className="w-full h-3.5 bg-neutral-50 rounded-full overflow-hidden border border-primary/5 p-0.5 shadow-inner">
@@ -147,7 +236,42 @@ export default function SupplierDashboard() {
                         </div>
                     </div>
 
-                    <div className="bg-neutral-50 p-10 rounded-[3.5rem] border border-primary/5 shadow-inner space-y-8">
+                    <div className="bg-primary text-white p-10 rounded-[3.5rem] border border-white/10 shadow-2xl space-y-8 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-[60px]" />
+                        <div className="flex items-center gap-4 relative z-10">
+                            <QrCode className="text-secondary" />
+                            <h4 className="text-xl font-black font-serif uppercase tracking-tighter leading-none italic">Digital <br />Signature Hub</h4>
+                        </div>
+                        <p className="text-white/40 text-[9px] font-black uppercase tracking-widest italic leading-relaxed">
+                            Generate "Harvest Passports" for your current yields. This authorizes radical transparency in the buyer mesh.
+                        </p>
+                        <button onClick={() => handleAction("Generate Passport Metadata")} className="w-full py-5 rounded-2xl bg-secondary text-primary font-black uppercase text-[10px] tracking-widest hover:bg-white transition-all shadow-xl relative z-10">
+                            Create Harvest Signature
+                        </button>
+                    </div>
+
+                    <div className="bg-white p-10 rounded-[3.5rem] border border-primary/5 shadow-2xl space-y-8 relative overflow-hidden group">
+                        <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-neutral-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                        <div className="flex items-center gap-4">
+                            <HandCoins className="text-secondary" />
+                            <h4 className="text-xl font-black font-serif uppercase tracking-tighter leading-none italic text-primary">Micro-Loan <br />Facility</h4>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-primary/30">
+                                <span>Mastery Credit: 840</span>
+                                <span className="text-secondary">Eligible</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-cream rounded-full overflow-hidden">
+                                <div className="h-full bg-secondary w-[84%] rounded-full" />
+                            </div>
+                            <p className="text-[9px] font-black text-primary/20 uppercase tracking-widest italic">Borrow up to ₦2.5M for equipment based on harvest reputation.</p>
+                        </div>
+                        <button onClick={() => handleAction("Initialize Loan Protocol")} className="w-full py-5 rounded-2xl bg-primary text-white font-black uppercase text-[10px] tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl">
+                            Request Credit Sync
+                        </button>
+                    </div>
+
+                    <div className="bg-cream/40 p-10 rounded-[3.5rem] border border-primary/5 shadow-inner space-y-8">
                         <div className="flex justify-between items-center">
                             <h3 className="text-xl font-black font-serif uppercase tracking-tighter italic">Precision Node</h3>
                             <Activity size={18} className="text-secondary animate-pulse" />
@@ -178,5 +302,6 @@ export default function SupplierDashboard() {
                 </div>
             </div>
         </div>
+
     );
 }

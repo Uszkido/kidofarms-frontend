@@ -44,6 +44,10 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
 import { ActionStatus } from "@/components/ActionStatus";
+import { HarvestPassport } from "@/components/HarvestPassport";
+import { NegotiationTradeFloor } from "@/components/NegotiationTradeFloor";
+import { LogisticsMeshMap } from "@/components/LogisticsMeshMap";
+import { QrCode, Navigation, Gavel, MessageSquare } from "lucide-react";
 
 export default function BuyerDashboard() {
     const { data: session } = useSession();
@@ -78,6 +82,55 @@ export default function BuyerDashboard() {
 
     // Tab State
     const [activeTab, setActiveTab] = useState("overview");
+
+    const [isPassportOpen, setIsPassportOpen] = useState(false);
+    const [selectedPassportData, setSelectedPassportData] = useState<any>(null);
+
+    const [isNegotiationOpen, setIsNegotiationOpen] = useState(false);
+    const [negotiationData, setNegotiationData] = useState<any>(null);
+
+    const [isMapOpen, setIsMapOpen] = useState(false);
+    const [mapData, setMapData] = useState<any>(null);
+
+    const openNegotiation = (rfq: any) => {
+        setNegotiationData({
+            batchId: rfq.id,
+            productName: rfq.product,
+            initialPrice: "420,000/Ton"
+        });
+        setIsNegotiationOpen(true);
+    };
+
+    const passportMocks = {
+        "ORD-9921": {
+            productName: "Jos Grade-A Saffron",
+            farmerName: "Audu Ibrahim",
+            location: "Jos Plateau, Nigeria",
+            harvestDate: "March 02, 2026",
+            purityScore: "99.8%",
+            soilType: "Volcanic Ash Hub",
+            certification: "Kido Organic V5",
+            image: "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80",
+            farmerBio: "Master producer with 15 years in Jos highlands. Specializes in exotic spices and climate-controlled nodes."
+        },
+        "ORD-9918": {
+            productName: "Extra Virgin Hibiscus",
+            farmerName: "Binta Zakari",
+            location: "Kano State, Nigeria",
+            harvestDate: "Feb 28, 2026",
+            purityScore: "98.5%",
+            soilType: "Alluvial Mesh",
+            certification: "Kido Bio-Mesh Gold",
+            image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80",
+            farmerBio: "Community lead in Kano's organic ring. Pioneer of multi-stage solar drying techniques."
+        }
+    };
+
+    const openPassport = (orderId: string) => {
+        const data = (passportMocks as any)[orderId] || passportMocks["ORD-9921"];
+        setSelectedPassportData(data);
+        setIsPassportOpen(true);
+    };
 
     // Role Logic
     const isSubscriber = userRole === 'subscriber' || userRole === 'admin';
@@ -161,6 +214,14 @@ export default function BuyerDashboard() {
             router.push("/subscriptions");
             return;
         }
+        if (label === "Live Track Map") {
+            setMapData({
+                trackingId: "NOD-9921-TRK",
+                productName: "Jos Grade-A Saffron"
+            });
+            setIsMapOpen(true);
+            return;
+        }
 
         setActionState({
             isOpen: true,
@@ -188,6 +249,32 @@ export default function BuyerDashboard() {
                 message={actionState.message}
                 status={actionState.status}
             />
+            {selectedPassportData && (
+                <HarvestPassport
+                    isOpen={isPassportOpen}
+                    onClose={() => setIsPassportOpen(false)}
+                    data={selectedPassportData}
+                />
+            )}
+
+            {negotiationData && (
+                <NegotiationTradeFloor
+                    isOpen={isNegotiationOpen}
+                    onClose={() => setIsNegotiationOpen(false)}
+                    batchId={negotiationData.batchId}
+                    productName={negotiationData.productName}
+                    initialPrice={negotiationData.initialPrice}
+                />
+            )}
+
+            {mapData && (
+                <LogisticsMeshMap
+                    isOpen={isMapOpen}
+                    onClose={() => setIsMapOpen(false)}
+                    trackingId={mapData.trackingId}
+                    productName={mapData.productName}
+                />
+            )}
 
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6">
@@ -207,7 +294,9 @@ export default function BuyerDashboard() {
                                     <h1 className={`text-4xl sm:text-6xl md:text-8xl font-black font-serif tracking-tighter leading-none ${isBusiness || isSubscriber ? 'text-white' : 'text-primary'}`}>
                                         Hello, <br />
                                         <span className={`italic ${isBusiness ? 'text-secondary' : isSubscriber ? 'text-secondary' : 'text-white'}`}>
-                                            {isWholesaler ? 'Partner' : isBusiness ? 'Client' : isSubscriber ? 'Member' : 'Shopper'}
+                                            {session?.user?.name ?
+                                                (session.user.name.split(' ').length > 1 ? session.user.name.split(' ').pop()?.toUpperCase() : session.user.name.toUpperCase())
+                                                : (isWholesaler ? 'Partner' : isBusiness ? 'Client' : isSubscriber ? 'Member' : 'Shopper')}
                                         </span>
                                     </h1>
                                     <div className="flex flex-wrap gap-4">
@@ -290,7 +379,7 @@ export default function BuyerDashboard() {
                                 ))}
                             </div>
 
-                            {userRole === 'consumer' && (
+                            {!isSubscriber && userRole === 'consumer' && (
                                 <button
                                     onClick={() => handleAction("Upgrade to Elite")}
                                     className="mb-6 px-6 py-3 bg-secondary text-primary rounded-xl font-black text-[9px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all flex items-center gap-2 whitespace-nowrap"
@@ -499,7 +588,15 @@ export default function BuyerDashboard() {
                                                                     <span className="bg-neutral-50 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest border border-primary/5">{rfq.volume}</span>
                                                                 </td>
                                                                 <td className="px-6 py-8 text-right">
-                                                                    <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${rfq.status === 'Contracted' ? 'bg-green-500 text-white shadow-lg' : 'bg-primary text-white animate-pulse'}`}>{rfq.status}</span>
+                                                                    <div className="flex items-center gap-4">
+                                                                        <button
+                                                                            onClick={() => openNegotiation(rfq)}
+                                                                            className="flex items-center gap-2 bg-primary text-secondary px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg"
+                                                                        >
+                                                                            <MessageSquare size={14} /> Negotiate
+                                                                        </button>
+                                                                        <span className={`px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${rfq.status === 'Contracted' ? 'bg-green-500 text-white shadow-lg' : 'bg-primary text-white animate-pulse'}`}>{rfq.status}</span>
+                                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         ))}
@@ -537,8 +634,24 @@ export default function BuyerDashboard() {
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto border-t md:border-t-0 pt-6 md:pt-0 border-primary/5">
-                                                        <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-500 text-white' : 'bg-secondary text-primary'}`}>{order.status}</span>
-                                                        <p className="text-2xl font-black font-serif italic text-primary mt-4">{order.price}</p>
+                                                        <div className="flex flex-col md:flex-row gap-4 items-center">
+                                                            <button
+                                                                onClick={() => openPassport(order.id)}
+                                                                className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors border border-secondary/20 px-4 py-2 rounded-xl"
+                                                            >
+                                                                <QrCode size={14} /> Trace Origin
+                                                            </button>
+                                                            {order.status === 'In Transit' && (
+                                                                <button
+                                                                    onClick={() => handleAction("Live Track Map")}
+                                                                    className="flex items-center gap-2 bg-primary text-secondary px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg animate-pulse"
+                                                                >
+                                                                    <Navigation size={14} /> Live Track
+                                                                </button>
+                                                            )}
+                                                            <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-500 text-white' : 'bg-secondary text-primary'}`}>{order.status}</span>
+                                                            <p className="text-2xl font-black font-serif italic text-primary mt-4 md:mt-0">{order.price}</p>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -584,6 +697,55 @@ export default function BuyerDashboard() {
                                                     </div>
                                                 </div>
                                             ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {activeTab === "wallet" && (
+                                    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
+                                        <div className="bg-secondary p-10 md:p-16 rounded-[4rem] text-primary space-y-8 relative overflow-hidden shadow-2xl">
+                                            <Wallet className="absolute -bottom-20 -right-20 w-96 h-96 text-primary/5 -rotate-12" />
+                                            <div className="relative z-10 space-y-4">
+                                                <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-40">Available Liquidity Node</p>
+                                                <h3 className="text-5xl md:text-8xl font-black font-serif italic text-primary leading-none">₦{Number(wallet?.balance || 0).toLocaleString()}</h3>
+                                                <div className="pt-8 flex gap-4">
+                                                    <button onClick={() => handleAction("Fund Wallet")} className="bg-primary text-secondary px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl">Refill Credits</button>
+                                                    <button onClick={() => handleAction("Withdraw")} className="bg-white/40 backdrop-blur-md px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all">Withdrawal</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-8">
+                                            <div className="flex justify-between items-center px-4">
+                                                <h2 className="text-3xl font-black font-serif italic text-primary uppercase tracking-tighter">Transaction <span className="text-secondary">Ledger</span></h2>
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 italic">Synchronized Registry</p>
+                                            </div>
+                                            <div className="bg-white rounded-[3rem] border border-primary/5 shadow-xl overflow-hidden">
+                                                {walletTxs && walletTxs.length > 0 ? (
+                                                    <div className="divide-y divide-primary/5">
+                                                        {walletTxs.map((tx, i) => (
+                                                            <div key={i} className="p-8 flex justify-between items-center group hover:bg-cream/20 transition-all">
+                                                                <div className="flex items-center gap-6">
+                                                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'deposit' ? 'bg-green-50 text-green-600' : 'bg-red-50 text-red-600'}`}>
+                                                                        {tx.type === 'deposit' ? <ArrowDownLeft size={20} /> : <ArrowUpRight size={20} />}
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-lg font-black font-serif italic uppercase text-primary">{tx.description || tx.type}</p>
+                                                                        <p className="text-[9px] font-black text-primary/30 uppercase tracking-[0.2em] mt-1">{new Date(tx.createdAt).toLocaleDateString()}</p>
+                                                                    </div>
+                                                                </div>
+                                                                <p className={`text-xl font-black font-serif italic ${tx.type === 'deposit' ? 'text-green-600' : 'text-primary'}`}>
+                                                                    {tx.type === 'deposit' ? '+' : '-'}₦{Number(tx.amount).toLocaleString()}
+                                                                </p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-20 text-center opacity-20">
+                                                        <FileText size={48} className="mx-auto mb-4" />
+                                                        <p className="text-[10px] font-black uppercase tracking-widest">No transactions discovered in registry</p>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -633,13 +795,17 @@ export default function BuyerDashboard() {
                                         <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed italic opacity-60">Broadcast your referral node ID. Get ₦500 for every active member node you materialize.</p>
                                     </div>
                                     <div className="p-6 bg-white/40 rounded-2xl border border-white/60 text-center relative z-10">
-                                        <p className="font-sans font-black tracking-[0.3em] text-sm uppercase">KIDO-REF-2026</p>
+                                        <p className="font-sans font-black tracking-[0.3em] text-sm uppercase">
+                                            {session?.user?.name ?
+                                                `KIDO-${session.user.name.split(' ')[0].toUpperCase()}-${(session?.user as any)?.id?.slice(-4) || Math.random().toString(36).substring(2, 6).toUpperCase()}`
+                                                : "KIDO-REF-2026"}
+                                        </p>
                                     </div>
                                     <button onClick={() => handleAction("Broadcast Referral")} className="w-full bg-primary text-secondary py-5 rounded-[2rem] font-black uppercase tracking-widest text-[10px] shadow-2xl hover:bg-white hover:text-primary transition-all">Broadcast Node ID</button>
                                 </div>
 
                                 {/* Upgrade Node for Consumers Only */}
-                                {userRole === 'consumer' && (
+                                {!isSubscriber && userRole === 'consumer' && (
                                     <div className="bg-primary p-10 rounded-[3.5rem] text-white space-y-8 relative overflow-hidden group shadow-2xl border-2 border-secondary/20">
                                         <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-10 translate-x-10 group-hover:scale-150 transition-transform duration-700" />
                                         <div className="relative z-10 space-y-6">

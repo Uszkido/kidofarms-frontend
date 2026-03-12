@@ -16,6 +16,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function RegisterCitizenPage() {
     const router = useRouter();
@@ -28,9 +29,28 @@ export default function RegisterCitizenPage() {
         permissions: [] as string[]
     });
 
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setActionState({
+            isOpen: true,
+            title: "Citizen Registration",
+            message: "Broadcasting identity node to network...",
+            status: "processing"
+        });
+
         try {
             const res = await fetch(getApiUrl("/api/admin/users/create"), {
                 method: "POST",
@@ -38,14 +58,28 @@ export default function RegisterCitizenPage() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
-                alert("New citizen registered in the shadow registry.");
-                router.push("/admin/users");
+                setActionState(prev => ({
+                    ...prev,
+                    message: "Identity node successfully integrated into shadow registry.",
+                    status: "success"
+                }));
+                setTimeout(() => {
+                    router.push("/admin/users");
+                }, 2000);
             } else {
                 const error = await res.json();
-                alert(error.msg || error.error || "Failed to register citizen.");
+                setActionState(prev => ({
+                    ...prev,
+                    message: error.msg || error.error || "Failed to broadcast identity node.",
+                    status: "error"
+                }));
             }
         } catch (err) {
-            console.error(err);
+            setActionState(prev => ({
+                ...prev,
+                message: "Network exception: Synchronized protocol failure.",
+                status: "error"
+            }));
         } finally {
             setIsSubmitting(false);
         }
@@ -53,6 +87,13 @@ export default function RegisterCitizenPage() {
 
     return (
         <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-6 lg:p-10 font-sans">
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <div className="max-w-4xl mx-auto space-y-12">
                 <Link href="/admin/users" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 hover:text-secondary group transition-all">
                     <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> Back to Registry
@@ -132,16 +173,23 @@ export default function RegisterCitizenPage() {
                                 <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Functional Access Privileges</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                                     {[
-                                        { id: 'inventory', label: 'Inventory' },
-                                        { id: 'orders', label: 'Logistics' },
-                                        { id: 'finance', label: 'Finance' },
-                                        { id: 'users', label: 'Users' },
-                                        { id: 'content', label: 'CMS' },
-                                        { id: 'promos', label: 'Promos' },
-                                        { id: 'warehouse', label: 'Warehouse' },
-                                        { id: 'support', label: 'Support' },
-                                        { id: 'analytics', label: 'Analytics' },
-                                        { id: 'settings', label: 'Core Config' }
+                                        { id: 'view_financials', label: 'Finance: Read' },
+                                        { id: 'edit_financials', label: 'Finance: Command' },
+                                        { id: 'audit_financials', label: 'Finance: Audit' },
+                                        { id: 'view_logistics', label: 'Logistics: Read' },
+                                        { id: 'manage_dispatches', label: 'Logistics: Dispatch' },
+                                        { id: 'fleet_control', label: 'Logistics: Fleet' },
+                                        { id: 'inventory_read', label: 'Inventory: Read' },
+                                        { id: 'inventory_edit', label: 'Inventory: Edit' },
+                                        { id: 'stock_audit', label: 'Inventory: Audit' },
+                                        { id: 'user_read', label: 'Users: Read' },
+                                        { id: 'user_edit', label: 'Users: Edit' },
+                                        { id: 'user_ban', label: 'Users: Ban Access' },
+                                        { id: 'manage_roles', label: 'Users: Control Roles' },
+                                        { id: 'content_publish', label: 'CMS: Publish' },
+                                        { id: 'manage_tickets', label: 'Help Desk: Resolve' },
+                                        { id: 'system_logs', label: 'System: Read Logs' },
+                                        { id: 'system_config', label: 'System: Core Registry' }
                                     ].map(p => (
                                         <button
                                             key={p.id}

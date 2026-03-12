@@ -8,6 +8,7 @@ import { Check, CreditCard, MapPin, Phone, User, Loader2, ArrowRight, ArrowLeft 
 import { getApiUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { ActionStatus } from "@/components/ActionStatus";
+import { NIGERIAN_STATES } from "@/lib/constants";
 
 export default function SubscriptionCheckoutPage() {
     const { data: session } = useSession();
@@ -182,10 +183,9 @@ export default function SubscriptionCheckoutPage() {
                                             <div className="space-y-2">
                                                 <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 px-2">State</label>
                                                 <select name="state" value={formData.state} onChange={handleChange} className="w-full bg-cream/30 border-none rounded-2xl py-4 px-6 outline-none focus:ring-2 focus:ring-secondary/50 transition-all font-black text-xs uppercase tracking-widest appearance-none">
-                                                    <option>Lagos</option>
-                                                    <option>Abuja</option>
-                                                    <option>Kano</option>
-                                                    <option>Jos</option>
+                                                    {NIGERIAN_STATES.map(state => (
+                                                        <option key={state}>{state}</option>
+                                                    ))}
                                                 </select>
                                             </div>
                                             <div className="space-y-2">

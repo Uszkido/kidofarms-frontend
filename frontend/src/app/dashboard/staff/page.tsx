@@ -129,8 +129,12 @@ export default function StaffDashboard() {
                                         <ShieldCheck size={14} className="animate-spin duration-[5000ms]" /> Sovereign Operations Hub
                                     </div>
                                     <h1 className="text-4xl sm:text-6xl md:text-9xl font-black font-serif text-white tracking-tighter leading-none">
-                                        Staff <br />
-                                        <span className="text-secondary italic">Command</span>
+                                        Hello, <br />
+                                        <span className="text-secondary italic">
+                                            {session?.user?.name ?
+                                                (session.user.name.split(' ').length > 1 ? session.user.name.split(' ').pop()?.toUpperCase() : session.user.name.toUpperCase())
+                                                : "STAFF"}
+                                        </span>
                                     </h1>
                                     <div className="flex flex-wrap gap-4 pt-4">
                                         <button onClick={() => handleAction("Broadcast Notice")} className="bg-secondary text-primary px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center gap-3">
