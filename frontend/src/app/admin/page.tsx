@@ -102,7 +102,12 @@ export default function AdminDashboard() {
                             <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">Sovereign Control Node</h2>
                         </div>
                         <h1 className="text-7xl lg:text-[10rem] font-black font-serif italic uppercase leading-[0.85] tracking-tighter text-white">
-                            The <span className="text-secondary block">Command</span> <span className="text-white">Nexus</span>
+                            Hello, <br />
+                            <span className="text-secondary block">
+                                {session?.user?.name ?
+                                    (session.user.name.split(' ').length > 1 ? session.user.name.split(' ').pop()?.toUpperCase() : session.user.name.toUpperCase())
+                                    : "ADMIN"}
+                            </span>
                         </h1>
                         <p className="text-white/30 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
                             <Activity size={14} className="text-secondary animate-pulse" /> Live Regional Infrastructure Access: JOS-01-NG

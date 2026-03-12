@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getApiUrl } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 interface Commission {
     id: string;
@@ -24,6 +25,7 @@ interface AffiliateData {
 }
 
 export function AffiliateDashboardClient() {
+    const { data: session } = useSession();
     const [data, setData] = useState<AffiliateData | null>(null);
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
@@ -82,7 +84,14 @@ export function AffiliateDashboardClient() {
                             <div className="inline-flex items-center gap-2 bg-secondary text-primary px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl">
                                 <Award className="w-3 h-3" /> Certified Partner
                             </div>
-                            <h1 className="text-4xl md:text-7xl font-black font-serif italic text-primary">Affiliate <span className="text-secondary italic">Control</span></h1>
+                            <h1 className="text-4xl md:text-7xl font-black font-serif italic text-primary leading-none tracking-tighter">
+                                Hello, <br />
+                                <span className="text-secondary italic">
+                                    {session?.user?.name ?
+                                        (session.user.name.split(' ').length > 1 ? session.user.name.split(' ').pop()?.toUpperCase() : session.user.name.toUpperCase())
+                                        : "PARTNER"}
+                                </span>
+                            </h1>
                         </div>
 
                         <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl flex items-center gap-8 w-full md:w-auto">

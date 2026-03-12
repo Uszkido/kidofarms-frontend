@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
+import { NIGERIAN_STATES } from "@/lib/constants";
 
 export default function FarmerRegistrationPage() {
     const router = useRouter();
@@ -216,11 +217,9 @@ export default function FarmerRegistrationPage() {
                                                     value={formData.farmLocationState}
                                                     onChange={e => setFormData({ ...formData, farmLocationState: e.target.value })}
                                                 >
-                                                    <option value="Kano">Kano</option>
-                                                    <option value="Kaduna">Kaduna</option>
-                                                    <option value="Jigawa">Jigawa</option>
-                                                    <option value="Abuja">Abuja</option>
-                                                    <option value="Jos">Jos</option>
+                                                    {NIGERIAN_STATES.map(state => (
+                                                        <option key={state} value={state}>{state}</option>
+                                                    ))}
                                                 </select>
                                             </div>
                                             <div className="space-y-3">

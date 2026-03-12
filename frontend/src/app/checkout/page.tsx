@@ -15,6 +15,7 @@ import {
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
+import { NIGERIAN_STATES } from "@/lib/constants";
 
 export default function CheckoutPage() {
     const { data: session } = useSession();
@@ -27,6 +28,7 @@ export default function CheckoutPage() {
         lastName: "",
         street: "",
         city: "",
+        state: "Lagos",
         phone: ""
     });
     const handleSubmit = async (e: React.FormEvent) => {
@@ -44,7 +46,7 @@ export default function CheckoutPage() {
                     totalAmount: cartTotal,
                     street: form.street,
                     city: form.city,
-                    state: "Nigeria", // Default
+                    state: form.state,
                     zip: "00000",
                     paymentMethod: "card",
                     userId: (session?.user as any)?.id
@@ -109,11 +111,24 @@ export default function CheckoutPage() {
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">City</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">City / LGA</label>
                                         <input
                                             type="text" required value={form.city} onChange={e => setForm({ ...form, city: e.target.value })}
                                             className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"
                                         />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">State</label>
+                                        <select
+                                            required
+                                            value={form.state}
+                                            onChange={e => setForm({ ...form, state: e.target.value })}
+                                            className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium appearance-none cursor-pointer"
+                                        >
+                                            {NIGERIAN_STATES.map(state => (
+                                                <option key={state} value={state}>{state}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">Phone Number</label>

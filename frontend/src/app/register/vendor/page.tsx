@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
+import { NIGERIAN_STATES } from "@/lib/constants";
 
 const CATEGORIES = [
     { id: "Fruits", label: "Organic Fruits", icon: "🍎" },
@@ -186,10 +187,9 @@ export default function VendorRegistrationPage() {
                                                     value={formData.location}
                                                     onChange={e => setFormData({ ...formData, location: e.target.value })}
                                                 >
-                                                    <option value="Kano">Kano</option>
-                                                    <option value="Abuja">Abuja</option>
-                                                    <option value="Lagos">Lagos</option>
-                                                    <option value="Jos">Jos (Base)</option>
+                                                    {NIGERIAN_STATES.map(state => (
+                                                        <option key={state} value={state}>{state}</option>
+                                                    ))}
                                                 </select>
                                             </div>
                                         </div>
