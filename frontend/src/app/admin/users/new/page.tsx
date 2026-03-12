@@ -189,7 +189,8 @@ export default function RegisterCitizenPage() {
                                         { id: 'content_publish', label: 'CMS: Publish' },
                                         { id: 'manage_tickets', label: 'Help Desk: Resolve' },
                                         { id: 'system_logs', label: 'System: Read Logs' },
-                                        { id: 'system_config', label: 'System: Core Registry' }
+                                        { id: 'system_config', label: 'System: Core Registry' },
+                                        { id: 'global_data_command', label: 'Global Data: Command' }
                                     ].map(p => (
                                         <button
                                             key={p.id}

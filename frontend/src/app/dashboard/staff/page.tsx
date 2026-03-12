@@ -32,7 +32,8 @@ import {
     RotateCcw,
     FileText,
     Mail,
-    Plus
+    Plus,
+    Database
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
@@ -42,6 +43,7 @@ import { ActionStatus } from "@/components/ActionStatus";
 export default function StaffDashboard() {
     const { data: session } = useSession();
     const userRole = (session?.user as any)?.role;
+    const canManageData = userRole === 'admin' || (session?.user as any)?.permissions?.includes('global_data_command');
 
     // States
     const [actionState, setActionState] = useState<{
@@ -63,18 +65,15 @@ export default function StaffDashboard() {
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
 
-    useEffect(() => {
-        if ((session?.user as any)?.id) {
-            fetchStaffData();
-        }
-    }, [(session?.user as any)?.id]);
-
     const fetchStaffData = async () => {
         try {
+            const token = (session?.user as any)?.accessToken;
+            const headers: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
+
             const [tRes, sRes, uRes] = await Promise.all([
-                fetch(getApiUrl(`/api/admin/tasks/user/${(session?.user as any)?.id}`)),
+                fetch(getApiUrl(`/api/admin/tasks/user/${(session?.user as any)?.id}`), { headers }),
                 fetch(getApiUrl(`/api/tickets/all`)),
-                fetch(getApiUrl(`/api/admin/users?limit=10`))
+                fetch(getApiUrl(`/api/admin/users?limit=10`), { headers })
             ]);
             if (tRes.ok) setTasks(await tRes.json());
             if (sRes.ok) setTickets(await sRes.json());
@@ -85,6 +84,12 @@ export default function StaffDashboard() {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        if ((session?.user as any)?.id) {
+            fetchStaffData();
+        }
+    }, [(session?.user as any)?.id]);
 
     const handleAction = (label: string) => {
         setActionState({
@@ -202,6 +207,7 @@ export default function StaffDashboard() {
                                 { id: "users", label: "Sovereign Registry", icon: Users },
                                 { id: "moderation", label: "Terminal Control", icon: ShieldAlert },
                                 { id: "reports", label: "Network Logs", icon: BarChart3 },
+                                ...(canManageData ? [{ id: "universal", label: "Registry Console", icon: Database }] : []),
                             ].map(tab => (
                                 <button
                                     key={tab.id}
@@ -383,6 +389,25 @@ export default function StaffDashboard() {
                                                 </table>
                                             </div>
                                         </div>
+                                    </div>
+                                )}
+                                {activeTab === "universal" && (
+                                    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 min-h-[500px] flex flex-col justify-center items-center text-center p-12 bg-cream/10 rounded-[4rem] border-4 border-dashed border-primary/5">
+                                        <div className="w-24 h-24 bg-primary text-secondary rounded-[2rem] flex items-center justify-center shadow-2xl mb-8">
+                                            <Database size={48} />
+                                        </div>
+                                        <h2 className="text-4xl lg:text-5xl font-black font-serif italic text-primary uppercase tracking-tighter max-w-lg leading-none">
+                                            Universal <span className="text-secondary">Data Ledger</span> Console
+                                        </h2>
+                                        <p className="text-sm font-medium text-primary/40 max-w-md leading-relaxed">
+                                            Authorized Staff Access Only. You have been granted orbital permissions to view and modify all network nodes, harvests, and identity nodes globally.
+                                        </p>
+                                        <Link
+                                            href="/admin/registry"
+                                            className="mt-12 bg-primary text-white px-16 py-7 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs hover:bg-secondary hover:text-primary transition-all shadow-2xl flex items-center gap-4 group"
+                                        >
+                                            Initialize Global Console <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
+                                        </Link>
                                     </div>
                                 )}
                             </div>
