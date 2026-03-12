@@ -198,6 +198,13 @@ export default function CareerRegistrationPage() {
                                                 <option value="Orchard Manager">Orchard Manager</option>
                                                 <option value="Logistics Operator">Logistics Operator</option>
                                                 <option value="Warehouse Supervisor">Warehouse Supervisor</option>
+                                                <option value="Irrigation Specialist">Irrigation Specialist</option>
+                                                <option value="Quality Control Officer">Quality Control Officer</option>
+                                                <option value="Fleet Dispatcher">Fleet Dispatcher</option>
+                                                <option value="Inventory Clerk">Inventory Clerk</option>
+                                                <option value="Security Personnel">Security Personnel</option>
+                                                <option value="Sales Representative">Sales Representative</option>
+                                                <option value="Social Media Manager">Social Media Manager</option>
                                                 <option value="Tech Support">Tech Support / Dev</option>
                                                 <option value="Administrative">Administrative</option>
                                             </select>

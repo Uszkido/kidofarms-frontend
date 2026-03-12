@@ -12,7 +12,7 @@ const {
 const { relations } = require("drizzle-orm");
 
 // Enums
-const roleEnum = pgEnum("role", ["customer", "consumer", "admin", "sub-admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor", "team_member", "business", "hotel", "logistics_distributor"]);
+const roleEnum = pgEnum("role", ["customer", "consumer", "admin", "sub-admin", "farmer", "subscriber", "affiliate", "vendor", "wholesale_buyer", "retailer", "distributor", "team_member", "business", "hotel", "logistics_distributor", "carrier", "candidate"]);
 const unitEnum = pgEnum("unit", ["kg", "basket", "piece", "head", "bunch", "pack", "bag", "crate"]);
 const paymentMethodEnum = pgEnum("payment_method", ["card", "transfer", "cash"]);
 const paymentStatusEnum = pgEnum("payment_status", ["pending", "paid", "failed"]);
@@ -185,8 +185,14 @@ const affiliates = pgTable("affiliates", {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id).notNull().unique(),
     referralCode: text("referral_code").notNull().unique(),
+    channelType: text("channel_type"), // Social Media, Blog, etc.
+    channelUrl: text("channel_url"),
+    experience: text("experience"),
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
     status: text("status").default("pending"), // pending, active, suspended
-    commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("5.00"),
+    commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("10.00"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -556,6 +562,34 @@ const globalBridge = pgTable("global_bridge", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Logistics Operators (Carrier Node)
+const carriers = pgTable("carriers", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    companyName: text("company_name"),
+    vehicleType: text("vehicle_type").notNull(), // Motorcycle, Truck, etc.
+    coverageArea: text("coverage_area").notNull(),
+    hasColdChain: boolean("has_cold_chain").default(false),
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
+    status: text("status").default("pending"), // pending, verified, suspended
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Job Applications (Career Node)
+const jobApplications = pgTable("job_applications", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    position: text("position").notNull(),
+    experience: text("experience").notNull(),
+    location: text("location").notNull(),
+    resumeLink: text("resume_link"),
+    bio: text("bio"),
+    status: text("status").default("pending"), // pending, interviewing, hired, rejected
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 const usersRelations = relations(users, ({ many, one }) => ({
     blogPosts: many(blogPosts),
     vendor: one(vendors, {
@@ -603,9 +637,16 @@ const groupBuysRelations = relations(groupBuys, ({ one, many }) => ({
     participants: many(groupBuyParticipants),
 }));
 
-const farmersRelations = relations(farmers, ({ one }) => ({
+const carriersRelations = relations(carriers, ({ one }) => ({
     user: one(users, {
-        fields: [farmers.userId],
+        fields: [carriers.userId],
+        references: [users.id],
+    }),
+}));
+
+const jobApplicationsRelations = relations(jobApplications, ({ one }) => ({
+    user: one(users, {
+        fields: [jobApplications.userId],
         references: [users.id],
     }),
 }));
@@ -653,6 +694,8 @@ module.exports = {
     globalBridge,
     tickets,
     ticketMessages,
+    carriers,
+    jobApplications,
     blogPostsRelations,
     usersRelations,
     vendorsRelations,
@@ -660,6 +703,8 @@ module.exports = {
     storiesRelations,
     groupBuysRelations,
     farmersRelations,
+    carriersRelations,
+    jobApplicationsRelations,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
