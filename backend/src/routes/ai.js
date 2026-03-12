@@ -131,4 +131,109 @@ router.post('/chat', async (req, res) => {
     }
 });
 
+// 4. POST /api/ai/describe-product - AI Freshness Concierge
+router.post('/describe-product', async (req, res) => {
+    try {
+        const { productName, category } = req.body;
+
+        if (!process.env.GEMINI_API_KEY) {
+            return res.json({
+                description: `Freshly harvested ${productName} from our verified organic fields.`,
+                freshnessTip: "Keep in a cool, dry place for maximum flavor."
+            });
+        }
+
+        const prompt = `Act as an expert agricultural copywriter for Kido Farms. 
+        Product: ${productName}
+        Category: ${category}
+        
+        Generate:
+        1. A premium, appetizing product description (2-3 sentences).
+        2. A "Freshness Hack" or storage tip specific to this item.
+        
+        Format as JSON: { "description": "...", "freshnessTip": "..." }`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text().replace(/```json|```/g, '').trim();
+        const data = JSON.parse(text);
+
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to generate description' });
+    }
+});
+
+// 5. POST /api/ai/suggest-recipe - Smart Recipe Engine
+router.post('/suggest-recipe', async (req, res) => {
+    try {
+        const { items } = req.body; // Array of item names
+
+        const prompt = `I have these ingredients from Kido Farms: ${items.join(', ')}. 
+        Suggest 1 traditional or modern Nigerian recipe I can make. 
+        Provide:
+        - Recipe Name
+        - Brief instructions
+        - Any missing Kido Farms ingredients I should add to my cart.
+        
+        Format as JSON: { "recipeName": "...", "instructions": "...", "missingIngredients": ["...", "..."] }`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text().replace(/```json|```/g, '').trim();
+        const data = JSON.parse(text);
+
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to generate recipe' });
+    }
+});
+
+// 6. POST /api/ai/yield-shield - AI Yield Risk Assessment
+router.post('/yield-shield', async (req, res) => {
+    try {
+        const { location, crop, month } = req.body;
+
+        const prompt = `Analyze agricultural risk for:
+        Location: ${location}
+        Crop: ${crop}
+        Time: ${month}
+        
+        Provide:
+        - Risk Score (0-100, where 100 is extreme risk)
+        - Key threat (e.g. "Early rains", "Heatwave")
+        - Mitigation tip.
+        
+        Format as JSON: { "score": 85, "threat": "...", "mitigation": "..." }`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text().replace(/```json|```/g, '').trim();
+        const data = JSON.parse(text);
+
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: 'Yield analysis failed' });
+    }
+});
+
+// 7. POST /api/ai/mastery-tutor - AI Farmer Education
+router.post('/mastery-tutor', async (req, res) => {
+    try {
+        const { question, topic } = req.body;
+
+        const prompt = `You are a Master Agronomist at Kido Farms Academy. 
+        Topic: ${topic}
+        Question: ${question}
+        
+        Provide a detailed, practical answer for a Nigerian farmer. Use local context.`;
+
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        res.json({ answer: response.text() });
+    } catch (error) {
+        res.status(500).json({ error: 'Mastery Tutor unavailable' });
+    }
+});
+
 module.exports = router;
