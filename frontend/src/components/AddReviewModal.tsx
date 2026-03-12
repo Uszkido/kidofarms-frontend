@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { getApiUrl } from "@/lib/api";
 import StarRating from "./StarRating";
 
+import { ActionStatus } from "@/components/ActionStatus";
+
 interface Props {
     productId: string;
     productName: string;
@@ -19,10 +21,29 @@ export default function AddReviewModal({ productId, productName, userId, isOpen,
     const [rating, setRating] = useState(0);
     const [comment, setComment] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (rating === 0) return alert("Please select a star rating.");
+        if (rating === 0) {
+            setActionState({
+                isOpen: true,
+                title: "Incomplete",
+                message: "Please select a star rating.",
+                status: "error"
+            });
+            return;
+        }
 
         setSubmitting(true);
         try {
@@ -38,11 +59,21 @@ export default function AddReviewModal({ productId, productName, userId, isOpen,
                 setComment("");
             } else {
                 const data = await res.json();
-                alert(data.error || "Failed to submit review");
+                setActionState({
+                    isOpen: true,
+                    title: "Error",
+                    message: data.error || "Failed to submit review",
+                    status: "error"
+                });
             }
         } catch (err) {
             console.error(err);
-            alert("Network error. Please try again.");
+            setActionState({
+                isOpen: true,
+                title: "Network Error",
+                message: "Network error. Please try again.",
+                status: "error"
+            });
         } finally {
             setSubmitting(false);
         }
@@ -50,6 +81,13 @@ export default function AddReviewModal({ productId, productName, userId, isOpen,
 
     return (
         <AnimatePresence>
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             {isOpen && (
                 <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 pb-32 md:pb-6">
                     <motion.div

@@ -17,8 +17,21 @@ import {
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
+import { ActionStatus } from "@/components/ActionStatus";
+
 export default function MonitoringPage() {
     const [sensors, setSensors] = useState<any[]>([]);
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
 
     useEffect(() => {
         const fetchSensors = async () => {
@@ -36,8 +49,32 @@ export default function MonitoringPage() {
 
     const getSensorVal = (type: string) => sensors.find(s => s.type === type)?.value || "--";
 
+    const handleScan = () => {
+        setActionState({
+            isOpen: true,
+            title: "Full Node Diagnostic",
+            message: "Running edge-layer spectral analysis and hardware integrity check...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: "Full diagnostic batch complete. All IoT mesh nodes are synchronized and optimal.",
+                status: "success"
+            }));
+        }, 3000);
+    };
+
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 px-4">
                 <div className="space-y-3">
                     <h2 className="text-4xl font-black font-serif text-primary uppercase italic tracking-tighter">Precision <span className="text-secondary italic underline decoration-secondary/30 decoration-4 underline-offset-8">Node</span></h2>
@@ -148,7 +185,7 @@ export default function MonitoringPage() {
                             <p className="text-primary/40 text-xs font-medium max-w-md mt-2 leading-relaxed">Continuous edge computing active. Node performance currently at <span className="text-primary font-black italic">99.8% stability</span>.</p>
                         </div>
                     </div>
-                    <button onClick={() => alert("Full diagnostic batch initiated.")} className="bg-primary text-secondary px-12 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl hover:bg-secondary hover:text-primary transition-all">Run Full Scan</button>
+                    <button onClick={handleScan} className="bg-primary text-secondary px-12 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-2xl hover:bg-secondary hover:text-primary transition-all">Run Full Scan</button>
                 </div>
             </div>
         </div>

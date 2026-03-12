@@ -7,6 +7,8 @@ import { getApiUrl } from "@/lib/api";
 import StarRating from "@/components/StarRating";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { ActionStatus } from "@/components/ActionStatus";
+
 interface Props {
     productId: string;
     productName?: string;
@@ -14,6 +16,17 @@ interface Props {
 
 export default function ProductReviews({ productId, productName }: Props) {
     const { data: session } = useSession();
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
     const [reviews, setReviews] = useState<any[]>([]);
     const [avgRating, setAvgRating] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
@@ -47,7 +60,15 @@ export default function ProductReviews({ productId, productName }: Props) {
         e.preventDefault();
         const userId = (session?.user as any)?.id;
         if (!userId) return;
-        if (formData.rating === 0) return alert("Please select a star rating.");
+        if (formData.rating === 0) {
+            setActionState({
+                isOpen: true,
+                title: "Incomplete",
+                message: "Please select a star rating.",
+                status: "error"
+            });
+            return;
+        }
 
         setSubmitting(true);
         try {
@@ -82,6 +103,13 @@ export default function ProductReviews({ productId, productName }: Props) {
 
     return (
         <div className="space-y-10">
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             {/* Summary */}
             <div className="flex flex-col md:flex-row gap-10 items-start">
                 <div className="bg-secondary/10 rounded-[2.5rem] p-10 text-center min-w-[180px] space-y-3 border border-secondary/20">

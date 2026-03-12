@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
     ShieldCheck,
     Globe,
@@ -20,13 +20,41 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
-
-import { Suspense } from "react";
+import { ActionStatus } from "@/components/ActionStatus";
 
 function HorizonContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const sub = searchParams.get('sub') || 'shield';
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
+    const handleAction = (title: string, message: string, successMessage: string) => {
+        setActionState({
+            isOpen: true,
+            title,
+            message,
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: successMessage,
+                status: "success"
+            }));
+        }, 2000);
+    };
 
     const tabs = [
         { id: 'shield', label: 'Yield-Shield', icon: ShieldCheck },
@@ -43,6 +71,14 @@ function HorizonContent() {
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
+
             <div className="flex flex-col md:flex-row justify-between items-center gap-6 px-4">
                 <div className="space-y-2">
                     <h2 className="text-4xl font-black font-serif text-primary uppercase italic tracking-tighter">Horizon <span className="text-secondary tracking-tighter">5.0</span></h2>
@@ -92,7 +128,7 @@ function HorizonContent() {
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => alert("Satellite Integrity Report #Sentinel-2-A81 has been generated and sent to your secure node archive.")} className="bg-secondary text-primary py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-2xl mt-8">
+                            <button onClick={() => handleAction("Report", "Generating Sentinel-2 Integrity Report...", "Satellite Integrity Report #Sentinel-2-A81 has been generated and sent to your secure node archive.")} className="bg-secondary text-primary py-5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white transition-all shadow-2xl mt-8">
                                 Download Integrity Report
                             </button>
                         </div>
@@ -139,7 +175,7 @@ function HorizonContent() {
                                 ))}
                             </div>
                             <button
-                                onClick={() => alert("Global Bridge Export Application #GB-REG-2026 has been initiated. Awaiting EU Phytosanitary node verification.")}
+                                onClick={() => handleAction("Export", "Initiating global export bridge protocol...", "Global Bridge Export Application #GB-REG-2026 has been initiated. Awaiting EU Phytosanitary node verification.")}
                                 className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase hover:bg-white hover:text-primary transition-all shadow-2xl"
                             >
                                 Apply for Export
@@ -176,7 +212,7 @@ function HorizonContent() {
                                     <div className="p-10 space-y-6">
                                         <h4 className="font-black font-serif text-2xl uppercase tracking-tighter">{item.name}</h4>
                                         <button
-                                            onClick={() => alert(`Node Redempton Initiated: ${item.name}. ${item.cost} credits will be deducted from your Sovereign Energy balance.`)}
+                                            onClick={() => handleAction("Redeem", `Processing redemption for ${item.name}...`, `Node Redempton Initiated: ${item.name}. ${item.cost} credits will be deducted from your Sovereign Energy balance.`)}
                                             className="w-full bg-primary text-white py-4 rounded-2xl font-black text-[10px] uppercase hover:bg-secondary hover:text-primary transition-all shadow-xl"
                                         >
                                             Redeem Credit
@@ -199,7 +235,7 @@ function HorizonContent() {
                             </div>
                             <div>
                                 <h3 className="text-4xl font-black font-serif text-primary italic uppercase tracking-tighter leading-none">Mastery <br /><span className="text-secondary">Level 4</span></h3>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-3">Rank: Elite Specialist Specialist</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-3">Rank: Elite Specialist</p>
                             </div>
                             <div className="space-y-6 pt-6">
                                 <p className="text-[10px] font-black uppercase tracking-widest text-primary/20">Active Achievements</p>
@@ -225,6 +261,7 @@ function HorizonContent() {
                                 ].map(skill => (
                                     <div
                                         key={skill.title}
+                                        onClick={() => handleAction("Module", `Opening ${skill.title} mastery module...`, `Module ${skill.title} is now active in your academy node.`)}
                                         className="bg-neutral-50 p-8 rounded-[3rem] border border-primary/5 space-y-6 group hover:border-secondary transition-all cursor-pointer shadow-sm hover:shadow-2xl relative overflow-hidden"
                                     >
                                         <div className="flex justify-between items-center text-sm font-black uppercase">
@@ -283,7 +320,7 @@ function HorizonContent() {
                                 <h4 className="text-4xl font-black font-serif italic text-secondary uppercase tracking-tighter">Neural Insight</h4>
                                 <p className="text-white/40 text-lg font-medium leading-relaxed max-w-2xl italic">"Localized supply shortages in Plateau district indicate a potential price spike for Grains in Q3. Recommendation: Optimize storage Node for late-release."</p>
                             </div>
-                            <button onClick={() => alert("Neural Price Feed Synchronized. Real-time arbitrage nodes are now active for the current harvest cycle.")} className="bg-white text-primary px-12 py-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl shrink-0 hover:bg-secondary transition-all relative z-10">Connect Price Feed</button>
+                            <button onClick={() => handleAction("Oracle", "Synchronizing neural price feed...", "Neural Price Feed Synchronized. Real-time arbitrage nodes are now active for the current harvest cycle.")} className="bg-white text-primary px-12 py-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl shrink-0 hover:bg-secondary transition-all relative z-10">Connect Price Feed</button>
                         </div>
                     </div>
                 )}
@@ -320,7 +357,7 @@ function HorizonContent() {
                                     ))}
                                 </div>
                                 <button
-                                    onClick={() => alert("Global Logistics Node dispatch protocol initiated. Carrier 'Sovereign-Express-01' is now routing to your farm node.")}
+                                    onClick={() => handleAction("Logistics", "Initiating dispatch protocol...", "Global Logistics Node dispatch protocol initiated. Carrier 'Sovereign-Express-01' is now routing to your farm node.")}
                                     className="w-full bg-primary text-white py-6 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-2xl"
                                 >
                                     Book Global Shipment

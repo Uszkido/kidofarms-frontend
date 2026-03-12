@@ -5,9 +5,22 @@ import Link from "next/link";
 import { ArrowLeft, Check, RefreshCw, ShoppingBasket, Save, Loader2 } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function BasketConfigPage() {
     const [loading, setLoading] = useState(false);
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const [selectedItems, setSelectedItems] = useState([
         "Sweet Potatoes", "Carrots", "Onions", "Organic Honey"
     ]);
@@ -28,15 +41,33 @@ export default function BasketConfigPage() {
 
     const handleSave = () => {
         setLoading(true);
+        setActionState({
+            isOpen: true,
+            title: "Basket Update",
+            message: "Saving configuration...",
+            status: "processing"
+        });
         setTimeout(() => {
             setLoading(false);
-            alert("Basket configuration saved for your next delivery!");
+            setActionState({
+                isOpen: true,
+                title: "Updated",
+                message: "Basket configuration saved for your next delivery!",
+                status: "success"
+            });
         }, 1500);
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-cream/5">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6 max-w-4xl">
                     <Link href="/dashboard/subscriber" className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/30 hover:text-primary mb-10 transition-all">

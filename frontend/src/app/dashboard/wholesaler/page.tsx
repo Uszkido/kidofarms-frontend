@@ -17,9 +17,22 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function WholesalerDashboard() {
     const { data: session } = useSession();
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const [stats, setStats] = useState({
         totalVolume: "45.2 Tons",
         activeShipments: 8,
@@ -28,12 +41,32 @@ export default function WholesalerDashboard() {
     });
 
     const handleAction = (label: string) => {
-        alert(`${label} protocol initiated. Node synchronization in progress.`);
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Synchronizing with global supply nodes...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. All nodes are active.`,
+                status: "success"
+            }));
+        }, 2000);
     };
 
     return (
         <div className="flex flex-col min-h-screen bg-[#FDFCF9]">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <main className="flex-grow pt-32 pb-24">
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto space-y-12">

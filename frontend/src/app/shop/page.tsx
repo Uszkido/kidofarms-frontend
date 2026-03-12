@@ -10,6 +10,7 @@ import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
+import { ActionStatus } from "@/components/ActionStatus";
 
 export default function ShopPage() {
     const { addToCart } = useCart();
@@ -50,11 +51,34 @@ export default function ShopPage() {
         fetchProducts();
     }, [selectedCategory]);
 
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const handleGroupBuy = async (productId: string) => {
         if (!session?.user) {
-            alert("Please login to join a group buy node!");
+            setActionState({
+                isOpen: true,
+                title: "Authentication Required",
+                message: "Please login to join a group buy node!",
+                status: "error"
+            });
             return;
         }
+        setActionState({
+            isOpen: true,
+            title: "Group Buy",
+            message: "Joining node...",
+            status: "processing"
+        });
 
         try {
             const res = await fetch(getApiUrl("/api/groupbuys/join"), {
@@ -67,15 +91,40 @@ export default function ShopPage() {
                 })
             });
             if (res.ok) {
-                alert("🚀 Neighborhood Node Linked! You've joined the group buy.");
+                setActionState({
+                    isOpen: true,
+                    title: "Success",
+                    message: "🚀 Neighborhood Node Linked! You've joined the group buy.",
+                    status: "success"
+                });
+            } else {
+                setActionState({
+                    isOpen: true,
+                    title: "Error",
+                    message: "Failed to join group buy.",
+                    status: "error"
+                });
             }
         } catch (err) {
             console.error(err);
+            setActionState({
+                isOpen: true,
+                title: "Network Error",
+                message: "An error occurred.",
+                status: "error"
+            });
         }
     };
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
                     <div className="flex flex-col md:row justify-between items-start md:items-end mb-12 gap-6">

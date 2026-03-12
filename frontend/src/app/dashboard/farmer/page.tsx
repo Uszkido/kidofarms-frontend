@@ -39,11 +39,26 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
 
+import { ActionStatus } from "@/components/ActionStatus";
+
 export default function FarmerDashboard() {
     const router = useRouter();
     useEffect(() => {
         router.push("/dashboard/supplier");
     }, [router]);
+
+    const [actionState, setActionState] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        status: "processing" | "success" | "error";
+    }>({
+        isOpen: false,
+        title: "",
+        message: "",
+        status: "processing"
+    });
+
     const [sensors, setSensors] = useState<any[]>([]);
     const [loadingSensors, setLoadingSensors] = useState(true);
     const [isAgronomistOpen, setIsAgronomistOpen] = useState(false);
@@ -66,7 +81,21 @@ export default function FarmerDashboard() {
             setIsEditProfileOpen(true);
             return;
         }
-        alert(`${label} protocol initiated. Node synchronization in progress.`);
+
+        setActionState({
+            isOpen: true,
+            title: label,
+            message: "Node synchronization in progress...",
+            status: "processing"
+        });
+
+        setTimeout(() => {
+            setActionState(prev => ({
+                ...prev,
+                message: `${label} protocol successfully initiated. Node synchronization complete.`,
+                status: "success"
+            }));
+        }, 2000);
     };
 
     // Horizon Phase 5 States
@@ -145,6 +174,13 @@ export default function FarmerDashboard() {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
+            <ActionStatus
+                isOpen={actionState.isOpen}
+                onClose={() => setActionState(prev => ({ ...prev, isOpen: false }))}
+                title={actionState.title}
+                message={actionState.message}
+                status={actionState.status}
+            />
             <main className="flex-grow pt-32 pb-24 bg-cream/10">
                 <div className="container mx-auto px-6">
                     <div className="max-w-6xl mx-auto space-y-12">
@@ -711,7 +747,7 @@ export default function FarmerDashboard() {
                                 <h3 className="text-4xl font-black font-serif uppercase tracking-tighter italic">Edit <span className="text-secondary">Farm Node</span></h3>
                             </div>
 
-                            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setIsEditProfileOpen(false); alert("Horizon Node Updated Successfully."); }}>
+                            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setIsEditProfileOpen(false); handleAction("Horizon Node Update"); }}>
                                 <div className="grid md:grid-cols-2 gap-8">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Farm Identity Name</label>
@@ -748,7 +784,8 @@ export default function FarmerDashboard() {
                                             className="hidden"
                                             onChange={(e) => {
                                                 if (e.target.files?.[0]) {
-                                                    alert("Visual data captured. Uploading to Horizon...");
+                                                    setIsEditProfileOpen(false);
+                                                    handleAction("Visual Data Upload");
                                                 }
                                             }}
                                             accept="image/*"
