@@ -120,6 +120,7 @@ const orders = pgTable("orders", {
     paymentStatus: paymentStatusEnum("payment_status").default("pending"),
     orderStatus: orderStatusEnum("order_status").default("processing"),
     escrowStatus: text("escrow_status").default("held"), // held, released, disputed
+    trackingId: text("tracking_id").unique(),
     referralCode: text("referral_code"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });

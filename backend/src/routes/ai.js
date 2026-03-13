@@ -172,8 +172,11 @@ const toolHandlers = {
     get_order_status: async ({ orderId }) => {
         try {
             const { orders } = require('../db/schema');
-            const [order] = await db.select().from(orders).where(eq(orders.id, orderId));
-            return order ? { status: order.orderStatus, total: order.totalAmount, date: order.createdAt } : "Order not found.";
+            const [order] = await db.select().from(orders).where(or(
+                eq(orders.id, orderId),
+                eq(orders.trackingId, orderId)
+            ));
+            return order ? { status: order.orderStatus, total: order.totalAmount, date: order.createdAt, trackingId: order.trackingId } : "Order not found.";
         } catch (err) {
             return "Error retrieving order status.";
         }
