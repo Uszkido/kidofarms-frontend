@@ -684,6 +684,13 @@ const jobApplicationsRelations = relations(jobApplications, ({ one }) => ({
     }),
 }));
 
+const farmersRelations = relations(farmers, ({ one }) => ({
+    user: one(users, {
+        fields: [farmers.userId],
+        references: [users.id],
+    }),
+}));
+
 module.exports = {
     users,
     categories,
