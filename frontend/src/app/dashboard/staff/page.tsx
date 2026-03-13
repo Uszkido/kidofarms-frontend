@@ -306,6 +306,9 @@ export default function StaffDashboard() {
                                             <h2 className="text-3xl md:text-4xl font-black font-serif italic text-primary uppercase tracking-tighter">Help <span className="text-secondary italic">Terminal</span></h2>
                                             <div className="flex flex-wrap gap-4 pt-4 md:pt-0">
                                                 <button className="text-[10px] font-black uppercase text-primary/30 hover:text-secondary border-b-2 border-transparent hover:border-secondary transition-all pb-1">Open Pulse</button>
+                                                <Link href="/admin/academy/new" className="text-[10px] font-black uppercase text-secondary hover:underline transition-all pb-1 flex items-center gap-2">
+                                                    Deploy Academy Module <ArrowRight size={14} />
+                                                </Link>
                                                 <button className="text-[10px] font-black uppercase text-primary/30 hover:text-secondary border-b-2 border-transparent hover:border-secondary transition-all pb-1">Archived Nodes</button>
                                             </div>
                                         </div>

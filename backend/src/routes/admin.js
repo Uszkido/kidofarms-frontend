@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses } = require('../db/schema');
 const { desc, eq, sql, or } = require('drizzle-orm');
 const { authenticateToken, authorizeRoles, authorizePermissions } = require('../middleware/authMiddleware');
 
@@ -583,7 +583,7 @@ router.patch('/tasks/:id/status', async (req, res) => {
 // 23. GET /api/admin/entities/:entity - Universal Entity Retrieval
 router.get('/entities/:entity', async (req, res) => {
     const { entity } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
@@ -599,7 +599,7 @@ router.get('/entities/:entity', async (req, res) => {
 // 24. PATCH /api/admin/entities/:entity/:id - Universal Entity Modification
 router.patch('/entities/:entity/:id', authorizePermissions('global_data_command'), async (req, res) => {
     const { entity, id } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
@@ -620,6 +620,33 @@ router.patch('/entities/:entity/:id', authorizePermissions('global_data_command'
     } catch (error) {
         console.error(`Update ${entity} Error:`, error);
         res.status(500).json({ error: `Failed to update ${entity}` });
+    }
+});
+
+// 25. POST /api/admin/academy/modules - Add Mastery Academy Module
+router.post('/academy/modules', authorizePermissions('global_data_command'), async (req, res) => {
+    const { title, category, description, content, points } = req.body;
+    try {
+        const [newModule] = await db.insert(academyCourses).values({
+            title,
+            category,
+            description,
+            content,
+            points: points || 10,
+            isPublished: true
+        }).returning();
+
+        await db.insert(activityLogs).values({
+            action: 'ACADEMY_MODULE_CREATE',
+            entity: 'academy_courses',
+            details: { title, category },
+            userId: req.user.id
+        });
+
+        res.status(201).json(newModule);
+    } catch (error) {
+        console.error('Create Academy Module Error:', error);
+        res.status(500).json({ error: 'Failed to initialize academy node' });
     }
 });
 

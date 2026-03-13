@@ -591,6 +591,38 @@ const jobApplications = pgTable("job_applications", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Academy Courses Table (Mastery Academy Node)
+const academyCourses = pgTable("academy_courses", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    category: text("category").notNull(),
+    description: text("description"),
+    content: text("content"), // Main learning resources / links
+    points: integer("points").default(10),
+    isPublished: boolean("is_published").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// User Achievements Table
+const userAchievements = pgTable("user_achievements", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    courseId: uuid("course_id").references(() => academyCourses.id).notNull(),
+    pointsEarned: integer("points_earned").default(0),
+    status: text("status").default("completed"), // in_progress, completed
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Circular Economy Logs
+const circularLogs = pgTable("circular_logs", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    wasteWeight: numeric("waste_weight", { precision: 10, scale: 2 }).notNull(),
+    creditsEarned: integer("credits_earned").default(0),
+    type: text("type").default("fertilizer"), // fertilizer, energy
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 const usersRelations = relations(users, ({ many, one }) => ({
     blogPosts: many(blogPosts),
     vendor: one(vendors, {
@@ -683,6 +715,9 @@ module.exports = {
     impactMetrics,
     investments,
     farmMonitoringData,
+    academyCourses,
+    userAchievements,
+    circularLogs,
     tasks,
     yieldShieldPolicies,
     storageNodes,
