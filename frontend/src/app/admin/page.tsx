@@ -145,6 +145,37 @@ export default function AdminDashboard() {
                     </div>
                 </header>
 
+                {/* 🕹️ SOVEREIGN COMMAND CENTER */}
+                <div className="grid lg:grid-cols-3 gap-10 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                    <CommandCard
+                        title="Add Node"
+                        desc="Inject new citizens, assets, or infrastructure into the Kido Farms matrix instantly."
+                        icon={<Plus size={48} />}
+                        href="/admin/registry"
+                        color="from-green-500/20 to-transparent"
+                        accent="text-green-400"
+                        glow="shadow-[0_0_50px_-12px_rgba(74,222,128,0.3)]"
+                    />
+                    <CommandCard
+                        title="Assign Mission"
+                        desc="Delegate protocols and tasks to regional staff and node managers across the network."
+                        icon={<Fingerprint size={48} />}
+                        href="/admin/tasks"
+                        color="from-secondary/20 to-transparent"
+                        accent="text-secondary"
+                        glow="shadow-[0_0_50px_-12px_rgba(196,255,1,0.3)]"
+                    />
+                    <CommandCard
+                        title="Edit Matrix"
+                        desc="Modify existing data nodes, overwrite system variables and audit universal records."
+                        icon={<Sliders size={48} />}
+                        href="/admin/registry"
+                        color="from-blue-500/20 to-transparent"
+                        accent="text-blue-400"
+                        glow="shadow-[0_0_50px_-12px_rgba(96,165,250,0.3)]"
+                    />
+                </div>
+
                 {/* 🚀 QUICK ACTION PROTOCOLS */}
                 <div className="bg-white/5 rounded-[4rem] p-10 lg:p-12 border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
                     <MetricCard
@@ -194,6 +225,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Global Restock" permission="inventory" />
                         <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" permission="orders" />
                         <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />
+                        <ActionBtn href="/admin/tasks" icon={<Fingerprint size={20} />} label="Deploy Mission" permission="global_data_command" />
                         <ActionBtn href="/admin/academy/new" icon={<BookOpen size={20} />} label="Create Academy" permission="global_data_command" />
                     </div>
                 </div>
@@ -484,6 +516,30 @@ function NodeStatus({ label, status, health, icon, count }: any) {
                 <div className={`h-full ${health > 90 ? 'bg-green-500' : health > 50 ? 'bg-amber-500' : 'bg-red-500'}`} style={{ width: `${health}%` }} />
             </div>
         </div>
+    );
+}
+
+function CommandCard({ title, desc, icon, href, color, accent, glow }: any) {
+    return (
+        <Link href={href} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 ${glow}`}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
+            <div className="relative z-10 space-y-6">
+                <div className={`w-24 h-24 rounded-[2.5rem] bg-[#040d0a] border border-white/5 flex items-center justify-center ${accent} shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+                    {icon}
+                </div>
+                <div>
+                    <h3 className="text-4xl font-black font-serif uppercase tracking-tight text-white mb-2 leading-none">
+                        {title.split(' ')[0]} <span className={`${accent} italic`}>{title.split(' ')[1]}</span>
+                    </h3>
+                    <p className="text-white/40 text-[11px] font-black uppercase tracking-widest leading-relaxed max-w-[250px]">
+                        {desc}
+                    </p>
+                </div>
+                <div className={`flex items-center gap-4 text-[10px] font-black uppercase tracking-[0.3em] ${accent} opacity-40 group-hover:opacity-100 transition-all group-hover:gap-8`}>
+                    Initiate Protocol <ArrowRight size={16} />
+                </div>
+            </div>
+        </Link>
     );
 }
 
