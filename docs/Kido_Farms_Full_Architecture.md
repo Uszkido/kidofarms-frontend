@@ -50,9 +50,14 @@ The platform features a proprietary administrative layer designed for "Orbital O
 *   **Global Data Command**: A tiered permission system. Only users with the `global_data_command` permission can modify the "Root Ledger" (live data across all tables).
 *   **Trust Oracle**: An AI-driven scoring system that analyzes user behavior (order success rates, wallet frequency, tenure) to assign a **Trust Index** and suggested credit limits.
 
----
+### 5. ORBITAL INTELLIGENCE (ADVANCED AI AGENTS)
+The platform now features autonomous and semi-autonomous AI nodes:
+*   **Kido Vision (Pest & Health Auditor)**: Multi-modal AI that analyzes field photos to diagnose crop diseases and suggest organic mitigation.
+*   **Smart Logistics Batcher**: An agentic dispatcher that clusters orders by geography to optimize carrier routes.
+*   **Pricing Oracle**: Analyzing demand/supply data to suggest fair-trade prices for farmers.
+*   **Carbon Ledger Agent**: Automatically converting farm waste data into tradeable Energy Tokens.
 
-### 5. THE IDENTITY ARCHIVE (ROLES & NODES)
+### 6. THE IDENTITY ARCHIVE (ROLES & NODES)
 
 #### Citizen Hierarchy:
 1.  **Consumer Nodes**: `customer`, `subscriber`, `business`, `hotel`.
@@ -68,10 +73,10 @@ The platform features a proprietary administrative layer designed for "Orbital O
 
 ---
 
-### 6. AI CONCIERGE & NEURAL SYNC
+### 7. AI CONCIERGE & NEURAL SYNC
 The **Kido AI Concierge** is the primary interface for Citizens.
 *   **Behavior**: Professional, helpful, with "Nigerian Flair" (contextual cultural grounding).
-*   **Intelligence**: Can analyze harvests, suggest recipes, and troubleshoot logistics.
+*   **Intelligence (Agentic Tooling)**: Can search live products, track `trackingId` on orders, monitor harvests, browse Mastery modules, and analyze logistics clusters.
 *   **Bloom Logic Fallback**: If the primary AI API experiences "neural latency," the platform automatically switches to a localized agricultural knowledge base to ensure no disruption in service.
 
 ---
