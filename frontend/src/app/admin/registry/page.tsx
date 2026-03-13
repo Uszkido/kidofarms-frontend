@@ -17,7 +17,8 @@ import {
     RefreshCcw,
     Table,
     FileJson,
-    Settings
+    Settings,
+    BookOpen
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -34,7 +35,8 @@ export default function GlobalRegistryPage() {
         { id: 'carriers', label: 'Logistics Nodes (Carriers)', icon: <RefreshCcw size={16} /> },
         { id: 'jobApplications', label: 'Human Talent (Applications)', icon: <FileJson size={16} /> },
         { id: 'affiliates', label: 'Neural Links (Affiliates)', icon: <Zap size={16} /> },
-        { id: 'storageNodes', label: 'Network Storage (Warehouses)', icon: <Database size={16} /> }
+        { id: 'storageNodes', label: 'Network Storage (Warehouses)', icon: <Database size={16} /> },
+        { id: 'academyCourses', label: 'Knowledge Nodes (Academy)', icon: <BookOpen size={16} /> }
     ]);
 
     const [selectedEntity, setSelectedEntity] = useState('users');

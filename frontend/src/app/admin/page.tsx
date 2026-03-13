@@ -194,6 +194,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Global Restock" permission="inventory" />
                         <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" permission="orders" />
                         <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />
+                        <ActionBtn href="/admin/academy/new" icon={<BookOpen size={20} />} label="Create Academy" permission="global_data_command" />
                     </div>
                 </div>
 
