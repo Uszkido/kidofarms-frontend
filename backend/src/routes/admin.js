@@ -596,6 +596,32 @@ router.get('/entities/:entity', async (req, res) => {
     }
 });
 
+// 23.5. POST /api/admin/entities/:entity - Universal Entity Creation
+router.post('/entities/:entity', authorizePermissions('global_data_command'), async (req, res) => {
+    const { entity } = req.params;
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses };
+
+    if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
+
+    try {
+        const [inserted] = await db.insert(tables[entity])
+            .values({ ...req.body })
+            .returning();
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_GLOBAL_INJECT',
+            entity: entity,
+            details: { id: inserted.id, fields: Object.keys(req.body) },
+            userId: req.user.id
+        });
+
+        res.status(201).json(inserted);
+    } catch (error) {
+        console.error(`Inject ${entity} Error:`, error);
+        res.status(500).json({ error: `Failed to inject ${entity}. Ensure all required fields are present.` });
+    }
+});
+
 // 24. PATCH /api/admin/entities/:entity/:id - Universal Entity Modification
 router.patch('/entities/:entity/:id', authorizePermissions('global_data_command'), async (req, res) => {
     const { entity, id } = req.params;

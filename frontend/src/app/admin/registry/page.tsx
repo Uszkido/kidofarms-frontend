@@ -44,6 +44,7 @@ export default function GlobalRegistryPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [editingRecord, setEditingRecord] = useState<any>(null);
+    const [addingRecord, setAddingRecord] = useState<any>(null);
     const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
@@ -79,6 +80,29 @@ export default function GlobalRegistryPage() {
             } else {
                 const err = await res.json();
                 alert(err.error || "Override failed.");
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleInject = async (payload: any) => {
+        setIsSaving(true);
+        try {
+            const res = await fetch(getApiUrl(`/api/admin/entities/${selectedEntity}`), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (res.ok) {
+                alert("New node injected into the matrix successfully.");
+                setAddingRecord(null);
+                fetchData();
+            } else {
+                const err = await res.json();
+                alert(err.error || "Injection failed. Verify schema constraints.");
             }
         } catch (err) {
             console.error(err);
@@ -129,6 +153,24 @@ export default function GlobalRegistryPage() {
                         <button onClick={fetchData} className="bg-white/5 border border-white/10 text-white/40 px-8 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-white/10 transition-all flex items-center justify-center gap-3">
                             <RefreshCcw size={16} /> Sync
                         </button>
+                        {canEdit && (
+                            <button
+                                onClick={() => {
+                                    if (data.length > 0) {
+                                        const template = { ...data[0] };
+                                        delete template.id;
+                                        delete template.createdAt;
+                                        delete template.updatedAt;
+                                        setAddingRecord(template);
+                                    } else {
+                                        setAddingRecord({ title: "", description: "" });
+                                    }
+                                }}
+                                className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-white transition-all flex items-center justify-center gap-3 shadow-xl shadow-secondary/10"
+                            >
+                                <Table size={16} /> Inject Node
+                            </button>
+                        )}
                     </div>
                 </header>
 
@@ -280,6 +322,68 @@ export default function GlobalRegistryPage() {
                                 className="flex-1 bg-secondary text-primary py-7 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs shadow-xl flex items-center justify-center gap-4 transition-transform active:scale-95"
                             >
                                 {isSaving ? <Loader2 className="animate-spin" /> : <> <Save size={18} /> Commit Changes </>}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* 🛡️ INJECT NODE MODAL */}
+            {addingRecord && (
+                <div className="fixed inset-0 z-[200] flex items-center justify-end p-6 lg:p-10 overflow-hidden">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setAddingRecord(null)} />
+
+                    <div className="w-full max-w-2xl bg-[#0b1612] h-full rounded-[4rem] border-l-2 border-green-500/20 relative z-10 animate-in slide-in-from-right duration-500 shadow-2xl flex flex-col">
+                        <div className="p-10 border-b border-white/5 flex justify-between items-center">
+                            <div className="space-y-4">
+                                <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-green-400">Node Injection Protocol</h2>
+                                <h3 className="text-4xl font-black font-serif italic text-white uppercase leading-none truncate w-[400px]">New {selectedEntity} Node</h3>
+                            </div>
+                            <button onClick={() => setAddingRecord(null)} className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-white/20 hover:bg-red-500/10 hover:text-red-500 transition-all">
+                                <X size={32} />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-12 space-y-10">
+                            {Object.entries(addingRecord).map(([key, val]) => (
+                                <div key={key} className="space-y-3">
+                                    <label className="text-[9px] font-black uppercase tracking-widest text-white/20 ml-4">{key}</label>
+                                    <textarea
+                                        value={typeof val === 'object' ? JSON.stringify(val, null, 2) : String(val)}
+                                        onChange={(e) => {
+                                            const newval = e.target.value;
+                                            if (typeof val === 'object') {
+                                                try {
+                                                    setAddingRecord({ ...addingRecord, [key]: JSON.parse(newval) });
+                                                } catch (err) { }
+                                            } else if (typeof val === 'number') {
+                                                setAddingRecord({ ...addingRecord, [key]: Number(newval) });
+                                            } else {
+                                                setAddingRecord({ ...addingRecord, [key]: newval });
+                                            }
+                                        }}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-5 outline-none focus:border-green-400/40 transition-all text-sm font-bold h-24 resize-none"
+                                        placeholder={`Enter ${key}...`}
+                                    />
+                                </div>
+                            ))}
+                            <div className="p-6 bg-yellow-500/5 border border-yellow-500/20 rounded-3xl">
+                                <p className="text-[9px] font-black uppercase tracking-widest text-yellow-500 flex items-center gap-2">
+                                    <ShieldCheck size={12} /> Schema Warning
+                                </p>
+                                <p className="text-[8px] font-bold text-white/30 mt-2 leading-relaxed">
+                                    Ensure all required fields for the {selectedEntity} table are provided. Missing fields or invalid types will cause the injection sequence to abort.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="p-10 bg-white/[0.02] border-t border-white/5 flex gap-6">
+                            <button
+                                onClick={() => handleInject(addingRecord)}
+                                disabled={isSaving}
+                                className="flex-1 bg-green-500 text-[#040d0a] py-7 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-xs shadow-xl flex items-center justify-center gap-4 transition-transform active:scale-95"
+                            >
+                                {isSaving ? <Loader2 className="animate-spin" /> : <> <Database size={18} /> Authorize Injection </>}
                             </button>
                         </div>
                     </div>
