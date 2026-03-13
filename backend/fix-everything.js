@@ -74,6 +74,7 @@ async function fixEverything() {
         // Fix Orders (Escrow Shield)
         console.log("Step 6: Fixing 'orders' table for Escrow Shield...");
         await sql`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "escrow_status" text DEFAULT 'held';`;
+        await sql`ALTER TABLE "orders" ADD COLUMN IF NOT EXISTS "tracking_id" text;`;
         console.log("✅ Orders table updated.");
 
         // Step 7: Kido Horizon (Phase 5) Infrastructure
