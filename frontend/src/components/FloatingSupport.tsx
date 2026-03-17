@@ -4,6 +4,7 @@ import { MessageCircle, Send, MessageSquare } from "lucide-react";
 import { useState } from "react";
 import ReportIssueModal from "./ReportIssueModal";
 import { useSession } from "next-auth/react";
+import KidoConcierge from "./KidoConcierge";
 
 export function FloatingSupport() {
     const { data: session } = useSession();
@@ -11,6 +12,9 @@ export function FloatingSupport() {
 
     return (
         <div className="fixed bottom-6 right-6 z-[200] flex flex-col items-end gap-4 pointer-events-none">
+            {/* Kido AI Concierge */}
+            <KidoConcierge isStacked={true} />
+
             {/* Report Issue - Only for logged in users */}
             {session && (
                 <button

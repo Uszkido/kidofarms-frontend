@@ -2,8 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, ShoppingCart, Search, Info, Leaf, Sparkles, Send, Bot, User } from "lucide-react";
-import Link from "next/link";
+import { MessageCircle, X, Sparkles, Send } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
 type Message = {
@@ -11,7 +10,7 @@ type Message = {
     text: string;
 };
 
-export default function KidoConcierge() {
+export default function KidoConcierge({ isStacked = false }: { isStacked?: boolean }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         { role: "bot", text: "Welcome to Kido Farms! I'm your AI Concierge. How can I help you harvest success today?" }
@@ -58,15 +57,15 @@ export default function KidoConcierge() {
         }
     };
 
-    return (
-        <div className="fixed bottom-12 right-12 z-50">
+    const content = (
+        <>
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                        className="absolute bottom-20 right-0 w-96 bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-primary/10 flex flex-col overflow-hidden h-[500px]"
+                        className="absolute bottom-20 right-0 w-80 md:w-96 bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-primary/10 flex flex-col overflow-hidden h-[500px] z-[300]"
                     >
                         {/* Header */}
                         <div className="p-6 bg-primary text-white flex items-center justify-between">
@@ -138,11 +137,19 @@ export default function KidoConcierge() {
                 whileHover={{ scale: 1.1, rotate: 5 }}
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center shadow-2xl transition-all ${isOpen ? "bg-primary text-white" : "bg-primary text-secondary border-4 border-secondary shadow-[0_0_20px_rgba(242,201,76,0.3)]"
+                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all pointer-events-auto ${isOpen ? "bg-primary text-white" : "bg-primary text-secondary border-4 border-secondary shadow-[0_0_20px_rgba(242,201,76,0.3)]"
                     }`}
             >
-                {isOpen ? <X size={28} strokeWidth={2.5} /> : <MessageCircle size={28} strokeWidth={2.5} />}
+                {isOpen ? <X size={24} strokeWidth={2.5} /> : <MessageCircle size={24} strokeWidth={2.5} />}
             </motion.button>
+        </>
+    );
+
+    if (isStacked) return <div className="relative">{content}</div>;
+
+    return (
+        <div className="fixed bottom-12 right-12 z-50">
+            {content}
         </div>
     );
 }
