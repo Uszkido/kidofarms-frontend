@@ -19,6 +19,7 @@ export const Header = () => {
     const navLinks = [
         { label: "Marketplace", href: "/shop" },
         ...(!isBusiness ? [{ label: "Subscriptions", href: "/subscriptions" }] : []),
+        { label: "Track Order", href: "/track-order" },
         { label: "Our Vision", href: "/about" },
         { label: "Farm Blog", href: "/blog" },
         ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
