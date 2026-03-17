@@ -35,9 +35,15 @@ export default function GlobalRegistryPage() {
         { id: 'carriers', label: 'Logistics Nodes (Carriers)', icon: <RefreshCcw size={16} /> },
         { id: 'shipments', label: 'Active Shipments (Logistics)', icon: <Database size={16} /> },
         { id: 'energyMarketplace', label: 'Energy Node (Waste/Credits)', icon: <Zap size={16} /> },
+        { id: 'harvests', label: 'Biomass Tracker (Harvests)', icon: <Table size={16} /> },
+        { id: 'sensors', label: 'IoT Stream (Sensors)', icon: <Zap size={16} /> },
+        { id: 'tasks', label: 'Directives (Tasks)', icon: <Settings size={16} /> },
+        { id: 'tickets', label: 'Nexus Support (Tickets)', icon: <RefreshCcw size={16} /> },
+        { id: 'blogPosts', label: 'Knowledge Hub (Articles)', icon: <BookOpen size={16} /> },
         { id: 'jobApplications', label: 'Human Talent (Applications)', icon: <FileJson size={16} /> },
         { id: 'affiliates', label: 'Neural Links (Affiliates)', icon: <Zap size={16} /> },
         { id: 'storageNodes', label: 'Network Storage (Warehouses)', icon: <Database size={16} /> },
+        { id: 'warehouseInventory', label: 'Stock Nodes (Inventory)', icon: <Table size={16} /> },
         { id: 'academyCourses', label: 'Knowledge Nodes (Academy)', icon: <BookOpen size={16} /> }
     ]);
 

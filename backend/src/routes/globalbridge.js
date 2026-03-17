@@ -8,9 +8,9 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
 // 1. GET /api/globalbridge - View all export requests (Admin/Farmer side)
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const query = db.select().from(globalBridge).orderBy(desc(globalBridge.createdAt));
+        let query = db.select().from(globalBridge).orderBy(desc(globalBridge.createdAt));
         if (req.user.role !== 'admin' && req.user.role !== 'sub-admin') {
-            query.where(eq(globalBridge.farmerId, req.user.id));
+            query = query.where(eq(globalBridge.farmerId, req.user.id));
         }
         const exports = await query;
         res.json(exports);

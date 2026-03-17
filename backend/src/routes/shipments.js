@@ -8,9 +8,9 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
 // 1. GET /api/shipments - List all active shipments
 router.get('/', authenticateToken, async (req, res) => {
     try {
-        const query = db.select().from(shipments).orderBy(desc(shipments.updatedAt));
+        let query = db.select().from(shipments).orderBy(desc(shipments.updatedAt));
         if (req.user.role === 'carrier') {
-            query.where(eq(shipments.distributorId, req.user.id));
+            query = query.where(eq(shipments.distributorId, req.user.id));
         } else if (req.user.role !== 'admin' && req.user.role !== 'sub-admin') {
             // For customers, we need to join with orders
             const results = await db.select({
