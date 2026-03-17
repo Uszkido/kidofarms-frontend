@@ -62,7 +62,7 @@ export default function PremiumHero({ data }: { data: HeroData }) {
             {/* Floating Organic Assets (Parallax) */}
             <motion.div
                 style={{ y: y2, rotate }}
-                className="absolute top-1/4 right-[10%] hidden lg:block z-10"
+                className="absolute top-1/4 right-[15%] hidden lg:block z-10"
             >
                 <div className="w-24 h-24 bg-white/10 backdrop-blur-md p-4 rounded-3xl shadow-2xl border border-white/10 -rotate-12 group hover:rotate-0 transition-transform duration-500">
                     <Image src="https://images.unsplash.com/photo-1518843875459-f738682238a6?q=80&w=400&auto=format&fit=crop" alt="Organic" width={80} height={80} className="rounded-2xl object-cover h-full" />
