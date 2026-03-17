@@ -10,7 +10,7 @@ export default function ImpactSection() {
     });
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/impact`)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/impact`)
             .then(res => res.json())
             .then(data => setMetrics(data))
             .catch(err => console.error(err));

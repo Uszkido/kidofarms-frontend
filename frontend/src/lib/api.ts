@@ -9,7 +9,7 @@ export const getApiUrl = (path: string) => {
     // Safety: prevent relative URLs from pointing back to the frontend in production
     // if NEXT_PUBLIC_API_URL is accidentally set to an empty string or relative path
     if (!baseUrl.startsWith('http')) {
-        return `http://localhost:5000${cleanPath}`;
+        return `http://localhost:5001${cleanPath}`;
     }
 
     return `${baseUrl}${cleanPath}`;

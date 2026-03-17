@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts } = require('../db/schema');
 const { desc, eq, sql, or } = require('drizzle-orm');
 const { authenticateToken, authorizeRoles, authorizePermissions } = require('../middleware/authMiddleware');
 
@@ -583,7 +583,7 @@ router.patch('/tasks/:id/status', async (req, res) => {
 // 23. GET /api/admin/entities/:entity - Universal Entity Retrieval
 router.get('/entities/:entity', async (req, res) => {
     const { entity } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
@@ -599,7 +599,7 @@ router.get('/entities/:entity', async (req, res) => {
 // 23.5. POST /api/admin/entities/:entity - Universal Entity Creation
 router.post('/entities/:entity', authorizePermissions('global_data_command'), async (req, res) => {
     const { entity } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
