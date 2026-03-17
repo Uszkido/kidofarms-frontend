@@ -7,7 +7,6 @@ import { fetcher } from "@/lib/api";
 import HomeSearch from "@/components/HomeSearch";
 import MarketTicker from "@/components/MarketTicker";
 import PremiumHero from "@/components/PremiumHero";
-import KidoConcierge from "@/components/KidoConcierge";
 import FadeInEntry from "@/components/FadeInEntry";
 import CategoryList from "@/components/CategoryList";
 import AdvantageSection from "@/components/AdvantageSection";
@@ -353,9 +352,6 @@ export default async function Home() {
           </section>
         </FadeInEntry>
       </main>
-
-      {/* Floating Kido Concierge Widget */}
-      <KidoConcierge />
 
       <Footer />
     </div>
