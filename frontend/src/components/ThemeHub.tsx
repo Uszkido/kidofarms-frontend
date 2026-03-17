@@ -69,7 +69,6 @@ export default function ThemeHub({ children }: { children: React.ReactNode }) {
     return (
         <div style={{ fontFamily: themeConfig?.fontFamily }}>
             {children}
-            <ReportIssueModal />
         </div>
     );
 }

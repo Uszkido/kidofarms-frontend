@@ -16,9 +16,9 @@ import { useSession } from "next-auth/react";
 
 import { ActionStatus } from "@/components/ActionStatus";
 
-export default function ReportIssueModal() {
+export default function ReportIssueModal({ forceOpen, onClose }: { forceOpen?: boolean; onClose?: () => void }) {
     const { data: session } = useSession();
-    const [isOpen, setIsOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(forceOpen || false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
     const [formData, setFormData] = useState({
@@ -26,6 +26,11 @@ export default function ReportIssueModal() {
         message: "",
         priority: "medium"
     });
+
+    const handleClose = () => {
+        setIsOpen(false);
+        if (onClose) onClose();
+    };
 
     const [actionState, setActionState] = useState<{
         isOpen: boolean;
@@ -65,7 +70,7 @@ export default function ReportIssueModal() {
             if (res.ok) {
                 setIsSuccess(true);
                 setTimeout(() => {
-                    setIsOpen(false);
+                    handleClose();
                     setIsSuccess(false);
                     setFormData({ subject: "", message: "", priority: "medium" });
                 }, 3000);
@@ -80,6 +85,8 @@ export default function ReportIssueModal() {
     // Only show the support hub to authenticated users
     if (!session) return null;
 
+    const showModal = forceOpen || isOpen;
+
     return (
         <>
             <ActionStatus
@@ -89,18 +96,10 @@ export default function ReportIssueModal() {
                 message={actionState.message}
                 status={actionState.status}
             />
-            {/* Floating Toggle Button */}
-            <button
-                onClick={() => setIsOpen(true)}
-                className="fixed bottom-10 right-10 z-[150] bg-secondary text-primary p-6 rounded-full shadow-[0_20px_50px_rgba(197,160,89,0.3)] hover:scale-110 active:scale-90 transition-all group"
-                title="Support Hub"
-            >
-                <MessageSquare size={28} className="group-hover:rotate-12 transition-transform" />
-            </button>
 
-            {isOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 lg:p-10">
-                    <div className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-in fade-in duration-500" onClick={() => !isSubmitting && setIsOpen(false)} />
+            {showModal && (
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 lg:p-10">
+                    <div className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-in fade-in duration-500" onClick={() => !isSubmitting && handleClose()} />
 
                     <div className="bg-[#0b1612] w-full max-w-xl rounded-[3.5rem] border-2 border-secondary/20 shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">
                         {isSuccess ? (
@@ -125,7 +124,7 @@ export default function ReportIssueModal() {
                                         </div>
                                         <h3 className="text-4xl font-black font-serif italic text-white uppercase tracking-tighter">Report <span className="text-secondary italic">Anomaly</span></h3>
                                     </div>
-                                    <button onClick={() => setIsOpen(false)} className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 hover:text-white transition-all">
+                                    <button onClick={handleClose} className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-white/20 hover:text-white transition-all">
                                         <X size={24} />
                                     </button>
                                 </div>
