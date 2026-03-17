@@ -4,15 +4,9 @@ const { users } = require("./src/db/schema");
 const { eq } = require("drizzle-orm");
 
 async function check() {
-    const email = "admin@kidofarms.com";
-    const [user] = await db.select().from(users).where(eq(users.email, email));
-
-    if (user) {
-        console.log(`User: ${user.email}`);
-        console.log(`Role: ${user.role}`);
-    } else {
-        console.log("User not found.");
-    }
+    const allUsers = await db.select().from(users);
+    console.log("Total Users in Network:", allUsers.length);
+    allUsers.forEach(u => console.log(`- ${u.name} [${u.email}] -> Role: ${u.role}`));
     process.exit(0);
 }
 

@@ -33,6 +33,8 @@ export default function GlobalRegistryPage() {
         { id: 'farmers', label: 'Agro Nodes (Farmers)', icon: <Settings size={16} /> },
         { id: 'vendors', label: 'Commercial Guilds (Vendors)', icon: <ShieldCheck size={16} /> },
         { id: 'carriers', label: 'Logistics Nodes (Carriers)', icon: <RefreshCcw size={16} /> },
+        { id: 'shipments', label: 'Active Shipments (Logistics)', icon: <Database size={16} /> },
+        { id: 'energyMarketplace', label: 'Energy Node (Waste/Credits)', icon: <Zap size={16} /> },
         { id: 'jobApplications', label: 'Human Talent (Applications)', icon: <FileJson size={16} /> },
         { id: 'affiliates', label: 'Neural Links (Affiliates)', icon: <Zap size={16} /> },
         { id: 'storageNodes', label: 'Network Storage (Warehouses)', icon: <Database size={16} /> },
