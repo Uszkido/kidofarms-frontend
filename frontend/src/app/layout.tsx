@@ -17,6 +17,7 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { ReferralTracker } from "@/components/ReferralTracker";
 import ThemeHub from "@/components/ThemeHub";
+import { FloatingSupport } from "@/components/FloatingSupport";
 import { Suspense } from "react";
 
 export default function RootLayout({
@@ -26,13 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
-      <body className="antialiased flex flex-col min-h-screen">
+      <body className="antialiased flex flex-col min-h-screen relative">
         <Providers>
           <ThemeHub>
             <Suspense fallback={null}>
               <ReferralTracker />
             </Suspense>
             <main className="flex-grow">{children}</main>
+            <FloatingSupport />
           </ThemeHub>
         </Providers>
       </body>

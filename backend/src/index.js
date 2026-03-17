@@ -35,6 +35,13 @@ const ticketsRoutes = require('./routes/tickets');
 const reviewsRoutes = require('./routes/reviews');
 const uploadRoutes = require('./routes/upload');
 const aiRoutes = require('./routes/ai');
+const academyRoutes = require('./routes/academy');
+const energyRoutes = require('./routes/energy');
+const globalBridgeRoutes = require('./routes/globalbridge');
+const carriersRoutes = require('./routes/carriers');
+const shipmentsRoutes = require('./routes/shipments');
+
+
 const path = require('path');
 
 
@@ -88,6 +95,13 @@ app.use('/api/tickets', ticketsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/ai', aiRoutes);
+app.use('/api/academy', academyRoutes);
+app.use('/api/energy', energyRoutes);
+app.use('/api/globalbridge', globalBridgeRoutes);
+app.use('/api/carriers', carriersRoutes);
+app.use('/api/shipments', shipmentsRoutes);
+
+
 
 
 app.listen(PORT, () => {
