@@ -222,7 +222,7 @@ export default function AdminDashboard() {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 relative z-10">
                         <ActionBtn href="/admin/inventory/new" icon={<Package size={20} />} label="Inject Asset" permission="inventory" />
                         <ActionBtn href="/admin/users/new" icon={<Users size={20} />} label="Register Citizen" permission="users" />
-                        <ActionBtn href="/admin/landing" icon={<ImagePlus size={20} />} label="Design Portal" permission="content" />
+                        <ActionBtn href="/admin/logistics" icon={<Truck size={20} />} label="Fleet Command" permission="orders" />
                         <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Global Restock" permission="inventory" />
                         <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" permission="orders" />
                         <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />

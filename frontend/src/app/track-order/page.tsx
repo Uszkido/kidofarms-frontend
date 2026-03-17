@@ -10,9 +10,14 @@ import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermomete
 import { motion, AnimatePresence } from "framer-motion";
 
 // Dynamically import Map to avoid SSR errors with Leaflet
-const TrackingMap = dynamic(() => import("@/components/TrackingMap"), {
+const AdvancedTrackingMap = dynamic(() => import("@/components/OsmAdvancedTrackingMap"), {
     ssr: false,
-    loading: () => <div className="h-[400px] bg-primary/5 rounded-[3rem] animate-pulse flex items-center justify-center text-primary/20 font-black uppercase tracking-widest text-[10px]">Synchronizing Satellite Feed...</div>
+    loading: () => <div className="fixed inset-0 bg-primary flex items-center justify-center z-[1000]">
+        <div className="flex flex-col items-center gap-6">
+            <Loader2 className="animate-spin text-secondary w-16 h-16" />
+            <p className="text-white/20 font-black uppercase tracking-[0.5em] text-[10px]">Initializing OpenStreetMap Logistics Hub...</p>
+        </div>
+    </div>
 });
 
 interface Shipment {
@@ -152,11 +157,13 @@ export default function TrackOrderPage() {
                                                 {/* Map Section */}
                                                 <div className="relative group p-4 bg-white/5 border border-white/10 rounded-[4rem] overflow-hidden shadow-2xl">
                                                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                                                    <TrackingMap
+                                                    <AdvancedTrackingMap
                                                         lat={selectedShipment.currentLat}
                                                         lng={selectedShipment.currentLng}
                                                         title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
                                                         details={`Status: ${selectedShipment.status} | Temperature: Optimal`}
+                                                        onClose={() => { }}
+                                                        shipmentData={selectedShipment}
                                                     />
 
                                                     {selectedShipment.temperatureAlert && (

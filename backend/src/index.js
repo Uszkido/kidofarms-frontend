@@ -40,6 +40,7 @@ const energyRoutes = require('./routes/energy');
 const globalBridgeRoutes = require('./routes/globalbridge');
 const carriersRoutes = require('./routes/carriers');
 const shipmentsRoutes = require('./routes/shipments');
+const driversRoutes = require('./routes/drivers');
 
 
 const path = require('path');
@@ -100,6 +101,7 @@ app.use('/api/energy', energyRoutes);
 app.use('/api/globalbridge', globalBridgeRoutes);
 app.use('/api/carriers', carriersRoutes);
 app.use('/api/shipments', shipmentsRoutes);
+app.use('/api/drivers', driversRoutes);
 
 
 

@@ -37,13 +37,15 @@ router.get('/', authenticateToken, async (req, res) => {
 
 // 2. POST /api/shipments/dispatch - Admin dispatches an order
 router.post('/dispatch', authenticateToken, authorizeRoles('admin', 'sub-admin', 'team_member'), async (req, res) => {
-    const { orderId, distributorId, origin, destination } = req.body;
+    const { orderId, distributorId, driverId, origin, destination, vehicleInfo } = req.body;
     try {
         const [inserted] = await db.insert(shipments).values({
             orderId,
             distributorId,
+            driverId,
             origin,
             destination,
+            vehicleInfo,
             status: 'pending'
         }).returning();
 
@@ -53,12 +55,13 @@ router.post('/dispatch', authenticateToken, authorizeRoles('admin', 'sub-admin',
         await db.insert(activityLogs).values({
             action: 'SHIPMENT_DISPATCH',
             entity: 'shipments',
-            details: { id: inserted.id, orderId, distributorId },
+            details: { id: inserted.id, orderId, distributorId, driverId, vehicleInfo },
             userId: req.user.id
         });
 
         res.status(201).json(inserted);
     } catch (error) {
+        console.error(error);
         res.status(500).json({ error: 'Logistics dispatch node failed' });
     }
 });

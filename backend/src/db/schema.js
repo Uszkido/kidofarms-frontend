@@ -541,12 +541,14 @@ const farmSponsorships = pgTable("farm_sponsorships", {
 const shipments = pgTable("shipments", {
     id: uuid("id").primaryKey().defaultRandom(),
     orderId: uuid("order_id").references(() => orders.id),
-    distributorId: uuid("distributor_id").references(() => users.id),
+    distributorId: uuid("distributor_id").references(() => users.id), // Legacy/Company link
+    driverId: uuid("driver_id").references(() => drivers.id), // Specific Driver assigned
     currentLat: numeric("current_lat", { precision: 10, scale: 7 }),
     currentLng: numeric("current_lng", { precision: 10, scale: 7 }),
     status: text("status").default("pending"), // pending, picked_up, in_transit, delivered
     origin: text("origin"),
     destination: text("destination"),
+    vehicleInfo: text("vehicle_info"), // Dynamic snapshot of the car/bike
     temperatureAlert: boolean("temperature_alert").default(false),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -575,6 +577,19 @@ const carriers = pgTable("carriers", {
     accountNumber: text("account_number"),
     accountName: text("account_name"),
     status: text("status").default("pending"), // pending, verified, suspended
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Drivers Table (Individual Fleet Personnel)
+const drivers = pgTable("drivers", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    carrierId: uuid("carrier_id").references(() => carriers.id), // Optional: Link to a logistics company
+    vehicleType: text("vehicle_type").notNull(), // Car, Bike, Truck
+    vehiclePlate: text("vehicle_plate").notNull(),
+    licenseNumber: text("license_number"),
+    currentLocation: text("current_location"),
+    status: text("status").default("idle"), // idle, on_delivery, off_duty
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -670,10 +685,22 @@ const groupBuysRelations = relations(groupBuys, ({ one, many }) => ({
     participants: many(groupBuyParticipants),
 }));
 
-const carriersRelations = relations(carriers, ({ one }) => ({
+const carriersRelations = relations(carriers, ({ one, many }) => ({
     user: one(users, {
         fields: [carriers.userId],
         references: [users.id],
+    }),
+    drivers: many(drivers),
+}));
+
+const driversRelations = relations(drivers, ({ one }) => ({
+    user: one(users, {
+        fields: [drivers.userId],
+        references: [users.id],
+    }),
+    carrier: one(carriers, {
+        fields: [drivers.carrierId],
+        references: [carriers.id],
     }),
 }));
 
@@ -738,6 +765,7 @@ module.exports = {
     tickets,
     ticketMessages,
     carriers,
+    drivers,
     jobApplications,
     blogPostsRelations,
     usersRelations,
@@ -747,6 +775,7 @@ module.exports = {
     groupBuysRelations,
     farmersRelations,
     carriersRelations,
+    driversRelations,
     jobApplicationsRelations,
     roleEnum,
     unitEnum,
