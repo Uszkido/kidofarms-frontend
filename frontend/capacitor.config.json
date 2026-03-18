@@ -1,0 +1,10 @@
+{
+    "appId": "com.kidofarms.network",
+    "appName": "Kido Farms Network",
+    "webDir": "out",
+    "bundledWebRuntime": false,
+    "server": {
+        "url": "https://kidofarms-frontend.vercel.app",
+        "cleartext": true
+    }
+}
