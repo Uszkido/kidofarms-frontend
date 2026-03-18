@@ -7,6 +7,9 @@ export default async function AdminLayout({
 }: {
     children: React.ReactNode;
 }) {
+    if (process.env.NEXT_OUTPUT === "export") {
+        return <>{children}</>;
+    }
     const session = await getServerSession(authOptions);
 
     const role = (session?.user as any)?.role;

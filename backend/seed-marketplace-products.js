@@ -82,6 +82,17 @@ async function run() {
             { name: "Soybeans", category: "Nuts & Other Produce", unit: "bag", farmSource: "Plateau Soy Farms", price: "58000", stock: 30, description: "Protein-rich soybeans grown locally." }
         ];
 
+        const categoryImages = {
+            "Vegetables": "https://images.unsplash.com/photo-1566385101042-1a0aa0c1268c?w=800",
+            "Fruits": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=800",
+            "Fishes": "https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?w=800",
+            "Grains": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800",
+            "Chicken": "https://images.unsplash.com/photo-1587593817647-5b9a717ad13d?w=800",
+            "Beef": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
+            "Herbs & Specialty Crops": "https://images.unsplash.com/photo-1515233155-9273673dc638?w=800",
+            "Nuts & Other Produce": "https://images.unsplash.com/photo-1536511118291-7f938f615555?w=800"
+        };
+
         // Seed products
         for (const item of productsData) {
             // Check if product exists (simple check by name)
@@ -89,20 +100,31 @@ async function run() {
                 where: eq(products.name, item.name)
             });
 
+            const imageUrl = categoryImages[item.category] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800";
+
             if (!existing) {
                 const trackingId = `KD-PROD-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
                 await db.insert(products).values({
                     ...item,
                     ownerId,
                     trackingId,
-                    images: [`https://source.unsplash.com/featured/?${item.name.replace(/ /g, ',')},farm,fresh`], // Dynamic unsplash images
+                    images: [imageUrl],
                     rating: "4.5",
                     numReviews: 10,
                     isFeatured: Math.random() > 0.8
                 });
                 console.log(`- Inserted: ${item.name}`);
             } else {
-                console.log(`- Skipped (exists): ${item.name}`);
+                // Force update image if it looks broken (or just update all for now to be sure)
+                const currentImages = existing.images || [];
+                if (currentImages.length === 0 || (typeof currentImages[0] === 'string' && (currentImages[0].includes('source.unsplash.com') || currentImages[0].includes('loremflickr')))) {
+                    await db.update(products)
+                        .set({ images: [imageUrl] })
+                        .where(eq(products.id, existing.id));
+                    console.log(`- Updated Image: ${item.name}`);
+                } else {
+                    console.log(`- Skipped (already has good image): ${item.name}`);
+                }
             }
         }
 

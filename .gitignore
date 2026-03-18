@@ -55,4 +55,10 @@ frontend/next-env.d.ts
 # ── Testing ──────────────────────────────────────────────────
 /coverage
 
-.vercel
+# ── Extras ───────────────────────────────────────────────────
+frontend/dist/
+frontend/resources/
+android/
+ios/
+electron/
+*.log

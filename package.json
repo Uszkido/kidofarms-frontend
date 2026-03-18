@@ -7,9 +7,16 @@
         "dev": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,green\" \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
         "start": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"cyan,green\" \"npm run start --prefix backend\" \"npm run start --prefix frontend\"",
         "install:all": "npm install && npm install --prefix frontend && npm install --prefix backend",
-        "build": "cd frontend && npm install && npm run build"
+        "build": "cd frontend && npm install && cross-env NEXT_OUTPUT=export next build"
     },
     "devDependencies": {
-        "concurrently": "^9.1.2"
+        "@capacitor/assets": "^3.0.5",
+        "concurrently": "^9.1.2",
+        "cross-env": "^10.1.0"
+    },
+    "dependencies": {
+        "@capacitor/android": "^8.2.0",
+        "@capacitor/cli": "^8.2.0",
+        "@capacitor/core": "^8.2.0"
     }
 }

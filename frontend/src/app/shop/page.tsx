@@ -11,13 +11,18 @@ import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 import { ActionStatus } from "@/components/ActionStatus";
+import { useSearchParams } from "next/navigation";
 
 export default function ShopPage() {
     const { addToCart } = useCart();
     const { data: session } = useSession();
+    const searchParams = useSearchParams();
+    const initialSearch = searchParams.get("search") || "";
+
     const [products, setProducts] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [categories, setCategories] = useState<string[]>(["All"]);
 
     useEffect(() => {
@@ -36,9 +41,10 @@ export default function ShopPage() {
         const fetchProducts = async () => {
             setLoading(true);
             try {
-                const url = selectedCategory === "All"
-                    ? getApiUrl("/api/products")
-                    : getApiUrl(`/api/products?category=${selectedCategory}`);
+                let url = getApiUrl("/api/products?");
+                if (selectedCategory !== "All") url += `category=${selectedCategory}&`;
+                if (searchQuery) url += `search=${searchQuery}&`;
+
                 const res = await fetch(url);
                 const data = await res.json();
                 setProducts(Array.isArray(data) ? data : []);
@@ -49,7 +55,7 @@ export default function ShopPage() {
             }
         };
         fetchProducts();
-    }, [selectedCategory]);
+    }, [selectedCategory, searchQuery]);
 
     const [actionState, setActionState] = useState<{
         isOpen: boolean;
@@ -115,6 +121,7 @@ export default function ShopPage() {
             });
         }
     };
+
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
@@ -127,7 +134,7 @@ export default function ShopPage() {
             />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
-                    <div className="flex flex-col md:row justify-between items-start md:items-end mb-12 gap-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
                         <div className="space-y-2">
                             <h1 className="text-5xl font-bold font-serif">The Shop</h1>
                             <p className="text-primary/60">Browse our seasonal harvest and artisanal products.</p>
@@ -138,6 +145,8 @@ export default function ShopPage() {
                                 <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/40" size={18} />
                                 <input
                                     type="text"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
                                     placeholder="Search products..."
                                     className="w-full pl-12 pr-4 py-3 rounded-full border border-primary/10 glass focus:ring-1 focus:ring-secondary outline-none text-sm"
                                 />
@@ -204,12 +213,14 @@ export default function ShopPage() {
                                     products.map((prod) => (
                                         <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden border border-primary/5 hover:shadow-2xl transition-all h-full flex flex-col">
                                             <div className="relative h-72 overflow-hidden">
-                                                <Image
-                                                    src={prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800"}
-                                                    alt={prod.name}
-                                                    fill
-                                                    className="object-cover group-hover:scale-110 transition-transform duration-700"
-                                                />
+                                                <Link href={`/products/${prod.id}`}>
+                                                    <Image
+                                                        src={prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800"}
+                                                        alt={prod.name}
+                                                        fill
+                                                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                                                    />
+                                                </Link>
                                                 <div className="absolute top-4 left-4 flex gap-2">
                                                     <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary">
                                                         {prod.category}
@@ -228,7 +239,9 @@ export default function ShopPage() {
                                                                 </Link>
                                                             )}
                                                         </div>
-                                                        <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
+                                                        <Link href={`/products/${prod.id}`}>
+                                                            <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
+                                                        </Link>
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-1 mb-4 text-secondary">
@@ -287,3 +300,4 @@ export default function ShopPage() {
         </div>
     );
 }
+
