@@ -1,0 +1,12 @@
+﻿node.exe : Retrieving projectΓÇª
+At C:\Users\COMPUTER 13\AppData\Roaming\npm\vercel.ps1:24 char:5
++     & "node$exe"  "$basedir/node_modules/vercel/dist/vc.js" $args
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Retrieving projectΓÇª:Stri 
+   ng) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Error: The provided path ΓÇ£~\.gemini\antigravity\scratch\kido-farms-eco
+mmerce\backend\backendΓÇ¥ does not exist. To change your Project 
+Settings, go to 
+https://vercel.com/kidofarms-projects/kidofarms-backend/settings

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments } = require('../db/schema');
 const { desc, eq, sql, or } = require('drizzle-orm');
 const { authenticateToken, authorizeRoles, authorizePermissions } = require('../middleware/authMiddleware');
 
@@ -583,7 +583,7 @@ router.patch('/tasks/:id/status', async (req, res) => {
 // 23. GET /api/admin/entities/:entity - Universal Entity Retrieval
 router.get('/entities/:entity', async (req, res) => {
     const { entity } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
@@ -599,7 +599,7 @@ router.get('/entities/:entity', async (req, res) => {
 // 23.5. POST /api/admin/entities/:entity - Universal Entity Creation
 router.post('/entities/:entity', authorizePermissions('global_data_command'), async (req, res) => {
     const { entity } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
@@ -625,7 +625,7 @@ router.post('/entities/:entity', authorizePermissions('global_data_command'), as
 // 24. PATCH /api/admin/entities/:entity/:id - Universal Entity Modification
 router.patch('/entities/:entity/:id', authorizePermissions('global_data_command'), async (req, res) => {
     const { entity, id } = req.params;
-    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses };
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments };
 
     if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
 
@@ -646,6 +646,30 @@ router.patch('/entities/:entity/:id', authorizePermissions('global_data_command'
     } catch (error) {
         console.error(`Update ${entity} Error:`, error);
         res.status(500).json({ error: `Failed to update ${entity}` });
+    }
+});
+
+// 24.5. DELETE /api/admin/entities/:entity/:id - Universal Entity Deletion
+router.delete('/entities/:entity/:id', authorizePermissions('global_data_command'), async (req, res) => {
+    const { entity, id } = req.params;
+    const tables = { users, orders, products, harvests, farmers, vendors, carriers, jobApplications, affiliates, storageNodes, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments };
+
+    if (!tables[entity]) return res.status(400).json({ error: 'Unknown entity' });
+
+    try {
+        await db.delete(tables[entity]).where(eq(tables[entity].id, id));
+
+        await db.insert(activityLogs).values({
+            action: 'ADMIN_GLOBAL_DELETE',
+            entity: entity,
+            details: { id },
+            userId: req.user.id
+        });
+
+        res.json({ message: 'Node successfully expunged from ledger' });
+    } catch (error) {
+        console.error(`Delete ${entity} Error:`, error);
+        res.status(500).json({ error: `Failed to detatch ${entity}. This node might be referenced by other active nodes.` });
     }
 });
 
