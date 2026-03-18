@@ -250,7 +250,7 @@ export default function FinanceNode() {
                             <div className="relative z-10 space-y-6">
                                 <h3 className="text-3xl font-black font-serif leading-none italic uppercase">Audit Protocol</h3>
                                 <p className="text-primary/60 text-[10px] font-black uppercase leading-relaxed tracking-widest">Supreme Admin has full rights to reverse transactions or freeze wallets under Governance Act 4.0.</p>
-                                <button className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl">Full Ledger Audit</button>
+                                <Link href="/admin/registry" className="w-full bg-primary text-white py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white hover:text-primary transition-all shadow-xl text-center block">Full Ledger Audit</Link>
                             </div>
                         </div>
 

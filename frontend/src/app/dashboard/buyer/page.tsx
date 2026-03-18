@@ -849,7 +849,7 @@ export default function BuyerDashboard() {
 
             {/* Modals Bridge */}
             {isAddCardOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 md:p-6 bg-primary/95 backdrop-blur-2xl">
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-primary/95 backdrop-blur-2xl">
                     <div className="bg-white w-full max-w-lg rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-12 shadow-2xl relative animate-in zoom-in-95">
                         <button onClick={() => setIsAddCardOpen(false)} className="absolute top-12 right-12 text-primary/10 hover:text-primary transition-colors">
                             <X size={32} />

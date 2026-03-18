@@ -10,13 +10,18 @@ import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermomete
 import { motion, AnimatePresence } from "framer-motion";
 
 // Dynamically import Map to avoid SSR errors with Leaflet
-const AdvancedTrackingMap = dynamic(() => import("@/components/OsmAdvancedTrackingMap"), {
+// Dynamically import Maps to avoid SSR errors
+const OsmMap = dynamic(() => import("@/components/OsmAdvancedTrackingMap"), {
     ssr: false,
-    loading: () => <div className="fixed inset-0 bg-primary flex items-center justify-center z-[1000]">
-        <div className="flex flex-col items-center gap-6">
-            <Loader2 className="animate-spin text-secondary w-16 h-16" />
-            <p className="text-white/20 font-black uppercase tracking-[0.5em] text-[10px]">Initializing OpenStreetMap Logistics Hub...</p>
-        </div>
+    loading: () => <div className="p-10 flex items-center justify-center bg-white/5 rounded-[3rem]">
+        <Loader2 className="animate-spin text-secondary" />
+    </div>
+});
+
+const GoogleMap = dynamic(() => import("@/components/AdvancedTrackingMap"), {
+    ssr: false,
+    loading: () => <div className="p-10 flex items-center justify-center bg-white/5 rounded-[3rem]">
+        <Loader2 className="animate-spin text-secondary" />
     </div>
 });
 
@@ -37,6 +42,22 @@ export default function TrackOrderPage() {
     const [shipments, setShipments] = useState<Shipment[]>([]);
     const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [mapEngine, setMapEngine] = useState<'osm' | 'google'>('osm');
+    const [aftershipData, setAftershipData] = useState<any>(null);
+
+    useEffect(() => {
+        if (selectedShipment && session) {
+            fetch(getApiUrl(`/api/shipments/${selectedShipment.id}/aftership`), {
+                headers: { "Authorization": `Bearer ${(session as any).accessToken}` }
+            })
+                .then(res => res.json())
+                .then(data => {
+                    if (data?.data?.tracking) {
+                        setAftershipData(data.data.tracking);
+                    }
+                }).catch(console.error);
+        }
+    }, [selectedShipment, session]);
 
     useEffect(() => {
         const fetchShipments = async () => {
@@ -156,15 +177,36 @@ export default function TrackOrderPage() {
                                             >
                                                 {/* Map Section */}
                                                 <div className="relative group p-4 bg-white/5 border border-white/10 rounded-[4rem] overflow-hidden shadow-2xl">
+                                                    <div className="absolute inset-x-0 top-0 px-10 pt-6 pb-20 bg-gradient-to-b from-black/80 to-transparent z-10 flex justify-between items-start pointer-events-none">
+                                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/50">Tracking Engine</h4>
+                                                        <button
+                                                            onClick={() => setMapEngine(mapEngine === 'osm' ? 'google' : 'osm')}
+                                                            className="pointer-events-auto bg-black border border-white/10 text-secondary px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl"
+                                                        >
+                                                            Switch to {mapEngine === 'osm' ? 'Google Maps' : 'OpenStreetMap'}
+                                                        </button>
+                                                    </div>
                                                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                                                    <AdvancedTrackingMap
-                                                        lat={selectedShipment.currentLat}
-                                                        lng={selectedShipment.currentLng}
-                                                        title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
-                                                        details={`Status: ${selectedShipment.status} | Temperature: Optimal`}
-                                                        onClose={() => { }}
-                                                        shipmentData={selectedShipment}
-                                                    />
+
+                                                    {mapEngine === 'osm' ? (
+                                                        <OsmMap
+                                                            lat={selectedShipment.currentLat}
+                                                            lng={selectedShipment.currentLng}
+                                                            title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
+                                                            details={`Status: ${selectedShipment.status} | Temperature: Optimal`}
+                                                            onClose={() => { }}
+                                                            shipmentData={selectedShipment}
+                                                        />
+                                                    ) : (
+                                                        <GoogleMap
+                                                            lat={selectedShipment.currentLat}
+                                                            lng={selectedShipment.currentLng}
+                                                            title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
+                                                            details={`Status: ${selectedShipment.status} | Temperature: Optimal`}
+                                                            onClose={() => { }}
+                                                            shipmentData={selectedShipment}
+                                                        />
+                                                    )}
 
                                                     {selectedShipment.temperatureAlert && (
                                                         <div className="absolute top-10 left-10 z-20 flex items-center gap-4 bg-red-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] animate-pulse shadow-2xl">
@@ -215,22 +257,39 @@ export default function TrackOrderPage() {
                                                             <span className="text-[9px] font-black uppercase tracking-widest text-secondary">Verified Ledger</span>
                                                         </div>
                                                         <div className="space-y-10">
-                                                            <div className="flex gap-8 group">
-                                                                <div className="w-1 h-32 md:h-12 bg-secondary/20 rounded-full relative overflow-hidden shrink-0">
-                                                                    <div className="absolute top-0 left-0 w-full h-1/2 bg-secondary" />
-                                                                </div>
-                                                                <div className="space-y-3">
-                                                                    <p className="text-[9px] font-black uppercase tracking-widest text-secondary">Now Protocol</p>
-                                                                    <p className="text-2xl font-medium text-white italic group-hover:text-secondary transition-colors leading-tight">{selectedShipment.status === 'in_transit' ? 'Carrier maintains satellite lock on destination vector.' : 'Verification sequence complete.'}</p>
-                                                                    <p className="text-[10px] text-white/20 font-black uppercase tracking-widest">{new Date(selectedShipment.updatedAt).toLocaleTimeString()}</p>
-                                                                </div>
-                                                            </div>
-                                                            <div className="flex gap-8 group opacity-40">
-                                                                <div className="w-1 h-12 bg-white/10 rounded-full shrink-0" />
-                                                                <div className="space-y-2">
-                                                                    <p className="text-[10px] font-medium text-white/40 italic">Previous Log: Dispatched from {selectedShipment.origin} Node</p>
-                                                                </div>
-                                                            </div>
+                                                            {aftershipData?.checkpoints?.length > 0 ? (
+                                                                aftershipData.checkpoints.map((cp: any, i: number) => (
+                                                                    <div key={i} className={`flex gap-8 group ${i > 0 ? 'opacity-40' : ''}`}>
+                                                                        <div className={`w-1 h-32 md:h-12 rounded-full relative overflow-hidden shrink-0 ${i === 0 ? 'bg-secondary/20' : 'bg-white/10'}`}>
+                                                                            {i === 0 && <div className="absolute top-0 left-0 w-full h-1/2 bg-secondary" />}
+                                                                        </div>
+                                                                        <div className="space-y-3">
+                                                                            <p className="text-[9px] font-black uppercase tracking-widest text-secondary">{cp.city || 'Transit Node'} {cp.tag ? `[${cp.tag}]` : ''}</p>
+                                                                            <p className="text-2xl font-medium text-white italic group-hover:text-secondary transition-colors leading-tight">{cp.message || "Carrier maintains satellite lock."}</p>
+                                                                            <p className="text-[10px] text-white/20 font-black uppercase tracking-widest">{new Date(cp.created_at).toLocaleString()}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <>
+                                                                    <div className="flex gap-8 group">
+                                                                        <div className="w-1 h-32 md:h-12 bg-secondary/20 rounded-full relative overflow-hidden shrink-0">
+                                                                            <div className="absolute top-0 left-0 w-full h-1/2 bg-secondary" />
+                                                                        </div>
+                                                                        <div className="space-y-3">
+                                                                            <p className="text-[9px] font-black uppercase tracking-widest text-secondary">Now Protocol</p>
+                                                                            <p className="text-2xl font-medium text-white italic group-hover:text-secondary transition-colors leading-tight">{selectedShipment.status === 'in_transit' ? 'Carrier maintains satellite lock on destination vector.' : 'Verification sequence complete.'}</p>
+                                                                            <p className="text-[10px] text-white/20 font-black uppercase tracking-widest">{new Date(selectedShipment.updatedAt).toLocaleTimeString()}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="flex gap-8 group opacity-40">
+                                                                        <div className="w-1 h-12 bg-white/10 rounded-full shrink-0" />
+                                                                        <div className="space-y-2">
+                                                                            <p className="text-[10px] font-medium text-white/40 italic">Previous Log: Dispatched from {selectedShipment.origin} Node</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>

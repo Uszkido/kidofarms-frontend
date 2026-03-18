@@ -281,8 +281,19 @@ router.post('/chat', async (req, res) => {
         const isDummy = !apiKey || apiKey === 'your-gemini-api-key' || apiKey.includes('dummy');
 
         if (isDummy) {
+            const lowerMsg = message.toLowerCase();
+            let replyText = "I'm currently in training mode (AI Node syncing). Please add a valid GEMINI_API_KEY to the backend .env file to activate my neural engine!";
+
+            if (lowerMsg.includes('order') || lowerMsg.includes('track')) {
+                replyText = "[Offline Protocol] I can track your harvest nodes once my Gemini API key is active! Please check the Vault tab instead.";
+            } else if (lowerMsg.includes('price') || lowerMsg.includes('cost')) {
+                replyText = "[Offline Protocol] Please check the Market Oracle for live pricing. My neural analysis module requires an API key.";
+            } else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
+                replyText = "Greetings from Kido Farms! I'm currently in restricted mock mode. Provide my API key to unlock full conversational intelligence!";
+            }
+
             return res.json({
-                reply: "I'm currently in training mode (AI Node syncing). Harvests are looking great though! How can I help you navigate Kido Farms today?",
+                reply: replyText,
                 isMock: true
             });
         }

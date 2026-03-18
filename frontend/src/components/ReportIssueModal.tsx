@@ -98,7 +98,7 @@ export default function ReportIssueModal({ forceOpen, onClose }: { forceOpen?: b
             />
 
             {showModal && (
-                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 lg:p-10">
+                <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 lg:p-10 pointer-events-auto">
                     <div className="absolute inset-0 bg-black/80 backdrop-blur-xl animate-in fade-in duration-500" onClick={() => !isSubmitting && handleClose()} />
 
                     <div className="bg-[#0b1612] w-full max-w-xl rounded-[3.5rem] border-2 border-secondary/20 shadow-2xl overflow-hidden relative z-10 animate-in zoom-in-95 slide-in-from-bottom-10 duration-500">

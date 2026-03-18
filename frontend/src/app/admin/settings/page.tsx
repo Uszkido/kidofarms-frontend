@@ -40,6 +40,34 @@ export default function AdminSettingsPage() {
     const [saving, setSaving] = useState(false);
     const [settings, setSettings] = useState<any>(null);
     const [previewTheme, setPreviewTheme] = useState<any>(DEFAULT_SETTINGS.themeConfig);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !settings) return;
+
+        setIsUploading(true);
+        const formDataUpload = new FormData();
+        formDataUpload.append("image", file);
+
+        try {
+            const res = await fetch(getApiUrl("/api/upload"), {
+                method: "POST",
+                body: formDataUpload
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setSettings({ ...settings, logoConfig: { ...settings.logoConfig, mainLogo: data.url } });
+            } else {
+                alert(data.error || "Upload failed");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Network error during upload");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     useEffect(() => {
         fetchSettings();
@@ -235,14 +263,29 @@ export default function AdminSettingsPage() {
 
                                 <div className="bg-white/5 p-8 rounded-3xl border border-white/5 space-y-4">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-white/30 ml-4">Main Site Logo URL</label>
-                                    <div className="flex gap-4">
+                                    <div className="flex gap-4 items-center">
                                         <input
                                             value={settings.logoConfig?.mainLogo || DEFAULT_SETTINGS.logoConfig.mainLogo}
                                             onChange={(e) => setSettings({ ...settings, logoConfig: { ...settings.logoConfig, mainLogo: e.target.value } })}
                                             className="flex-1 bg-black/40 border border-white/10 rounded-2xl px-6 py-4 outline-none focus:border-secondary transition-all text-xs font-mono"
                                         />
-                                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden">
-                                            <img src={settings.logoConfig?.mainLogo || DEFAULT_SETTINGS.logoConfig.mainLogo} className="w-full h-full object-contain p-2" />
+                                        <div className="flex gap-4">
+                                            <input
+                                                id="logo-upload"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleLogoUpload}
+                                                className="hidden"
+                                            />
+                                            <label
+                                                htmlFor="logo-upload"
+                                                className="bg-white/5 hover:bg-white/10 text-white/60 hover:text-white px-6 py-4 rounded-2xl font-black text-xs uppercase tracking-widest cursor-pointer transition-all border border-white/10 flex items-center justify-center min-w-[140px]"
+                                            >
+                                                {isUploading ? <Loader2 size={16} className="animate-spin" /> : "Upload Node"}
+                                            </label>
+                                            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                                                <img src={settings.logoConfig?.mainLogo || DEFAULT_SETTINGS.logoConfig.mainLogo} className="w-full h-full object-contain p-2" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

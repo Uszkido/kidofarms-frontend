@@ -65,7 +65,7 @@ export default function KidoConcierge({ isStacked = false }: { isStacked?: boole
                         initial={{ opacity: 0, scale: 0.8, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 20 }}
-                        className="absolute bottom-20 right-0 w-80 md:w-96 bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-primary/10 flex flex-col overflow-hidden h-[500px] z-[300]"
+                        className="absolute bottom-20 right-0 w-80 md:w-96 bg-white/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-primary/10 flex flex-col overflow-hidden h-[500px] z-[300] pointer-events-auto"
                     >
                         {/* Header */}
                         <div className="p-6 bg-primary text-white flex items-center justify-between">

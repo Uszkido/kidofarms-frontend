@@ -92,4 +92,45 @@ router.patch('/:id/track', authenticateToken, authorizeRoles('carrier', 'admin')
     }
 });
 
+// 4. GET /api/shipments/:trackingId/aftership - External Tracking Sync
+router.get('/:trackingId/aftership', authenticateToken, async (req, res) => {
+    const { trackingId } = req.params;
+    try {
+        const apiKey = process.env.AFTERSHIP_API_KEY;
+        if (!apiKey) {
+            return res.json({
+                meta: { code: 200, message: 'Mock Mode Active - No API Key' },
+                data: {
+                    tracking: {
+                        tracking_number: trackingId,
+                        tag: 'InTransit',
+                        subtag_message: 'Package arrived at Kido local sorting facility.',
+                        checkpoints: [
+                            { message: 'In Transit', city: 'Abuja', created_at: new Date().toISOString() }
+                        ]
+                    }
+                }
+            });
+        }
+
+        const response = await fetch(`https://api.aftership.com/tracking/2026-01/trackings/${trackingId}`, {
+            method: 'GET',
+            headers: {
+                'as-api-key': apiKey,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('AfterShip API error');
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error('AfterShip Error:', error);
+        res.status(500).json({ error: 'External tracking node offline.' });
+    }
+});
+
 module.exports = router;

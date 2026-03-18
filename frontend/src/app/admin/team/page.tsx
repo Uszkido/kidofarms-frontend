@@ -258,8 +258,15 @@ export default function AdminTeamPage() {
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-white/20 ml-6 italic">Visual ID (Image Upload)</label>
                                         <div className="relative group/upload">
-                                            <div
-                                                onClick={() => document.getElementById('image-upload')?.click()}
+                                            <input
+                                                id="image-upload"
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handleImageUpload}
+                                                className="hidden"
+                                            />
+                                            <label
+                                                htmlFor="image-upload"
                                                 className="w-full bg-white/5 border border-white/10 rounded-3xl px-8 py-10 outline-none focus:border-secondary transition-all font-bold text-sm flex flex-col items-center justify-center gap-4 cursor-pointer hover:bg-white/10"
                                             >
                                                 {formData.image ? (
@@ -283,14 +290,7 @@ export default function AdminTeamPage() {
                                                         </span>
                                                     </div>
                                                 )}
-                                                <input
-                                                    id="image-upload"
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={handleImageUpload}
-                                                    className="hidden"
-                                                />
-                                            </div>
+                                            </label>
                                             {formData.image && (
                                                 <div className="absolute -top-3 -right-3">
                                                     <button

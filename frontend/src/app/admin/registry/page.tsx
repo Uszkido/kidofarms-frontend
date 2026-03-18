@@ -119,6 +119,24 @@ export default function GlobalRegistryPage() {
         }
     };
 
+    const handleDelete = async (id: string) => {
+        if (!confirm("CRITICAL WARNING: Are you sure you want to permanently execute this node from the entire network?")) return;
+        try {
+            const res = await fetch(getApiUrl(`/api/admin/entities/${selectedEntity}/${id}`), {
+                method: "DELETE"
+            });
+            if (res.ok) {
+                fetchData();
+                alert("Node removed successfully");
+            } else {
+                const err = await res.json();
+                alert(err.error || "Execution failed.");
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const filteredData = data.filter(item =>
         JSON.stringify(item).toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -248,12 +266,20 @@ export default function GlobalRegistryPage() {
                                                 ))}
                                                 {canEdit && (
                                                     <td className="px-8 py-6 text-right">
-                                                        <button
-                                                            onClick={() => setEditingRecord(row)}
-                                                            className="p-3 bg-white/5 text-white/20 hover:bg-secondary hover:text-primary rounded-xl transition-all opacity-0 group-hover:opacity-100"
-                                                        >
-                                                            <Edit3 size={14} />
-                                                        </button>
+                                                        <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <button
+                                                                onClick={() => setEditingRecord(row)}
+                                                                className="p-3 bg-white/5 text-white/20 hover:bg-secondary hover:text-primary rounded-xl transition-all"
+                                                            >
+                                                                <Edit3 size={14} />
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleDelete(row.id)}
+                                                                className="p-3 bg-white/5 text-white/20 hover:bg-red-500 hover:text-white rounded-xl transition-all"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 )}
                                             </tr>

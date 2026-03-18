@@ -10,17 +10,32 @@ import {
     Scale,
     Edit3,
     BarChart3,
-    RefreshCw
+    RefreshCw,
+    Check
 } from "lucide-react";
 import Link from "next/link";
 
 export default function PricingOraclePage() {
-    const [commodities] = useState([
+    const [commodities, setCommodities] = useState([
         { name: "Sorghum", current: "₦420/kg", change: "+12%", health: "Optimal" },
         { name: "Maize (White)", current: "₦380/kg", change: "-2%", health: "Syncing" },
         { name: "Soybeans", current: "₦550/kg", change: "+4%", health: "Optimal" },
         { name: "Wheat", current: "₦610/kg", change: "+18%", health: "High Volatility" },
     ]);
+    const [editingIndex, setEditingIndex] = useState<number | null>(null);
+    const [editValue, setEditValue] = useState("");
+
+    const handleEditStart = (index: number, currentVal: string) => {
+        setEditingIndex(index);
+        setEditValue(currentVal.split('/')[0].replace('₦', ''));
+    };
+
+    const handleEditSave = (index: number) => {
+        const newComs = [...commodities];
+        newComs[index].current = `₦${editValue}/kg`;
+        setCommodities(newComs);
+        setEditingIndex(null);
+    };
 
     return (
         <div className="min-h-screen bg-[#040d0a] text-white p-6 lg:p-12 font-sans">
@@ -59,13 +74,38 @@ export default function PricingOraclePage() {
                                                 <p className="text-[9px] font-black uppercase text-white/20 tracking-widest">Global Sync Health: {item.health}</p>
                                             </div>
                                         </div>
-                                        <div className="text-right">
-                                            <p className="text-2xl font-black font-serif text-white italic">{item.current}</p>
-                                            <p className={`text-[10px] font-black tracking-widest ${item.change.startsWith('+') ? 'text-green-500' : 'text-secondary'}`}>{item.change} (Last 24h)</p>
+                                        <div className="text-right flex-1 flex justify-end mr-6">
+                                            <div className="flex flex-col items-end">
+                                                {editingIndex === i ? (
+                                                    <div className="flex items-center gap-2 mb-1">
+                                                        <span className="text-white font-serif italic text-2xl">₦</span>
+                                                        <input
+                                                            type="number"
+                                                            value={editValue}
+                                                            onChange={(e) => setEditValue(e.target.value)}
+                                                            className="w-24 bg-white/5 border border-secondary/50 rounded-xl px-3 py-1 text-white font-serif italic text-xl outline-none focus:border-secondary transition-all"
+                                                            autoFocus
+                                                            onKeyDown={(e) => e.key === 'Enter' && handleEditSave(i)}
+                                                        />
+                                                        <span className="text-white/40 font-serif italic text-lg">/kg</span>
+                                                    </div>
+                                                ) : (
+                                                    <p className="text-2xl font-black font-serif text-white italic">{item.current}</p>
+                                                )}
+                                                <p className={`text-[10px] font-black tracking-widest ${item.change.startsWith('+') ? 'text-green-500' : 'text-secondary'}`}>{item.change} (Last 24h)</p>
+                                            </div>
                                         </div>
-                                        <button className="p-4 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-all hover:bg-secondary hover:text-primary">
-                                            <Edit3 size={18} />
-                                        </button>
+                                        <div className="w-16 flex justify-end">
+                                            {editingIndex === i ? (
+                                                <button onClick={() => handleEditSave(i)} className="p-4 bg-secondary text-primary rounded-2xl transition-all hover:scale-110 shadow-[0_0_15px_rgba(197,160,89,0.3)]">
+                                                    <Check size={18} />
+                                                </button>
+                                            ) : (
+                                                <button onClick={() => handleEditStart(i, item.current)} className="p-4 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-all hover:bg-secondary hover:text-primary">
+                                                    <Edit3 size={18} />
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 ))}
                             </div>
