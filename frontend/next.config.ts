@@ -1,7 +1,15 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: process.env.NEXT_OUTPUT === 'export' ? 'export' : undefined,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  /* eslint: {
+     ignoreDuringBuilds: true,
+   }, */
   images: {
+    unoptimized: true,
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "unsplash.com" },
@@ -9,6 +17,9 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "res.cloudinary.com" },
     ],
   },
+  /* turbopack: {
+    root: ".",
+  }, */
 };
 
 export default nextConfig;

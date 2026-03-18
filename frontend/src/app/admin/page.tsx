@@ -48,6 +48,9 @@ import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 
+
+export const dynamic = 'force-static';
+
 export default function AdminDashboard() {
     const { data: session } = useSession();
     const [stats, setStats] = useState<any>(null);

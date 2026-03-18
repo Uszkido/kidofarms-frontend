@@ -4,7 +4,7 @@
   "description": "Digital Farmer Marketplace connecting consumers directly to the source.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A150B",
+  "background_color": "#FFFFFF",
   "theme_color": "#bea04e",
   "icons": [
     {

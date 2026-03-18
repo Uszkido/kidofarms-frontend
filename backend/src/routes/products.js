@@ -9,15 +9,22 @@ const generateTrackingId = () => `KD-PROD-${crypto.randomBytes(2).toString("hex"
 
 // GET /api/products
 router.get('/', async (req, res) => {
-    const { category, featured } = req.query;
+    const { category, featured, search } = req.query;
 
     try {
+        const { ilike, or } = require('drizzle-orm');
         let conditions = [];
         if (category && category !== 'All') {
             conditions.push(eq(products.category, category));
         }
         if (featured === 'true') {
             conditions.push(eq(products.isFeatured, true));
+        }
+        if (search) {
+            conditions.push(or(
+                ilike(products.name, `%${search}%`),
+                ilike(products.description, `%${search}%`)
+            ));
         }
 
         const data = await db.select().from(products)
@@ -27,7 +34,7 @@ router.get('/', async (req, res) => {
         res.json(data);
     } catch (error) {
         console.error(error);
-        res.status(500).json({ error: 'Failed to fetch products' });
+        res.status(500).json({ error: 'Failed' });
     }
 });
 

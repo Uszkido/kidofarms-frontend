@@ -6,6 +6,9 @@ import { ShieldCheck, Loader2, ArrowRight, Activity, Mail } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import Link from "next/link";
 
+
+export const dynamic = 'force-static';
+
 function VerifyAccountContent() {
     const router = useRouter();
     const searchParams = useSearchParams();

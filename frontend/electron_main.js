@@ -20,7 +20,7 @@ function createKidoWindow() {
         titleBarStyle: 'hiddenInset'
     });
 
-    mainWindow.loadURL('https://kidofarms-frontend.vercel.app');
+    mainWindow.loadURL('https://kidofarms.vercel.app');
 
     new Notification({
         title: 'Kido OS Node Initialized',
