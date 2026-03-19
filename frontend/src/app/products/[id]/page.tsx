@@ -4,10 +4,7 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductDetailsClient } from "./ProductDetailsClient";
 
-export async function generateStaticParams() {
-    // For static export to work, we need at least one valid or dummy param
-    return [{ id: '1' }];
-}
+export const dynamic = "force-dynamic";
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
