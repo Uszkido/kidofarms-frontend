@@ -7,15 +7,7 @@ import L from "leaflet";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Box, Activity, ShieldCheck, Zap, AlertTriangle, Loader2 } from "lucide-react";
 
-// Fix Leaflet Default Icon Issue with a more premium marker
-const customIcon = L.icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
+
 
 function MapUpdater({ center }: { center: [number, number] }) {
     const map = useMap();
@@ -42,6 +34,18 @@ export default function OsmAdvancedTrackingMap({ lat, lng, title, details, onClo
     }, []);
 
     const center: [number, number] = useMemo(() => [lat || 9.0820, lng || 8.6753], [lat, lng]);
+
+    const customIcon = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        return L.icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+    }, []);
 
     if (!isMounted) return (
         <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-[1000]">
@@ -70,14 +74,16 @@ export default function OsmAdvancedTrackingMap({ lat, lng, title, details, onClo
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.geoapify.com/">Geoapify</a>'
                         url={tileUrl}
                     />
-                    <Marker position={center} icon={customIcon}>
-                        <Popup>
-                            <div className="p-2 text-black">
-                                <h4 className="font-bold uppercase text-[10px] tracking-widest">{title}</h4>
-                                <p className="text-[9px] mt-1">{details}</p>
-                            </div>
-                        </Popup>
-                    </Marker>
+                    {customIcon && (
+                        <Marker position={center} icon={customIcon}>
+                            <Popup>
+                                <div className="p-2 text-black">
+                                    <h4 className="font-bold uppercase text-[10px] tracking-widest">{title}</h4>
+                                    <p className="text-[9px] mt-1">{details}</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    )}
                     <MapUpdater center={center} />
                 </MapContainer>
 
