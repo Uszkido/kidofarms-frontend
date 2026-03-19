@@ -15,7 +15,7 @@ import { getApiUrl } from "@/lib/api";
 import { ActionStatus } from "@/components/ActionStatus";
 import { useSearchParams } from "next/navigation";
 
-export default function ShopPage() {
+function ShopContent() {
     const { addToCart } = useCart();
     const { data: session } = useSession();
     const searchParams = useSearchParams();
@@ -300,6 +300,14 @@ export default function ShopPage() {
             </main>
             <Footer />
         </div>
+    );
+}
+
+export default function ShopPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-white flex items-center justify-center p-20"><Loader2 className="animate-spin text-secondary w-16 h-16" /></div>}>
+            <ShopContent />
+        </Suspense>
     );
 }
 
