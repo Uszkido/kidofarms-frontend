@@ -8,14 +8,7 @@ import { motion } from "framer-motion";
 import { Truck, MapPin, Activity, Box } from "lucide-react";
 
 // Custom Icons for different vehicle types
-const truckIcon = L.icon({
-    iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
-    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
+
 
 interface FleetUnit {
     id: string;
@@ -40,6 +33,18 @@ export default function FleetOverviewMap({ units }: FleetOverviewMapProps) {
 
     // Center on Nigeria by default
     const center: [number, number] = [9.0820, 8.6753];
+
+    const truckIcon = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        return L.icon({
+            iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-gold.png",
+            shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+    }, []);
 
     if (!isMounted) return (
         <div className="w-full h-[600px] bg-primary/5 rounded-[3rem] animate-pulse flex items-center justify-center">
@@ -75,7 +80,7 @@ export default function FleetOverviewMap({ units }: FleetOverviewMapProps) {
                     const lat = unit.currentLat || 9.0820 + (Math.random() - 0.5) * 2; // Demo random if not set
                     const lng = unit.currentLng || 8.6753 + (Math.random() - 0.5) * 2;
 
-                    return (
+                    return truckIcon && (
                         <Marker key={unit.id} position={[lat, lng]} icon={truckIcon}>
                             <Popup className="premium-popup">
                                 <div className="p-3 space-y-2 min-w-[180px]">
