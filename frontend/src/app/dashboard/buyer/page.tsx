@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import {
@@ -56,7 +56,7 @@ import { ActionStatus } from "@/components/ActionStatus";
 import { HarvestPassport } from "@/components/HarvestPassport";
 import { NegotiationTradeFloor } from "@/components/NegotiationTradeFloor";
 // Dynamically import LogisticsMeshMap with SSR disabled as it uses Leaflet
-const LogisticsMeshMap = dynamic(
+const LogisticsMeshMap = nextDynamic(
     () => import("@/components/LogisticsMeshMap").then((mod) => mod.LogisticsMeshMap),
     { ssr: false }
 );
@@ -902,12 +902,4 @@ export default function BuyerDashboard() {
             )}
         </div>
     );
-}
-
-function LayoutDashboard({ size, className }: any) {
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><rect width="7" height="9" x="3" y="3" rx="1" /><rect width="7" height="5" x="14" y="3" rx="1" /><rect width="7" height="9" x="14" y="12" rx="1" /><rect width="7" height="5" x="3" y="16" rx="1" /></svg>;
-}
-
-function Fingerprint({ size, className }: any) {
-    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="M12 10a2 2 0 0 0-2 2c0 .245.044.48.125.7a2 2 0 0 0 3.75 0c.081-.22.125-.455.125-.7a2 2 0 0 0-2-2Z" /><path d="M12 2a10 10 0 0 0-10 10c0 1.25.21 2.45.6 3.6" /><path d="M12 22a10 10 0 0 0 10-10c0-1.25-.21-2.45-.6-3.6" /><path d="M12 14v4" /><path d="M8 12v2" /><path d="M16 12v2" /><path d="M12 6a6 6 0 0 1 6 6c0 .82-.16 1.6-.47 2.3" /><path d="M6.47 9.7A6 6 0 0 1 12 6" /></svg>;
 }
