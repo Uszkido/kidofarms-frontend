@@ -386,7 +386,7 @@ router.get('/full-audit', async (req, res) => {
 // 12. GET /api/admin/storage - Fetch all storage nodes/warehouses
 router.get('/storage', async (req, res) => {
     try {
-        const nodes = await db.select().from(storageNodes).orderBy(desc(storageNodes.createdAt));
+        const nodes = await db.select().from(storageNodes).orderBy(desc(storageNodes.updatedAt));
         res.json(nodes);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch storage nodes' });

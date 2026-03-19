@@ -1,4 +1,10 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
 
 :root {
   --background: #e5e0d5;
