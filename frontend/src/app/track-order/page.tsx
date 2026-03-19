@@ -8,11 +8,11 @@ import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermometer } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const AdvancedMap = dynamic(() => import("@/components/AdvancedTrackingMap"), {
+const AdvancedMap = nextDynamic(() => import("@/components/AdvancedTrackingMap"), {
     ssr: false,
     loading: () => <div className="p-10 flex items-center justify-center bg-white/5 rounded-[3rem]">
         <Loader2 className="animate-spin text-secondary" />

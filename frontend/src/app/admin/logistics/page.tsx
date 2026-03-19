@@ -26,11 +26,11 @@ import {
 import { getApiUrl } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 
 import LogisticsAnalytics from "@/components/LogisticsAnalytics";
 
-const FleetOverviewMap = dynamic(() => import("@/components/FleetOverviewMap"), {
+const FleetOverviewMap = nextDynamic(() => import("@/components/FleetOverviewMap"), {
     ssr: false,
     loading: () => <div className="w-full h-[600px] bg-white/5 rounded-[3rem] animate-pulse flex items-center justify-center text-white/20 font-black uppercase tracking-[0.5em] text-[10px]">Initializing Satellite Matrix...</div>
 });
