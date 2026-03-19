@@ -10,27 +10,93 @@ import {
     CreditCard,
     Truck,
     Loader2,
-    ArrowLeft
 } from "lucide-react";
-import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { NIGERIAN_STATES } from "@/lib/constants";
+import { GeoapifyAutocomplete } from "@/components/GeoapifyAutocomplete";
+import Script from "next/script";
 
 export default function CheckoutPage() {
     const { data: session } = useSession();
     const router = useRouter();
     const { cart, cartTotal, clearCart } = useCart();
     const [loading, setLoading] = useState(false);
+    const [verifying, setVerifying] = useState(false);
     const [error, setError] = useState("");
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
+        email: session?.user?.email || "",
         street: "",
         city: "",
         state: "Lagos",
         phone: ""
     });
+
+    const config = {
+        reference: (new Date()).getTime().toString(),
+        email: form.email || "guest@kidofarms.com",
+        amount: cartTotal * 100, // Paystack works in Kobo
+        publicKey: 'pk_live_b5974af483a0af6838df8dcad9f24b07bdd09365',
+    };
+
+    const handlePaystackSuccessAction = async (reference: any, orderId: string) => {
+        setVerifying(true);
+        try {
+            const res = await fetch(getApiUrl("/api/orders/verify-payment"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    reference: reference.reference,
+                    orderId,
+                    items: cart,
+                    totalAmount: cartTotal,
+                })
+            });
+
+            if (res.ok) {
+                clearCart();
+                router.push("/dashboard/buyer?success=true");
+            } else {
+                setError("Payment verification failed. Please contact support.");
+            }
+        } catch (err) {
+            setError("Critical verification error.");
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const handlePaystackCloseAction = () => {
+        setLoading(false);
+    };
+
+    const initializePaystack = (orderId: string) => {
+        // @ts-ignore
+        if (typeof window.PaystackPop !== 'undefined') {
+            // @ts-ignore
+            const handler = window.PaystackPop.setup({
+                ...config,
+                onClose: handlePaystackCloseAction,
+                callback: (response: any) => handlePaystackSuccessAction(response, orderId),
+            });
+            handler.openIframe();
+        } else {
+            setError("Payment gateway (Paystack) failed to load. Please refresh.");
+            setLoading(false);
+        }
+    };
+
+    const handleAddressSelect = (address: any) => {
+        setForm(prev => ({
+            ...prev,
+            street: address.address_line1 || address.formatted,
+            city: address.city || address.suburb || address.village || prev.city,
+            state: address.state || prev.state
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (cart.length === 0) return;
@@ -38,6 +104,7 @@ export default function CheckoutPage() {
         setError("");
 
         try {
+            // First create the order shell (Support Guest Fields)
             const res = await fetch(getApiUrl("/api/orders"), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -48,35 +115,39 @@ export default function CheckoutPage() {
                     city: form.city,
                     state: form.state,
                     zip: "00000",
-                    paymentMethod: "card",
-                    userId: (session?.user as any)?.id
+                    paymentMethod: "card", // card/transfer are both handled by Paystack Popup
+                    userId: (session?.user as any)?.id || null, // Optional for Guest
+                    guestName: `${form.firstName} ${form.lastName}`,
+                    guestEmail: form.email,
+                    guestPhone: form.phone
                 })
             });
 
-            const data = await res.json();
+            const order = await res.json();
             if (res.ok) {
-                clearCart();
-                router.push("/profile"); // Or a success page
+                initializePaystack(order.id);
             } else {
-                setError(data.error);
+                setError(order.error || "Order creation failed.");
+                setLoading(false);
             }
         } catch (err) {
-            setError("Failed to place order. Please try again.");
-        } finally {
+            setError("Network error. Please try again.");
             setLoading(false);
         }
     };
 
     return (
         <div className="flex flex-col min-h-screen">
+            <Script src="https://js.paystack.co/v1/inline.js" strategy="afterInteractive" />
             <Header />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
                     <h1 className="text-5xl font-bold font-serif mb-12">Checkout</h1>
 
-                    {error && (
-                        <div className="mb-8 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3">
-                            <ShieldCheck size={20} /> {error}
+                    {(error || verifying) && (
+                        <div className={`mb-8 px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 ${verifying ? 'bg-secondary/10 border border-secondary/20 text-secondary' : 'bg-red-50 border border-red-200 text-red-700'}`}>
+                            {verifying ? <Loader2 size={20} className="animate-spin" /> : <ShieldCheck size={20} />}
+                            {verifying ? "Verifying Transaction with Kido Node..." : error}
                         </div>
                     )}
 
@@ -90,48 +161,56 @@ export default function CheckoutPage() {
 
                                 <form id="checkout-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">First Name</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">First Name</label>
                                         <input
                                             type="text" required value={form.firstName} onChange={e => setForm({ ...form, firstName: e.target.value })}
                                             className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">Last Name</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">Last Name</label>
                                         <input
                                             type="text" required value={form.lastName} onChange={e => setForm({ ...form, lastName: e.target.value })}
                                             className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"
                                         />
                                     </div>
                                     <div className="md:col-span-2 space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">Shipping Address</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">Email Address</label>
                                         <input
-                                            type="text" required value={form.street} onChange={e => setForm({ ...form, street: e.target.value })}
+                                            type="email" required value={form.email} onChange={e => setForm({ ...form, email: e.target.value })}
                                             className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"
                                         />
                                     </div>
+                                    <div className="md:col-span-2 space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">Shipping Address (Automated)</label>
+                                        <GeoapifyAutocomplete
+                                            onSelect={handleAddressSelect}
+                                            placeholder="Enter your street address..."
+                                            initialValue={form.street}
+                                        />
+                                    </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">City / LGA</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">City / LGA</label>
                                         <input
                                             type="text" required value={form.city} onChange={e => setForm({ ...form, city: e.target.value })}
                                             className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"
                                         />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">State</label>
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">State</label>
                                         <select
                                             required
                                             value={form.state}
                                             onChange={e => setForm({ ...form, state: e.target.value })}
-                                            className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium appearance-none cursor-pointer"
+                                            className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium appearance-none"
                                         >
                                             {NIGERIAN_STATES.map(state => (
                                                 <option key={state} value={state}>{state}</option>
                                             ))}
                                         </select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40">Phone Number</label>
+                                    <div className="md:col-span-2 space-y-2">
+                                        <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">Phone Number</label>
                                         <input
                                             type="tel" required value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })}
                                             className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"
@@ -147,20 +226,21 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4">
-                                    <button className="flex items-center justify-center gap-3 p-6 rounded-3xl border-2 border-secondary bg-white shadow-sm">
+                                    <button className="flex items-center justify-center gap-3 p-6 rounded-3xl border-2 border-secondary bg-white shadow-sm transition-all hover:scale-[1.02]">
                                         <CreditCard className="text-secondary" />
-                                        <span className="font-bold">Card</span>
+                                        <span className="font-bold">Card or Transfer</span>
                                     </button>
-                                    <button className="flex items-center justify-center gap-3 p-6 rounded-3xl border border-primary/5 bg-white/50 hover:bg-white transition-all">
-                                        <Truck className="text-primary/40" />
-                                        <span className="font-bold text-primary/70">Transfer</span>
-                                    </button>
+                                    <div className="flex flex-col items-center justify-center p-6 rounded-3xl border border-primary/5 bg-white/50 opacity-60">
+                                        <ShieldCheck className="text-secondary/40" />
+                                        <span className="text-[10px] font-bold uppercase tracking-tighter mt-1">Paystack Secured</span>
+                                    </div>
                                 </div>
+                                <p className="text-[11px] text-primary/40 px-2">Selecting "Paystack" allows you to pay via Card, Bank Transfer, USSD, or QR Code securely.</p>
                             </section>
                         </div>
 
                         <aside>
-                            <div className="glass p-12 rounded-[3rem] border border-primary/5 shadow-2xl space-y-8">
+                            <div className="glass p-12 rounded-[3rem] border border-primary/5 shadow-2xl space-y-8 sticky top-32">
                                 <h2 className="text-2xl font-bold font-serif">Order Summary</h2>
 
                                 <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
@@ -183,16 +263,14 @@ export default function CheckoutPage() {
                                 <button
                                     form="checkout-form"
                                     type="submit"
-                                    disabled={loading || cart.length === 0}
-                                    className="w-full bg-primary text-white py-5 rounded-full font-bold hover:bg-secondary hover:text-primary transition-all shadow-xl flex items-center justify-center gap-3 text-lg disabled:opacity-50"
+                                    disabled={loading || verifying || cart.length === 0}
+                                    className="w-full bg-primary text-white py-5 rounded-full font-bold hover:bg-secondary hover:text-primary transition-all shadow-xl flex items-center justify-center gap-3 text-lg disabled:opacity-50 active:scale-95"
                                 >
-                                    {loading ? <Loader2 className="animate-spin" size={24} /> : "Place Your Order"}
+                                    {loading || verifying ? <Loader2 className="animate-spin" size={24} /> : "Proceed to Secure Payment"}
                                 </button>
 
-                                <div className="flex justify-center gap-6 pt-4 grayscale opacity-30">
-                                    <ShieldCheck size={24} />
-                                    <CreditCard size={24} />
-                                    <Truck size={24} />
+                                <div className="text-center">
+                                    <p className="text-[11px] text-primary/40">Secured with Yield-Shield™ Encryption Technology</p>
                                 </div>
                             </div>
                         </aside>

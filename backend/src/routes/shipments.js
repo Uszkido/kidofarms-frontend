@@ -92,44 +92,42 @@ router.patch('/:id/track', authenticateToken, authorizeRoles('carrier', 'admin')
     }
 });
 
-// 4. GET /api/shipments/:trackingId/aftership - External Tracking Sync
-router.get('/:trackingId/aftership', authenticateToken, async (req, res) => {
+// 4. GET /api/shipments/:trackingId/track - External Tracking Sync (Tracking More)
+router.get('/:trackingId/external', authenticateToken, async (req, res) => {
     const { trackingId } = req.params;
     try {
-        const apiKey = process.env.AFTERSHIP_API_KEY;
-        if (!apiKey) {
+        const apiKey = process.env.TRACKINGMORE_API_KEY;
+        if (!apiKey || apiKey.includes('your-trackingmore-api-key')) {
             return res.json({
                 meta: { code: 200, message: 'Mock Mode Active - No API Key' },
-                data: {
-                    tracking: {
-                        tracking_number: trackingId,
-                        tag: 'InTransit',
-                        subtag_message: 'Package arrived at Kido local sorting facility.',
-                        checkpoints: [
-                            { message: 'In Transit', city: 'Abuja', created_at: new Date().toISOString() }
-                        ]
-                    }
-                }
+                data: [{
+                    tracking_number: trackingId,
+                    delivery_status: 'transit',
+                    latest_event: 'Arrived at Kido Farms Logistic Node 1',
+                    checkpoints: [
+                        { checkpoint_date: new Date().toISOString(), status: 'In Transit', location: 'Abuja' }
+                    ]
+                }]
             });
         }
 
-        const response = await fetch(`https://api.aftership.com/tracking/2026-01/trackings/${trackingId}`, {
+        const response = await fetch(`https://api.trackingmore.com/v4/trackings/get?tracking_numbers=${trackingId}`, {
             method: 'GET',
             headers: {
-                'as-api-key': apiKey,
+                'Tracking-Api-Key': apiKey,
                 'Content-Type': 'application/json'
             }
         });
 
         if (!response.ok) {
-            throw new Error('AfterShip API error');
+            throw new Error('Tracking More API communication error');
         }
 
         const data = await response.json();
         res.json(data);
     } catch (error) {
-        console.error('AfterShip Error:', error);
-        res.status(500).json({ error: 'External tracking node offline.' });
+        console.error('Tracking More Error:', error);
+        res.status(500).json({ error: 'External tracking nodes unreachable.' });
     }
 });
 

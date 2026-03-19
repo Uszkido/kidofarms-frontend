@@ -12,12 +12,14 @@ import {
     ShoppingBag,
     ChevronRight,
     Building2,
-    FileText
+    FileText,
+    ArrowDown
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
 import { NIGERIAN_STATES } from "@/lib/constants";
+import { GeoapifyAutocomplete } from "@/components/GeoapifyAutocomplete";
 
 const CATEGORIES = [
     { id: "Fruits", label: "Organic Fruits", icon: "🍎" },
@@ -49,6 +51,15 @@ export default function VendorRegistrationPage() {
         zip: "",
         location: "Kano", // Primary Region for Vendor categorization
     });
+
+    const handleAddressSelect = (address: any) => {
+        setFormData(prev => ({
+            ...prev,
+            street: address.address_line1 || address.formatted,
+            city: address.city || address.suburb || address.village || prev.city,
+            state: address.state || prev.state
+        }));
+    };
 
     const toggleCategory = (catId: string) => {
         setFormData(prev => ({
@@ -273,14 +284,11 @@ export default function VendorRegistrationPage() {
 
                                         <div className="grid md:grid-cols-2 gap-8">
                                             <div className="md:col-span-2 space-y-3">
-                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Street Address</label>
-                                                <input
-                                                    type="text"
-                                                    required
-                                                    placeholder="Plot No. / Street Name"
-                                                    className="w-full bg-cream/20 border border-primary/5 rounded-2xl px-6 py-4 font-bold text-primary focus:ring-2 focus:ring-secondary/20 outline-none transition-all"
-                                                    value={formData.street}
-                                                    onChange={e => setFormData({ ...formData, street: e.target.value })}
+                                                <label className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 px-2">Farm Street Address (Automated)</label>
+                                                <GeoapifyAutocomplete
+                                                    onSelect={handleAddressSelect}
+                                                    placeholder="Enter farm location..."
+                                                    initialValue={formData.street}
                                                 />
                                             </div>
                                             <div className="space-y-3">

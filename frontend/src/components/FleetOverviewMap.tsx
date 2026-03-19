@@ -67,8 +67,8 @@ export default function FleetOverviewMap({ units }: FleetOverviewMapProps) {
                 zoomControl={false}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.geoapify.com/">Geoapify</a>'
+                    url={`https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`}
                 />
 
                 {units.map((unit) => {
@@ -98,7 +98,7 @@ export default function FleetOverviewMap({ units }: FleetOverviewMapProps) {
             {/* Bottom Controls UI */}
             <div className="absolute bottom-6 left-6 right-6 z-20 flex justify-between items-end pointer-events-none">
                 <div className="bg-black/60 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/5 pointer-events-auto">
-                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Fleet Engine: OSM-CORE-v5</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.3em] text-white/30">Fleet Engine: GEOAPIFY-CORE-ORBIT</span>
                 </div>
                 <div className="flex gap-2 pointer-events-auto">
                     <div className="bg-secondary p-4 rounded-2xl text-primary shadow-xl">

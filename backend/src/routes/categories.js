@@ -54,21 +54,27 @@ router.post('/init', async (req, res) => {
 
         const newCats = [
             { name: 'Fishes', description: 'Freshwater and saltwater fish' },
-            { name: 'Chicken', description: 'Organic farm-raised chicken' },
             { name: 'Beef', description: 'Premium grass-fed beef' },
             { name: 'Fruits', description: 'Seasonal fresh fruits' },
             { name: 'Vegetables', description: 'Organic vegetables' },
-            { name: 'Grains', description: 'Local grains and cereals' }
+            { name: 'Grains', description: 'Local grains and cereals' },
+            { name: 'Herbs & Specialty Crops', description: 'Aromatic herbs and special crops' },
+            { name: 'Livestock & Poultry Products', description: 'Chicken, turkey, eggs and more' },
+            { name: 'Nuts & Other Produce', description: 'Nuts, seeds and other farm produce' }
         ];
 
         for (const cat of newCats) {
             await db.insert(categories).values(cat).onConflictDoNothing();
         }
 
-        // Migrate existing Catfish products to Fishes if any
+        // Migrate categories
         await db.update(products)
             .set({ category: 'Fishes' })
             .where(eq(products.category, 'Catfish'));
+
+        await db.update(products)
+            .set({ category: 'Livestock & Poultry Products' })
+            .where(eq(products.category, 'Chicken'));
 
         res.json({ message: 'Categories initialized successfully' });
     } catch (error) {

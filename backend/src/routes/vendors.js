@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { vendors, users, products } = require('../db/schema');
 const { eq, and, desc } = require('drizzle-orm');
+const { sendVendorAlert } = require('../lib/bot');
 
 // Get all vendors (Farmer role)
 router.get('/', async (req, res) => {
@@ -102,6 +103,9 @@ router.post('/register', async (req, res) => {
                 expiresAt
             });
         }
+
+        // Send Notification
+        await sendVendorAlert(newVendor, businessName);
 
         res.status(201).json({
             vendor: newVendor,

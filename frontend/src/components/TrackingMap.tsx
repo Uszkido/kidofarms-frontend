@@ -37,25 +37,28 @@ export default function TrackingMap({ lat, lng, title, details }: TrackingMapPro
 
     if (!isMounted) return <div className="h-[400px] bg-primary/5 rounded-3xl animate-pulse flex items-center justify-center text-primary/20 font-black uppercase tracking-widest text-[10px]">Initializing Map Node...</div>;
 
-    const center: [number, number] = [lat || 9.0820, lng || 8.6753]; // Default to Nigeria Center if coords are null
+    const center: [number, number] = [lat || 9.0820, lng || 8.6753];
+    const geoapifyApiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
+    const tileUrl = `https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${geoapifyApiKey}`;
 
     return (
-        <div className="h-[400px] w-full rounded-3xl overflow-hidden border-2 border-primary/10 shadow-2xl relative z-10">
+        <div className="h-[400px] w-full rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl relative z-10 bg-[#161616]">
             <MapContainer
                 center={center}
                 zoom={10}
                 scrollWheelZoom={false}
+                zoomControl={false}
                 style={{ height: "100%", width: "100%" }}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.geoapify.com/">Geoapify</a>'
+                    url={tileUrl}
                 />
                 <Marker position={center} icon={icon}>
                     <Popup className="font-sans">
-                        <div className="p-2">
-                            <h4 className="font-bold text-primary">{title}</h4>
-                            <p className="text-[10px] text-primary/60">{details}</p>
+                        <div className="p-2 text-black">
+                            <h4 className="font-bold uppercase text-[10px] tracking-widest">{title}</h4>
+                            <p className="text-[9px] mt-1 text-black/60">{details}</p>
                         </div>
                     </Popup>
                 </Marker>

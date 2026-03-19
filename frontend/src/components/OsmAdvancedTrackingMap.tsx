@@ -47,10 +47,13 @@ export default function OsmAdvancedTrackingMap({ lat, lng, title, details, onClo
         <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-[1000]">
             <div className="flex flex-col items-center gap-6">
                 <Loader2 className="animate-spin text-secondary w-16 h-16" />
-                <p className="text-white/20 font-black uppercase tracking-[0.6em] text-[10px]">Initializing OpenStreetMap Engine...</p>
+                <p className="text-white/20 font-black uppercase tracking-[0.6em] text-[10px]">Initializing Geoapify Vector Engine...</p>
             </div>
         </div>
     );
+
+    const geoapifyApiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
+    const tileUrl = `https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${geoapifyApiKey}`;
 
     return (
         <div className="fixed inset-0 bg-[#0a0a0a] z-[1000] flex overflow-hidden font-sans">
@@ -64,8 +67,8 @@ export default function OsmAdvancedTrackingMap({ lat, lng, title, details, onClo
                     className="h-full w-full z-10"
                 >
                     <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png" // Dark theme for Orbit 5.2
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.geoapify.com/">Geoapify</a>'
+                        url={tileUrl}
                     />
                     <Marker position={center} icon={customIcon}>
                         <Popup>

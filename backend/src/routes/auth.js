@@ -6,6 +6,7 @@ const { eq, and, gt } = require('drizzle-orm');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { sendOtpEmail } = require('../lib/email');
+const { sendWelcomeAlert, sendVendorAlert } = require('../lib/bot');
 
 
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
@@ -66,6 +67,7 @@ router.post('/signup', async (req, res) => {
         });
 
         await sendOtpEmail(email, otpCode);
+        await sendWelcomeAlert(user);
 
         res.status(201).json({
             message: 'User created. OTP sent to your email.',
@@ -135,6 +137,7 @@ router.post('/signup/farmer', async (req, res) => {
         });
 
         await sendOtpEmail(email, result.otpCode);
+        await sendVendorAlert(result.user, farmName);
 
         res.status(201).json({
             message: 'Farmer account created. OTP sent to your email for activation.',
@@ -196,6 +199,8 @@ router.post('/signup/affiliate', async (req, res) => {
         });
 
         await sendOtpEmail(email, result.otpCode);
+        await sendVendorAlert(result.user, `Affiliate: ${name}`);
+
         res.status(201).json({ message: 'Affiliate account created. OTP sent.', user: result.user, requiresOtp: true });
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
@@ -250,6 +255,8 @@ router.post('/signup/carrier', async (req, res) => {
         });
 
         await sendOtpEmail(email, result.otpCode);
+        await sendVendorAlert(result.user, companyName || `Carrier: ${name}`);
+
         res.status(201).json({ message: 'Carrier account created. OTP sent.', user: result.user, requiresOtp: true });
     } catch (error) {
         if (error.code === '23505') return res.status(400).json({ error: 'Email already exists' });
