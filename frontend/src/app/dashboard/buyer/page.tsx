@@ -1,6 +1,9 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import {
@@ -46,7 +49,11 @@ import { getApiUrl } from "@/lib/api";
 import { ActionStatus } from "@/components/ActionStatus";
 import { HarvestPassport } from "@/components/HarvestPassport";
 import { NegotiationTradeFloor } from "@/components/NegotiationTradeFloor";
-import { LogisticsMeshMap } from "@/components/LogisticsMeshMap";
+// Dynamically import LogisticsMeshMap with SSR disabled as it uses Leaflet
+const LogisticsMeshMap = dynamic(
+    () => import("@/components/LogisticsMeshMap").then((mod) => mod.LogisticsMeshMap),
+    { ssr: false }
+);
 import { QrCode, Navigation, Gavel, MessageSquare } from "lucide-react";
 
 export default function BuyerDashboard() {
