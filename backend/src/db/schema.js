@@ -321,6 +321,31 @@ const tasks = pgTable("tasks", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Storage Nodes (Hubs & Warehouses)
+const storageNodes = pgTable("storage_nodes", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    location: text("location").notNull(),
+    type: text("type").notNull(),
+    capacity: integer("capacity").default(1000),
+    status: text("status").default("optimal"),
+    ownerId: uuid("owner_id").references(() => users.id),
+    temperature: numeric("temperature", { precision: 5, scale: 2 }),
+    humidity: numeric("humidity", { precision: 5, scale: 2 }),
+    lastAlert: text("last_alert"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Warehouse Inventory Table
+const warehouseInventory = pgTable("warehouse_inventory", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    warehouseId: uuid("warehouse_id").references(() => storageNodes.id).notNull(),
+    productId: uuid("product_id").references(() => products.id).notNull(),
+    quantity: integer("quantity").default(0),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 module.exports = {
     users,
     categories,
@@ -343,6 +368,8 @@ module.exports = {
     drivers,
     shipments,
     tasks,
+    storageNodes,
+    warehouseInventory,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
