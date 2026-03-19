@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useCallback, useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { motion, AnimatePresence } from "framer-motion";
@@ -101,10 +101,28 @@ export default function AdvancedTrackingMap({ lat, lng, title, details, onClose,
                     className="h-full w-full z-10"
                     zoomControl={false}
                 >
-                    <TileLayer
-                        attribution='&copy; Geoapify'
-                        url={`https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`}
-                    />
+                    <LayersControl position="topright">
+                        <LayersControl.BaseLayer checked name="Dark Matter Mesh (Geoapify)">
+                            <TileLayer
+                                attribution='&copy; Geoapify'
+                                url={`https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`}
+                            />
+                        </LayersControl.BaseLayer>
+
+                        <LayersControl.BaseLayer name="High-Res Satellite (Esri)">
+                            <TileLayer
+                                attribution='&copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                                url='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                            />
+                        </LayersControl.BaseLayer>
+
+                        <LayersControl.BaseLayer name="Street Atlas (OSM)">
+                            <TileLayer
+                                attribution='&copy; OpenStreetMap contributors'
+                                url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+                            />
+                        </LayersControl.BaseLayer>
+                    </LayersControl>
 
                     {/* Active Shipment Marker */}
                     {truckIcon && (
