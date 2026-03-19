@@ -7,7 +7,7 @@ import { getApiUrl } from "@/lib/api";
 import Link from "next/link";
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 function VerifyAccountContent() {
     const router = useRouter();

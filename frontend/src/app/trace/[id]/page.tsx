@@ -1,9 +1,7 @@
 import { Suspense } from "react";
 import { TraceContent } from "./TraceClient";
 
-export async function generateStaticParams() {
-    return [{ id: '1' }];
-}
+export const dynamic = "force-dynamic";
 
 export default function Page() {
     return (
