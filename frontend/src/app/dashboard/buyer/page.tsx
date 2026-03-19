@@ -40,7 +40,13 @@ import {
     ArrowDownLeft,
     ArrowUpRight,
     Download,
-    CirclePlus
+    CirclePlus,
+    LayoutDashboard,
+    Fingerprint,
+    QrCode,
+    Navigation,
+    Gavel,
+    MessageSquare
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -54,7 +60,6 @@ const LogisticsMeshMap = dynamic(
     () => import("@/components/LogisticsMeshMap").then((mod) => mod.LogisticsMeshMap),
     { ssr: false }
 );
-import { QrCode, Navigation, Gavel, MessageSquare } from "lucide-react";
 
 export default function BuyerDashboard() {
     const { data: session } = useSession();
