@@ -44,19 +44,25 @@ export function LogisticsMeshMap({ isOpen, onClose, trackingId, productName }: L
     const center: [number, number] = [6.5244, 3.3792];
 
     // Custom Icons
-    const hubIcon = useMemo(() => L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div class="w-8 h-8 bg-secondary/30 rounded-full flex items-center justify-center animate-pulse"><div class="w-3 h-3 bg-secondary rounded-full"></div></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-    }), []);
+    const hubIcon = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        return L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="w-8 h-8 bg-secondary/30 rounded-full flex items-center justify-center animate-pulse"><div class="w-3 h-3 bg-secondary rounded-full"></div></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+    }, []);
 
-    const truckIcon = useMemo(() => L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl animate-bounce"><svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" fill="none" class="animate-pulse"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h4"/><circle cx="17" cy="18" r="2"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-3h-3.5"/><path d="M16 10v4h6"/></svg></div>`,
-        iconSize: [48, 48],
-        iconAnchor: [24, 48]
-    }), []);
+    const truckIcon = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        return L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl animate-bounce"><svg viewBox="0 0 24 24" width="24" height="24" stroke="white" stroke-width="2" fill="none" class="animate-pulse"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h4"/><circle cx="17" cy="18" r="2"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-3h-3.5"/><path d="M16 10v4h6"/></svg></div>`,
+            iconSize: [48, 48],
+            iconAnchor: [24, 48]
+        });
+    }, []);
 
     if (!isOpen) return null;
 
@@ -93,23 +99,27 @@ export function LogisticsMeshMap({ isOpen, onClose, trackingId, productName }: L
                                 />
 
                                 {/* Hub Marker */}
-                                <Marker position={center} icon={hubIcon}>
-                                    <Popup className="premium-popup">
-                                        <div className="p-3">
-                                            <p className="text-[10px] font-black uppercase text-secondary">Lagos Central Hub</p>
-                                        </div>
-                                    </Popup>
-                                </Marker>
+                                {hubIcon && (
+                                    <Marker position={center} icon={hubIcon}>
+                                        <Popup className="premium-popup">
+                                            <div className="p-3">
+                                                <p className="text-[10px] font-black uppercase text-secondary">Lagos Central Hub</p>
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                )}
 
                                 {/* Simulated Truck Marker */}
-                                <Marker position={[6.53, 3.39]} icon={truckIcon}>
-                                    <Popup className="premium-popup">
-                                        <div className="p-3">
-                                            <p className="text-[10px] font-black uppercase text-secondary">Node {trackingId}</p>
-                                            <p className="text-[12px] font-black text-primary uppercase">{productName}</p>
-                                        </div>
-                                    </Popup>
-                                </Marker>
+                                {truckIcon && (
+                                    <Marker position={[6.53, 3.39]} icon={truckIcon}>
+                                        <Popup className="premium-popup">
+                                            <div className="p-3">
+                                                <p className="text-[10px] font-black uppercase text-secondary">Node {trackingId}</p>
+                                                <p className="text-[12px] font-black text-primary uppercase">{productName}</p>
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                )}
                             </MapContainer>
                         )}
 

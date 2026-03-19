@@ -61,19 +61,25 @@ export default function AdvancedTrackingMap({ lat, lng, title, details, onClose,
 
     const center: [number, number] = useMemo(() => [lat, lng], [lat, lng]);
 
-    const truckIcon = useMemo(() => L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div class="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.5)] animate-bounce text-primary"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h4"/><circle cx="17" cy="18" r="2"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-3h-3.5"/><path d="M16 10v4h6"/></svg></div>`,
-        iconSize: [48, 48],
-        iconAnchor: [24, 48]
-    }), []);
+    const truckIcon = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        return L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.5)] animate-bounce text-primary"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h4"/><circle cx="17" cy="18" r="2"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-3h-3.5"/><path d="M16 10v4h6"/></svg></div>`,
+            iconSize: [48, 48],
+            iconAnchor: [24, 48]
+        });
+    }, []);
 
-    const hubIcon = useMemo(() => L.divIcon({
-        className: 'custom-div-icon',
-        html: `<div class="w-8 h-8 bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center shadow-2xl"><div class="w-3 h-3 rounded-full bg-secondary shadow-[0_0_10px_rgba(197,160,89,1)]"></div></div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16]
-    }), []);
+    const hubIcon = useMemo(() => {
+        if (typeof window === 'undefined') return null;
+        return L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div class="w-8 h-8 bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center shadow-2xl"><div class="w-3 h-3 rounded-full bg-secondary shadow-[0_0_10px_rgba(197,160,89,1)]"></div></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+    }, []);
 
     if (!isMounted) return (
         <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-[1000]">
@@ -101,23 +107,27 @@ export default function AdvancedTrackingMap({ lat, lng, title, details, onClose,
                     />
 
                     {/* Active Shipment Marker */}
-                    <Marker position={center} icon={truckIcon}>
-                        <Popup className="premium-popup">
-                            <div className="p-3">
-                                <p className="text-[10px] font-black uppercase text-secondary">In Transit</p>
-                                <p className="text-[12px] font-black text-primary uppercase">{title}</p>
-                            </div>
-                        </Popup>
-                    </Marker>
+                    {truckIcon && (
+                        <Marker position={center} icon={truckIcon}>
+                            <Popup className="premium-popup">
+                                <div className="p-3">
+                                    <p className="text-[10px] font-black uppercase text-secondary">In Transit</p>
+                                    <p className="text-[12px] font-black text-primary uppercase">{title}</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    )}
 
                     {/* Hub Marker */}
-                    <Marker position={[lat + 0.02, lng - 0.03]} icon={hubIcon}>
-                        <Popup className="premium-popup">
-                            <div className="p-3">
-                                <p className="text-[10px] font-black uppercase text-secondary">Lagos Central Hub</p>
-                            </div>
-                        </Popup>
-                    </Marker>
+                    {hubIcon && (
+                        <Marker position={[lat + 0.02, lng - 0.03]} icon={hubIcon}>
+                            <Popup className="premium-popup">
+                                <div className="p-3">
+                                    <p className="text-[10px] font-black uppercase text-secondary">Lagos Central Hub</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                    )}
                 </MapContainer>
 
                 {/* Top Left Overlay: Node Status */}
