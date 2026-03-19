@@ -70,7 +70,7 @@ export default function PremiumHero({ data }: { data: HeroData }) {
             </motion.div>
 
             <motion.div
-                style={{ y: y1, rotate: -rotate as any }}
+                style={{ y: y1, rotate: useTransform(rotate, r => -r) }}
                 className="absolute bottom-1/4 left-[5%] hidden lg:block z-10"
             >
                 <div className="w-32 h-32 bg-white/10 backdrop-blur-md p-5 rounded-[2.5rem] shadow-2xl border border-white/10 rotate-12 group hover:rotate-0 transition-transform duration-500">

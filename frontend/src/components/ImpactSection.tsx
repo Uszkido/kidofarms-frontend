@@ -12,7 +12,11 @@ export default function ImpactSection() {
     useEffect(() => {
         fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/impact`)
             .then(res => res.json())
-            .then(data => setMetrics(data))
+            .then(data => {
+                if (data && typeof data === 'object' && !data.error) {
+                    setMetrics(prev => ({ ...prev, ...data }));
+                }
+            })
             .catch(err => console.error(err));
     }, []);
 
