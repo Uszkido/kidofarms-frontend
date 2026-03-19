@@ -1,12 +1,34 @@
 require('dotenv').config();
 const { db } = require('./src/db');
-const { products, users } = require('./src/db/schema');
+const { products, users, categories } = require('./src/db/schema');
 const { eq } = require('drizzle-orm');
 
 async function run() {
-    console.log('--- Seeding Marketplace Products ---');
+    console.log('--- Seeding Marketplace Products & Categories ---');
 
     try {
+        // Synchronize Categories
+        console.log('Synchronizing Categories...');
+        const newCats = [
+            { name: 'Fishes', description: 'Freshwater and saltwater fish' },
+            { name: 'Beef', description: 'Premium grass-fed beef' },
+            { name: 'Fruits', description: 'Seasonal fresh fruits' },
+            { name: 'Vegetables', description: 'Organic vegetables' },
+            { name: 'Grains', description: 'Local grains and cereals' },
+            { name: 'Herbs & Specialty Crops', description: 'Aromatic herbs and special crops' },
+            { name: 'Livestock & Poultry Products', description: 'Chicken, turkey, eggs and more' },
+            { name: 'Nuts & Other Produce', description: 'Nuts, seeds and other farm produce' }
+        ];
+
+        for (const cat of newCats) {
+            const existingCat = await db.query.categories.findFirst({
+                where: eq(categories.name, cat.name)
+            });
+            if (!existingCat) {
+                await db.insert(categories).values(cat);
+                console.log(`- Created Category: ${cat.name}`);
+            }
+        }
         // Get the farmer user ID
         const farmerUser = await db.query.users.findFirst({
             where: eq(users.email, 'vendor@kido.com')
@@ -52,6 +74,11 @@ async function run() {
             { name: "Fresh Catfish Fillet", category: "Fishes", unit: "pack", farmSource: "Aqua-Kido Ponds", price: "4200", stock: 20, description: "Cleaned and processed catfish fillet for cooking." },
             { name: "Frozen Tilapia", category: "Fishes", unit: "kg", farmSource: "Jos Fish Market Farm", price: "3500", stock: 30, description: "Frozen tilapia preserved for longer shelf life." },
 
+            // Beef
+            { name: "Premium Beef Cuts", category: "Beef", unit: "kg", farmSource: "Highland Ranch", price: "4500", stock: 25, description: "High-quality beef steak cuts from grass-fed cattle." },
+            { name: "Ground Beef", category: "Beef", unit: "kg", farmSource: "Plateau Cattle Collective", price: "3800", stock: 30, description: "Freshly ground beef perfect for burgers and sauces." },
+            { name: "Beef Liver", category: "Beef", unit: "kg", farmSource: "Highland Ranch", price: "3200", stock: 15, description: "Nutrient-rich fresh beef liver." },
+
             // Grains
             { name: "Maize", category: "Grains", unit: "bag", farmSource: "Central Kido Fields", price: "55000", stock: 40, description: "Locally grown maize used for food and animal feed." },
             { name: "Millet", category: "Grains", unit: "bag", farmSource: "Plateau Grain Farms", price: "60000", stock: 30, description: "Nutritious millet widely used in northern Nigeria." },
@@ -59,12 +86,12 @@ async function run() {
             { name: "Rice (Local)", category: "Grains", unit: "bag", farmSource: "Plateau Rice Farms", price: "65000", stock: 35, description: "Locally milled rice grown by Plateau farmers." },
             { name: "Wheat", category: "Grains", unit: "bag", farmSource: "Northern Grain Fields", price: "68000", stock: 20, description: "High-quality wheat grains used in flour production." },
 
-            // Poultry
-            { name: "Fresh Farm Eggs", category: "Chicken", unit: "crate", farmSource: "Kido Poultry Farm", price: "4500", stock: 60, description: "Fresh eggs collected daily from farm chickens." },
-            { name: "Broiler Chicken", category: "Chicken", unit: "piece", farmSource: "Jos Poultry Farms", price: "5500", stock: 30, description: "Healthy broiler chickens raised with quality feed." },
-            { name: "Local Chicken", category: "Chicken", unit: "piece", farmSource: "Village Poultry Farm", price: "7000", stock: 20, description: "Traditional free-range chickens." },
-            { name: "Turkey", category: "Chicken", unit: "piece", farmSource: "Highland Poultry Farm", price: "15000", stock: 10, description: "Farm-raised turkey suitable for special meals." },
-            { name: "Duck", category: "Chicken", unit: "piece", farmSource: "Jos Water Farms", price: "8000", stock: 15, description: "Fresh duck meat raised in natural conditions." },
+            // Poultry/Livestock
+            { name: "Fresh Farm Eggs", category: "Livestock & Poultry Products", unit: "crate", farmSource: "Kido Poultry Farm", price: "4500", stock: 60, description: "Fresh eggs collected daily from farm chickens." },
+            { name: "Broiler Chicken", category: "Livestock & Poultry Products", unit: "piece", farmSource: "Jos Poultry Farms", price: "5500", stock: 30, description: "Healthy broiler chickens raised with quality feed." },
+            { name: "Local Chicken", category: "Livestock & Poultry Products", unit: "piece", farmSource: "Village Poultry Farm", price: "7000", stock: 20, description: "Traditional free-range chickens." },
+            { name: "Turkey", category: "Livestock & Poultry Products", unit: "piece", farmSource: "Highland Poultry Farm", price: "15000", stock: 10, description: "Farm-raised turkey suitable for special meals." },
+            { name: "Duck", category: "Livestock & Poultry Products", unit: "piece", farmSource: "Jos Water Farms", price: "8000", stock: 15, description: "Fresh duck meat raised in natural conditions." },
 
             // Herbs & Spices
             { name: "Fresh Basil", category: "Herbs & Specialty Crops", unit: "bunch", farmSource: "Jos Herb Garden", price: "500", stock: 40, description: "Aromatic basil used in cooking and sauces." },
@@ -87,7 +114,7 @@ async function run() {
             "Fruits": "https://images.unsplash.com/photo-1610832958506-aa56368176cf?w=800",
             "Fishes": "https://images.unsplash.com/photo-1534120247760-c44c3e4a62f1?w=800",
             "Grains": "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800",
-            "Chicken": "https://images.unsplash.com/photo-1587593817647-5b9a717ad13d?w=800",
+            "Livestock & Poultry Products": "https://images.unsplash.com/photo-1587593817647-5b9a717ad13d?w=800",
             "Beef": "https://images.unsplash.com/photo-1544025162-d76694265947?w=800",
             "Herbs & Specialty Crops": "https://images.unsplash.com/photo-1515233155-9273673dc638?w=800",
             "Nuts & Other Produce": "https://images.unsplash.com/photo-1536511118291-7f938f615555?w=800"
@@ -115,16 +142,14 @@ async function run() {
                 });
                 console.log(`- Inserted: ${item.name}`);
             } else {
-                // Force update image if it looks broken (or just update all for now to be sure)
-                const currentImages = existing.images || [];
-                if (currentImages.length === 0 || (typeof currentImages[0] === 'string' && (currentImages[0].includes('source.unsplash.com') || currentImages[0].includes('loremflickr')))) {
-                    await db.update(products)
-                        .set({ images: [imageUrl] })
-                        .where(eq(products.id, existing.id));
-                    console.log(`- Updated Image: ${item.name}`);
-                } else {
-                    console.log(`- Skipped (already has good image): ${item.name}`);
-                }
+                // Update product category and image
+                await db.update(products)
+                    .set({
+                        category: item.category,
+                        images: [imageUrl]
+                    })
+                    .where(eq(products.id, existing.id));
+                console.log(`- Updated: ${item.name} (${item.category})`);
             }
         }
 

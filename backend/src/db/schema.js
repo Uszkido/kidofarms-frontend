@@ -110,7 +110,10 @@ const products = pgTable("products", {
 // Orders Table
 const orders = pgTable("orders", {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
+    userId: uuid("user_id").references(() => users.id), // Nullable for guest checkout
+    guestName: text("guest_name"),
+    guestEmail: text("guest_email"),
+    guestPhone: text("guest_phone"),
     totalAmount: numeric("total_amount", { precision: 12, scale: 2 }).notNull(),
     street: text("street"),
     city: text("city"),
@@ -122,6 +125,7 @@ const orders = pgTable("orders", {
     escrowStatus: text("escrow_status").default("held"), // held, released, disputed
     trackingId: text("tracking_id").unique(),
     referralCode: text("referral_code"),
+    paystackReference: text("paystack_reference"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -159,6 +163,7 @@ const vendors = pgTable("vendors", {
     categories: jsonb("categories").default([]),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
 // Farmers Table (Agricultural-specific details)
 const farmers = pgTable("farmers", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -276,7 +281,33 @@ const userCards = pgTable("user_cards", {
     isDefault: boolean("is_default").default(false),
 });
 
-// Tasks Table
+// Drivers Table (Individual Fleet Personnel)
+const drivers = pgTable("drivers", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    vehicleType: text("vehicle_type").notNull(), // Car, Bike, Truck
+    vehiclePlate: text("vehicle_plate").notNull(),
+    licenseNumber: text("license_number"),
+    currentLocation: text("current_location"),
+    status: text("status").default("idle"), // idle, on_delivery, off_duty
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Shipments Table
+const shipments = pgTable("shipments", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id").references(() => orders.id),
+    driverId: uuid("driver_id").references(() => drivers.id),
+    currentLat: numeric("current_lat", { precision: 10, scale: 7 }),
+    currentLng: numeric("current_lng", { precision: 10, scale: 7 }),
+    status: text("status").default("pending"), // pending, picked_up, in_transit, delivered
+    origin: text("origin"),
+    destination: text("destination"),
+    vehicleInfo: text("vehicle_info"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Tasking Table
 const tasks = pgTable("tasks", {
     id: uuid("id").primaryKey().defaultRandom(),
     assignedToId: uuid("assigned_to_id").references(() => users.id).notNull(),
@@ -289,434 +320,6 @@ const tasks = pgTable("tasks", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
-
-// OTPs Table
-const otps = pgTable("otps", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    code: text("code").notNull(),
-    expiresAt: timestamp("expires_at").notNull(),
-    isUsed: boolean("is_used").default(false),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// --- KIDO FARMS 2.0 TABLES ---
-
-// Stories Table (Media-rich vertical feed)
-const stories = pgTable("stories", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    vendorId: uuid("vendor_id").references(() => users.id).notNull(),
-    mediaUrl: text("media_url").notNull(),
-    mediaType: text("media_type").default("image"), // image, video
-    caption: text("caption"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Wallets Table (Internal FinTech)
-const wallets = pgTable("wallets", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull().unique(),
-    balance: numeric("balance", { precision: 12, scale: 2 }).default("0.00"),
-    currency: text("currency").default("NGN"),
-    trustScore: integer("trust_score").default(50), // 0-100, baseline 50
-    creditLimit: numeric("credit_limit", { precision: 12, scale: 2 }).default("0.00"),
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-
-// Wallet Transactions Table
-const walletTransactions = pgTable("wallet_transactions", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    walletId: uuid("wallet_id").references(() => wallets.id).notNull(),
-    type: text("type").notNull(), // credit, debit, referral, cashback
-    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
-    description: text("description"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Group Buys Table (Neighborhood shared purchases)
-const groupBuys = pgTable("group_buys", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    productId: uuid("product_id").references(() => products.id).notNull(),
-    targetQuantity: integer("target_quantity").notNull(),
-    currentQuantity: integer("current_quantity").default(0),
-    expiryDate: timestamp("expiry_date").notNull(),
-    status: text("status").default("active"), // active, completed, failed
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Group Buy Participants Table
-const groupBuyParticipants = pgTable("group_buy_participants", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    groupBuyId: uuid("group_buy_id").references(() => groupBuys.id).notNull(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    quantity: integer("quantity").notNull(),
-    paidStatus: boolean("paid_status").default(false),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Notifications Table (Real-time Alert Center)
-const notifications = pgTable("notifications", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    title: text("title").notNull(),
-    message: text("message").notNull(),
-    type: text("type").default("info"), // info, success, warning, danger
-    isRead: boolean("is_read").default(false),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// IoT Sensors Table (Smart Farming)
-const sensors = pgTable("sensors", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    entityId: uuid("entity_id").notNull(), // Links to Harvest or Product
-    type: text("type").notNull(), // moisture, temperature, oxygen, weight
-    value: text("value").notNull(),
-    status: text("status").default("normal"), // normal, critical, warning
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Team Members Table
-const teamMembers = pgTable("team_members", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    name: text("name").notNull(),
-    role: text("role").notNull(), // Founder, Agronomist, Farm manager, Marketing officer
-    bio: text("bio"),
-    image: text("image"),
-    socialLinks: jsonb("social_links").default({}),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Impact Metrics Table
-const impactMetrics = pgTable("impact_metrics", {
-    id: text("id").primaryKey().default("current_metrics"),
-    acresCultivated: integer("acres_cultivated").default(0),
-    farmersSupported: integer("farmers_supported").default(0),
-    productionCapacity: text("production_capacity").default("0 Tons"),
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Investments Table
-const investments = pgTable("investments", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
-    type: text("type").notNull(), // farm_expansion, kido_partnership
-    status: text("status").default("pending"), // pending, active, completed
-    yieldExpected: numeric("yield_expected", { precision: 5, scale: 2 }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Farm Monitoring Data Table (For Future Farmer Dashboard)
-const farmMonitoringData = pgTable("farm_monitoring_data", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    farmerId: uuid("farmer_id").references(() => users.id).notNull(),
-    cropId: uuid("crop_id").references(() => harvests.id),
-    dataPoints: jsonb("data_points").notNull(), // crop monitoring, yield tracking, farm data
-    recordedAt: timestamp("recorded_at").defaultNow().notNull(),
-});
-
-// Relations
-const blogPostsRelations = relations(blogPosts, ({ one }) => ({
-    author: one(users, {
-        fields: [blogPosts.authorId],
-        references: [users.id],
-    }),
-}));
-
-// Yield-Shield Policies Table
-const yieldShieldPolicies = pgTable("yield_shield_policies", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    harvestId: uuid("harvest_id").references(() => harvests.id),
-    farmerId: uuid("farmer_id").references(() => users.id),
-    premium: numeric("premium", { precision: 12, scale: 2 }).notNull(),
-    coverageAmount: numeric("coverage_amount", { precision: 12, scale: 2 }).notNull(),
-    status: text("status").default("active"), // active, triggered, paid_out
-    triggerConditions: jsonb("trigger_conditions"), // e.g. { rain_less_than: 10, days: 30 }
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Cold-Vault Storage Nodes Table
-const storageNodes = pgTable("storage_nodes", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    name: text("name").notNull(),
-    location: text("location").notNull(),
-    managerId: uuid("manager_id").references(() => users.id), // Assigned Staff/Manager
-    type: text("type").default("cold_storage"), // cold_storage, dry_storage
-    temperature: numeric("temperature", { precision: 5, scale: 2 }),
-    humidity: numeric("humidity", { precision: 5, scale: 2 }),
-    capacity: integer("capacity"),
-    currentLoad: integer("current_load").default(0),
-    lastAlert: text("last_alert"),
-    isActive: boolean("is_active").default(true),
-    status: text("status").default("optimal"), // optimal, warning, critical
-    updatedAt: timestamp("updated_at").defaultNow(),
-    createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Warehouse-Specific Inventory Table
-const warehouseInventory = pgTable("warehouse_inventory", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    warehouseId: uuid("warehouse_id").references(() => storageNodes.id).notNull(),
-    productId: uuid("product_id").references(() => products.id).notNull(),
-    quantity: integer("quantity").notNull().default(0),
-    batchNumber: text("batch_number"),
-    expiryDate: timestamp("expiry_date"),
-    lastCountedAt: timestamp("last_counted_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Tickets Table (Support System)
-const tickets = pgTable("tickets", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    subject: text("subject").notNull(),
-    status: text("status").default("open"), // open, pending, resolved, closed
-    priority: text("priority").default("medium"), // low, medium, high
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Ticket Messages Table
-const ticketMessages = pgTable("ticket_messages", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    ticketId: uuid("ticket_id").references(() => tickets.id).notNull(),
-    senderId: uuid("sender_id").references(() => users.id).notNull(),
-    message: text("message").notNull(),
-    attachmentUrl: text("attachment_url"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Heritage DNA / Passports Table
-const heritagePassports = pgTable("heritage_passports", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    productId: uuid("product_id").references(() => products.id),
-    farmerId: uuid("farmer_id").references(() => users.id),
-    dnaHash: text("dna_hash"), // Mock hash for soil/seed DNA
-    soilHealthScore: integer("soil_health_score"), // 0-100
-    pesticideFree: boolean("pesticide_free").default(true),
-    harvestVideoUrl: text("harvest_video_url"),
-    qrCodeUrl: text("qr_code_url"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Sovereign Energy / Waste Marketplace Table
-const energyMarketplace = pgTable("energy_marketplace", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    sellerId: uuid("seller_id").references(() => users.id),
-    wasteType: text("waste_type").notNull(), // biomass, husk, compost
-    quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
-    unit: text("unit").default("kg"),
-    creditsOffered: integer("credits_offered").notNull(),
-    status: text("status").default("available"), // available, sold, processed
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Price Oracle Table
-const priceOracle = pgTable("price_oracle", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    cropName: text("crop_name").notNull(),
-    region: text("region").notNull(),
-    currentPrice: numeric("current_price", { precision: 12, scale: 2 }).notNull(),
-    predictedPriceLow: numeric("predicted_price_low", { precision: 12, scale: 2 }),
-    predictedPriceHigh: numeric("predicted_price_high", { precision: 12, scale: 2 }),
-    confidence: integer("confidence").default(85), // 0-100
-    trend: text("trend").default("stable"), // rising, falling, stable
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Farm Sponsorships Table (Agri-Crowdfunding)
-const farmSponsorships = pgTable("farm_sponsorships", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    harvestId: uuid("harvest_id").references(() => harvests.id),
-    sponsorId: uuid("sponsor_id").references(() => users.id),
-    amount: numeric("amount", { precision: 15, scale: 2 }).notNull(),
-    status: text("status").default("pending"), // pending, active, completed
-    rewardType: text("reward_type").default("discount"), // discount, equity, fixed_return
-    rewardValue: numeric("reward_value", { precision: 12, scale: 2 }),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Logistics Shipments (Last-Mile Node)
-const shipments = pgTable("shipments", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    orderId: uuid("order_id").references(() => orders.id),
-    distributorId: uuid("distributor_id").references(() => users.id), // Legacy/Company link
-    driverId: uuid("driver_id").references(() => drivers.id), // Specific Driver assigned
-    currentLat: numeric("current_lat", { precision: 10, scale: 7 }),
-    currentLng: numeric("current_lng", { precision: 10, scale: 7 }),
-    status: text("status").default("pending"), // pending, picked_up, in_transit, delivered
-    origin: text("origin"),
-    destination: text("destination"),
-    vehicleInfo: text("vehicle_info"), // Dynamic snapshot of the car/bike
-    temperatureAlert: boolean("temperature_alert").default(false),
-    updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Global Bridge / Export Table
-const globalBridge = pgTable("global_bridge", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    farmerId: uuid("farmer_id").references(() => users.id),
-    produceType: text("produce_type").notNull(),
-    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
-    destination: text("destination").notNull(), // USA, EU, Asia
-    status: text("status").default("certification_pending"), // pending, certified, shipped, arrived
-    certifications: jsonb("certifications").default([]), // ISO, Organic, etc.
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Logistics Operators (Carrier Node)
-const carriers = pgTable("carriers", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull().unique(),
-    companyName: text("company_name"),
-    vehicleType: text("vehicle_type").notNull(), // Motorcycle, Truck, etc.
-    coverageArea: text("coverage_area").notNull(),
-    hasColdChain: boolean("has_cold_chain").default(false),
-    bankName: text("bank_name"),
-    accountNumber: text("account_number"),
-    accountName: text("account_name"),
-    status: text("status").default("pending"), // pending, verified, suspended
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Drivers Table (Individual Fleet Personnel)
-const drivers = pgTable("drivers", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull().unique(),
-    carrierId: uuid("carrier_id").references(() => carriers.id), // Optional: Link to a logistics company
-    vehicleType: text("vehicle_type").notNull(), // Car, Bike, Truck
-    vehiclePlate: text("vehicle_plate").notNull(),
-    licenseNumber: text("license_number"),
-    currentLocation: text("current_location"),
-    status: text("status").default("idle"), // idle, on_delivery, off_duty
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Job Applications (Career Node)
-const jobApplications = pgTable("job_applications", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    position: text("position").notNull(),
-    experience: text("experience").notNull(),
-    location: text("location").notNull(),
-    resumeLink: text("resume_link"),
-    bio: text("bio"),
-    status: text("status").default("pending"), // pending, interviewing, hired, rejected
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Academy Courses Table (Mastery Academy Node)
-const academyCourses = pgTable("academy_courses", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    title: text("title").notNull(),
-    category: text("category").notNull(),
-    description: text("description"),
-    content: text("content"), // Main learning resources / links
-    points: integer("points").default(10),
-    isPublished: boolean("is_published").default(true),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// User Achievements Table
-const userAchievements = pgTable("user_achievements", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    courseId: uuid("course_id").references(() => academyCourses.id).notNull(),
-    pointsEarned: integer("points_earned").default(0),
-    status: text("status").default("completed"), // in_progress, completed
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-// Circular Economy Logs
-const circularLogs = pgTable("circular_logs", {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
-    wasteWeight: numeric("waste_weight", { precision: 10, scale: 2 }).notNull(),
-    creditsEarned: integer("credits_earned").default(0),
-    type: text("type").default("fertilizer"), // fertilizer, energy
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-const usersRelations = relations(users, ({ many, one }) => ({
-    blogPosts: many(blogPosts),
-    vendor: one(vendors, {
-        fields: [users.id],
-        references: [vendors.userId],
-    }),
-    farmer: one(farmers, {
-        fields: [users.id],
-        references: [farmers.userId],
-    }),
-    wallet: one(wallets, {
-        fields: [users.id],
-        references: [wallets.userId],
-    }),
-}));
-
-const vendorsRelations = relations(vendors, ({ one, many }) => ({
-    user: one(users, {
-        fields: [vendors.userId],
-        references: [users.id],
-    }),
-    stories: many(stories),
-}));
-
-const walletsRelations = relations(wallets, ({ one, many }) => ({
-    user: one(users, {
-        fields: [wallets.userId],
-        references: [users.id],
-    }),
-    transactions: many(walletTransactions),
-}));
-
-const storiesRelations = relations(stories, ({ one }) => ({
-    vendor: one(users, {
-        fields: [stories.vendorId],
-        references: [users.id],
-    }),
-}));
-
-const groupBuysRelations = relations(groupBuys, ({ one, many }) => ({
-    product: one(products, {
-        fields: [groupBuys.productId],
-        references: [products.id],
-    }),
-    participants: many(groupBuyParticipants),
-}));
-
-const carriersRelations = relations(carriers, ({ one, many }) => ({
-    user: one(users, {
-        fields: [carriers.userId],
-        references: [users.id],
-    }),
-    drivers: many(drivers),
-}));
-
-const driversRelations = relations(drivers, ({ one }) => ({
-    user: one(users, {
-        fields: [drivers.userId],
-        references: [users.id],
-    }),
-    carrier: one(carriers, {
-        fields: [drivers.carrierId],
-        references: [carriers.id],
-    }),
-}));
-
-const jobApplicationsRelations = relations(jobApplications, ({ one }) => ({
-    user: one(users, {
-        fields: [jobApplications.userId],
-        references: [users.id],
-    }),
-}));
-
-const farmersRelations = relations(farmers, ({ one }) => ({
-    user: one(users, {
-        fields: [farmers.userId],
-        references: [users.id],
-    }),
-}));
 
 module.exports = {
     users,
@@ -737,46 +340,9 @@ module.exports = {
     userCards,
     affiliates,
     commissions,
-    otps,
-    stories,
-    wallets,
-    walletTransactions,
-    groupBuys,
-    groupBuyParticipants,
-    notifications,
-    sensors,
-    teamMembers,
-    impactMetrics,
-    investments,
-    farmMonitoringData,
-    academyCourses,
-    userAchievements,
-    circularLogs,
-    tasks,
-    yieldShieldPolicies,
-    storageNodes,
-    warehouseInventory,
-    heritagePassports,
-    energyMarketplace,
-    priceOracle,
-    farmSponsorships,
-    shipments,
-    globalBridge,
-    tickets,
-    ticketMessages,
-    carriers,
     drivers,
-    jobApplications,
-    blogPostsRelations,
-    usersRelations,
-    vendorsRelations,
-    walletsRelations,
-    storiesRelations,
-    groupBuysRelations,
-    farmersRelations,
-    carriersRelations,
-    driversRelations,
-    jobApplicationsRelations,
+    shipments,
+    tasks,
     roleEnum,
     unitEnum,
     paymentMethodEnum,

@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { tickets, ticketMessages, users } = require('../db/schema');
 const { eq, desc } = require('drizzle-orm');
+const { sendTicketAlert } = require('../lib/bot');
 
 // 1. Create a Ticket
 router.post('/', async (req, res) => {
@@ -19,6 +20,13 @@ router.post('/', async (req, res) => {
             senderId: userId,
             message
         });
+
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+
+        // Send Notification
+        await sendTicketAlert(newTicket, user ? user.name : 'Unknown User');
 
         res.status(201).json(newTicket);
     } catch (error) {

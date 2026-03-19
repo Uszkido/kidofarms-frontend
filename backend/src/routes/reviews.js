@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { reviews, users, products } = require('../db/schema');
 const { desc, eq, sql } = require('drizzle-orm');
+const { sendReviewAlert } = require('../lib/bot');
 
 // 1. GET /api/reviews/product/:productId - Public: get approved reviews for a product
 router.get('/product/:productId', async (req, res) => {
@@ -43,6 +44,10 @@ router.post('/', async (req, res) => {
         return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
     try {
+        const product = await db.query.products.findFirst({
+            where: eq(products.id, productId)
+        });
+
         const [review] = await db.insert(reviews).values({
             userId,
             productId,
@@ -50,6 +55,10 @@ router.post('/', async (req, res) => {
             comment: comment || null,
             status: 'pending',
         }).returning();
+
+        // Send Notification
+        await sendReviewAlert(review, product ? product.name : 'Unknown Product');
+
         res.status(201).json({ message: 'Review submitted successfully', review });
     } catch (error) {
         console.error('Review Submit Error:', error);

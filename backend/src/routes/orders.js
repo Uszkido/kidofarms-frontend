@@ -2,56 +2,95 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
 const { orders, orderItems, affiliates, commissions, products } = require('../db/schema');
-const { desc, eq, and, inArray } = require('drizzle-orm');
-const { sendOrderToBot } = require('../lib/bot');
+const { desc, eq, inArray } = require('drizzle-orm');
+const { sendOrderToBot, sendTelegramAlert } = require('../lib/bot');
+const axios = require('axios');
 
+// Helper to handle order completion tasks (stock, commission, notifications)
+async function completeOrderProcessing(orderId, items, totalAmount, referralCode) {
+    // 1. Handle Commissions
+    if (referralCode) {
+        const affiliateResult = await db.select().from(affiliates).where(eq(affiliates.referralCode, referralCode)).limit(1);
+        if (affiliateResult.length > 0) {
+            const affiliate = affiliateResult[0];
+            const commissionAmount = (parseFloat(totalAmount) * (parseFloat(affiliate.commissionRate) / 100)).toFixed(2);
+            await db.insert(commissions).values({
+                affiliateId: affiliate.id,
+                orderId: orderId,
+                amount: commissionAmount,
+                status: 'pending'
+            });
+        }
+    }
+
+    // 2. Handle Order Items & Stock
+    for (const item of items) {
+        await db.insert(orderItems).values({
+            orderId: orderId,
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price.toString()
+        });
+
+        // Decrement Stock
+        try {
+            const product = await db.query.products.findFirst({ where: eq(products.id, item.id) });
+            if (product) {
+                const newStock = Math.max(0, (product.stock || 0) - item.quantity);
+                await db.update(products).set({ stock: newStock }).where(eq(products.id, item.id));
+
+                if (newStock < 5) {
+                    await sendTelegramAlert("Low Stock Warning! 📉", `Product: ${product.name}\nRemaining: ${newStock}`, "🚨");
+                }
+            }
+        } catch (err) {
+            console.error("Stock sync failed:", err);
+        }
+    }
+
+    // 3. Bot Notifications
+    try {
+        const orderData = await db.query.orders.findFirst({ where: eq(orders.id, orderId) });
+        const productIds = items.map(i => i.id);
+        const productDetails = await db.query.products.findMany({
+            where: inArray(products.id, productIds)
+        });
+        const enrichedItems = items.map(item => {
+            const p = productDetails.find(p => p.id === item.id);
+            return { ...item, name: p ? p.name : `Product ${item.id}` };
+        });
+        await sendOrderToBot(orderData, enrichedItems);
+    } catch (err) {
+        console.error("Bot update failed:", err);
+    }
+}
 
 router.get('/', async (req, res) => {
     try {
         const data = await db.query.orders.findMany({
             with: {
-                items: {
-                    with: { product: true }
-                },
-                user: true
+                items: { with: { product: true } }
             },
             orderBy: [desc(orders.createdAt)]
         });
         res.json(data);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed' });
-    }
-});
-
-router.get('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const data = await db.query.orders.findFirst({
-            where: eq(orders.id, id),
-            with: {
-                items: {
-                    with: { product: true }
-                },
-                user: true
-            }
-        });
-        if (!data) return res.status(404).json({ error: 'Order not found' });
-        res.json(data);
-    } catch (error) {
-        console.error(error);
         res.status(500).json({ error: 'Failed' });
     }
 });
 
 router.post('/', async (req, res) => {
     try {
-        const { items, totalAmount, street, city, state, zip, paymentMethod, userId, referralCode } = req.body;
+        const { items, totalAmount, street, city, state, zip, paymentMethod, userId, referralCode, guestName, guestEmail, guestPhone } = req.body;
 
         const [order] = await db.insert(orders).values({
-            userId,
+            userId: userId || null,
+            guestName,
+            guestEmail,
+            guestPhone,
             totalAmount: totalAmount.toString(),
-            orderStatus: 'processing',
+            orderStatus: paymentMethod === 'card' ? 'pending' : 'processing',
+            paymentStatus: 'pending',
             street,
             city,
             state,
@@ -60,139 +99,57 @@ router.post('/', async (req, res) => {
             referralCode
         }).returning();
 
-        // Handle Referral Commission
-        if (referralCode) {
-            const affiliate = await db.select().from(affiliates).where(eq(affiliates.referralCode, referralCode)).limit(1);
-            if (affiliate.length > 0) {
-                const commissionAmount = (parseFloat(totalAmount) * (parseFloat(affiliate[0].commissionRate) / 100)).toFixed(2);
-                await db.insert(commissions).values({
-                    affiliateId: affiliate[0].id,
-                    orderId: order.id,
-                    amount: commissionAmount,
-                    status: 'pending'
-                });
-            }
-        }
-
-        for (const item of items) {
-            await db.insert(orderItems).values({
-                orderId: order.id,
-                productId: item.id,
-                quantity: item.quantity,
-                price: item.price.toString()
-            });
-        }
-
-        // Send notification to bot
-        // Fetch product names for a descriptive message
-        try {
-            const productDetails = await db.query.products.findMany({
-                where: inArray(products.id, items.map(i => i.id))
-            });
-
-            const enrichedItems = items.map(item => {
-                const p = productDetails.find(p => p.id === item.id);
-                return { ...item, name: p ? p.name : `Product ${item.id}` };
-            });
-
-            await sendOrderToBot(order, enrichedItems);
-        } catch (botError) {
-            console.error("Bot Notification failed, but order was saved:", botError);
+        if (paymentMethod !== 'card') {
+            await completeOrderProcessing(order.id, items, totalAmount, referralCode);
         }
 
         res.status(201).json(order);
-
     } catch (error) {
-        console.error(error);
-        res.status(400).json({ error: 'Failed' });
+        console.error("Order Creation Error:", error);
+        res.status(400).json({ error: error.message || 'Order Creation Failed' });
     }
 });
 
-router.patch('/:id', async (req, res) => {
+// PAYSTACK VERIFICATION
+router.post('/verify-payment', async (req, res) => {
     try {
-        const { eq } = require('drizzle-orm');
-        const { id } = req.params;
-        const { status, orderStatus } = req.body;
-        const finalStatus = status || orderStatus;
+        const { reference, orderId, items, totalAmount, referralCode } = req.body;
 
-        const [updated] = await db.update(orders)
-            .set({ orderStatus: finalStatus })
-            .where(eq(orders.id, id))
-            .returning();
-        res.json(updated);
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({ error: 'Failed' });
-    }
-});
-
-// POST /api/orders/:id/release (Escrow Shield: Release Funds to Vendor)
-router.post('/:id/release', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const [order] = await db.update(orders)
-            .set({ escrowStatus: 'released' })
-            .where(eq(orders.id, id))
-            .returning();
-
-        // In a real app, this would trigger a payout to the vendor's real bank account
-        res.json({ message: 'Funds released to vendor successfully!', order });
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({ error: 'Failed to release funds' });
-    }
-});
-
-// GET /api/orders/vendor/:userId
-// Fetches only order items that belong to the vendor's products
-router.get('/vendor/:userId', async (req, res) => {
-    try {
-        const { userId } = req.params;
-
-        // 1. Get all products owned by this vendor
-        const vendorProducts = await db.select({ id: products.id })
-            .from(products)
-            .where(eq(products.ownerId, userId));
-
-        if (vendorProducts.length === 0) return res.json([]);
-
-        const productIds = vendorProducts.map(p => p.id);
-
-        // 2. Find all order items matching these products
-        const items = await db.query.orderItems.findMany({
-            where: inArray(orderItems.productId, productIds),
-            with: {
-                order: {
-                    with: { user: true }
-                },
-                product: true
+        const response = await axios.get(`https://api.paystack.co/transaction/verify/${reference}`, {
+            headers: {
+                Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`
             }
         });
 
-        res.json(items);
+        if (response.data.status && response.data.data.status === 'success') {
+            await db.update(orders).set({
+                paymentStatus: 'paid',
+                orderStatus: 'processing',
+                paystackReference: reference
+            }).where(eq(orders.id, orderId));
+
+            await completeOrderProcessing(orderId, items, totalAmount, referralCode);
+
+            return res.json({ status: true, message: "Payment Verified" });
+        } else {
+            return res.status(400).json({ status: false, message: "Payment Failed" });
+        }
     } catch (error) {
-        console.error('Vendor Orders Error:', error);
-        res.status(500).json({ error: 'Failed to fetch vendor orders' });
+        console.error("Paystack Verification Error:", error.response?.data || error.message);
+        res.status(500).json({ error: 'Verification System Failure' });
     }
 });
 
-// GET /api/orders/user/:userId
-router.get('/user/:userId', async (req, res) => {
+router.get('/:id', async (req, res) => {
     try {
-        const { userId } = req.params;
-        const data = await db.query.orders.findMany({
-            where: eq(orders.userId, userId),
-            with: {
-                items: {
-                    with: { product: true }
-                }
-            },
-            orderBy: [desc(orders.createdAt)]
+        const data = await db.query.orders.findFirst({
+            where: eq(orders.id, req.params.id),
+            with: { items: { with: { product: true } } }
         });
+        if (!data) return res.status(404).json({ error: 'Order not found' });
         res.json(data);
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to fetch user orders' });
+        res.status(500).json({ error: 'Failed' });
     }
 });
 

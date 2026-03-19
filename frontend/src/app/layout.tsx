@@ -19,6 +19,7 @@ import { ReferralTracker } from "@/components/ReferralTracker";
 import ThemeHub from "@/components/ThemeHub";
 import { FloatingSupport } from "@/components/FloatingSupport";
 import { Suspense } from "react";
+import Script from "next/script";
 
 export default function RootLayout({
   children,
@@ -27,6 +28,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfair.variable} ${outfit.variable}`}>
+      <head>
+        <Script id="pushalert-init" strategy="afterInteractive">
+          {`
+            (function(d, t) {
+              var g = d.createElement(t),
+              s = d.getElementsByTagName(t)[0];
+              g.src = "https://cdn.pushalert.co/integrate_88354.js";
+              s.parentNode.insertBefore(g, s);
+            }(document, "script"));
+          `}
+        </Script>
+      </head>
       <body className="antialiased flex flex-col min-h-screen relative">
         <Providers>
           <ThemeHub>

@@ -9,16 +9,7 @@ import dynamic from "next/dynamic";
 import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermometer } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// Dynamically import Map to avoid SSR errors with Leaflet
-// Dynamically import Maps to avoid SSR errors
-const OsmMap = dynamic(() => import("@/components/OsmAdvancedTrackingMap"), {
-    ssr: false,
-    loading: () => <div className="p-10 flex items-center justify-center bg-white/5 rounded-[3rem]">
-        <Loader2 className="animate-spin text-secondary" />
-    </div>
-});
-
-const GoogleMap = dynamic(() => import("@/components/AdvancedTrackingMap"), {
+const AdvancedMap = dynamic(() => import("@/components/AdvancedTrackingMap"), {
     ssr: false,
     loading: () => <div className="p-10 flex items-center justify-center bg-white/5 rounded-[3rem]">
         <Loader2 className="animate-spin text-secondary" />
@@ -42,18 +33,27 @@ export default function TrackOrderPage() {
     const [shipments, setShipments] = useState<Shipment[]>([]);
     const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [mapEngine, setMapEngine] = useState<'osm' | 'google'>('osm');
     const [aftershipData, setAftershipData] = useState<any>(null);
 
     useEffect(() => {
         if (selectedShipment && session) {
-            fetch(getApiUrl(`/api/shipments/${selectedShipment.id}/aftership`), {
+            fetch(getApiUrl(`/api/shipments/${selectedShipment.id}/external`), {
                 headers: { "Authorization": `Bearer ${(session as any).accessToken}` }
             })
                 .then(res => res.json())
                 .then(data => {
-                    if (data?.data?.tracking) {
-                        setAftershipData(data.data.tracking);
+                    if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+                        const tracking = data.data[0];
+                        // Normalize Tracking More to look like the previous structure for minimal disruption
+                        setAftershipData({
+                            ...tracking,
+                            checkpoints: tracking.checkpoints?.map((cp: any) => ({
+                                ...cp,
+                                message: cp.checkpoint_status || cp.status || cp.latest_event || "Transit Update",
+                                city: cp.location || cp.city || "Abuja",
+                                created_at: cp.checkpoint_date || cp.time || new Date().toISOString()
+                            }))
+                        });
                     }
                 }).catch(console.error);
         }
@@ -178,35 +178,22 @@ export default function TrackOrderPage() {
                                                 {/* Map Section */}
                                                 <div className="relative group p-4 bg-white/5 border border-white/10 rounded-[4rem] overflow-hidden shadow-2xl">
                                                     <div className="absolute inset-x-0 top-0 px-10 pt-6 pb-20 bg-gradient-to-b from-black/80 to-transparent z-10 flex justify-between items-start pointer-events-none">
-                                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/50">Tracking Engine</h4>
-                                                        <button
-                                                            onClick={() => setMapEngine(mapEngine === 'osm' ? 'google' : 'osm')}
-                                                            className="pointer-events-auto bg-black border border-white/10 text-secondary px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl"
-                                                        >
-                                                            Switch to {mapEngine === 'osm' ? 'Google Maps' : 'OpenStreetMap'}
-                                                        </button>
+                                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/50">Logistics Node #09x</h4>
+                                                        <div className="bg-secondary/10 border border-secondary/20 text-secondary px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md flex items-center gap-2">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" />
+                                                            Geoapify Cluster Verified
+                                                        </div>
                                                     </div>
                                                     <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
-                                                    {mapEngine === 'osm' ? (
-                                                        <OsmMap
-                                                            lat={selectedShipment.currentLat}
-                                                            lng={selectedShipment.currentLng}
-                                                            title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
-                                                            details={`Status: ${selectedShipment.status} | Temperature: Optimal`}
-                                                            onClose={() => { }}
-                                                            shipmentData={selectedShipment}
-                                                        />
-                                                    ) : (
-                                                        <GoogleMap
-                                                            lat={selectedShipment.currentLat}
-                                                            lng={selectedShipment.currentLng}
-                                                            title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
-                                                            details={`Status: ${selectedShipment.status} | Temperature: Optimal`}
-                                                            onClose={() => { }}
-                                                            shipmentData={selectedShipment}
-                                                        />
-                                                    )}
+                                                    <AdvancedMap
+                                                        lat={selectedShipment.currentLat}
+                                                        lng={selectedShipment.currentLng}
+                                                        title={`Shipment #${selectedShipment.id.slice(0, 8)}`}
+                                                        details={`Status: ${selectedShipment.status} | Tracking: Geoapify Secure`}
+                                                        onClose={() => { }}
+                                                        shipmentData={selectedShipment}
+                                                    />
 
                                                     {selectedShipment.temperatureAlert && (
                                                         <div className="absolute top-10 left-10 z-20 flex items-center gap-4 bg-red-500 text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] animate-pulse shadow-2xl">

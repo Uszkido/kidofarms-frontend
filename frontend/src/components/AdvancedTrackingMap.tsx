@@ -1,7 +1,9 @@
 "use client";
 
 import { useMemo, useCallback, useState, useEffect } from "react";
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Box, Activity, ShieldCheck, Zap, AlertTriangle, Loader2 } from "lucide-react";
 
@@ -51,27 +53,33 @@ const mapOptions = {
 };
 
 export default function AdvancedTrackingMap({ lat, lng, title, details, onClose, shipmentData }: AdvancedTrackingMapProps) {
-    const { isLoaded } = useJsApiLoader({
-        id: "google-map-script",
-        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "", // User needs to provide this
-    });
+    const [isMounted, setIsMounted] = useState(false);
 
-    const center = useMemo(() => ({ lat, lng }), [lat, lng]);
-    const [map, setMap] = useState<google.maps.Map | null>(null);
-
-    const onLoad = useCallback(function callback(map: google.maps.Map) {
-        setMap(map);
+    useEffect(() => {
+        setIsMounted(true);
     }, []);
 
-    const onUnmount = useCallback(function callback() {
-        setMap(null);
-    }, []);
+    const center: [number, number] = useMemo(() => [lat, lng], [lat, lng]);
 
-    if (!isLoaded) return (
+    const truckIcon = useMemo(() => L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center shadow-[0_0_20px_rgba(197,160,89,0.5)] animate-bounce text-primary"><svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><circle cx="7" cy="18" r="2"/><path d="M9 18h4"/><circle cx="17" cy="18" r="2"/><path d="M19 18h2a1 1 0 0 0 1-1v-5l-3-3h-3.5"/><path d="M16 10v4h6"/></svg></div>`,
+        iconSize: [48, 48],
+        iconAnchor: [24, 48]
+    }), []);
+
+    const hubIcon = useMemo(() => L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="w-8 h-8 bg-black/80 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center shadow-2xl"><div class="w-3 h-3 rounded-full bg-secondary shadow-[0_0_10px_rgba(197,160,89,1)]"></div></div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    }), []);
+
+    if (!isMounted) return (
         <div className="fixed inset-0 bg-[#0a0a0a] flex items-center justify-center z-[1000]">
             <div className="flex flex-col items-center gap-6">
                 <Loader2 className="animate-spin text-secondary w-16 h-16" />
-                <p className="text-white/20 font-black uppercase tracking-[0.6em] text-[10px]">Initializing Google Orbit Engine...</p>
+                <p className="text-white/20 font-black uppercase tracking-[0.6em] text-[10px]">Initializing Orbit Engine...</p>
             </div>
         </div>
     );
@@ -80,22 +88,37 @@ export default function AdvancedTrackingMap({ lat, lng, title, details, onClose,
         <div className="fixed inset-0 bg-[#0a0a0a] z-[1000] flex overflow-hidden font-sans">
             {/* Main Map Area */}
             <div className="flex-grow relative bg-[#1a1a1a]">
-                <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
+                <MapContainer
                     center={center}
                     zoom={12}
-                    onLoad={onLoad}
-                    onUnmount={onUnmount}
-                    options={mapOptions}
+                    scrollWheelZoom={true}
+                    className="h-full w-full z-10"
+                    zoomControl={false}
                 >
-                    <Marker
-                        position={center}
-                        icon={{
-                            url: "https://maps.google.com/mapfiles/ms/icons/truck.png",
-                            scaledSize: new window.google.maps.Size(40, 40)
-                        }}
+                    <TileLayer
+                        attribution='&copy; Geoapify'
+                        url={`https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY}`}
                     />
-                </GoogleMap>
+
+                    {/* Active Shipment Marker */}
+                    <Marker position={center} icon={truckIcon}>
+                        <Popup className="premium-popup">
+                            <div className="p-3">
+                                <p className="text-[10px] font-black uppercase text-secondary">In Transit</p>
+                                <p className="text-[12px] font-black text-primary uppercase">{title}</p>
+                            </div>
+                        </Popup>
+                    </Marker>
+
+                    {/* Hub Marker */}
+                    <Marker position={[lat + 0.02, lng - 0.03]} icon={hubIcon}>
+                        <Popup className="premium-popup">
+                            <div className="p-3">
+                                <p className="text-[10px] font-black uppercase text-secondary">Lagos Central Hub</p>
+                            </div>
+                        </Popup>
+                    </Marker>
+                </MapContainer>
 
                 {/* Top Left Overlay: Node Status */}
                 <div className="absolute top-10 left-10 space-y-4 pointer-events-none">
@@ -124,21 +147,21 @@ export default function AdvancedTrackingMap({ lat, lng, title, details, onClose,
                     </motion.div>
                 </div>
 
-                {/* Floating Map Labels (Simulated because markers are inside GoogleMap) */}
-                <div className="absolute inset-0 pointer-events-none">
+                {/* Floating Map Labels Overlay (Higher Z-Index than MapContainer) */}
+                <div className="absolute inset-0 pointer-events-none z-20">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="absolute top-1/2 left-1/3 p-4 bg-black/90 border border-white/10 rounded-2xl flex items-center gap-3 backdrop-blur-xl shadow-2xl"
                     >
-                        <div className="w-3 h-3 rounded-full bg-secondary" />
+                        <div className="w-3 h-3 rounded-full bg-secondary animate-pulse" />
                         <span className="text-white font-black uppercase tracking-tighter text-xs">Lagos Central Hub</span>
                     </motion.div>
 
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="absolute top-1/2 right-1/2 bg-secondary p-6 rounded-[2rem] shadow-[0_0_40px_rgba(197,160,89,0.3)] flex flex-col items-center gap-2 pointer-events-auto"
+                        className="absolute top-[60%] right-1/2 bg-secondary p-6 rounded-[2rem] shadow-[0_0_40px_rgba(197,160,89,0.3)] flex flex-col items-center gap-2 pointer-events-auto"
                     >
                         <span className="text-primary font-black uppercase tracking-widest text-[10px]">Active Node</span>
                         <span className="text-primary font-black uppercase tracking-widest text-[10px]">In Transit</span>
