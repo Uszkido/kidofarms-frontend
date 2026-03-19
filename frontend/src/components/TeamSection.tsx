@@ -6,13 +6,22 @@ import { Linkedin, Twitter } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
 export default function TeamSection() {
-    const [team, setTeam] = useState([]);
+    const [team, setTeam] = useState<any[]>([]);
 
     useEffect(() => {
         fetch(getApiUrl("/api/team"))
             .then(res => res.json())
-            .then(data => setTeam(data))
-            .catch(err => console.error(err));
+            .then(data => {
+                if (Array.isArray(data)) {
+                    setTeam(data);
+                } else {
+                    setTeam([]);
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                setTeam([]);
+            });
     }, []);
 
 
