@@ -442,6 +442,62 @@ router.post('/finance/debit', async (req, res) => {
 });
 
 
+// 6.9 GET /api/admin/payments - Full platform payment transactions ledger
+router.get('/payments', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 200;
+    const offset = parseInt(req.query.offset) || 0;
+    try {
+        const txns = await db.select({
+            id: walletTransactions.id,
+            type: walletTransactions.type,
+            amount: walletTransactions.amount,
+            description: walletTransactions.description,
+            createdAt: walletTransactions.createdAt,
+            userName: users.name,
+            userEmail: users.email
+        })
+            .from(walletTransactions)
+            .leftJoin(wallets, eq(walletTransactions.walletId, wallets.id))
+            .leftJoin(users, eq(wallets.userId, users.id))
+            .orderBy(desc(walletTransactions.createdAt))
+            .limit(limit)
+            .offset(offset);
+        res.json(txns);
+    } catch (error) {
+        console.error('Payments Ledger Error:', error);
+        res.status(500).json({ error: 'Failed to fetch payment transactions' });
+    }
+});
+
+// 6.95 GET /api/admin/revenue-chart - 30-day daily revenue for chart
+router.get('/revenue-chart', async (req, res) => {
+    try {
+        const days = parseInt(req.query.days) || 30;
+        const rows = await db.select({
+            day: sql`DATE(${orders.createdAt})`,
+            revenue: sql`SUM(${orders.totalAmount})`,
+            count: sql`COUNT(*)`,
+        })
+            .from(orders)
+            .where(sql`${orders.createdAt} >= NOW() - INTERVAL '${days} days'`)
+            .groupBy(sql`DATE(${orders.createdAt})`)
+            .orderBy(sql`DATE(${orders.createdAt})`);
+
+        // Fill missing days with zeros
+        const map = new Map(rows.map((r) => [r.day, { revenue: parseFloat(r.revenue) || 0, count: parseInt(r.count) }]));
+        const result = [];
+        for (let i = days - 1; i >= 0; i--) {
+            const d = new Date(); d.setDate(d.getDate() - i);
+            const key = d.toISOString().split('T')[0];
+            result.push({ date: key, revenue: map.get(key)?.revenue || 0, orders: map.get(key)?.count || 0 });
+        }
+        res.json(result);
+    } catch (error) {
+        console.error('Revenue Chart Error:', error);
+        res.status(500).json({ error: 'Failed to fetch revenue chart data' });
+    }
+});
+
 // 7. PATCH /api/admin/users/:id - Universal User Control (God Mode)
 router.patch('/users/:id', async (req, res) => {
     const { id } = req.params;
