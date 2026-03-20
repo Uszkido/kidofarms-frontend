@@ -47,6 +47,7 @@ import {
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
+import NotificationBell from "@/components/NotificationBell";
 
 
 export const dynamic = 'force-static';
@@ -119,6 +120,7 @@ export default function AdminDashboard() {
                     </div>
 
                     <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
+                        <NotificationBell />
                         <Link href="/admin/settings" className="bg-white/5 p-6 rounded-[2.5rem] border border-secondary/30 hover:bg-secondary hover:text-primary backdrop-blur-3xl flex items-center gap-5 shadow-2xl transition-all group">
                             <div className="w-14 h-14 rounded-2xl bg-secondary/10 group-hover:bg-white/20 flex items-center justify-center text-secondary shadow-xl transition-colors">
                                 <Palette size={28} />
@@ -231,6 +233,11 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />
                         <ActionBtn href="/admin/tasks" icon={<Fingerprint size={20} />} label="Deploy Mission" permission="global_data_command" />
                         <ActionBtn href="/admin/academy/new" icon={<BookOpen size={20} />} label="Create Academy" permission="global_data_command" />
+                        <ActionBtn href="/admin/logs" icon={<Database size={20} />} label="Audit Ledger" permission="global_data_command" />
+                        <ActionBtn href="/admin/ai-config" icon={<Cpu size={20} />} label="AI Engine" permission="global_data_command" />
+                        <ActionBtn href="/admin/payouts" icon={<CreditCard size={20} />} label="Payouts" permission="finance" />
+                        <ActionBtn href="/admin/reviews" icon={<Star size={20} />} label="Review Queue" permission="content" />
+                        <ActionBtn href="/admin/tickets" icon={<MessageSquare size={20} />} label="Support Desk" permission="orders" />
                     </div>
                 </div>
 
@@ -258,6 +265,10 @@ export default function AdminDashboard() {
                         <SmallMenuLink href="/admin/reports" label="Neural Intel" icon={<Activity size={20} />} permission="finance" />
                         <SmallMenuLink href="/admin/users" label="Citizen Registry" icon={<Users size={20} />} permission="users" />
                         <SmallMenuLink href="/admin/registry" label="Universal Console" icon={<Database size={20} />} permission="global_data_command" />
+                        <SmallMenuLink href="/admin/logs" label="Audit Ledger" icon={<Shield size={20} />} permission="global_data_command" />
+                        <SmallMenuLink href="/admin/ai-config" label="AI Verify Engine" icon={<Cpu size={20} />} permission="global_data_command" />
+                        <SmallMenuLink href="/admin/payouts" label="Payout Control" icon={<CreditCard size={20} />} permission="finance" />
+                        <SmallMenuLink href="/admin/tickets" label="Support Desk" icon={<MessageSquare size={20} />} permission="orders" />
                     </div>
                 </div>
 

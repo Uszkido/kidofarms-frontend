@@ -297,6 +297,55 @@ router.patch('/ai-config', async (req, res) => {
     }
 });
 
+// 5.8 GET /api/admin/payouts - Wallet balances for all farmers/vendors/affiliates
+router.get('/payouts', async (req, res) => {
+    try {
+        const allUsers = await db.select({
+            userId: users.id,
+            userName: users.name,
+            userEmail: users.email,
+            role: users.role
+        }).from(users);
+
+        const eligible = allUsers.filter(u => ['farmer', 'vendor', 'affiliate', 'carrier'].includes(u.role));
+
+        const results = await Promise.all(eligible.map(async (u) => {
+            const wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, u.userId) });
+            let bankInfo = { bankName: null, accountNumber: null, accountName: null };
+            if (u.role === 'farmer') {
+                const f = await db.query.farmers.findFirst({ where: eq(farmers.userId, u.userId) });
+                if (f) bankInfo = { bankName: f.bankName, accountNumber: f.accountNumber, accountName: f.accountName };
+            }
+            return { ...u, balance: wallet?.balance || '0', pendingPayout: wallet?.balance || '0', ...bankInfo };
+        }));
+
+        res.json(results);
+    } catch (error) {
+        console.error('Payouts Error:', error);
+        res.status(500).json({ error: 'Failed to fetch payout data' });
+    }
+});
+
+// 5.9 POST /api/admin/payouts/initiate - Initiate a payout (debit wallet)
+router.post('/payouts/initiate', async (req, res) => {
+    const { userId, amount, note } = req.body;
+    if (!userId || !amount) return res.status(400).json({ error: 'Missing userId or amount' });
+    try {
+        const wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, userId) });
+        if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
+        if (parseFloat(wallet.balance) < parseFloat(amount)) return res.status(400).json({ error: 'Insufficient balance' });
+
+        await db.update(wallets).set({ balance: sql`balance - ${parseFloat(amount)}`, updatedAt: new Date() }).where(eq(wallets.userId, userId));
+        await db.insert(walletTransactions).values({ walletId: wallet.id, type: 'debit', amount: sql`${parseFloat(amount)}`, description: note || 'Admin Payout Disbursement' });
+        await db.insert(activityLogs).values({ action: 'ADMIN_PAYOUT_INITIATE', entity: 'wallet', details: { userId, amount, note }, userId: req.user.id });
+
+        res.json({ message: `Payout of ₦${parseFloat(amount).toLocaleString()} initiated.` });
+    } catch (error) {
+        console.error('Payout Error:', error);
+        res.status(500).json({ error: 'Payout failed' });
+    }
+});
+
 // 6. POST /api/admin/finance/credit - Credit Injection
 router.post('/finance/credit', async (req, res) => {
     let { userId, amount, reason } = req.body;
