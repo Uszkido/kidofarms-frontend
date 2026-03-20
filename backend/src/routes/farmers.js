@@ -12,6 +12,8 @@ router.get('/', async (req, res) => {
             farmName: farmers.farmName,
             status: farmers.status,
             farmLocationState: farmers.farmLocationState,
+            verificationDocuments: farmers.verificationDocuments,
+            aiConfidenceScore: farmers.aiConfidenceScore,
             createdAt: farmers.createdAt,
             userName: users.name,
             userEmail: users.email,

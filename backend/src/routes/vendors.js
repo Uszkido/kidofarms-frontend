@@ -13,6 +13,8 @@ router.get('/', async (req, res) => {
             businessName: vendors.businessName,
             status: vendors.status,
             categories: vendors.categories,
+            verificationDocuments: vendors.verificationDocuments,
+            aiConfidenceScore: vendors.aiConfidenceScore,
             createdAt: vendors.createdAt,
             userName: users.name,
             userEmail: users.email
