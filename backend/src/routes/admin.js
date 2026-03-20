@@ -138,6 +138,38 @@ router.post('/users/create', async (req, res) => {
     }
 });
 
+// 3.5 POST /api/admin/users/bulk - Bulk Action Controls
+router.post('/users/bulk', async (req, res) => {
+    const { action, userIds } = req.body;
+    if (!action || !userIds || !userIds.length) return res.status(400).json({ error: 'Missing parameters' });
+
+    try {
+        let updatedCount = 0;
+        if (action === 'approve') {
+            await db.update(users).set({ isVerified: true }).where(sql`${users.id} IN ${userIds}`);
+            updatedCount = userIds.length;
+        } else if (action === 'suspend') {
+            await db.update(users).set({ isVerified: false }).where(sql`${users.id} IN ${userIds}`);
+            updatedCount = userIds.length;
+        } else if (action === 'delete') {
+            await db.delete(users).where(sql`${users.id} IN ${userIds}`);
+            updatedCount = userIds.length;
+        }
+
+        await db.insert(activityLogs).values({
+            action: `ADMIN_BULK_${action.toUpperCase()}`,
+            entity: 'users',
+            details: { count: userIds.length, userIds },
+            userId: req.user.id
+        });
+
+        res.json({ message: `Successfully executed ${action} on ${updatedCount} nodes.` });
+    } catch (error) {
+        console.error('Bulk Action Error:', error);
+        res.status(500).json({ error: 'Global command failed: ' + error.message });
+    }
+});
+
 // 4. POST /api/admin/orders/approve-payment - Approve a manual payment
 router.post('/orders/approve-payment', async (req, res) => {
     const { orderId } = req.body;
@@ -164,15 +196,24 @@ router.post('/orders/approve-payment', async (req, res) => {
 router.post('/impersonate', async (req, res) => {
     const { userId } = req.body;
     try {
-        // Find user by ID or Email
         const user = await db.query.users.findFirst({
             where: or(eq(users.id, userId), eq(users.email, userId))
         });
 
         if (!user) return res.status(404).json({ error: 'Citizen not found in network' });
+        // Block impersonating admins for safety
+        if (user.role === 'admin') return res.status(403).json({ error: 'Cannot ghost into an Admin node. Access denied.' });
 
         const token = jwt.sign(
-            { id: user.id, role: user.role, name: user.name, email: user.email, impersonated: true },
+            {
+                id: user.id,
+                role: user.role,
+                name: user.name,
+                email: user.email,
+                isImpersonated: true,             // flag for Ghost Mode banner
+                impersonatedBy: req.user.name,    // admin name for banner
+                impersonatedByRole: req.user.role
+            },
             JWT_SECRET,
             { expiresIn: '1h' }
         );
@@ -180,13 +221,79 @@ router.post('/impersonate', async (req, res) => {
         await db.insert(activityLogs).values({
             action: 'ADMIN_IMPERSONATION_START',
             entity: 'users',
-            details: { targetId: user.id, targetEmail: user.email },
+            details: { targetId: user.id, targetEmail: user.email, adminName: req.user.name },
+            userId: req.user.id
         });
 
         res.json({ token, user: { id: user.id, name: user.name, role: user.role } });
     } catch (error) {
         console.error('Impersonation Error:', error);
         res.status(500).json({ error: 'Protocol failed' });
+    }
+});
+
+// 5.5 GET /api/admin/audit-logs - Full Paginated Audit Ledger
+router.get('/audit-logs', async (req, res) => {
+    const limit = parseInt(req.query.limit) || 100;
+    const offset = parseInt(req.query.offset) || 0;
+    try {
+        const logs = await db.select({
+            id: activityLogs.id,
+            action: activityLogs.action,
+            entity: activityLogs.entity,
+            details: activityLogs.details,
+            createdAt: activityLogs.createdAt,
+            actorName: users.name,
+            actorEmail: users.email,
+            actorRole: users.role
+        })
+            .from(activityLogs)
+            .leftJoin(users, eq(activityLogs.userId, users.id))
+            .orderBy(desc(activityLogs.createdAt))
+            .limit(limit)
+            .offset(offset);
+        const [total] = await db.select({ count: sql`count(*)` }).from(activityLogs);
+        res.json({ logs, total: Number(total.count), limit, offset });
+    } catch (error) {
+        console.error('Audit Logs Error:', error);
+        res.status(500).json({ error: 'Failed to fetch audit ledger' });
+    }
+});
+
+// 5.6 GET /api/admin/ai-config - Get AI Verification Engine Config
+router.get('/ai-config', async (req, res) => {
+    try {
+        const cfg = await db.query.settings.findFirst({ where: eq(settings.id, 'site_config') });
+        res.json(cfg?.themeConfig?.aiVerificationConfig || {
+            farmerAutoApproveThreshold: 80,
+            vendorAutoApproveThreshold: 75,
+            documentCheckRequired: true,
+            flagBelowConfidence: 40,
+            reviewQueueEnabled: true
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to fetch AI config' });
+    }
+});
+
+// 5.7 PATCH /api/admin/ai-config - Update AI Verification Engine Config
+router.patch('/ai-config', async (req, res) => {
+    try {
+        const existing = await db.query.settings.findFirst({ where: eq(settings.id, 'site_config') });
+        const aiVerificationConfig = { ...(existing?.themeConfig?.aiVerificationConfig || {}), ...req.body };
+        await db.update(settings)
+            .set({ themeConfig: { ...(existing?.themeConfig || {}), aiVerificationConfig }, updatedAt: new Date() })
+            .where(eq(settings.id, 'site_config'));
+
+        await db.insert(activityLogs).values({
+            action: 'AI_CONFIG_UPDATE',
+            entity: 'settings',
+            details: { changes: req.body },
+            userId: req.user.id
+        });
+        res.json({ message: 'AI Verification Engine updated.', config: aiVerificationConfig });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update AI config' });
     }
 });
 
