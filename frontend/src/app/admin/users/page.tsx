@@ -269,6 +269,13 @@ export default function AdminUsersPage() {
                                     <EditField label="Secure Link (Email)" icon={<Mail size={14} />} value={editData.email} onChange={(val: string) => setEditData({ ...editData, email: val })} />
                                     <EditField label="Protocol Class (Role)" icon={<Shield size={14} />} isSelect options={['customer', 'admin', 'sub-admin', 'farmer', 'vendor', 'business', 'subscriber', 'affiliate', 'wholesale_buyer', 'retailer', 'distributor', 'team_member', 'hotel', 'logistics_distributor']} value={editData.role} onChange={(val: string) => setEditData({ ...editData, role: val })} />
                                     <EditField label="Override Password" icon={<KeyRound size={14} />} type="password" placeholder="•••••••• (Leave blank to keep current)" value={editData.password} onChange={(val: string) => setEditData({ ...editData, password: val })} />
+                                    <div className="space-y-2 col-span-1 md:col-span-2">
+                                        <label className="text-[9px] font-black uppercase tracking-widest text-white/30 ml-4">Account Access State (Suspend/Verify)</label>
+                                        <div className="flex gap-4">
+                                            <button type="button" onClick={() => setEditData({ ...editData, isVerified: true })} className={`flex-1 py-4 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${editData.isVerified ? 'bg-secondary text-primary border-secondary shadow-lg' : 'bg-white/5 border-white/5 text-white/20 hover:bg-white/10'}`}>Active (Verified)</button>
+                                            <button type="button" onClick={() => setEditData({ ...editData, isVerified: false })} className={`flex-1 py-4 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${!editData.isVerified ? 'bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20 shadow-lg' : 'bg-white/5 border-white/5 text-white/20 hover:bg-white/10'}`}>Suspended (Revoke Access)</button>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 {/* Permissions Matrix */}
@@ -322,6 +329,21 @@ export default function AdminUsersPage() {
                                                         <EditField label="Geo-Location (State)" icon={<Activity size={14} />} value={editData.farmerData?.farmLocationState} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, farmLocationState: val } })} />
                                                         <EditField label="Harvest Focus" value={editData.farmerData?.primaryProduce} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, primaryProduce: val } })} />
                                                         <EditField label="Mastery Tier" type="number" value={editData.farmerData?.masteryLevel} onChange={(val: string) => setEditData({ ...editData, farmerData: { ...editData.farmerData, masteryLevel: Number(val) } })} />
+                                                        <div className="space-y-2 col-span-1 md:col-span-2 mt-2">
+                                                            <label className="text-[9px] font-black uppercase tracking-widest text-white/30 ml-4">Farmer Verification State</label>
+                                                            <div className="flex gap-4">
+                                                                {['pending', 'approved', 'suspended'].map(s => (
+                                                                    <button
+                                                                        key={s}
+                                                                        type="button"
+                                                                        onClick={() => setEditData({ ...editData, farmerData: { ...editData.farmerData, status: s } })}
+                                                                        className={`flex-1 py-4 px-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${editData.farmerData?.status === s ? 'bg-secondary text-primary border-secondary shadow-lg' : 'bg-white/5 border-white/5 text-white/20 hover:bg-white/10'}`}
+                                                                    >
+                                                                        {s}
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
                                                     </>
                                                 ) : (
                                                     <>
