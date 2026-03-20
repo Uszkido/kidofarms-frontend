@@ -10,14 +10,19 @@ export default function ImpactSection() {
     });
 
     useEffect(() => {
-        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/impact`)
-            .then(res => res.json())
-            .then(data => {
+        async function loadMetrics() {
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/impact`);
+                if (!res.ok) return;
+                const data = await res.json();
                 if (data && typeof data === 'object' && !data.error) {
                     setMetrics(prev => ({ ...prev, ...data }));
                 }
-            })
-            .catch(err => console.error(err));
+            } catch {
+                // Backend offline — keep fallback defaults, don't crash
+            }
+        }
+        loadMetrics();
     }, []);
 
     return (
