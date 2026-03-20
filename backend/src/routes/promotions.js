@@ -17,16 +17,19 @@ router.get('/', async (req, res) => {
 
 // Create new coupon
 router.post('/', async (req, res) => {
-    const { code, discountType, discountValue, minOrderAmount, expiresAt, usageLimit } = req.body;
+    const { code, discountType, discountValue, minOrderAmount, expiresAt, usageLimit, isActive, isFlashSale, endsAt } = req.body;
 
     try {
         const [newCoupon] = await db.insert(coupons).values({
             code,
-            discountType,
-            discountValue,
-            minOrderAmount,
+            discountType: discountType || 'percentage',
+            discountValue: Number(discountValue),
+            minOrderAmount: Number(minOrderAmount) || 0,
             expiresAt: expiresAt ? new Date(expiresAt) : null,
-            usageLimit
+            usageLimit: Number(usageLimit) || 0,
+            isActive: isActive !== undefined ? isActive : true,
+            isFlashSale: isFlashSale || false,
+            endsAt: endsAt ? new Date(endsAt) : null
         }).returning();
 
         res.status(201).json(newCoupon);

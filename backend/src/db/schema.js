@@ -161,6 +161,8 @@ const vendors = pgTable("vendors", {
     status: text("status").default("pending"), // pending, approved, suspended
     commissionRate: numeric("commission_rate", { precision: 5, scale: 2 }).default("10.00"),
     categories: jsonb("categories").default([]),
+    verificationDocuments: jsonb("verification_documents").default([]),
+    aiConfidenceScore: integer("ai_confidence_score").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -183,6 +185,8 @@ const farmers = pgTable("farmers", {
     accountNumber: text("account_number"),
     accountName: text("account_name"),
     status: text("status").default("pending"), // pending, approved, suspended
+    verificationDocuments: jsonb("verification_documents").default([]),
+    aiConfidenceScore: integer("ai_confidence_score").default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -223,6 +227,8 @@ const coupons = pgTable("coupons", {
     usageLimit: integer("usage_limit"),
     usedCount: integer("used_count").default(0),
     isActive: boolean("is_active").default(true),
+    isFlashSale: boolean("is_flash_sale").default(false),
+    endsAt: timestamp("ends_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -462,6 +468,30 @@ const tickets = pgTable("tickets", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Notifications Table
+const notifications = pgTable("notifications", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    type: text("type").default("info"), // order, user, review, system, alert
+    title: text("title").notNull(),
+    message: text("message").notNull(),
+    body: text("body"),
+    link: text("link"),
+    isRead: boolean("is_read").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// System Health Table (for snapshots)
+const systemHealth = pgTable("system_health", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    status: text("status").default("optimal"),
+    cpuUsage: integer("cpu_usage"),
+    memoryUsage: integer("memory_usage"),
+    activeUsers: integer("active_users"),
+    apiErrors: integer("api_errors"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 module.exports = {
     users,
     categories,
@@ -496,6 +526,8 @@ module.exports = {
     globalBridge,
     sensors,
     tickets,
+    notifications,
+    systemHealth,
     roleEnum,
     unitEnum,
     paymentMethodEnum,

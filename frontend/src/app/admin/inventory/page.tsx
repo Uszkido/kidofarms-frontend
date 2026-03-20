@@ -29,6 +29,7 @@ export default function AdminInventoryPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
+    const [stats, setStats] = useState<any>({ activeOrders: 0 });
 
     const fetchProducts = async () => {
         setLoading(true);
@@ -45,7 +46,18 @@ export default function AdminInventoryPage() {
 
     useEffect(() => {
         fetchProducts();
+        fetchStats();
     }, []);
+
+    const fetchStats = async () => {
+        try {
+            const res = await fetch(getApiUrl("/api/admin/stats"));
+            const data = await res.json();
+            setStats(data);
+        } catch (error) {
+            console.error("Failed to fetch inventory stats:", error);
+        }
+    };
 
     const handleDelete = async (id: string) => {
         if (!confirm("Confirm asset decomposition? This cannot be undone.")) return;
@@ -208,7 +220,7 @@ export default function AdminInventoryPage() {
                     <div className="bg-white/5 border border-white/10 rounded-[3rem] p-10 backdrop-blur-3xl flex items-center justify-between group">
                         <div className="space-y-2">
                             <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Active Orders</h4>
-                            <p className="text-5xl font-black font-serif italic text-secondary">42</p>
+                            <p className="text-5xl font-black font-serif italic text-secondary">{stats.activeOrders || 0}</p>
                         </div>
                         <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-white/20 group-hover:bg-white group-hover:text-primary transition-all">
                             <ShoppingCart size={32} />

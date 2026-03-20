@@ -35,4 +35,16 @@ router.patch('/:id/read', async (req, res) => {
     }
 });
 
+// PATCH /api/notifications/read-all
+router.patch('/read-all', async (req, res) => {
+    const { userId } = req.body;
+    if (!userId) return res.status(400).json({ error: 'userId required' });
+    try {
+        await db.update(notifications)
+            .set({ isRead: true })
+            .where(eq(notifications.userId, userId));
+        res.json({ success: true });
+    } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

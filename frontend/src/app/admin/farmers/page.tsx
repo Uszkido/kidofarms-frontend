@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sprout, Shield, ShieldAlert, CheckCircle, XCircle, ArrowLeft, Loader2, MapPin, Phone, Database, Ghost, Mail, UserCircle } from "lucide-react";
+import { Sprout, Shield, ShieldAlert, CheckCircle, XCircle, ArrowLeft, Loader2, MapPin, Phone, Database, Ghost, Mail, UserCircle, Search, Eye, FileText, Zap } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 
 export default function FarmersAdminPage() {
     const [farmers, setFarmers] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [selectedFarmer, setSelectedFarmer] = useState<any>(null);
 
     useEffect(() => {
         fetchFarmers();
@@ -41,6 +43,12 @@ export default function FarmersAdminPage() {
         }
     };
 
+    const filteredFarmers = farmers.filter(f =>
+        (f.farmName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (f.userName?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (f.farmLocationState?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+    );
+
     return (
         <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-10 font-sans selection:bg-secondary selection:text-primary">
             <div className="max-w-[1500px] mx-auto space-y-16">
@@ -60,13 +68,24 @@ export default function FarmersAdminPage() {
                         </h1>
                     </div>
 
-                    <div className="bg-white/5 p-8 rounded-[3rem] border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl">
-                        <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-xl">
-                            <Sprout size={32} />
+                    <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
+                        <div className="relative group">
+                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-secondary transition-colors" size={20} />
+                            <input
+                                placeholder="Search growers by name or state..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full md:w-96 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
+                            />
                         </div>
-                        <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20">Active Soil Nodes</h4>
-                            <p className="text-4xl font-black font-serif italic text-white">{farmers.filter(f => f.status === 'approved').length}</p>
+                        <div className="bg-white/5 px-8 rounded-[2rem] border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl">
+                            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-xl">
+                                <Sprout size={24} />
+                            </div>
+                            <div>
+                                <h4 className="text-[9px] font-black uppercase tracking-widest text-white/20 leading-none mb-1">Active Nodes</h4>
+                                <p className="text-2xl font-black font-serif italic text-white">{farmers.filter(f => f.status === 'approved').length}</p>
+                            </div>
                         </div>
                     </div>
                 </header>
@@ -84,13 +103,13 @@ export default function FarmersAdminPage() {
                                 <thead>
                                     <tr className="border-b border-white/10 bg-white/[0.02]">
                                         <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Harvest Entity (Farm)</th>
-                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Geo-Location State</th>
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-center">AI Trust Score</th>
                                         <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Network Status</th>
                                         <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Verification</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-white/5">
-                                    {farmers.map((farmer) => (
+                                    {filteredFarmers.map((farmer) => (
                                         <tr key={farmer.id} className="group hover:bg-white/[0.03] transition-colors">
                                             <td className="px-12 py-10">
                                                 <div className="flex items-center gap-8">
@@ -102,20 +121,29 @@ export default function FarmersAdminPage() {
                                                         <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest flex items-center gap-4">
                                                             <UserCircle size={12} className="text-secondary" /> {farmer.userName}
                                                             <Phone size={12} className="text-secondary ml-2" /> {farmer.phone || 'NO COMM'}
+                                                            <MapPin size={12} className="text-secondary ml-2" /> {farmer.farmLocationState}
                                                         </p>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-12 py-10">
-                                                <div className="flex items-center gap-3 text-white/60">
-                                                    <MapPin size={18} className="text-secondary" />
-                                                    <span className="text-lg font-black font-serif italic uppercase">{farmer.farmLocationState}</span>
+                                                <div className="flex flex-col items-center gap-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <Zap size={14} className={farmer.aiConfidenceScore > 80 ? 'text-secondary' : 'text-white/20'} />
+                                                        <span className="text-xl font-black font-serif italic text-white">{farmer.aiConfidenceScore || 0}%</span>
+                                                    </div>
+                                                    <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                                                        <div
+                                                            className={`h-full transition-all duration-1000 ${farmer.aiConfidenceScore > 80 ? 'bg-secondary' : farmer.aiConfidenceScore > 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                                            style={{ width: `${farmer.aiConfidenceScore || 0}%` }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </td>
                                             <td className="px-12 py-10">
                                                 <span className={`px-5 py-2.5 rounded-2xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit border ${farmer.status === 'approved' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
-                                                        farmer.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                                                            'bg-red-500/10 text-red-500 border-red-500/20'
+                                                    farmer.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                                        'bg-red-500/10 text-red-500 border-red-500/20'
                                                     }`}>
                                                     {farmer.status === 'approved' ? <CheckCircle size={14} /> :
                                                         farmer.status === 'pending' ? <Shield size={14} className="animate-pulse" /> :
@@ -125,20 +153,18 @@ export default function FarmersAdminPage() {
                                             </td>
                                             <td className="px-12 py-10 text-right">
                                                 <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                                                    <button
+                                                        onClick={() => setSelectedFarmer(farmer)}
+                                                        className="h-12 px-6 bg-white/5 text-white/60 border border-white/10 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white hover:text-primary transition-all flex items-center gap-2"
+                                                    >
+                                                        <Eye size={18} /> Review Node
+                                                    </button>
                                                     {farmer.status !== 'approved' && (
                                                         <button
                                                             onClick={() => updateStatus(farmer.id, 'approved')}
                                                             className="h-12 px-8 bg-secondary/10 text-secondary border border-secondary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-xl"
                                                         >
-                                                            <CheckCircle size={18} /> Approve Yield
-                                                        </button>
-                                                    )}
-                                                    {farmer.status !== 'suspended' && (
-                                                        <button
-                                                            onClick={() => updateStatus(farmer.id, 'suspended')}
-                                                            className="h-12 px-8 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2"
-                                                        >
-                                                            <XCircle size={18} /> Restrict Node
+                                                            <CheckCircle size={18} /> Approve
                                                         </button>
                                                     )}
                                                 </div>
@@ -168,14 +194,108 @@ export default function FarmersAdminPage() {
                             <div className="w-24 h-24 rounded-[2rem] bg-white/5 flex items-center justify-center text-white/10 hover:text-white group-hover:scale-110 transition-all border border-white/5">
                                 <Ghost size={40} />
                             </div>
-                            <Link href="/admin" className="px-14 py-8 bg-white text-primary rounded-[2.5rem] font-black uppercase tracking-[0.2em] text-xs hover:bg-secondary transition-all shadow-2xl hover:scale-105 active:scale-95 flex items-center justify-center whitespace-nowrap">
-                                Apex Command
-                            </Link>
                         </div>
                     </div>
                 </div>
 
             </div>
+
+            {/* 📄 DOCUMENT VIEWER MODAL */}
+            {selectedFarmer && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 lg:p-12">
+                    <div className="absolute inset-0 bg-black/90 backdrop-blur-3xl" onClick={() => setSelectedFarmer(null)} />
+                    <div className="relative bg-[#040d0a] w-full max-w-5xl rounded-[4rem] border border-white/10 overflow-hidden shadow-2xl flex flex-col h-[85vh] animate-in zoom-in duration-300">
+                        <div className="p-10 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-6">
+                                <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center text-primary">
+                                    <FileText size={32} />
+                                </div>
+                                <div>
+                                    <h3 className="text-3xl font-black font-serif italic text-white uppercase tracking-tighter">{selectedFarmer.farmName}</h3>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/20">Node Documentation Review</p>
+                                </div>
+                            </div>
+                            <button onClick={() => setSelectedFarmer(null)} className="p-4 bg-white/5 rounded-full text-white/20 hover:text-white transition-colors">
+                                <XCircle size={32} />
+                            </button>
+                        </div>
+
+                        <div className="flex-grow overflow-y-auto p-12 space-y-12">
+                            <div className="grid md:grid-cols-2 gap-12">
+                                <div className="space-y-6">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Biological Data</h4>
+                                    <div className="grid grid-cols-2 gap-8">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-white/20 mb-1">User Name</p>
+                                            <p className="text-xl font-bold">{selectedFarmer.userName}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-white/20 mb-1">Experience</p>
+                                            <p className="text-xl font-bold">{selectedFarmer.yearsOfExperience || '0'} Seasons</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-white/20 mb-1">Bank Node</p>
+                                            <p className="text-xl font-bold uppercase">{selectedFarmer.bankName || 'NOT LINKED'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-white/20 mb-1">Account Number</p>
+                                            <p className="text-xl font-mono">{selectedFarmer.accountNumber || '********'}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div className="space-y-6">
+                                    <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Trust Assurance</h4>
+                                    <div className="p-8 bg-white/5 rounded-3xl border border-white/5 flex items-center justify-between">
+                                        <div>
+                                            <p className="text-[10px] font-black uppercase text-white/20 mb-2">AI Confidence Level</p>
+                                            <p className="text-4xl font-black font-serif italic uppercase text-secondary">{selectedFarmer.aiConfidenceScore || 0}%</p>
+                                        </div>
+                                        <div className="w-20 h-20 rounded-full border-4 border-secondary/20 flex items-center justify-center">
+                                            <Zap size={32} className="text-secondary" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="space-y-8">
+                                <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Uploaded Credentials</h4>
+                                {selectedFarmer.verificationDocuments?.length > 0 ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                                        {selectedFarmer.verificationDocuments.map((doc: string, idx: number) => (
+                                            <div key={idx} className="group relative aspect-square bg-white/5 rounded-3xl border border-white/5 overflow-hidden hover:border-secondary/40 transition-all">
+                                                <img src={doc} className="w-full h-full object-cover opacity-50 group-hover:opacity-100 transition-all scale-110 group-hover:scale-100" />
+                                                <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <p className="text-[8px] font-black uppercase tracking-widest">Credential_{idx + 1}.PNG</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-20 border border-dashed border-white/10 rounded-[3rem] text-center space-y-4">
+                                        <Ghost className="mx-auto text-white/10" size={48} />
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/10">No visual credentials uploaded to node</p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="p-10 border-t border-white/5 bg-white/[0.02] flex gap-6">
+                            <button
+                                onClick={() => { updateStatus(selectedFarmer.id, 'approved'); setSelectedFarmer(null); }}
+                                className="flex-1 py-7 bg-secondary text-primary rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs shadow-xl"
+                            >
+                                Authorize Protocol
+                            </button>
+                            <button
+                                onClick={() => { updateStatus(selectedFarmer.id, 'rejected'); setSelectedFarmer(null); }}
+                                className="flex-1 py-7 bg-red-500/10 text-red-500 border border-red-500/20 rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs"
+                            >
+                                Reject Node
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
