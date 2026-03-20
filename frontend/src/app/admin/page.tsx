@@ -50,7 +50,7 @@ import { getApiUrl } from "@/lib/api";
 import NotificationBell from "@/components/NotificationBell";
 
 
-export const dynamic = 'force-static';
+export const dynamic = 'force-dynamic';
 
 export default function AdminDashboard() {
     const { data: session } = useSession();
