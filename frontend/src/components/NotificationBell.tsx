@@ -1,155 +1,194 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, X, CheckCircle, AlertTriangle, Info, ShoppingCart, Users, Star, Loader2 } from "lucide-react";
+import { Bell, X, Package, User, Star, Info, Loader2, CheckCircle2, Zap, LayoutGrid, ShieldAlert } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
-
-const ICONS: Record<string, any> = {
-    order: ShoppingCart,
-    user: Users,
-    review: Star,
-    alert: AlertTriangle,
-    info: Info,
-    system: Info,
-};
-
-const COLORS: Record<string, string> = {
-    order: "text-secondary bg-secondary/10",
-    user: "text-blue-400 bg-blue-500/10",
-    review: "text-yellow-400 bg-yellow-500/10",
-    alert: "text-red-400 bg-red-500/10",
-    info: "text-white/40 bg-white/5",
-    system: "text-white/40 bg-white/5",
-};
+import { getApiUrl } from "@/lib/api";
 
 export default function NotificationBell() {
     const { data: session } = useSession();
-    const [open, setOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
     const [notifs, setNotifs] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
-    const panelRef = useRef<HTMLDivElement>(null);
+    const bellRef = useRef<HTMLDivElement>(null);
 
     const userId = (session?.user as any)?.id;
-    const token = (session as any)?.token;
 
-    const fetchNotifs = async () => {
+    const fetchNotifications = async () => {
         if (!userId) return;
         setLoading(true);
         try {
+            const token = (session as any)?.accessToken || (session as any)?.token;
             const headers: any = { "Content-Type": "application/json" };
             if (token) headers["Authorization"] = `Bearer ${token}`;
 
+            // 1. Fetch real DB notifications
             const res = await fetch(getApiUrl(`/api/notifications?userId=${userId}`), { headers });
-            if (res.ok) {
-                const data = await res.json();
-                setNotifs(Array.isArray(data) ? data : []);
-            } else {
-                // Fallback: derive from stats when no dedicated notifications exist yet
-                const statsRes = await fetch(getApiUrl("/api/admin/stats"), { headers });
-                if (statsRes.ok) {
-                    const stats = await statsRes.json();
-                    const fallback: any[] = [];
-                    if ((stats?.pendingOrders || 0) > 0) fallback.push({ id: "ord-stat", type: "order", title: `${stats.pendingOrders} Orders Pending`, body: "Customer orders awaiting processing or dispatch.", link: "/admin/orders", isRead: false, createdAt: new Date().toISOString() });
-                    if ((stats?.farmers?.pending || 0) > 0) fallback.push({ id: "far-stat", type: "user", title: `${stats.farmers?.pending} Farmers Awaiting Verification`, body: "New farmer accounts in the AI review queue.", link: "/admin/farmers", isRead: false, createdAt: new Date().toISOString() });
-                    setNotifs(fallback);
-                }
+            const dbData = await res.json();
+
+            // 2. Fetch Low Stock Alerts
+            const stockRes = await fetch(getApiUrl("/api/admin/products/low-stock"), { headers });
+            const lowStockData = await stockRes.json();
+
+            const stockAlerts = (Array.isArray(lowStockData) ? lowStockData : []).map((p: any) => ({
+                id: `stock-${p.id}`,
+                type: 'alert',
+                title: 'Low Stock Alert',
+                body: `${p.name} is running low (${p.stock} remaining)`,
+                link: `/admin/inventory`,
+                createdAt: new Date().toISOString(),
+                isRead: false
+            }));
+
+            // 3. Fetch Stats-derived alerts as fallback/addition
+            const statsRes = await fetch(getApiUrl("/api/admin/stats"), { headers });
+            const stats = await statsRes.json();
+
+            const statsAlerts: any[] = [];
+            if (stats.pending > 0) {
+                statsAlerts.push({
+                    id: 'pending-orders-stat',
+                    type: 'order',
+                    title: 'Pending Orders',
+                    body: `You have ${stats.pending} orders awaiting processing`,
+                    link: '/admin/orders',
+                    createdAt: new Date().toISOString(),
+                    isRead: false
+                });
             }
-        } catch { /* silent */ } finally { setLoading(false); }
+
+            const combined = [...(Array.isArray(dbData) ? dbData : []), ...stockAlerts, ...statsAlerts];
+            // Unique by ID
+            const unique = combined.filter((v, i, a) => a.findIndex(t => t.id === v.id) === i);
+            setNotifs(unique.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+        } catch (error) {
+            console.error("Failed to fetch notifications:", error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
-        fetchNotifs();
-        const interval = setInterval(fetchNotifs, 60_000);
+        fetchNotifications();
+        const interval = setInterval(fetchNotifications, 120_000); // Pulse every 2 mins
         return () => clearInterval(interval);
     }, [userId]);
 
     useEffect(() => {
-        const handler = (e: MouseEvent) => {
-            if (panelRef.current && !panelRef.current.contains(e.target as Node)) setOpen(false);
+        const handleClickOutside = (event: MouseEvent) => {
+            if (bellRef.current && !bellRef.current.contains(event.target as Node)) {
+                setIsOpen(false);
+            }
         };
-        document.addEventListener("mousedown", handler);
-        return () => document.removeEventListener("mousedown", handler);
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const unread = notifs.filter(n => !n.isRead && !n.read).length;
-
-    const markRead = async (id: string) => {
-        setNotifs(prev => prev.map(n => n.id === id ? { ...n, isRead: true, read: true } : n));
+    const markAllRead = async () => {
         try {
-            const headers: any = {};
-            if (token) headers["Authorization"] = `Bearer ${token}`;
-            await fetch(getApiUrl(`/api/notifications/${id}/read`), { method: "PATCH", headers });
-        } catch { /* silent */ }
+            const token = (session as any)?.accessToken || (session as any)?.token;
+            await fetch(getApiUrl(`/api/notifications/read-all`), {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ userId })
+            });
+            setNotifs(prev => prev.map(n => ({ ...n, isRead: true })));
+        } catch (err) { console.error(err); }
     };
 
-    const markAllRead = () => setNotifs(prev => prev.map(n => ({ ...n, isRead: true, read: true })));
+    const unreadCount = notifs.filter(n => !n.isRead).length;
+
+    const getIcon = (type: string) => {
+        switch (type) {
+            case 'order': return <Package size={16} className="text-secondary" />;
+            case 'user': return <User size={16} className="text-blue-400" />;
+            case 'review': return <Star size={16} className="text-amber-400" />;
+            case 'alert': return <ShieldAlert size={16} className="text-red-400" />;
+            default: return <Info size={16} className="text-white/40" />;
+        }
+    };
 
     return (
-        <div className="relative" ref={panelRef}>
+        <div className="relative" ref={bellRef}>
             <button
-                onClick={() => setOpen(o => !o)}
-                className="relative p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-secondary hover:text-secondary transition-all"
-                title="Command Alerts"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`relative p-3 rounded-2xl transition-all duration-500 group ${isOpen ? 'bg-secondary text-primary' : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white border border-white/5'}`}
             >
-                <Bell size={20} />
-                {unread > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-pulse shadow-lg">
-                        {unread}
+                <Bell size={20} className={unreadCount > 0 ? "animate-swing" : ""} />
+                {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-[#040d0a] animate-bounce">
+                        {unreadCount}
                     </span>
                 )}
             </button>
 
-            {open && (
-                <div className="absolute right-0 top-full mt-3 w-96 bg-[#0b1612] border border-secondary/20 rounded-[2rem] shadow-[0_32px_80px_-12px_rgba(0,0,0,0.9)] z-[200] overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200">
-                    <div className="flex items-center justify-between p-6 border-b border-white/5">
+            {isOpen && (
+                <div className="absolute right-0 mt-6 w-[400px] bg-[#0b1612] border border-white/10 rounded-[2.5rem] shadow-[0_20px_80px_rgba(0,0,0,0.8)] z-[100] overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
                         <div>
-                            <h3 className="text-sm font-black uppercase tracking-widest text-white">Command Alerts</h3>
-                            <p className="text-[10px] text-white/30 font-mono mt-1">{unread} unread • auto-refreshed</p>
+                            <h4 className="text-[11px] font-black uppercase tracking-[0.3em] text-secondary">Pulse Monitor</h4>
+                            <p className="text-[9px] text-white/20 uppercase font-bold mt-1 tracking-widest">Network Telemetry Notifications</p>
                         </div>
-                        <div className="flex gap-2">
-                            {unread > 0 && <button onClick={markAllRead} className="text-[10px] font-black uppercase tracking-widest text-secondary hover:text-white transition-colors px-3 py-1.5 bg-secondary/10 rounded-xl">Mark all read</button>}
-                            <button onClick={() => setOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-colors text-white/30"><X size={14} /></button>
-                        </div>
+                        <button onClick={markAllRead} className="text-[9px] font-black uppercase tracking-widest text-white/20 hover:text-secondary transition-colors">
+                            Purge Unread
+                        </button>
                     </div>
-                    <div className="max-h-[420px] overflow-y-auto">
-                        {loading ? (
-                            <div className="p-10 flex justify-center"><Loader2 className="animate-spin text-secondary/40" /></div>
-                        ) : notifs.length === 0 ? (
-                            <div className="p-10 text-center">
-                                <CheckCircle size={32} className="mx-auto text-green-400/30 mb-3" />
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white/20">All Systems Clear</p>
+
+                    <div className="max-h-[500px] overflow-y-auto custom-scrollbar">
+                        {loading && notifs.length === 0 ? (
+                            <div className="p-20 flex flex-col items-center gap-4 opacity-20">
+                                <Loader2 size={32} className="animate-spin text-secondary" />
+                            </div>
+                        ) : notifs.length > 0 ? (
+                            <div className="divide-y divide-white/5">
+                                {notifs.map((n) => (
+                                    <Link
+                                        key={n.id}
+                                        href={n.link || "#"}
+                                        onClick={() => setIsOpen(false)}
+                                        className={`flex gap-5 p-6 transition-all hover:bg-white/[0.03] group relative ${!n.isRead ? 'bg-secondary/5' : ''}`}
+                                    >
+                                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${!n.isRead ? 'bg-secondary/10 border-secondary/20' : 'bg-white/5 border-white/5'}`}>
+                                            {getIcon(n.type)}
+                                        </div>
+                                        <div className="space-y-1 pr-6 flex-grow">
+                                            <div className="flex justify-between items-start">
+                                                <p className={`text-xs font-black uppercase tracking-tight group-hover:text-secondary transition-colors ${!n.isRead ? 'text-white' : 'text-white/40'}`}>
+                                                    {n.title}
+                                                </p>
+                                                <span className="text-[8px] font-mono text-white/10 shrink-0">
+                                                    {new Date(n.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                            </div>
+                                            <p className="text-[10px] text-white/30 leading-relaxed line-clamp-2 italic font-medium">
+                                                {n.body || n.message}
+                                            </p>
+                                        </div>
+                                        {!n.isRead && (
+                                            <div className="absolute right-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-secondary rounded-full shadow-[0_0_10px_rgba(197,160,89,0.5)]" />
+                                        )}
+                                    </Link>
+                                ))}
                             </div>
                         ) : (
-                            <div className="divide-y divide-white/5">
-                                {notifs.map(n => {
-                                    const isRead = n.isRead || n.read;
-                                    const type = n.type || "info";
-                                    const Icon = ICONS[type] || Info;
-                                    const color = COLORS[type] || "text-white/40 bg-white/5";
-                                    return (
-                                        <div key={n.id} className={`p-5 flex gap-4 hover:bg-white/[0.02] transition-colors ${!isRead ? 'bg-secondary/[0.03]' : ''}`}>
-                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
-                                                <Icon size={18} />
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <p className="font-black text-xs text-white uppercase tracking-wide leading-tight">{n.title || n.message}</p>
-                                                <p className="text-[10px] text-white/30 mt-1 leading-relaxed">{n.body || n.message}</p>
-                                                {n.link && (
-                                                    <Link href={n.link} onClick={() => { markRead(n.id); setOpen(false); }} className="text-[10px] font-black text-secondary uppercase tracking-widest hover:underline mt-2 inline-block">
-                                                        View →
-                                                    </Link>
-                                                )}
-                                                <p className="text-[9px] text-white/20 font-mono mt-2">{new Date(n.createdAt).toLocaleTimeString()}</p>
-                                            </div>
-                                            {!isRead && <div className="w-2 h-2 bg-secondary rounded-full mt-1.5 flex-shrink-0 animate-pulse" />}
-                                        </div>
-                                    );
-                                })}
+                            <div className="p-24 text-center space-y-4 opacity-20">
+                                <Zap size={48} className="mx-auto" />
+                                <p className="text-[10px] font-black uppercase tracking-[0.3em]">Channel Silent</p>
                             </div>
                         )}
                     </div>
+
+                    <Link
+                        href="/admin/notifications"
+                        onClick={() => setIsOpen(false)}
+                        className="block p-5 bg-white/[0.02] border-t border-white/5 text-center text-[10px] font-black uppercase tracking-[0.4em] text-white/20 hover:text-secondary hover:bg-white/[0.05] transition-all"
+                    >
+                        Access Command Hub
+                    </Link>
                 </div>
             )}
         </div>

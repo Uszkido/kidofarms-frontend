@@ -59,7 +59,13 @@ export default function AdminOrdersPage() {
         pending: orders.filter(o => o?.orderStatus === 'processing').length,
         shipped: orders.filter(o => o?.orderStatus === 'shipped').length,
         delivered: orders.filter(o => o?.orderStatus === 'delivered').length,
+        cancelled: orders.filter(o => o?.orderStatus === 'cancelled').length,
     };
+
+    const totalResolved = stats.delivered + stats.cancelled;
+    const efficiency = totalResolved > 0
+        ? ((stats.delivered / totalResolved) * 100).toFixed(1)
+        : "100";
 
     const filteredOrders = orders.filter(o =>
         (o?.id?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
@@ -109,7 +115,7 @@ export default function AdminOrdersPage() {
                     <div className="bg-secondary p-10 rounded-[3rem] text-primary shadow-2xl flex flex-col justify-center relative overflow-hidden group">
                         <Database className="absolute -bottom-8 -right-8 text-primary/10 w-40 h-40 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
                         <h4 className="text-[10px] font-black uppercase tracking-[0.4em] mb-2 opacity-60">Fleet Efficiency</h4>
-                        <p className="text-4xl font-black font-serif italic uppercase">94.8%</p>
+                        <p className="text-4xl font-black font-serif italic uppercase">{efficiency}%</p>
                     </div>
                 </div>
 
