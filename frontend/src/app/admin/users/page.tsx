@@ -24,10 +24,17 @@ import {
     Database,
     Sprout,
     Building2,
-    BadgeCheck
+    BadgeCheck,
+    CheckSquare,
+    Square,
+    UserCheck,
+    UserX,
+    ChevronDown
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
+
+const GHOST_KEY = "kf_ghost_data";
 
 export default function AdminUsersPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -38,10 +45,57 @@ export default function AdminUsersPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState<any>({});
     const [extraDataLoading, setExtraDataLoading] = useState(false);
+    const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+    const [bulkLoading, setBulkLoading] = useState(false);
+    const [ghostData, setGhostData] = useState<any>(null);
+    const [roleFilter, setRoleFilter] = useState("");
 
     useEffect(() => {
         fetchUsers();
+        // Check ghost mode from JWT stored in localStorage
+        try {
+            const token = localStorage.getItem("token");
+            if (token) {
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                if (payload.isImpersonated) setGhostData(payload);
+            }
+        } catch { /* not in ghost mode */ }
     }, []);
+
+    const toggleSelect = (id: string) => setSelectedIds(prev => {
+        const next = new Set(prev);
+        next.has(id) ? next.delete(id) : next.add(id);
+        return next;
+    });
+
+    const toggleAll = () => {
+        if (selectedIds.size === filteredUsers.length) {
+            setSelectedIds(new Set());
+        } else {
+            setSelectedIds(new Set(filteredUsers.map((u: any) => u.id)));
+        }
+    };
+
+    const handleBulkAction = async (action: string) => {
+        const ids = Array.from(selectedIds);
+        if (!ids.length) return;
+        const label = action === "delete" ? "permanently delete" : action;
+        if (!confirm(`Are you sure you want to ${label} ${ids.length} selected node(s)?`)) return;
+        setBulkLoading(true);
+        try {
+            const res = await fetch(getApiUrl("/api/admin/users/bulk"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action, userIds: ids })
+            });
+            const data = await res.json();
+            alert(data.message || "Bulk action complete.");
+            setSelectedIds(new Set());
+            fetchUsers();
+        } finally {
+            setBulkLoading(false);
+        }
+    };
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -116,13 +170,26 @@ export default function AdminUsersPage() {
     };
 
     const filteredUsers = users.filter(u =>
-        (u.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
-        (u.email?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+        ((u.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+            (u.email?.toLowerCase() || "").includes(searchTerm.toLowerCase())) &&
+        (!roleFilter || u.role === roleFilter)
     );
+
+    const allRoles = [...new Set(users.map((u: any) => u.role))].sort();
 
     return (
         <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-6 lg:p-10 font-sans selection:bg-secondary selection:text-primary relative overflow-hidden">
-            <div className="max-w-[1600px] mx-auto space-y-16 relative z-10">
+
+            {/* 👻 GHOST MODE BANNER */}
+            {ghostData && (
+                <div className="fixed top-0 left-0 right-0 z-[300] bg-yellow-500 text-black py-3 px-6 flex items-center justify-center gap-3 font-black text-xs uppercase tracking-widest shadow-2xl">
+                    <Ghost size={16} />
+                    GHOST MODE ACTIVE — You are viewing this network as <strong className="mx-1">{ghostData.name}</strong> ({ghostData.role.toUpperCase()}). Accessed by: {ghostData.impersonatedBy}.
+                    <button onClick={() => { localStorage.removeItem("token"); window.location.href = "/admin"; }} className="ml-4 bg-black text-yellow-400 px-4 py-1.5 rounded-full text-[9px] hover:bg-black/80 transition-all">Exit Ghost Mode</button>
+                </div>
+            )}
+
+            <div className={`max-w-[1600px] mx-auto space-y-12 relative z-10 ${ghostData ? 'mt-12' : ''}`}>
 
                 {/* 🌌 COMMAND HEADER */}
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
@@ -146,9 +213,13 @@ export default function AdminUsersPage() {
                                 placeholder="Scan Registry for Citizen (Name, ID, Email)..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full md:w-96 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
+                                className="w-full md:w-80 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
                             />
                         </div>
+                        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-[2rem] px-8 py-6 outline-none focus:border-secondary transition-all font-black text-xs uppercase tracking-widest appearance-none cursor-pointer text-white/40">
+                            <option value="">All Roles</option>
+                            {allRoles.map((r: any) => <option key={r} value={r}>{r.toUpperCase()}</option>)}
+                        </select>
                         <Link href="/admin/users/new" className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
                             Register Citizen
                         </Link>
@@ -156,88 +227,125 @@ export default function AdminUsersPage() {
                 </header>
 
                 {/* 📊 REGISTRY TABLE */}
-                <div className="bg-white/5 rounded-[4rem] border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
-                    {loading ? (
-                        <div className="p-32 flex flex-col items-center gap-6">
-                            <Loader2 size={64} className="animate-spin text-secondary opacity-20" />
-                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Syncing Citizen Ledger...</p>
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left">
-                                <thead>
-                                    <tr className="border-b border-white/10 bg-white/[0.02]">
-                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Citizen / Biological Node</th>
-                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Auth Protocol (Role)</th>
-                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">System Status</th>
-                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Emergency Control</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-white/5">
-                                    {filteredUsers.map(user => (
-                                        <tr key={user.id} className="group hover:bg-white/[0.03] transition-colors">
-                                            <td className="px-12 py-10">
-                                                <div className="flex items-center gap-8">
-                                                    <div className="w-16 h-16 rounded-[1.5rem] bg-white/5 flex items-center justify-center text-white/10 overflow-hidden relative border border-white/5 group-hover:border-secondary/20 transition-all">
-                                                        <UserCircle size={32} />
-                                                    </div>
-                                                    <div>
-                                                        <h3 className="text-xl font-black font-serif italic text-white uppercase tracking-tight leading-none mb-1">{user.name}</h3>
-                                                        <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">{user.email}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-12 py-10">
-                                                <div className="flex items-center gap-2">
-                                                    <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-white/10 ${user.role === 'admin' ? 'bg-secondary/10 text-secondary border-secondary/20' : 'bg-white/5 text-white/40'}`}>
-                                                        {user.role}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                            <td className="px-12 py-10">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={`w-2 h-2 rounded-full ${user.isVerified ? 'bg-green-500 animate-pulse' : 'bg-white/10'}`} />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-white/20">{user.isVerified ? 'Active Link' : 'Dormant'}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-12 py-10 text-right">
-                                                <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
-                                                    <button onClick={() => handleDelete(user.id)} className="p-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-primary rounded-2xl transition-all shadow-xl" title="Decommission Citizen">
-                                                        <Trash2 size={20} />
-                                                    </button>
-                                                    <button onClick={() => handleEdit(user)} className="p-4 bg-white/5 text-white/60 hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl" title="Edit Profile">
-                                                        <Edit3 size={20} />
-                                                    </button>
-                                                    <button
-                                                        onClick={async () => {
-                                                            try {
-                                                                const res = await fetch(getApiUrl("/api/admin/impersonate"), {
-                                                                    method: "POST",
-                                                                    headers: { "Content-Type": "application/json" },
-                                                                    body: JSON.stringify({ userId: user.id })
-                                                                });
-                                                                const data = await res.json();
-                                                                if (data.token) {
-                                                                    alert(`GHOST PROTOCOL: Synchronizing with ${user.name}'s node...`);
-                                                                    window.location.href = `/login?token=${data.token}`;
-                                                                }
-                                                            } catch (err) {
-                                                                console.error(err);
-                                                            }
-                                                        }}
-                                                        className="p-4 bg-secondary/10 text-secondary hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl"
-                                                        title="Impersonate (Ghost Protocol)"
-                                                    >
-                                                        <Ghost size={20} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                <div className="space-y-4">
+
+                    {/* BULK ACTION BAR */}
+                    {selectedIds.size > 0 && (
+                        <div className="bg-secondary/10 border border-secondary/20 rounded-[2rem] px-8 py-5 flex items-center gap-6 flex-wrap animate-in slide-in-from-top-4 duration-300">
+                            <span className="text-secondary font-black text-xs uppercase tracking-widest">{selectedIds.size} node(s) selected</span>
+                            <div className="flex gap-3 ml-auto flex-wrap">
+                                <button disabled={bulkLoading} onClick={() => handleBulkAction("approve")} className="flex items-center gap-2 px-6 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-500/20 transition-all disabled:opacity-50">
+                                    <UserCheck size={14} /> Bulk Approve
+                                </button>
+                                <button disabled={bulkLoading} onClick={() => handleBulkAction("suspend")} className="flex items-center gap-2 px-6 py-3 bg-orange-500/10 text-orange-400 border border-orange-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-orange-500/20 transition-all disabled:opacity-50">
+                                    <UserX size={14} /> Bulk Suspend
+                                </button>
+                                <button disabled={bulkLoading} onClick={() => handleBulkAction("delete")} className="flex items-center gap-2 px-6 py-3 bg-red-500/10 text-red-400 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500/20 transition-all disabled:opacity-50">
+                                    <Trash2 size={14} /> Bulk Delete
+                                </button>
+                                <button onClick={() => setSelectedIds(new Set())} className="px-6 py-3 bg-white/5 text-white/30 border border-white/5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/10 transition-all">
+                                    <X size={14} /></button>
+                            </div>
                         </div>
                     )}
+
+                    <div className="bg-white/5 rounded-[4rem] border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+                        {loading ? (
+                            <div className="p-32 flex flex-col items-center gap-6">
+                                <Loader2 size={64} className="animate-spin text-secondary opacity-20" />
+                                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/20">Syncing Citizen Ledger...</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left">
+                                    <thead>
+                                        <tr className="border-b border-white/10 bg-white/[0.02]">
+                                            <th className="px-6 py-10">
+                                                <button onClick={toggleAll} className="text-white/30 hover:text-secondary transition-colors">
+                                                    {selectedIds.size === filteredUsers.length && filteredUsers.length > 0
+                                                        ? <CheckSquare size={18} className="text-secondary" />
+                                                        : <Square size={18} />}
+                                                </button>
+                                            </th>
+                                            <th className="px-8 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Citizen / Biological Node</th>
+                                            <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Auth Protocol (Role)</th>
+                                            <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">System Status</th>
+                                            <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Emergency Control</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-white/5">
+                                        {filteredUsers.map(user => (
+                                            <tr key={user.id} className="group hover:bg-white/[0.03] transition-colors">
+                                                <td className="px-6 py-10">
+                                                    <button onClick={() => toggleSelect(user.id)} className="text-white/20 hover:text-secondary transition-colors">
+                                                        {selectedIds.has(user.id)
+                                                            ? <CheckSquare size={18} className="text-secondary" />
+                                                            : <Square size={18} />}
+                                                    </button>
+                                                </td>
+                                                <td className="px-8 py-10">
+                                                    <div className="flex items-center gap-8">
+                                                        <div className="w-16 h-16 rounded-[1.5rem] bg-white/5 flex items-center justify-center text-white/10 overflow-hidden relative border border-white/5 group-hover:border-secondary/20 transition-all">
+                                                            <UserCircle size={32} />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-xl font-black font-serif italic text-white uppercase tracking-tight leading-none mb-1">{user.name}</h3>
+                                                            <p className="text-[10px] font-bold text-secondary uppercase tracking-[0.2em]">{user.email}</p>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td className="px-12 py-10">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-white/10 ${user.role === 'admin' ? 'bg-secondary/10 text-secondary border-secondary/20' : 'bg-white/5 text-white/40'}`}>
+                                                            {user.role}
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-12 py-10">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className={`w-2 h-2 rounded-full ${user.isVerified ? 'bg-green-500 animate-pulse' : 'bg-white/10'}`} />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-white/20">{user.isVerified ? 'Active Link' : 'Dormant'}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-12 py-10 text-right">
+                                                    <div className="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0">
+                                                        <button onClick={() => handleDelete(user.id)} className="p-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-primary rounded-2xl transition-all shadow-xl" title="Decommission Citizen">
+                                                            <Trash2 size={20} />
+                                                        </button>
+                                                        <button onClick={() => handleEdit(user)} className="p-4 bg-white/5 text-white/60 hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl" title="Edit Profile">
+                                                            <Edit3 size={20} />
+                                                        </button>
+                                                        <button
+                                                            onClick={async () => {
+                                                                try {
+                                                                    const res = await fetch(getApiUrl("/api/admin/impersonate"), {
+                                                                        method: "POST",
+                                                                        headers: { "Content-Type": "application/json" },
+                                                                        body: JSON.stringify({ userId: user.id })
+                                                                    });
+                                                                    const data = await res.json();
+                                                                    if (data.token) {
+                                                                        alert(`GHOST PROTOCOL: Synchronizing with ${user.name}'s node...`);
+                                                                        window.location.href = `/login?token=${data.token}`;
+                                                                    }
+                                                                } catch (err) {
+                                                                    console.error(err);
+                                                                }
+                                                            }}
+                                                            className="p-4 bg-secondary/10 text-secondary hover:bg-secondary hover:text-primary rounded-2xl transition-all shadow-xl"
+                                                            title="Impersonate (Ghost Protocol)"
+                                                        >
+                                                            <Ghost size={20} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 {/* 🛡️ EDIT MODAL (GOD MODE) */}
