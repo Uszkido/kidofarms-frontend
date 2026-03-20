@@ -10,6 +10,7 @@ export default function FarmersAdminPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedFarmer, setSelectedFarmer] = useState<any>(null);
+    const [pendingId, setPendingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchFarmers();
@@ -29,6 +30,7 @@ export default function FarmersAdminPage() {
     };
 
     const updateStatus = async (id: string, status: string) => {
+        setPendingId(id);
         try {
             const res = await fetch(getApiUrl(`/api/farmers/${id}/status`), {
                 method: "PATCH",
@@ -36,10 +38,17 @@ export default function FarmersAdminPage() {
                 body: JSON.stringify({ status })
             });
             if (res.ok) {
-                fetchFarmers();
+                // Optimistic update + refresh
+                setFarmers(prev => prev.map(f => f.id === id ? { ...f, status } : f));
+                await fetchFarmers();
+            } else {
+                alert('Failed to update status. Please try again.');
             }
         } catch (err) {
             console.error(err);
+            alert('Connection error. Is the backend running?');
+        } finally {
+            setPendingId(null);
         }
     };
 
@@ -162,9 +171,19 @@ export default function FarmersAdminPage() {
                                                     {farmer.status !== 'approved' && (
                                                         <button
                                                             onClick={() => updateStatus(farmer.id, 'approved')}
-                                                            className="h-12 px-8 bg-secondary/10 text-secondary border border-secondary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-xl"
+                                                            disabled={pendingId === farmer.id}
+                                                            className="h-12 px-8 bg-secondary/10 text-secondary border border-secondary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-xl disabled:opacity-50"
                                                         >
-                                                            <CheckCircle size={18} /> Approve
+                                                            {pendingId === farmer.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={18} />} Approve
+                                                        </button>
+                                                    )}
+                                                    {farmer.status === 'approved' && (
+                                                        <button
+                                                            onClick={() => updateStatus(farmer.id, 'suspended')}
+                                                            disabled={pendingId === farmer.id}
+                                                            className="h-12 px-8 bg-red-500/10 text-red-400 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50"
+                                                        >
+                                                            {pendingId === farmer.id ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={18} />} Suspend
                                                         </button>
                                                     )}
                                                 </div>
@@ -282,13 +301,16 @@ export default function FarmersAdminPage() {
                         <div className="p-10 border-t border-white/5 bg-white/[0.02] flex gap-6">
                             <button
                                 onClick={() => { updateStatus(selectedFarmer.id, 'approved'); setSelectedFarmer(null); }}
-                                className="flex-1 py-7 bg-secondary text-primary rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs shadow-xl"
+                                disabled={pendingId === selectedFarmer.id}
+                                className="flex-1 py-7 bg-secondary text-primary rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs shadow-xl flex items-center justify-center gap-3 disabled:opacity-50"
                             >
+                                {pendingId === selectedFarmer.id ? <Loader2 size={16} className="animate-spin" /> : null}
                                 Authorize Protocol
                             </button>
                             <button
-                                onClick={() => { updateStatus(selectedFarmer.id, 'rejected'); setSelectedFarmer(null); }}
-                                className="flex-1 py-7 bg-red-500/10 text-red-500 border border-red-500/20 rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs"
+                                onClick={() => { updateStatus(selectedFarmer.id, 'suspended'); setSelectedFarmer(null); }}
+                                disabled={pendingId === selectedFarmer.id}
+                                className="flex-1 py-7 bg-red-500/10 text-red-500 border border-red-500/20 rounded-[2rem] font-black uppercase tracking-[0.4em] text-xs flex items-center justify-center gap-3 disabled:opacity-50"
                             >
                                 Reject Node
                             </button>

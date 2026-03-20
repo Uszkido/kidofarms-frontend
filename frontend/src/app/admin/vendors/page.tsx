@@ -10,6 +10,7 @@ export default function AdminVendorsPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedVendor, setSelectedVendor] = useState<any>(null);
+    const [pendingId, setPendingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchVendors();
@@ -29,6 +30,7 @@ export default function AdminVendorsPage() {
     };
 
     const updateStatus = async (id: string, status: string) => {
+        setPendingId(id);
         try {
             const res = await fetch(getApiUrl(`/api/vendors/${id}/status`), {
                 method: "PATCH",
@@ -36,10 +38,16 @@ export default function AdminVendorsPage() {
                 body: JSON.stringify({ status })
             });
             if (res.ok) {
-                fetchVendors();
+                setVendors(prev => prev.map(v => v.id === id ? { ...v, status } : v));
+                await fetchVendors();
+            } else {
+                alert('Failed to update status. Please try again.');
             }
         } catch (err) {
             console.error(err);
+            alert('Connection error. Is the backend running?');
+        } finally {
+            setPendingId(null);
         }
     };
 
@@ -159,9 +167,19 @@ export default function AdminVendorsPage() {
                                                     {vendor.status !== 'approved' && (
                                                         <button
                                                             onClick={() => updateStatus(vendor.id, 'approved')}
-                                                            className="h-12 px-6 bg-secondary/10 text-secondary border border-secondary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-xl"
+                                                            disabled={pendingId === vendor.id}
+                                                            className="h-12 px-6 bg-secondary/10 text-secondary border border-secondary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-xl disabled:opacity-50"
                                                         >
-                                                            <CheckCircle size={16} /> Authorize
+                                                            {pendingId === vendor.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} Authorize
+                                                        </button>
+                                                    )}
+                                                    {vendor.status === 'approved' && (
+                                                        <button
+                                                            onClick={() => updateStatus(vendor.id, 'suspended')}
+                                                            disabled={pendingId === vendor.id}
+                                                            className="h-12 px-6 bg-red-500/10 text-red-400 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50"
+                                                        >
+                                                            {pendingId === vendor.id ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />} Suspend
                                                         </button>
                                                     )}
                                                 </div>

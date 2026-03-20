@@ -25,38 +25,45 @@ export default function NotificationBell() {
 
             // 1. Fetch real DB notifications
             const res = await fetch(getApiUrl(`/api/notifications?userId=${userId}`), { headers });
-            const dbData = await res.json();
+            const dbData = res.ok ? await res.json() : [];
 
-            // 2. Fetch Low Stock Alerts
-            const stockRes = await fetch(getApiUrl("/api/admin/products/low-stock"), { headers });
-            const lowStockData = await stockRes.json();
-
-            const stockAlerts = (Array.isArray(lowStockData) ? lowStockData : []).map((p: any) => ({
-                id: `stock-${p.id}`,
-                type: 'alert',
-                title: 'Low Stock Alert',
-                body: `${p.name} is running low (${p.stock} remaining)`,
-                link: `/admin/inventory`,
-                createdAt: new Date().toISOString(),
-                isRead: false
-            }));
+            // 2. Fetch Low Stock Alerts (admin only — skip gracefully if no auth)
+            let stockAlerts: any[] = [];
+            try {
+                const stockRes = await fetch(getApiUrl("/api/admin/products/low-stock"), { headers });
+                if (stockRes.ok) {
+                    const lowStockData = await stockRes.json();
+                    stockAlerts = (Array.isArray(lowStockData) ? lowStockData : []).map((p: any) => ({
+                        id: `stock-${p.id}`,
+                        type: 'alert',
+                        title: 'Low Stock Alert',
+                        body: `${p.name} is running low (${p.stock} remaining)`,
+                        link: `/admin/inventory`,
+                        createdAt: new Date().toISOString(),
+                        isRead: false
+                    }));
+                }
+            } catch { /* Admin endpoint offline or not authenticated */ }
 
             // 3. Fetch Stats-derived alerts as fallback/addition
-            const statsRes = await fetch(getApiUrl("/api/admin/stats"), { headers });
-            const stats = await statsRes.json();
-
             const statsAlerts: any[] = [];
-            if (stats.pending > 0) {
-                statsAlerts.push({
-                    id: 'pending-orders-stat',
-                    type: 'order',
-                    title: 'Pending Orders',
-                    body: `You have ${stats.pending} orders awaiting processing`,
-                    link: '/admin/orders',
-                    createdAt: new Date().toISOString(),
-                    isRead: false
-                });
-            }
+            try {
+                const statsRes = await fetch(getApiUrl("/api/admin/stats"), { headers });
+                if (statsRes.ok) {
+                    const stats = await statsRes.json();
+                    if (stats.pending > 0) {
+                        statsAlerts.push({
+                            id: 'pending-orders-stat',
+                            type: 'order',
+                            title: 'Pending Orders',
+                            body: `You have ${stats.pending} orders awaiting processing`,
+                            link: '/admin/orders',
+                            createdAt: new Date().toISOString(),
+                            isRead: false
+                        });
+                    }
+                }
+            } catch { /* Admin endpoint offline or not authenticated */ }
 
             const combined = [...(Array.isArray(dbData) ? dbData : []), ...stockAlerts, ...statsAlerts];
             // Unique by ID

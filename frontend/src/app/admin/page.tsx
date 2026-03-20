@@ -43,7 +43,8 @@ import {
     Database,
     Phone,
     Plus,
-    Mail
+    Mail,
+    Satellite
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
@@ -239,6 +240,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/payouts" icon={<CreditCard size={20} />} label="Payouts" permission="finance" />
                         <ActionBtn href="/admin/system" icon={<Activity size={20} />} label="System Vitality" permission="global_data_command" />
                         <ActionBtn href="/admin/subscribers" icon={<Mail size={20} />} label="Subscribers" permission="users" />
+                        <ActionBtn href="/admin/sensors" icon={<Satellite size={20} />} label="Crop & GPS Sensors" permission="global_data_command" />
                         <ActionBtn href="/admin/reviews" icon={<Star size={20} />} label="Review Queue" permission="content" />
                         <ActionBtn href="/admin/tickets" icon={<MessageSquare size={20} />} label="Support Desk" permission="orders" />
                     </div>
