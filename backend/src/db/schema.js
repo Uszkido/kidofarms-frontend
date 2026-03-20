@@ -346,6 +346,122 @@ const warehouseInventory = pgTable("warehouse_inventory", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// OTPs Table
+const otps = pgTable("otps", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    code: text("code").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    isUsed: boolean("is_used").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Carriers Table
+const carriers = pgTable("carriers", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    companyName: text("company_name"),
+    vehicleType: text("vehicle_type").notNull(),
+    coverageArea: text("coverage_area").notNull(),
+    hasColdChain: boolean("has_cold_chain").default(false),
+    bankName: text("bank_name"),
+    accountNumber: text("account_number"),
+    accountName: text("account_name"),
+    status: text("status").default("pending"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Job Applications Table
+const jobApplications = pgTable("job_applications", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    position: text("position").notNull(),
+    experience: text("experience").notNull(),
+    location: text("location").notNull(),
+    resumeLink: text("resume_link"),
+    bio: text("bio"),
+    status: text("status").default("pending"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Wallets Table
+const wallets = pgTable("wallets", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull().unique(),
+    balance: numeric("balance", { precision: 12, scale: 2 }).default("0.00"),
+    currency: text("currency").default("NGN"),
+    trustScore: integer("trust_score").default(50),
+    creditLimit: numeric("credit_limit", { precision: 12, scale: 2 }).default("0.00"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Wallet Transactions Table
+const walletTransactions = pgTable("wallet_transactions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    walletId: uuid("wallet_id").references(() => wallets.id).notNull(),
+    type: text("type").notNull(),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    description: text("description"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Academy Courses Table
+const academyCourses = pgTable("academy_courses", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    category: text("category").notNull(),
+    description: text("description"),
+    content: text("content"),
+    points: integer("points").default(10),
+    isPublished: boolean("is_published").default(true),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Energy Marketplace Table
+const energyMarketplace = pgTable("energy_marketplace", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sellerId: uuid("seller_id").references(() => users.id),
+    wasteType: text("waste_type").notNull(),
+    quantity: numeric("quantity", { precision: 10, scale: 2 }).notNull(),
+    unit: text("unit").default("kg"),
+    creditsOffered: integer("credits_offered").notNull(),
+    status: text("status").default("available"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Global Bridge Table
+const globalBridge = pgTable("global_bridge", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id),
+    produceType: text("produce_type").notNull(),
+    quantity: numeric("quantity", { precision: 12, scale: 2 }).notNull(),
+    destination: text("destination").notNull(),
+    status: text("status").default("certification_pending"),
+    certifications: jsonb("certifications"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// IoT Sensors Table
+const sensors = pgTable("sensors", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    entityId: uuid("entity_id").notNull(),
+    type: text("type").notNull(),
+    value: text("value").notNull(),
+    status: text("status").default("normal"),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Tickets Table
+const tickets = pgTable("tickets", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    subject: text("subject").notNull(),
+    status: text("status").default("open"),
+    priority: text("priority").default("medium"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 module.exports = {
     users,
     categories,
@@ -370,6 +486,16 @@ module.exports = {
     tasks,
     storageNodes,
     warehouseInventory,
+    otps,
+    carriers,
+    jobApplications,
+    wallets,
+    walletTransactions,
+    academyCourses,
+    energyMarketplace,
+    globalBridge,
+    sensors,
+    tickets,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
