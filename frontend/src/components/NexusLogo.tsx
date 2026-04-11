@@ -18,9 +18,12 @@ export default function NexusLogo({ className = "h-10 w-auto" }: { className?: s
             if (res.ok) {
                 const data = await res.json();
                 setLogoConfig(data.logoConfig || { mainLogo: "/logo-kido.png", overlayType: "none", isOverlayActive: false });
+            } else {
+                setLogoConfig({ mainLogo: "/logo-kido.png", overlayType: "none", isOverlayActive: false });
             }
         } catch (err) {
-            console.error(err);
+            console.error("NexusLogo fetch failed, using fallback.");
+            setLogoConfig({ mainLogo: "/logo-kido.png", overlayType: "none", isOverlayActive: false });
         }
     };
 

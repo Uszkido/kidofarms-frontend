@@ -187,12 +187,14 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                     <div className="space-y-4">
                         <div className="flex gap-4">
                             <button
+                                type="button"
                                 onClick={() => setMode("login")}
                                 className={`text-[11px] font-black uppercase tracking-[0.3em] pb-2 border-b-2 transition-all ${mode === 'login' ? 'text-primary border-secondary' : 'text-gray-300 border-transparent'}`}
                             >
                                 Login
                             </button>
                             <button
+                                type="button"
                                 onClick={() => setMode("signup")}
                                 className={`text-[11px] font-black uppercase tracking-[0.3em] pb-2 border-b-2 transition-all ${mode === 'signup' ? 'text-primary border-secondary' : 'text-gray-300 border-transparent'}`}
                             >

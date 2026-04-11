@@ -1,0 +1,7 @@
+frontend/
+android/
+docs/
+node_modules/
+.git/
+.github/
+README.md

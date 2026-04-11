@@ -538,6 +538,24 @@ const groupBuyParticipantsRelations = relations(groupBuyParticipants, ({ one }) 
 }));
 
 
+// Stories Table
+const stories = pgTable("stories", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    vendorId: uuid("vendor_id").references(() => users.id).notNull(),
+    mediaUrl: text("media_url").notNull(),
+    mediaType: text("media_type").default("image"),
+    caption: text("caption"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+const storiesRelations = relations(stories, ({ one }) => ({
+    vendor: one(users, {
+        fields: [stories.vendorId],
+        references: [users.id],
+    }),
+}));
+
 // System Health Table (for snapshots)
 const systemHealth = pgTable("system_health", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -591,6 +609,8 @@ module.exports = {
     groupBuysRelations,
     groupBuyParticipants,
     groupBuyParticipantsRelations,
+    stories,
+    storiesRelations,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
