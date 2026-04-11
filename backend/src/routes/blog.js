@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { blogPosts } = require('../db/schema');
 const { desc } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 router.get('/', async (req, res) => {
     try {
@@ -31,24 +32,11 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/blog
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { users } = require('../db/schema');
-        const { eq } = require('drizzle-orm');
-        let adminUser = await db.query.users.findFirst({ where: eq(users.role, 'admin') });
-
-        // If no admin found, use the first user or fail gracefully
-        if (!adminUser) {
-            adminUser = await db.query.users.findFirst();
-        }
-
-        if (!adminUser) {
-            return res.status(400).json({ error: 'No user found in database to assign as author' });
-        }
-
         const [post] = await db.insert(blogPosts).values({
             ...req.body,
-            authorId: adminUser.id
+            authorId: req.user.id
         }).returning();
         res.status(201).json(post);
     } catch (error) {
@@ -58,7 +46,7 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/blog/:id
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         const [updated] = await db.update(blogPosts)
@@ -72,7 +60,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // DELETE /api/blog/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         await db.delete(blogPosts).where(eq(blogPosts.id, req.params.id));

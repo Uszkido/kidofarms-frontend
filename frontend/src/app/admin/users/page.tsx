@@ -220,6 +220,18 @@ export default function AdminUsersPage() {
                             <option value="">All Roles</option>
                             {allRoles.map((r: any) => <option key={r} value={r}>{r.toUpperCase()}</option>)}
                         </select>
+                        <button
+                            onClick={fetchUsers}
+                            className="bg-white/5 px-8 rounded-[2rem] border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl hover:bg-secondary hover:text-primary transition-all group/sync"
+                        >
+                            <div className={`w-12 h-12 rounded-xl bg-secondary group-hover/sync:bg-primary group-hover/sync:text-secondary flex items-center justify-center text-primary shadow-xl transition-all ${loading ? 'animate-spin' : ''}`}>
+                                <RotateCcw size={24} />
+                            </div>
+                            <div className="text-left">
+                                <h4 className="text-[9px] font-black uppercase tracking-widest text-white/20 group-hover/sync:text-primary/40 leading-none mb-1">Global Registry</h4>
+                                <p className="text-xs font-black uppercase tracking-widest">Synchronize</p>
+                            </div>
+                        </button>
                         <Link href="/admin/users/new" className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
                             Register Citizen
                         </Link>

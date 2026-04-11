@@ -1,5 +1,5 @@
 export const getApiUrl = (path: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
     // Ensure path starts with /
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
 

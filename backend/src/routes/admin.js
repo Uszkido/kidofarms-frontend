@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments, notifications, systemHealth } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments, notifications, systemHealth, subscribers } = require('../db/schema');
 const { desc, eq, sql, or, lt, and } = require('drizzle-orm');
 const { authenticateToken, authorizeRoles, authorizePermissions } = require('../middleware/authMiddleware');
+const { sendBroadcastEmail } = require('../lib/email');
 
 router.use(authenticateToken);
 router.use(authorizeRoles('admin', 'sub-admin', 'team_member'));
@@ -962,12 +963,15 @@ router.get('/health', authorizePermissions('report_access'), async (req, res) =>
     }
 });
 
-// 27. POST /api/admin/broadcast - Pulse Notification to all subscribers
+// 27. POST /api/admin/broadcast - Pulse Notification & Email to all citizens
 router.post('/broadcast', authorizePermissions('global_data_command'), async (req, res) => {
     const { title, message, type, link } = req.body;
     try {
-        const allUsers = await db.select({ id: users.id }).from(users);
+        // 1. Fetch all users and subscribers for broad-spectrum pulse
+        const allUsers = await db.select({ id: users.id, email: users.email }).from(users);
+        const allSubscribers = await db.select({ email: subscribers.email }).from(subscribers);
 
+        // 2. Insert in-app notifications
         const notificationEntries = allUsers.map(u => ({
             userId: u.id,
             type: type || 'system',
@@ -981,9 +985,26 @@ router.post('/broadcast', authorizePermissions('global_data_command'), async (re
             await db.insert(notifications).values(notificationEntries);
         }
 
-        res.json({ message: `Pulse broadcast sent to ${allUsers.length} nodes.` });
+        // 3. Trigger Global Email Broadcast
+        const emailList = [
+            ...new Set([
+                ...allUsers.map(u => u.email),
+                ...allSubscribers.map(s => s.email)
+            ])
+        ].filter(Boolean);
+
+        if (emailList.length > 0) {
+            // Non-blocking email broadcast to ensure speed
+            sendBroadcastEmail(emailList, title, message, link).catch(err => console.error("Broadcast Email Failure:", err));
+        }
+
+        res.json({
+            message: `Pulse broadcast sent to ${allUsers.length} in-app nodes and ${emailList.length} external email channels.`,
+            stats: { users: allUsers.length, emails: emailList.length }
+        });
     } catch (error) {
-        res.status(500).json({ error: 'Broadcast failure' });
+        console.error("Broadcast Logic Error:", error);
+        res.status(500).json({ error: 'Global command broadcast failure' });
     }
 });
 

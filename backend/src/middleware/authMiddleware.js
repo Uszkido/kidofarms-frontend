@@ -3,6 +3,10 @@ const { db } = require('../db');
 const { users } = require('../db/schema');
 const { eq } = require('drizzle-orm');
 
+if (!process.env.NEXTAUTH_SECRET && process.env.NODE_ENV === 'production') {
+    console.error('FATAL: NEXTAUTH_SECRET env var is not set. Refusing to start in production without a secure JWT secret.');
+    process.exit(1);
+}
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
 
 const authenticateToken = async (req, res, next) => {

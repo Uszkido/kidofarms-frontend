@@ -102,10 +102,13 @@ const products = pgTable("products", {
     rating: numeric("rating", { precision: 3, scale: 2 }).default("0"),
     numReviews: integer("num_reviews").default(0),
     isFeatured: boolean("is_featured").default(false),
+    isFlashSale: boolean("is_flash_sale").default(false),
+    flashPrice: numeric("flash_price", { precision: 12, scale: 2 }),
     trackingId: text("tracking_id").unique(),
     ownerId: uuid("owner_id").references(() => users.id), // Link to vendor/farmer
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
 
 // Orders Table
 const orders = pgTable("orders", {
@@ -481,6 +484,60 @@ const notifications = pgTable("notifications", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+const notificationsRelations = relations(notifications, ({ one }) => ({
+    user: one(users, {
+        fields: [notifications.userId],
+        references: [users.id],
+    }),
+}));
+
+const walletTransactionsRelations = relations(walletTransactions, ({ one }) => ({
+    wallet: one(wallets, {
+        fields: [walletTransactions.walletId],
+        references: [wallets.id],
+    }),
+}));
+
+// Group Buys Table
+const groupBuys = pgTable("group_buys", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id").references(() => products.id).notNull(),
+    status: text("status").default("active"), // active, completed, cancelled
+    currentQuantity: integer("current_quantity").default(0),
+    targetQuantity: integer("target_quantity").notNull(),
+    expiryDate: timestamp("expiry_date").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+const groupBuysRelations = relations(groupBuys, ({ one, many }) => ({
+    product: one(products, {
+        fields: [groupBuys.productId],
+        references: [products.id],
+    }),
+    participants: many(groupBuyParticipants),
+}));
+
+// Group Buy Participants Table
+const groupBuyParticipants = pgTable("group_buy_participants", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    groupBuyId: uuid("group_buy_id").references(() => groupBuys.id).notNull(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    quantity: integer("quantity").notNull(),
+    joinedAt: timestamp("joined_at").defaultNow().notNull(),
+});
+
+const groupBuyParticipantsRelations = relations(groupBuyParticipants, ({ one }) => ({
+    groupBuy: one(groupBuys, {
+        fields: [groupBuyParticipants.groupBuyId],
+        references: [groupBuys.id],
+    }),
+    user: one(users, {
+        fields: [groupBuyParticipants.userId],
+        references: [users.id],
+    }),
+}));
+
+
 // System Health Table (for snapshots)
 const systemHealth = pgTable("system_health", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -521,13 +578,19 @@ module.exports = {
     jobApplications,
     wallets,
     walletTransactions,
+    walletTransactionsRelations,
     academyCourses,
     energyMarketplace,
     globalBridge,
     sensors,
     tickets,
     notifications,
+    notificationsRelations,
     systemHealth,
+    groupBuys,
+    groupBuysRelations,
+    groupBuyParticipants,
+    groupBuyParticipantsRelations,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
