@@ -15,11 +15,13 @@ import {
     Database,
     Boxes,
     ShoppingCart,
-    Star
+    Star,
+    Zap
 } from "lucide-react";
 import Image from "next/image";
 import { getApiUrl } from "@/lib/api";
 import AddReviewModal from "@/components/AddReviewModal";
+import KidoVisionModal from "@/components/KidoVisionModal";
 import { useSession } from "next-auth/react";
 
 export default function AdminInventoryPage() {
@@ -28,6 +30,7 @@ export default function AdminInventoryPage() {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [isVisionModalOpen, setIsVisionModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [stats, setStats] = useState<any>({ activeOrders: 0 });
 
@@ -74,6 +77,11 @@ export default function AdminInventoryPage() {
     const handleRate = (product: any) => {
         setSelectedProduct(product);
         setIsReviewModalOpen(true);
+    };
+
+    const handleVision = (product: any) => {
+        setSelectedProduct(product);
+        setIsVisionModalOpen(true);
     };
 
     const filteredProducts = products.filter(p =>
@@ -183,6 +191,13 @@ export default function AdminInventoryPage() {
                                                         <Star size={20} />
                                                     </button>
                                                     <button
+                                                        onClick={() => handleVision(product)}
+                                                        className="p-4 bg-secondary text-primary hover:brightness-110 rounded-2xl transition-all shadow-xl"
+                                                        title="Kido Vision Audit"
+                                                    >
+                                                        <Zap size={20} />
+                                                    </button>
+                                                    <button
                                                         onClick={() => handleDelete(product.id)}
                                                         className="p-4 bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-primary rounded-2xl transition-all shadow-xl"
                                                         title="Decompose Asset"
@@ -242,6 +257,14 @@ export default function AdminInventoryPage() {
                 isOpen={isReviewModalOpen}
                 onClose={() => setIsReviewModalOpen(false)}
                 onSuccess={() => alert("Verification Rating Dispatched Successfully")}
+            />
+
+            <KidoVisionModal
+                isOpen={isVisionModalOpen}
+                onClose={() => setIsVisionModalOpen(false)}
+                productName={selectedProduct?.name}
+                category={selectedProduct?.category}
+                productImage={selectedProduct?.images?.[0]}
             />
         </div>
     );
