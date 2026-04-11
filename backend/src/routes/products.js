@@ -109,6 +109,8 @@ router.post('/init', async (req, res) => {
                     origin: "Kano",
                     rating: "4.9",
                     isFeatured: true,
+                    isFlashSale: true,
+                    flashPrice: "3800",
                     stock: 500
                 },
                 {
@@ -121,6 +123,8 @@ router.post('/init', async (req, res) => {
                     origin: "Jos",
                     rating: "5.0",
                     isFeatured: true,
+                    isFlashSale: true,
+                    flashPrice: "9500",
                     stock: 100
                 },
                 {
@@ -149,6 +153,7 @@ router.post('/init', async (req, res) => {
                     trackingId: generateTrackingId()
                 }
             ].map(p => ({ ...p, trackingId: p.trackingId || generateTrackingId() }));
+
             await db.insert(products).values(initialProducts);
         }
         res.json({ message: 'Products initialized' });

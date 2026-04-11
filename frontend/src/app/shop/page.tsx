@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode } from "lucide-react";
+import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap } from "lucide-react";
 import { StoryFeed } from "@/components/StoryFeed";
 import Link from "next/link";
 import Image from "next/image";
@@ -164,6 +164,38 @@ function ShopContent() {
 
                     <StoryFeed />
 
+                    {/* ⚡ FLASH SALE BANNER */}
+                    {products.some(p => p.isFlashSale) && (
+                        <div className="mb-12 relative overflow-hidden rounded-[3rem] bg-secondary p-8 lg:p-12 shadow-2xl group flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-white/10 rounded-full blur-3xl -translate-y-48 translate-x-48 animate-pulse" />
+                            <div className="relative z-10 space-y-4 text-center md:text-left">
+                                <div className="flex items-center gap-3 justify-center md:justify-start">
+                                    <Zap className="text-primary animate-bounce" fill="currentColor" size={24} />
+                                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/60">Limited Protocol: Flash Sale</span>
+                                </div>
+                                <h2 className="text-4xl lg:text-6xl font-black font-serif italic text-primary uppercase leading-tight tracking-tighter">
+                                    Harvest <span className="opacity-60 italic">Blitz</span>
+                                </h2>
+                                <p className="text-xs font-bold text-primary/60 uppercase tracking-widest max-w-md">
+                                    Fresh nodes just entered the discount vector. Secure your harvest before the timer hits zero.
+                                </p>
+                            </div>
+                            <div className="relative z-10 flex gap-4 overflow-x-auto pb-4 w-full md:w-auto md:pb-0 scrollbar-hide">
+                                {products.filter(p => p.isFlashSale).slice(0, 3).map(p => (
+                                    <div key={p.id} className="min-w-[200px] bg-white/90 backdrop-blur-xl p-4 rounded-2xl flex items-center gap-4 border border-white/20 shadow-xl group/card hover:scale-105 transition-all">
+                                        <div className="w-12 h-12 rounded-xl overflow-hidden relative">
+                                            <Image src={p.images?.[0] || ""} alt={p.name} fill className="object-cover" />
+                                        </div>
+                                        <div>
+                                            <p className="text-[8px] font-black uppercase text-primary/40 truncate w-24">{p.name}</p>
+                                            <p className="text-sm font-black text-secondary">₦{Number(p.flashPrice || p.price).toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex flex-col md:flex-row gap-12">
                         {/* Sidebar Filters */}
                         <aside className="w-full md:w-64 space-y-10">
@@ -223,10 +255,15 @@ function ShopContent() {
                                                         className="object-cover group-hover:scale-110 transition-transform duration-700"
                                                     />
                                                 </Link>
-                                                <div className="absolute top-4 left-4 flex gap-2">
-                                                    <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary">
+                                                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                                                    <span className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-bold uppercase text-primary shadow-lg border border-primary/5">
                                                         {prod.category}
                                                     </span>
+                                                    {prod.isFlashSale && (
+                                                        <span className="bg-secondary text-primary px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-2xl animate-pulse">
+                                                            <Zap size={10} fill="currentColor" /> Flash
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -252,7 +289,14 @@ function ShopContent() {
                                                 </div>
                                                 <div className="mt-auto pt-6 flex justify-between items-center border-t border-primary/5">
                                                     <div className="flex flex-col">
-                                                        <span className="text-2xl font-bold text-primary">₦{Number(prod.price).toLocaleString()}</span>
+                                                        {prod.isFlashSale ? (
+                                                            <>
+                                                                <span className="text-2xl font-black text-secondary">₦{Number(prod.flashPrice).toLocaleString()}</span>
+                                                                <span className="text-[10px] font-bold text-primary/30 line-through">₦{Number(prod.price).toLocaleString()}</span>
+                                                            </>
+                                                        ) : (
+                                                            <span className="text-2xl font-bold text-primary">₦{Number(prod.price).toLocaleString()}</span>
+                                                        )}
                                                         <span className="text-[10px] font-bold text-primary/30 uppercase">per {prod.unit}</span>
                                                     </div>
                                                     <div className="flex flex-col gap-2">

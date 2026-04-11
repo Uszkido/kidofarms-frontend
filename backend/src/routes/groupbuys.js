@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { groupBuys, groupBuyParticipants, products } = require('../db/schema');
 const { eq, and, sql } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 // GET /api/groupbuys (List active group buys)
 router.get('/', async (req, res) => {
@@ -19,7 +20,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/groupbuys/join (Join or Create a group buy)
-router.post('/join', async (req, res) => {
+router.post('/join', authenticateToken, async (req, res) => {
     const { productId, userId, quantity } = req.body;
     try {
         // Find an active group buy for this product

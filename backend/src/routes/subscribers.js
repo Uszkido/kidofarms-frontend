@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { subscribers } = require('../db/schema');
 const { desc } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/authMiddleware');
 
 router.get('/', async (req, res) => {
     try {
@@ -14,7 +15,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/subscribers
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, async (req, res) => {
     try {
         const { email, phone, street, city, state, zip, plan, userId } = req.body;
 
@@ -45,7 +46,7 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/subscribers/:id
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         const [updated] = await db.update(subscribers)
@@ -59,7 +60,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // DELETE /api/subscribers/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         await db.delete(subscribers).where(eq(subscribers.id, req.params.id));

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, Shield, ShieldAlert, CheckCircle, XCircle, ArrowLeft, Loader2, Database, Ghost, Mail, UserCircle, Search, Eye, FileText, Zap, Phone, MapPin } from "lucide-react";
+import { Users, Shield, ShieldAlert, CheckCircle, XCircle, ArrowLeft, Loader2, Database, Ghost, Mail, UserCircle, Search, Eye, FileText, Zap, Phone, MapPin, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
 
@@ -85,15 +85,18 @@ export default function AdminVendorsPage() {
                                 className="w-full md:w-96 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
                             />
                         </div>
-                        <div className="bg-white/5 px-8 rounded-[2rem] border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl">
-                            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-primary shadow-xl">
-                                <Users size={24} />
+                        <button
+                            onClick={fetchVendors}
+                            className="bg-white/5 px-8 rounded-[2rem] border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl hover:bg-secondary hover:text-primary transition-all group/sync"
+                        >
+                            <div className={`w-12 h-12 rounded-xl bg-secondary group-hover/sync:bg-primary group-hover/sync:text-secondary flex items-center justify-center text-primary shadow-xl transition-all ${loading ? 'animate-spin' : ''}`}>
+                                <RotateCcw size={24} />
                             </div>
-                            <div>
-                                <h4 className="text-[9px] font-black uppercase tracking-widest text-white/20 leading-none mb-1">Approved Nodes</h4>
-                                <p className="text-2xl font-black font-serif italic text-white">{vendors.filter(v => v.status === 'approved').length}</p>
+                            <div className="text-left">
+                                <h4 className="text-[9px] font-black uppercase tracking-widest text-white/20 group-hover/sync:text-primary/40 leading-none mb-1">Commercial Assets</h4>
+                                <p className="text-xs font-black uppercase tracking-widest">Synchronize</p>
                             </div>
-                        </div>
+                        </button>
                     </div>
                 </header>
 
@@ -170,7 +173,11 @@ export default function AdminVendorsPage() {
                                                             disabled={pendingId === vendor.id}
                                                             className="h-12 px-6 bg-secondary/10 text-secondary border border-secondary/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2 shadow-xl disabled:opacity-50"
                                                         >
-                                                            {pendingId === vendor.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />} Authorize
+                                                            {pendingId === vendor.id ? (
+                                                                <><Loader2 size={16} className="animate-spin" /> Synchronizing...</>
+                                                            ) : (
+                                                                <><CheckCircle size={16} /> Authorize</>
+                                                            )}
                                                         </button>
                                                     )}
                                                     {vendor.status === 'approved' && (
@@ -179,7 +186,11 @@ export default function AdminVendorsPage() {
                                                             disabled={pendingId === vendor.id}
                                                             className="h-12 px-6 bg-red-500/10 text-red-400 border border-red-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all flex items-center gap-2 disabled:opacity-50"
                                                         >
-                                                            {pendingId === vendor.id ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />} Suspend
+                                                            {pendingId === vendor.id ? (
+                                                                <><Loader2 size={16} className="animate-spin" /> Synchronizing...</>
+                                                            ) : (
+                                                                <><XCircle size={16} /> Suspend</>
+                                                            )}
                                                         </button>
                                                     )}
                                                 </div>
