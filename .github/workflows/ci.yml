@@ -1,0 +1,45 @@
+name: CI Check Before Deploy
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_and_test:
+    name: Build & Verify
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Using Node 20 as standard for Next.js app router
+
+      # --- BACKEND VERIFICATION ---
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm ci
+
+      # We can add explicit backend tests here if you add a test suite later.
+      # For now, we at least ensure dependencies install without error.
+      # If you had eslint or tests, you'd add: run: npm run lint / npm test
+
+      # --- FRONTEND VERIFICATION ---
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run TypeScript Check
+        working-directory: ./frontend
+        run: npx tsc --noEmit
+
+      - name: Build Next.js
+        working-directory: ./frontend
+        run: npm run build
+        # We set an empty dummy API URL just in case the build requires the var to not crash
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:5001
