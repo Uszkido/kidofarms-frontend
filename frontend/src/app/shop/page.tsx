@@ -153,10 +153,10 @@ function ShopContent() {
                                     className="w-full pl-12 pr-4 py-3 rounded-full border border-primary/10 glass focus:ring-1 focus:ring-secondary outline-none text-sm"
                                 />
                             </div>
-                            <button className="flex items-center gap-2 px-6 py-3 rounded-full glass border border-primary/10 text-sm font-bold hover:bg-white transition-all">
+                            <button onClick={() => alert("Advanced filtering interface opening soon...")} className="flex items-center gap-2 px-6 py-3 rounded-full glass border border-primary/10 text-sm font-bold hover:bg-white transition-all">
                                 <Filter size={18} /> Filters
                             </button>
-                            <button className="flex items-center gap-2 px-6 py-3 rounded-full glass border border-primary/10 text-sm font-bold hover:bg-white transition-all">
+                            <button onClick={() => alert("Sorting parameters coming soon...")} className="flex items-center gap-2 px-6 py-3 rounded-full glass border border-primary/10 text-sm font-bold hover:bg-white transition-all">
                                 <ArrowUpDown size={18} /> Sort
                             </button>
                         </div>
