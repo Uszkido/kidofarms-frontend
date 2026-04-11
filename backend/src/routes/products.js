@@ -4,6 +4,7 @@ const { db } = require('../db');
 const { products } = require('../db/schema');
 const { eq, and, desc } = require('drizzle-orm');
 const crypto = require('crypto');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 const generateTrackingId = () => `KD-PROD-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
 
@@ -51,8 +52,8 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// POST /api/products (Admin only - middleware skipped for now)
-router.post('/', async (req, res) => {
+// POST /api/products (Protected)
+router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin', 'vendor', 'farmer'), async (req, res) => {
     try {
         const body = req.body;
         const payload = {
@@ -60,7 +61,7 @@ router.post('/', async (req, res) => {
             price: body.price.toString(),
             stock: parseInt(body.stock) || 0,
             trackingId: generateTrackingId(),
-            ownerId: body.ownerId || null, // Can be assigned from auth middleare in real app
+            ownerId: req.user.id, // Assigned from auth middleware
         };
         const [product] = await db.insert(products).values(payload).returning();
         res.status(201).json(product);
@@ -70,9 +71,17 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PATCH /api/products/:id
-router.patch('/:id', async (req, res) => {
+// PATCH /api/products/:id (Protected)
+router.patch('/:id', authenticateToken, async (req, res) => {
     try {
+        const product = await db.query.products.findFirst({ where: eq(products.id, req.params.id) });
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+
+        // Ownership check
+        if (req.user.role !== 'admin' && req.user.id !== product.ownerId) {
+            return res.status(403).json({ error: 'Access denied: Node ownership missing.' });
+        }
+
         const body = req.body;
         const [updated] = await db.update(products)
             .set(body)
@@ -84,9 +93,16 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// DELETE /api/products/:id
-router.delete('/:id', async (req, res) => {
+// DELETE /api/products/:id (Protected)
+router.delete('/:id', authenticateToken, async (req, res) => {
     try {
+        const product = await db.query.products.findFirst({ where: eq(products.id, req.params.id) });
+        if (!product) return res.status(404).json({ error: 'Product not found' });
+
+        if (req.user.role !== 'admin' && req.user.id !== product.ownerId) {
+            return res.status(403).json({ error: 'Access denied.' });
+        }
+
         await db.delete(products).where(eq(products.id, req.params.id));
         res.status(204).end();
     } catch (error) {

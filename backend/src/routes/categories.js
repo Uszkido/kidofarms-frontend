@@ -4,6 +4,7 @@ const { db } = require('../db');
 const { categories } = require('../db/schema');
 
 const { eq } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 router.get('/', async (req, res) => {
     try {
@@ -14,8 +15,8 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST /api/categories
-router.post('/', async (req, res) => {
+// POST /api/categories (Protected)
+router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [category] = await db.insert(categories).values(req.body).returning();
         res.status(201).json(category);
@@ -24,8 +25,8 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PATCH /api/categories/:id
-router.patch('/:id', async (req, res) => {
+// PATCH /api/categories/:id (Protected)
+router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [updated] = await db.update(categories)
             .set(req.body)
@@ -37,8 +38,8 @@ router.patch('/:id', async (req, res) => {
     }
 });
 
-// DELETE /api/categories/:id
-router.delete('/:id', async (req, res) => {
+// DELETE /api/categories/:id (Protected)
+router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         await db.delete(categories).where(eq(categories.id, req.params.id));
         res.status(204).end();

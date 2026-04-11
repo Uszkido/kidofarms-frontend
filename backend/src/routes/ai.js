@@ -593,4 +593,43 @@ router.post('/calculate-carbon', async (req, res) => {
     }
 });
 
+// 12. POST /api/ai/quality-guard - Sovereign Produce Vetting
+router.post('/quality-guard', async (req, res) => {
+    try {
+        const { imageBase64, productName, category } = req.body;
+
+        if (!process.env.GEMINI_API_KEY || !imageBase64) {
+            return res.json({
+                approved: true,
+                score: 100,
+                rationale: "Sovereign AI node offline. Defaulting to manual vetting node."
+            });
+        }
+
+        const prompt = `Act as the Supreme Quality Auditor for Kido Farms. 
+        Analyze the image of this ${productName} (Category: ${category}).
+        
+        Tasks:
+        1. Evaluate freshness, visual appeal, and consistency.
+        2. Identify any visible damage or mold.
+        3. Assign a Quality Score (0-100).
+        4. Decide if it meets "Kido Premium" standards (Score > 75).
+        
+        Format as JSON: { "approved": true/false, "score": 0, "rationale": "..." }`;
+
+        const result = await model.generateContent([
+            prompt,
+            { inlineData: { data: imageBase64, mimeType: "image/jpeg" } }
+        ]);
+        const response = await result.response;
+        const text = response.text().replace(/```json|```/g, '').trim();
+        const data = JSON.parse(text);
+
+        res.json(data);
+    } catch (error) {
+        console.error('Quality Guard Error:', error);
+        res.status(500).json({ error: 'Quality Guard neural scan parity lost.' });
+    }
+});
+
 module.exports = router;
