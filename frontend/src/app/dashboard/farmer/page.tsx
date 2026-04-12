@@ -515,7 +515,7 @@ export default function FarmerDashboard() {
                                                 </div>
                                                 <div className="flex gap-4 w-full md:w-auto">
                                                     <button
-                                                        onClick={() => handleAction("Exporting PDF Certificate...")}
+                                                        onClick={() => router.push("/dashboard/farmer/certificate")}
                                                         className="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 hover:bg-secondary hover:text-primary transition-all shadow-lg"
                                                     >
                                                         <FileText size={14} /> PDF Export

@@ -120,7 +120,33 @@ export const usersRelations = relations(users, ({ many }) => ({
     orders: many(orders),
     reviews: many(reviews),
     blogPosts: many(blogPosts),
+    poultryBatches: many(poultryBatches),
+    gisPlots: many(gisPlots),
 }));
+
+export const poultryBatches = pgTable("poultry_batches", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id).notNull(),
+    batchType: text("batch_type").notNull(),
+    quantity: integer("quantity").notNull(),
+    hatchDate: timestamp("hatch_date"),
+    status: text("status").default("active"),
+    mortalityRate: numeric("mortality_rate", { precision: 5, scale: 2 }).default("0"),
+    averageWeight: numeric("average_weight", { precision: 10, scale: 2 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const gisPlots = pgTable("gis_plots", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id).notNull(),
+    name: text("name").notNull(),
+    geoJson: jsonb("geo_json"),
+    acreage: numeric("acreage", { precision: 10, scale: 2 }),
+    soilType: text("soil_type"),
+    currentCrop: text("current_crop"),
+    fertilityScore: integer("fertility_score").default(100),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
 
 export const blogPostsRelations = relations(blogPosts, ({ one }) => ({
     author: one(users, {
