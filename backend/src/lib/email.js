@@ -1,80 +1,69 @@
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: process.env.EMAIL_HOST || 'smtp.ethereal.email',
+    port: process.env.EMAIL_PORT || 587,
+    secure: false, // true for 465, false for other ports
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: process.env.EMAIL_USER || 'dummy@ethereal.email',
+        pass: process.env.EMAIL_PASS || 'dummy-pass',
     },
 });
 
-const sendOtpEmail = async (email, otp) => {
+const sendOrderConfirmation = async (order, items) => {
     try {
-        const info = await transporter.sendMail({
-            from: `"Kido Farms" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: "Your Kido Farms OTP Verification Code",
-            text: `Your OTP is ${otp}. It expires in 15 minutes.`,
-            html: `
-                <div style="font-family: sans-serif; padding: 20px; border: 1px solid #eee; border-radius: 10px; max-width: 500px; margin: auto;">
-                    <h2 style="color: #2c5e1b;">Welcome to Kido Farms</h2>
-                    <p>Verify your account with the One-Time Password (OTP) below:</p>
-                    <div style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #f2c94c; padding: 20px 0; text-align: center;">
-                        ${otp}
-                    </div>
-                    <p>This code will expire in 15 minutes.</p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                    <p style="font-size: 12px; color: #888;">If you didn't request this, please ignore this email.</p>
+        const itemsHtml = items.map(item => `
+            <tr>
+                <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name} x ${item.quantity}</td>
+                <td style="padding: 10px; border-bottom: 1px solid #eee; text-align: right;">₦${(item.price * item.quantity).toLocaleString()}</td>
+            </tr>
+        `).join('');
+
+        const html = `
+            <div style="font-family: 'Outfit', sans-serif; color: #06120e; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 20px; overflow: hidden;">
+                <div style="background-color: #06120e; padding: 40px; text-align: center;">
+                    <img src="https://kido-farms.vercel.app/logo-kido.png" alt="Kido Farms" style="height: 40px;">
+                    <h1 style="color: #C5A059; font-size: 24px; margin-top: 20px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;">Order Confirmed</h1>
                 </div>
-            `,
+                <div style="padding: 40px;">
+                    <p style="font-size: 16px;">Greetings, <b>${order.guestName || 'Kido Citizen'}</b>,</p>
+                    <p style="color: #4b5563;">Your harvest node has been successfully reserved. Our carriers are currently prepping for dispatch.</p>
+                    
+                    <div style="background-color: #f9fafb; border-radius: 15px; padding: 25px; margin: 30px 0;">
+                        <h3 style="margin-top: 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #9ca3af;">Tracking ID: ${order.trackingId || order.id}</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            ${itemsHtml}
+                            <tr>
+                                <td style="padding: 20px 10px 10px; font-weight: 900; font-size: 18px;">Total Harvest Liquidity</td>
+                                <td style="padding: 20px 10px 10px; font-weight: 900; font-size: 18px; text-align: right; color: #C5A059;">₦${Number(order.totalAmount).toLocaleString()}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div style="border-left: 4px solid #C5A059; padding-left: 20px; margin: 30px 0;">
+                        <p style="font-size: 12px; color: #6b7280; margin: 0;"><b>Shipping Destination:</b></p>
+                        <p style="font-size: 14px; margin: 5px 0;">${order.street}, ${order.city}, ${order.state}</p>
+                    </div>
+
+                    <p style="font-size: 14px; color: #4b5563;">Status: <span style="color: #10b981; font-weight: bold;">[SECURED]</span></p>
+                </div>
+                <div style="background-color: #f3f4f6; padding: 20px; text-align: center; font-size: 10px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">
+                    Powered by Sovereign Kido Infrastructure &copy; 2026
+                </div>
+            </div>
+        `;
+
+        await transporter.sendMail({
+            from: '"Kido Farms" <no-reply@kidofarms.com>',
+            to: order.guestEmail || order.userId, // fallback
+            subject: `[CONFIRMED] Order #${order.id} - Kido Farms`,
+            html: html,
         });
-        console.log("OTP Message sent: %s", info.messageId);
-        return true;
+
+        console.log(`Order confirmation dispatched to ${order.guestEmail || order.userId}`);
     } catch (error) {
-        console.error("Error sending OTP email:", error);
-        return false;
+        console.error('Email Dispatch Error:', error);
     }
 };
 
-const sendBroadcastEmail = async (emails, subject, message, link = null) => {
-    try {
-        if (!emails || emails.length === 0) return true;
-
-        const info = await transporter.sendMail({
-            from: `"Kido Farms Official" <${process.env.EMAIL_USER}>`,
-            bcc: emails.join(','), // Using BCC for mass broadcast
-            subject: subject,
-            text: message + (link ? `\n\nLink: ${link}` : ""),
-            html: `
-                <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; background-color: #f8f9fa;">
-                    <div style="max-width: 600px; margin: auto; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;">
-                        <div style="background-color: #06120e; padding: 30px; text-align: center;">
-                            <h1 style="color: #C5A059; margin: 0; font-family: serif; font-style: italic; font-size: 28px;">Kido Farms Network</h1>
-                        </div>
-                        <div style="padding: 40px; color: #333333; line-height: 1.6;">
-                            <h2 style="margin-top: 0; color: #06120e; font-size: 22px;">${subject}</h2>
-                            <p style="font-size: 16px; color: #555555;">${message}</p>
-                            ${link ? `
-                                <div style="margin-top: 30px; text-align: center;">
-                                    <a href="${link}" style="display: inline-block; padding: 15px 35px; background-color: #C5A059; color: #06120e; text-decoration: none; border-radius: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">View Update</a>
-                                </div>
-                            ` : ''}
-                        </div>
-                        <div style="background-color: #f1f3f5; padding: 25px; text-align: center; border-top: 1px solid #e9ecef;">
-                            <p style="margin: 0; font-size: 11px; color: #999999; text-transform: uppercase; letter-spacing: 2px;">Powering the West African Harvest</p>
-                            <p style="margin: 10px 0 0 0; font-size: 10px; color: #ced4da;">© 2026 Kido Farms & Orchard. All rights reserved.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-        });
-        console.log("Broadcast Message sent: %s", info.messageId);
-        return true;
-    } catch (error) {
-        console.error("Error sending broadcast email:", error);
-        return false;
-    }
-};
-
-module.exports = { sendOtpEmail, sendBroadcastEmail };
-
+module.exports = { sendOrderConfirmation };

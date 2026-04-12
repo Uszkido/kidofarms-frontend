@@ -463,12 +463,24 @@ const sensors = pgTable("sensors", {
 // Tickets Table
 const tickets = pgTable("tickets", {
     id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id").references(() => users.id).notNull(),
+    userId: uuid("user_id").references(() => users.id), // Nullable for guest
+    guestEmail: text("guest_email"),
+    guestName: text("guest_name"),
     subject: text("subject").notNull(),
     status: text("status").default("open"),
     priority: text("priority").default("medium"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Ticket Messages Table
+const ticketMessages = pgTable("ticket_messages", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    ticketId: uuid("ticket_id").references(() => tickets.id).notNull(),
+    senderId: uuid("sender_id").references(() => users.id), // Nullable for guest replies
+    message: text("message").notNull(),
+    attachmentUrl: text("attachment_url"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 // Notifications Table
@@ -602,6 +614,7 @@ module.exports = {
     globalBridge,
     sensors,
     tickets,
+    ticketMessages,
     notifications,
     notificationsRelations,
     systemHealth,
