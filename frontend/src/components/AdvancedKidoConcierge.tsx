@@ -8,7 +8,7 @@ import { getApiUrl } from "@/lib/api";
 type Message = {
     role: "user" | "bot";
     text: string;
-    type?: "general" | "research";
+    type?: "general" | "research" | "chat";
 };
 
 export default function AdvancedKidoConcierge() {
