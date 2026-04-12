@@ -7,7 +7,7 @@ dist/
 android/
 docs/
 resources/
-frontend/
+# frontend/ (Removed to allow deployment)
 tmp_gen_token.js
 kido_farms_knowledgebase.md.resolved
 kido_farms_v5_full_knowledgebase.md.resolved
