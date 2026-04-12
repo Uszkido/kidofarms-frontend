@@ -277,7 +277,7 @@ const toolHandlers = {
         try {
             const fs = require('fs');
             const path = require('path');
-            const knowledgeDir = path.join(__dirname, '../../frontend/src/knowledge');
+            const knowledgeDir = path.join(__dirname, '../../../frontend/src/knowledge');
 
             if (!fs.existsSync(knowledgeDir)) return "Knowledge base directory not found.";
 
@@ -301,7 +301,7 @@ const toolHandlers = {
     }
 };
 
-const SYSTEM_PROMPT = "You are the Kido Farms Concierge, a high-level AI Agent. You can search live products, track order fulfillment, monitor harvest cycles, browse the Mastery Academy, analyze crop health symptoms, and batch logistics clusters using your tools. Be professional, friendly, and use a bit of Nigerian flair. Answer concisely. If a user asks for information you can search for, use your tools first.";
+const SYSTEM_PROMPT = "You are the Kido Farms Concierge, a high-level AI Agent. You have access to specialized regional agricultural protocols for Nigeria (Cocoa in Ondo, Ginger in Kaduna, Cashew in Kogi, etc.). You can search live products, track order fulfillment, monitor harvest cycles, browse the Mastery Academy, analyze crop health symptoms, and batch logistics clusters using your tools. Be professional, friendly, and use a bit of Nigerian flair. Answer concisely. If a user asks for information you can search for, use your tools first.";
 
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
