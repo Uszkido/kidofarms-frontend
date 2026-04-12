@@ -234,7 +234,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" permission="orders" />
                         <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />
                         <ActionBtn href="/admin/tasks" icon={<Fingerprint size={20} />} label="Deploy Mission" permission="global_data_command" />
-                        <ActionBtn href="/admin/academy/new" icon={<BookOpen size={20} />} label="Create Academy" permission="global_data_command" />
+                        <ActionBtn href="/admin/library" icon={<BookOpen size={20} />} label="Knowledge Nodes" permission="global_data_command" />
                         <ActionBtn href="/admin/logs" icon={<Database size={20} />} label="Audit Ledger" permission="global_data_command" />
                         <ActionBtn href="/admin/ai-config" icon={<Cpu size={20} />} label="AI Engine" permission="global_data_command" />
                         <ActionBtn href="/admin/payouts" icon={<CreditCard size={20} />} label="Payouts" permission="finance" />

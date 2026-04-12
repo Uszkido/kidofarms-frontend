@@ -153,20 +153,6 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                     </motion.div>
                 )}
             </AnimatePresence>
-
-            {/* Bubble Trigger */}
-            <motion.button
-                whileHover={{ scale: 1.05, y: -5 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsOpen(!isOpen)}
-                className={`group w-20 h-20 rounded-[2.5rem] flex items-center justify-center shadow-[0_24px_48px_rgba(0,0,0,0.15)] transition-all relative ${isOpen ? "bg-white text-primary border border-primary/5" : "bg-primary text-white hover:bg-secondary hover:text-primary"
-                    }`}
-            >
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-secondary rounded-full flex items-center justify-center text-primary text-[10px] font-bold shadow-lg shadow-secondary/20 group-hover:bg-white border-2 border-primary">
-                    AI
-                </div>
-                {isOpen ? <X size={32} strokeWidth={2.5} /> : <Sparkles size={32} strokeWidth={2.5} className="group-hover:rotate-12 transition-transform" />}
-            </motion.button>
         </div>
     );
 }

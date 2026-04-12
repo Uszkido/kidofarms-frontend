@@ -41,7 +41,9 @@ const globalBridgeRoutes = require('./routes/globalbridge');
 const carriersRoutes = require('./routes/carriers');
 const shipmentsRoutes = require('./routes/shipments');
 const driversRoutes = require('./routes/drivers');
+const libraryRoutes = require('./routes/library');
 
+// ... (rest of the imports)
 
 const path = require('path');
 
@@ -108,6 +110,7 @@ app.use('/api/globalbridge', globalBridgeRoutes);
 app.use('/api/carriers', carriersRoutes);
 app.use('/api/shipments', shipmentsRoutes);
 app.use('/api/drivers', driversRoutes);
+app.use('/api/library', libraryRoutes);
 
 
 
