@@ -11,8 +11,16 @@ type Message = {
     type?: "general" | "research" | "chat";
 };
 
-export default function AdvancedKidoConcierge() {
-    const [isOpen, setIsOpen] = useState(false);
+export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpen?: boolean; onClose?: () => void }) {
+    const [internalOpen, setInternalOpen] = useState(false);
+
+    // Support both internal and external control
+    const isOpen = forceOpen !== undefined ? forceOpen : internalOpen;
+    const setIsOpen = (val: boolean) => {
+        if (onClose && !val) onClose();
+        setInternalOpen(val);
+    };
+
     const [messages, setMessages] = useState<Message[]>([
         { role: "bot", text: "Kido Horizon Online. I am your unified agricultural intelligence. Ask me about harvests, research, or orders.", type: "general" }
     ]);
@@ -99,8 +107,8 @@ export default function AdvancedKidoConcierge() {
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                                     <div className={`relative max-w-[85%] p-6 rounded-[2.2rem] text-[15px] font-bold leading-relaxed shadow-sm ${msg.role === "user"
-                                            ? "bg-primary text-white rounded-tr-none"
-                                            : "bg-white border border-primary/5 text-primary rounded-tl-none"
+                                        ? "bg-primary text-white rounded-tr-none"
+                                        : "bg-white border border-primary/5 text-primary rounded-tl-none"
                                         }`}>
                                         <div className="absolute top-2 right-4 opacity-5 italic text-[8px] font-black uppercase tracking-widest">
                                             {msg.role === "user" ? "Citizen" : "Horizon"}
