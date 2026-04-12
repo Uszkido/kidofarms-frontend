@@ -1,0 +1,51 @@
+﻿Build & Verify	Build Next.js	∩╗┐2026-04-12T22:03:17.3815700Z ##[group]Run npm run build
+Build & Verify	Build Next.js	2026-04-12T22:03:17.3815994Z [36;1mnpm run build[0m
+Build & Verify	Build Next.js	2026-04-12T22:03:17.3838080Z shell: /usr/bin/bash -e {0}
+Build & Verify	Build Next.js	2026-04-12T22:03:17.3838326Z env:
+Build & Verify	Build Next.js	2026-04-12T22:03:17.3838560Z   NEXT_PUBLIC_API_URL: http://localhost:5001
+Build & Verify	Build Next.js	2026-04-12T22:03:17.3838847Z ##[endgroup]
+Build & Verify	Build Next.js	2026-04-12T22:03:17.4973725Z 
+Build & Verify	Build Next.js	2026-04-12T22:03:17.4974190Z > kido-farms-ecommerce@0.1.0 build
+Build & Verify	Build Next.js	2026-04-12T22:03:17.4974514Z > next build
+Build & Verify	Build Next.js	2026-04-12T22:03:17.4974635Z 
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2224513Z ΓÜá `eslint` configuration in next.config.ts is no longer supported. See more info here: https://nextjs.org/docs/app/api-reference/cli/next#next-lint-options
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2319634Z ΓÜá Invalid next.config.ts options detected: 
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2320562Z ΓÜá     Unrecognized key(s) in object: 'eslint'
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2321645Z ΓÜá See more info here: https://nextjs.org/docs/messages/invalid-next-config
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2347143Z ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2349283Z  We detected multiple lockfiles and selected the directory of /home/runner/work/kidofarms-frontend/kidofarms-frontend/package-lock.json as the root directory.
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2351622Z  To silence this warning, set `turbopack.root` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2353303Z    See https://nextjs.org/docs/app/api-reference/config/next-config-js/turbopack#root-directory for more information.
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2354286Z  Detected additional lockfiles: 
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2355086Z    * /home/runner/work/kidofarms-frontend/kidofarms-frontend/frontend/package-lock.json
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2355693Z 
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2396063Z ΓÜá No build cache found. Please configure build caching for faster rebuilds. Read more: https://nextjs.org/docs/messages/no-cache
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2507009Z Attention: Next.js now collects completely anonymous telemetry regarding usage.
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2508172Z This information is used to shape Next.js' roadmap and prioritize features.
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2509811Z You can learn more, including how to opt-out if you'd not like to participate in this anonymous program, by visiting the following URL:
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2510919Z https://nextjs.org/telemetry
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2511213Z 
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2653772Z Γû▓ Next.js 16.1.6 (Turbopack)
+Build & Verify	Build Next.js	2026-04-12T22:03:18.2654666Z 
+Build & Verify	Build Next.js	2026-04-12T22:03:18.3565602Z   Creating an optimized production build ...
+Build & Verify	Build Next.js	2026-04-12T22:03:31.7738091Z Γ£ô Compiled successfully in 12.9s
+Build & Verify	Build Next.js	2026-04-12T22:03:31.7799355Z   Skipping validation of types
+Build & Verify	Build Next.js	2026-04-12T22:03:31.9647003Z   Collecting page data using 3 workers ...
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7299455Z Error: No database connection string was provided to `neon()`. Perhaps an environment variable has not been set?
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7316347Z     at neon (.next/server/chunks/frontend_src_db_index_ts_4e241fd4._.js:14:8522)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7321719Z     at module evaluation (.next/server/chunks/frontend_src_db_index_ts_4e241fd4._.js:25:49916)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7322929Z     at instantiateModule (.next/server/chunks/[turbopack]_runtime.js:740:9)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7324413Z     at getOrInstantiateModuleFromParent (.next/server/chunks/[turbopack]_runtime.js:763:12)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7327618Z     at Context.esmImport [as i] (.next/server/chunks/[turbopack]_runtime.js:228:20)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7328857Z     at module evaluation (.next/server/chunks/[root-of-the-server]__a903a73e._.js:1:3509)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7330130Z     at instantiateModule (.next/server/chunks/[turbopack]_runtime.js:740:9)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7341153Z     at instantiateRuntimeModule (.next/server/chunks/[turbopack]_runtime.js:768:12)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7342321Z     at getOrInstantiateRuntimeModule (.next/server/chunks/[turbopack]_runtime.js:781:12)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.7343282Z     at Object.m (.next/server/chunks/[turbopack]_runtime.js:790:18)
+Build & Verify	Build Next.js	2026-04-12T22:03:32.8396281Z 
+Build & Verify	Build Next.js	2026-04-12T22:03:32.8397019Z > Build error occurred
+Build & Verify	Build Next.js	2026-04-12T22:03:32.8437413Z Error: Failed to collect page data for /api/admin/blog/[id]
+Build & Verify	Build Next.js	2026-04-12T22:03:32.8438278Z     at ignore-listed frames {
+Build & Verify	Build Next.js	2026-04-12T22:03:32.8438560Z   type: 'Error'
+Build & Verify	Build Next.js	2026-04-12T22:03:32.8438786Z }
+Build & Verify	Build Next.js	2026-04-12T22:03:32.9073969Z ##[error]Process completed with exit code 1.
