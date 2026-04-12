@@ -8,16 +8,16 @@ export default withAuth(
 
         // Admin Route Protection
         if (path.startsWith("/admin") && token?.role !== "admin") {
-            return NextResponse.redirect(new URL("/login", req.url));
+            return NextResponse.redirect(new URL("/login", req.nextUrl));
         }
 
         // Role-based Dashboard Protection
         if (path.startsWith("/dashboard/vendor") && token?.role !== "vendor" && token?.role !== "farmer") {
-            return NextResponse.redirect(new URL("/dashboard/consumer", req.url));
+            return NextResponse.redirect(new URL("/dashboard/consumer", req.nextUrl));
         }
 
         if (path.startsWith("/dashboard/subscriber") && token?.role !== "subscriber") {
-            return NextResponse.redirect(new URL("/subscriptions", req.url));
+            return NextResponse.redirect(new URL("/subscriptions", req.nextUrl));
         }
 
         return NextResponse.next();
