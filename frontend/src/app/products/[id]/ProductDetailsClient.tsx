@@ -7,6 +7,7 @@ import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf, ArrowLe
 import { useCart } from "@/context/CartContext";
 import ProductReviews from "@/components/ProductReviews";
 import { ActionStatus } from "@/components/ActionStatus";
+import { GrowthJourney } from "@/components/GrowthJourney";
 
 export function ProductDetailsClient({ product, id }: { product: any, id: string }) {
     const { addToCart } = useCart();
@@ -160,6 +161,57 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                         <p className="text-xs text-primary/40">If not fresh, we replace it.</p>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-5 gap-12 mt-24">
+                        <div className="md:col-span-3">
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary mb-4">Farm Transparency</h2>
+                            <h3 className="text-4xl font-black font-serif italic mb-10 text-primary">The <span className="text-secondary tracking-tighter">Harvest</span> Journey</h3>
+                            <GrowthJourney />
+                        </div>
+                        <div className="md:col-span-2 space-y-8">
+                            <div className="bg-primary rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-16 translate-x-16" />
+                                <div className="space-y-6 relative">
+                                    <div className="flex items-center gap-2 text-secondary text-[10px] font-black uppercase tracking-widest">
+                                        <div className="w-2 h-2 rounded-full bg-secondary" /> Node_Audit-PH-09
+                                    </div>
+                                    <h4 className="text-3xl font-black font-serif uppercase tracking-tighter italic">Freshness <br /><span className="text-secondary">Certificate</span></h4>
+
+                                    <div className="space-y-4 pt-4 border-t border-white/10">
+                                        {[
+                                            { label: "Harvest Date", value: "April 10, 2026" },
+                                            { label: "Time in Cold Storage", value: "2 Days" },
+                                            { label: "Transit Distance", value: "142km" },
+                                            { label: "Est. Shelf Life", value: "12 Days" },
+                                        ].map((stat, i) => (
+                                            <div key={i} className="flex justify-between items-center text-[10px] font-black uppercase">
+                                                <span className="text-white/40">{stat.label}</span>
+                                                <span className="text-secondary">{stat.value}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="p-6 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-4 group hover:bg-white/10 cursor-pointer transition-all">
+                                        <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                            <ShieldCheck size={20} />
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest">Verify Batch Authenticity</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-xl space-y-6">
+                                <h4 className="text-xl font-black font-serif italic text-primary">Sustainability <span className="text-secondary tracking-tighter">Score</span></h4>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-6xl font-black font-serif text-primary italic">A+</span>
+                                    <span className="text-[10px] font-black uppercase text-primary/30">Top 5% Eco-Impact</span>
+                                </div>
+                                <p className="text-[10px] font-medium leading-relaxed text-primary/60">
+                                    This product contributed to a 12% reduction in water usage compared to standard farming practices in Kano State.
+                                </p>
                             </div>
                         </div>
                     </div>

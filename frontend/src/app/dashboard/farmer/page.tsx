@@ -35,7 +35,9 @@ import {
     Sparkles,
     Activity,
     Warehouse,
-    Fingerprint
+    Fingerprint,
+    Download,
+    FileText
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -44,6 +46,7 @@ import { getApiUrl } from "@/lib/api";
 
 import { ActionStatus } from "@/components/ActionStatus";
 import axios from "axios";
+import { BlueprintCanvas } from "@/components/dashboard/BlueprintCanvas";
 
 export default function FarmerDashboard() {
     const router = useRouter();
@@ -365,46 +368,65 @@ export default function FarmerDashboard() {
                         </div>
 
                         {/* Precision Monitoring Section */}
-                        <div className="bg-primary/5 p-12 rounded-[4rem] border border-primary/5">
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
-                                <div>
-                                    <h2 className="text-4xl font-black font-serif text-primary">Precision <span className="text-secondary italic">Monitoring</span></h2>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Satellite & In-Field Data Layers</p>
+                        <div className="space-y-12">
+                            <div className="bg-primary/5 p-12 rounded-[4rem] border border-primary/5">
+                                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-6">
+                                    <div>
+                                        <h2 className="text-4xl font-black font-serif text-primary">Precision <span className="text-secondary italic">Monitoring</span></h2>
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Satellite & In-Field Data Layers</p>
+                                    </div>
+                                    <div className="bg-white px-6 py-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/40 border border-primary/5 shadow-sm">
+                                        <Activity size={12} className="text-secondary" /> Sensor Network: Connected
+                                    </div>
                                 </div>
-                                <div className="bg-white px-6 py-3 rounded-2xl flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/40 border border-primary/5 shadow-sm">
-                                    <Activity size={12} className="text-secondary" /> Sensor Network: Connected
+
+                                <div className="grid md:grid-cols-3 gap-8">
+                                    <div className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm group hover:border-secondary transition-all">
+                                        <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-6">
+                                            <TrendingUp size={24} />
+                                        </div>
+                                        <h4 className="text-xl font-black font-serif mb-2">Yield Prediction</h4>
+                                        <p className="text-primary/40 text-[10px] font-bold uppercase tracking-widest mb-6">AI-Estimated Harvest Output</p>
+                                        <div className="flex items-end gap-2 text-primary">
+                                            <span className="text-5xl font-black font-serif italic">4.2</span>
+                                            <span className="text-sm font-black opacity-20 mb-2">Tons / Ha</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm group hover:border-secondary transition-all">
+                                        <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-6">
+                                            <MapPin size={24} />
+                                        </div>
+                                        <h4 className="text-xl font-black font-serif mb-2">NDVI Analysis</h4>
+                                        <p className="text-primary/40 text-[10px] font-bold uppercase tracking-widest mb-6">Vegetation Health Index</p>
+                                        <div className="flex items-end gap-2 text-green-500">
+                                            <span className="text-5xl font-black font-serif italic">0.82</span>
+                                            <span className="text-sm font-black opacity-20 mb-2">Optimal</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm text-center flex flex-col items-center justify-center space-y-4">
+                                        <div className="w-16 h-16 rounded-full border-4 border-cream border-t-secondary animate-spin" />
+                                        <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Synching Field Data...</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="grid md:grid-cols-3 gap-8">
-                                <div className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm group hover:border-secondary transition-all">
-                                    <div className="w-12 h-12 rounded-2xl bg-secondary/10 text-secondary flex items-center justify-center mb-6">
-                                        <TrendingUp size={24} />
-                                    </div>
-                                    <h4 className="text-xl font-black font-serif mb-2">Yield Prediction</h4>
-                                    <p className="text-primary/40 text-[10px] font-bold uppercase tracking-widest mb-6">AI-Estimated Harvest Output</p>
-                                    <div className="flex items-end gap-2 text-primary">
-                                        <span className="text-5xl font-black font-serif italic">4.2</span>
-                                        <span className="text-sm font-black opacity-20 mb-2">Tons / Ha</span>
-                                    </div>
+                            {/* Blueprint Monitoring Canvas - NEW */}
+                            <div className="space-y-8">
+                                <div className="px-10">
+                                    <h3 className="text-3xl font-black font-serif text-primary italic">Blueprint <span className="text-secondary">Node Mapping</span></h3>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30 mt-2">Visually managing the farm architecture</p>
                                 </div>
-
-                                <div className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm group hover:border-secondary transition-all">
-                                    <div className="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-6">
-                                        <MapPin size={24} />
-                                    </div>
-                                    <h4 className="text-xl font-black font-serif mb-2">NDVI Analysis</h4>
-                                    <p className="text-primary/40 text-[10px] font-bold uppercase tracking-widest mb-6">Vegetation Health Index</p>
-                                    <div className="flex items-end gap-2 text-green-500">
-                                        <span className="text-5xl font-black font-serif italic">0.82</span>
-                                        <span className="text-sm font-black opacity-20 mb-2">Optimal</span>
-                                    </div>
-                                </div>
-
-                                <div className="bg-white p-8 rounded-[3rem] border border-primary/5 shadow-sm text-center flex flex-col items-center justify-center space-y-4">
-                                    <div className="w-16 h-16 rounded-full border-4 border-cream border-t-secondary animate-spin" />
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-primary/30">Synching Field Data...</p>
-                                </div>
+                                <BlueprintCanvas
+                                    farmName={farmProfile.name}
+                                    modules={[
+                                        { name: "Moisture Sensor 01", type: "sensor", value: getSensorVal('moisture') + '%', status: "online", signal: '92%' },
+                                        { name: "Temperature Node", type: "sensor", value: getSensorVal('temperature') + '°C', status: "online", signal: '78%' },
+                                        { name: "Irrigation Valve A1", type: "actuator", value: "Locked", status: "online", signal: '95%' },
+                                        { name: "NPK Chemical Probe", type: "sensor", value: "Level 4", status: "offline", signal: '0%' },
+                                    ]}
+                                />
                             </div>
                         </div>
 
@@ -484,26 +506,26 @@ export default function FarmerDashboard() {
                                     <div className="grid md:grid-cols-3 gap-8 animate-in fade-in duration-500">
                                         <div className="md:col-span-2 space-y-8">
                                             <h3 className="text-5xl font-black font-serif text-primary">Global <br /><span className="text-secondary italic">Export Bridge</span></h3>
-                                            <div className="bg-neutral-50 p-8 rounded-[3rem] border border-primary/5 space-y-6">
-                                                <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-primary/5 group hover:border-secondary transition-all">
-                                                    <div className="flex gap-4 items-center">
-                                                        <Building2 className="text-secondary" />
-                                                        <div>
-                                                            <p className="font-black text-sm uppercase">EU Organic Audit</p>
-                                                            <p className="text-[10px] text-primary/30 font-bold uppercase tracking-widest">Phytosanitary ID: #9028</p>
-                                                        </div>
-                                                    </div>
-                                                    <span className="bg-green-500 text-white px-3 py-1 rounded-lg text-[10px] font-black uppercase">Verified</span>
+
+                                            <div className="bg-secondary/10 p-8 rounded-[3rem] border border-secondary/20 flex flex-col md:flex-row items-center justify-between gap-6">
+                                                <div className="space-y-1">
+                                                    <p className="text-[10px] font-black uppercase text-secondary">Export Sovereignty</p>
+                                                    <h4 className="text-xl font-black font-serif text-primary">Sustainability Certificate</h4>
+                                                    <p className="text-[10px] text-primary/40 font-medium lowercase">Generate your social-proof and compliance docs.</p>
                                                 </div>
-                                                <div className="flex justify-between items-center bg-white p-6 rounded-2xl border border-primary/5 opacity-50">
-                                                    <div className="flex gap-4 items-center">
-                                                        <Globe className="text-primary/20" />
-                                                        <div>
-                                                            <p className="font-black text-sm uppercase">US FDA Compliance</p>
-                                                            <p className="text-[10px] text-primary/30 font-bold uppercase tracking-widest">Documentation Pending</p>
-                                                        </div>
-                                                    </div>
-                                                    <RefreshCw className="text-primary/20 animate-spin-slow" />
+                                                <div className="flex gap-4 w-full md:w-auto">
+                                                    <button
+                                                        onClick={() => handleAction("Exporting PDF Certificate...")}
+                                                        className="flex-1 md:flex-none bg-primary text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 hover:bg-secondary hover:text-primary transition-all shadow-lg"
+                                                    >
+                                                        <FileText size={14} /> PDF Export
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleAction("Generating Social Media Card...")}
+                                                        className="flex-1 md:flex-none bg-white text-primary border border-primary/5 px-8 py-3 rounded-xl font-black text-[10px] uppercase flex items-center justify-center gap-2 hover:bg-cream transition-all shadow-sm"
+                                                    >
+                                                        <Download size={14} /> Social Card
+                                                    </button>
                                                 </div>
                                             </div>
                                         </div>
@@ -752,154 +774,160 @@ export default function FarmerDashboard() {
                         </div>
 
                     </div>
-                </div>
-            </main>
+                </div >
+            </main >
 
             {/* Modals */}
-            {isAgronomistOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/90 backdrop-blur-xl">
-                    <div className="bg-white w-full max-w-lg rounded-[3.5rem] p-12 shadow-2xl relative">
-                        <button onClick={() => { setIsAgronomistOpen(false); setDiagnosis(null); }} className="absolute top-10 right-10 text-primary/20 hover:text-primary">
-                            <X size={28} />
-                        </button>
-                        <div className="mb-10 text-center">
-                            <div className="w-20 h-20 bg-secondary rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-primary shadow-xl">
-                                <Brain size={40} />
-                            </div>
-                            <h3 className="text-3xl font-black font-serif">Kido <span className="text-secondary italic">Agronomist</span></h3>
-                        </div>
-                        {!diagnosis ? (
-                            <div className="space-y-8">
-                                <label className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer transition-all">
-                                    <input
-                                        type="file"
-                                        className="hidden"
-                                        onChange={(e) => {
-                                            if (e.target.files?.[0]) {
-                                                handleDiagnose("Uploaded Image Analysis");
-                                            }
-                                        }}
-                                        accept="image/*"
-                                    />
-                                    <div className="relative">
-                                        {diagnosing ? (
-                                            <Loader2 size={32} className="animate-spin text-secondary" />
-                                        ) : (
-                                            <Camera size={32} className="text-primary/20 group-hover:text-secondary group-hover:scale-110 transition-all" />
-                                        )}
-                                    </div>
-                                    <p className="font-black text-[10px] uppercase tracking-widest text-primary/40 group-hover:text-primary transition-all">
-                                        {diagnosing ? "Analyzing Bio-Data..." : "Upload Crop Scan"}
-                                    </p>
-                                </label>
-                                <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
-                                    {['Maize', 'Onion', 'Pepper', 'Rice', 'Wheat', 'Cocoa', 'Cassava', 'Yam', 'Tomato', 'Ginger', 'Cashew', 'Sorghum'].map(crop => (
-                                        <button
-                                            key={crop}
-                                            onClick={() => handleDiagnose(crop)}
-                                            className="bg-cream/50 hover:bg-secondary hover:text-primary py-4 rounded-2xl font-black text-[8px] uppercase tracking-widest transition-all border border-primary/5 hover:border-secondary shadow-sm hover:shadow-xl"
-                                        >
-                                            {crop}
-                                        </button>
-                                    ))}
+            {
+                isAgronomistOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/90 backdrop-blur-xl">
+                        <div className="bg-white w-full max-w-lg rounded-[3.5rem] p-12 shadow-2xl relative">
+                            <button onClick={() => { setIsAgronomistOpen(false); setDiagnosis(null); }} className="absolute top-10 right-10 text-primary/20 hover:text-primary">
+                                <X size={28} />
+                            </button>
+                            <div className="mb-10 text-center">
+                                <div className="w-20 h-20 bg-secondary rounded-[2rem] flex items-center justify-center mx-auto mb-6 text-primary shadow-xl">
+                                    <Brain size={40} />
                                 </div>
+                                <h3 className="text-3xl font-black font-serif">Kido <span className="text-secondary italic">Agronomist</span></h3>
                             </div>
-                        ) : (
-                            <div className="p-8 bg-cream rounded-[2.5rem] space-y-4">
-                                <h4 className="text-2xl font-black font-serif italic">{diagnosis.diagnosis}</h4>
-                                <p className="text-sm font-medium leading-relaxed">{diagnosis.treatment}</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {isVoiceListingOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/95 backdrop-blur-2xl text-center text-white">
-                    <div className="bg-white/10 p-12 rounded-[4rem] border border-white/10 w-full max-w-lg">
-                        <button onClick={() => setIsVoiceListingOpen(false)} className="absolute top-10 right-10"><X /></button>
-                        <div className="w-32 h-32 rounded-full mx-auto bg-secondary flex items-center justify-center mb-8 cursor-pointer" onClick={handleVoiceListing}>
-                            <Mic size={48} className={isRecording ? 'animate-pulse' : ''} />
-                        </div>
-                        <h4 className="text-2xl font-black font-serif">Voice Assistant</h4>
-                        <p className="mt-4 text-white/40">{isRecording ? "Listening..." : "Tap the mic to start listing"}</p>
-                    </div>
-                </div>
-            )}
-
-            {isEditProfileOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/95 backdrop-blur-xl transition-all">
-                    <div className="bg-white w-full max-w-2xl rounded-[4rem] p-12 shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] -translate-y-32 translate-x-32" />
-
-                        <button onClick={() => setIsEditProfileOpen(false)} className="absolute top-10 right-10 text-primary/20 hover:text-primary z-50">
-                            <X size={28} />
-                        </button>
-
-                        <div className="space-y-10 relative z-10">
-                            <div className="space-y-4">
-                                <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary">Profile Configuration</h2>
-                                <h3 className="text-4xl font-black font-serif uppercase tracking-tighter italic">Edit <span className="text-secondary">Farm Node</span></h3>
-                            </div>
-
-                            <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setIsEditProfileOpen(false); handleAction("Horizon Node Update"); }}>
-                                <div className="grid md:grid-cols-2 gap-8">
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Farm Identity Name</label>
-                                        <input
-                                            value={farmProfile.name}
-                                            onChange={(e) => setFarmProfile({ ...farmProfile, name: e.target.value })}
-                                            className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-[10px]"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Geographic Node (Location)</label>
-                                        <input
-                                            value={farmProfile.location}
-                                            onChange={(e) => setFarmProfile({ ...farmProfile, location: e.target.value })}
-                                            className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-[10px]"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Node Bio (Description)</label>
-                                    <textarea
-                                        value={farmProfile.description}
-                                        onChange={(e) => setFarmProfile({ ...farmProfile, description: e.target.value })}
-                                        className="w-full h-32 bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-medium text-xs leading-relaxed"
-                                    />
-                                </div>
-
-                                <div className="space-y-4">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4 text-center block">Visual Auth (Profile Logo)</label>
-                                    <label className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-10 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer transition-all">
+                            {!diagnosis ? (
+                                <div className="space-y-8">
+                                    <label className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-12 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer transition-all">
                                         <input
                                             type="file"
                                             className="hidden"
                                             onChange={(e) => {
                                                 if (e.target.files?.[0]) {
-                                                    setIsEditProfileOpen(false);
-                                                    handleAction("Visual Data Upload");
+                                                    handleDiagnose("Uploaded Image Analysis");
                                                 }
                                             }}
                                             accept="image/*"
                                         />
-                                        <Camera size={32} className="text-primary/20 group-hover:text-secondary group-hover:scale-110 transition-all" />
-                                        <p className="font-black text-[10px] uppercase tracking-widest text-primary/40 group-hover:text-primary">Change Profile Photo</p>
+                                        <div className="relative">
+                                            {diagnosing ? (
+                                                <Loader2 size={32} className="animate-spin text-secondary" />
+                                            ) : (
+                                                <Camera size={32} className="text-primary/20 group-hover:text-secondary group-hover:scale-110 transition-all" />
+                                            )}
+                                        </div>
+                                        <p className="font-black text-[10px] uppercase tracking-widest text-primary/40 group-hover:text-primary transition-all">
+                                            {diagnosing ? "Analyzing Bio-Data..." : "Upload Crop Scan"}
+                                        </p>
                                     </label>
+                                    <div className="grid grid-cols-3 md:grid-cols-4 gap-4">
+                                        {['Maize', 'Onion', 'Pepper', 'Rice', 'Wheat', 'Cocoa', 'Cassava', 'Yam', 'Tomato', 'Ginger', 'Cashew', 'Sorghum'].map(crop => (
+                                            <button
+                                                key={crop}
+                                                onClick={() => handleDiagnose(crop)}
+                                                className="bg-cream/50 hover:bg-secondary hover:text-primary py-4 rounded-2xl font-black text-[8px] uppercase tracking-widest transition-all border border-primary/5 hover:border-secondary shadow-sm hover:shadow-xl"
+                                            >
+                                                {crop}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
-
-                                <button type="submit" className="w-full bg-primary text-secondary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-xs hover:bg-secondary hover:text-primary transition-all shadow-2xl">
-                                    Broadcast Profile Update
-                                </button>
-                            </form>
+                            ) : (
+                                <div className="p-8 bg-cream rounded-[2.5rem] space-y-4">
+                                    <h4 className="text-2xl font-black font-serif italic">{diagnosis.diagnosis}</h4>
+                                    <p className="text-sm font-medium leading-relaxed">{diagnosis.treatment}</p>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </div>
-            )}
+                )
+            }
+
+            {
+                isVoiceListingOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/95 backdrop-blur-2xl text-center text-white">
+                        <div className="bg-white/10 p-12 rounded-[4rem] border border-white/10 w-full max-w-lg">
+                            <button onClick={() => setIsVoiceListingOpen(false)} className="absolute top-10 right-10"><X /></button>
+                            <div className="w-32 h-32 rounded-full mx-auto bg-secondary flex items-center justify-center mb-8 cursor-pointer" onClick={handleVoiceListing}>
+                                <Mic size={48} className={isRecording ? 'animate-pulse' : ''} />
+                            </div>
+                            <h4 className="text-2xl font-black font-serif">Voice Assistant</h4>
+                            <p className="mt-4 text-white/40">{isRecording ? "Listening..." : "Tap the mic to start listing"}</p>
+                        </div>
+                    </div>
+                )
+            }
+
+            {
+                isEditProfileOpen && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/95 backdrop-blur-xl transition-all">
+                        <div className="bg-white w-full max-w-2xl rounded-[4rem] p-12 shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] -translate-y-32 translate-x-32" />
+
+                            <button onClick={() => setIsEditProfileOpen(false)} className="absolute top-10 right-10 text-primary/20 hover:text-primary z-50">
+                                <X size={28} />
+                            </button>
+
+                            <div className="space-y-10 relative z-10">
+                                <div className="space-y-4">
+                                    <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary">Profile Configuration</h2>
+                                    <h3 className="text-4xl font-black font-serif uppercase tracking-tighter italic">Edit <span className="text-secondary">Farm Node</span></h3>
+                                </div>
+
+                                <form className="space-y-8" onSubmit={(e) => { e.preventDefault(); setIsEditProfileOpen(false); handleAction("Horizon Node Update"); }}>
+                                    <div className="grid md:grid-cols-2 gap-8">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Farm Identity Name</label>
+                                            <input
+                                                value={farmProfile.name}
+                                                onChange={(e) => setFarmProfile({ ...farmProfile, name: e.target.value })}
+                                                className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-[10px]"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Geographic Node (Location)</label>
+                                            <input
+                                                value={farmProfile.location}
+                                                onChange={(e) => setFarmProfile({ ...farmProfile, location: e.target.value })}
+                                                className="w-full bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-[10px]"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4">Node Bio (Description)</label>
+                                        <textarea
+                                            value={farmProfile.description}
+                                            onChange={(e) => setFarmProfile({ ...farmProfile, description: e.target.value })}
+                                            className="w-full h-32 bg-cream/10 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-medium text-xs leading-relaxed"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/30 ml-4 text-center block">Visual Auth (Profile Logo)</label>
+                                        <label className="border-4 border-dashed border-primary/5 rounded-[2.5rem] p-10 flex flex-col items-center justify-center gap-6 group hover:border-secondary cursor-pointer transition-all">
+                                            <input
+                                                type="file"
+                                                className="hidden"
+                                                onChange={(e) => {
+                                                    if (e.target.files?.[0]) {
+                                                        setIsEditProfileOpen(false);
+                                                        handleAction("Visual Data Upload");
+                                                    }
+                                                }}
+                                                accept="image/*"
+                                            />
+                                            <Camera size={32} className="text-primary/20 group-hover:text-secondary group-hover:scale-110 transition-all" />
+                                            <p className="font-black text-[10px] uppercase tracking-widest text-primary/40 group-hover:text-primary">Change Profile Photo</p>
+                                        </label>
+                                    </div>
+
+                                    <button type="submit" className="w-full bg-primary text-secondary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-xs hover:bg-secondary hover:text-primary transition-all shadow-2xl">
+                                        Broadcast Profile Update
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                )
+            }
 
             <Footer />
-        </div>
+        </div >
     );
 }
