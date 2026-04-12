@@ -579,6 +579,32 @@ const systemHealth = pgTable("system_health", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Poultry Batches Table
+const poultryBatches = pgTable("poultry_batches", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id).notNull(),
+    batchType: text("batch_type").notNull(), // Broilers, Layers, etc.
+    quantity: integer("quantity").notNull(),
+    hatchDate: timestamp("hatch_date"),
+    status: text("status").default("active"), // active, harvested
+    mortalityRate: numeric("mortality_rate", { precision: 5, scale: 2 }).default("0"),
+    averageWeight: numeric("average_weight", { precision: 10, scale: 2 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// GIS Plots Table
+const gisPlots = pgTable("gis_plots", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmerId: uuid("farmer_id").references(() => users.id).notNull(),
+    name: text("name").notNull(),
+    geoJson: jsonb("geo_json"), // Store polygon or points
+    acreage: numeric("acreage", { precision: 10, scale: 2 }),
+    soilType: text("soil_type"),
+    currentCrop: text("current_crop"),
+    fertilityScore: integer("fertility_score").default(100),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 module.exports = {
     users,
     categories,
@@ -624,6 +650,8 @@ module.exports = {
     groupBuyParticipantsRelations,
     stories,
     storiesRelations,
+    poultryBatches,
+    gisPlots,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
