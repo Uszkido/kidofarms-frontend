@@ -169,6 +169,17 @@ const tools = [
                     type: "OBJECT",
                     properties: {}
                 }
+            },
+            {
+                name: "retrieve_farming_knowledge",
+                description: "Search the Kido internal knowledge base for farming guides, soil management, and crop protocols.",
+                parameters: {
+                    type: "OBJECT",
+                    properties: {
+                        query: { type: "STRING", description: "Keywords to search for in the agricultural library." }
+                    },
+                    required: ["query"]
+                }
             }
         ]
     }
@@ -260,6 +271,32 @@ const toolHandlers = {
             return { clusters, recommendation: "Deploy carriers to high-volume nodes for immediate batching in the specified cities." };
         } catch (err) {
             return "Error clustering logistics.";
+        }
+    },
+    retrieve_farming_knowledge: async ({ query }) => {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const knowledgeDir = path.join(__dirname, '../../frontend/src/knowledge');
+
+            if (!fs.existsSync(knowledgeDir)) return "Knowledge base directory not found.";
+
+            const files = fs.readdirSync(knowledgeDir);
+            let combinedContent = "";
+
+            for (const file of files) {
+                if (file.endsWith('.md')) {
+                    const content = fs.readFileSync(path.join(knowledgeDir, file), 'utf8');
+                    if (content.toLowerCase().includes(query.toLowerCase())) {
+                        combinedContent += `--- From ${file} ---\n${content}\n\n`;
+                    }
+                }
+            }
+
+            return combinedContent || "No specific Kido protocols found for that query. Defaulting to general agronomist knowledge.";
+        } catch (err) {
+            console.error("Knowledge retrieval error:", err);
+            return "Error accessing the internal library.";
         }
     }
 };
