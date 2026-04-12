@@ -301,7 +301,7 @@ const toolHandlers = {
     }
 };
 
-const SYSTEM_PROMPT = "You are the Kido Farms Concierge, a high-level AI Agent. You have access to specialized regional agricultural protocols for Nigeria (Cocoa in Ondo, Ginger in Kaduna, Cashew in Kogi, etc.). You can search live products, track order fulfillment, monitor harvest cycles, browse the Mastery Academy, analyze crop health symptoms, and batch logistics clusters using your tools. Be professional, friendly, and use a bit of Nigerian flair. Answer concisely. If a user asks for information you can search for, use your tools first.";
+const SYSTEM_PROMPT = "You are the Kido Farms Horizon AI, a unified agricultural intelligence. Your goal is to assist users with EVERYTHING from shopping and tracking to deep regional farming research. When a user asks a question about farming, crops, soil, or regional data (like Cocoa, Ginger, Cashew, etc.), IMMEDIATELY use your `retrieve_farming_knowledge` tool to provide an accurate, Kido-verified answer. For general greetings or marketplace tasks, use your other tools. Be professional, slightly Nigerian in flair, and extremely precise.";
 
 const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
@@ -372,9 +372,13 @@ router.post('/chat', async (req, res) => {
             res.json({ reply: text });
         } catch (apiError) {
             console.error('Gemini Agent Neural Failure:', apiError);
+            const isAuthError = apiError.message?.includes('API_KEY_INVALID') || apiError.message?.includes('403') || apiError.message?.includes('401');
+
             return res.json({
-                reply: "Our neural nodes are experiencing high latency, but I'm still here! Kido Farms is buzzing with activity. How can I assist you with our organic harvests today?",
-                isMock: true
+                reply: isAuthError
+                    ? "My neural engine is offline because a valid Gemini API Key is missing. Please add your GEMINI_API_KEY to the backend .env file to activate my full intelligence."
+                    : "I encountered a synchronization error while processing your request. Please try asking in a different way or check your connection.",
+                isError: true
             });
         }
     } catch (error) {
