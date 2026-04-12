@@ -371,12 +371,28 @@ router.post('/chat', async (req, res) => {
             const text = response.text();
             res.json({ reply: text });
         } catch (apiError) {
-            console.error('Gemini Agent Neural Failure:', apiError);
-            const isAuthError = apiError.message?.includes('API_KEY_INVALID') || apiError.message?.includes('403') || apiError.message?.includes('401');
+            console.error('Gemini Agent Neural Failure, switching to Local Knowledge Nodes:', apiError);
+
+            // Local Knowledge Fallback (The "Chats Agent")
+            try {
+                const query = message.split(' ').slice(0, 5).join(' '); // Extract keywords
+                const localInfo = await handlers.retrieve_farming_knowledge({ query });
+
+                if (localInfo && !localInfo.includes("No specific Kido protocols found") && !localInfo.includes("Knowledge base directory not found")) {
+                    return res.json({
+                        reply: "My advanced neural sync is offline (Gemini Key missing), but I've successfully retrieved these protocols from our internal Kido Knowledge Nodes for you:\n\n" + localInfo,
+                        isLocal: true
+                    });
+                }
+            } catch (fallbackErr) {
+                console.error("Local fallback failed:", fallbackErr);
+            }
+
+            const isAuthError = apiError.message?.includes('API_KEY_INVALID') || apiError.message?.includes('403') || apiError.message?.includes('401') || apiError.message?.includes('not found');
 
             return res.json({
                 reply: isAuthError
-                    ? "My neural engine is offline because a valid Gemini API Key is missing. Please add your GEMINI_API_KEY to the backend .env file to activate my full intelligence."
+                    ? "My full intelligence engine is offline because a valid Gemini API Key is missing. I can provide basic local search, but no matches were found for your query. Please configure the GEMINI_API_KEY to enable my deep reasoning."
                     : "I encountered a synchronization error while processing your request. Please try asking in a different way or check your connection.",
                 isError: true
             });
