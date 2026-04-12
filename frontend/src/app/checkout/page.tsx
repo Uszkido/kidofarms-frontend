@@ -37,10 +37,24 @@ export default function CheckoutPage() {
         phone: ""
     });
 
+    const getShippingFee = (stateName: string) => {
+        const fees: Record<string, number> = {
+            "Plateau": 1500, // Home base
+            "Lagos": 3500,
+            "Abuja": 3000,
+            "Rivers": 4500,
+            "Kano": 4000
+        };
+        return fees[stateName] || 5000; // Default for others
+    };
+
+    const shippingFee = getShippingFee(form.state);
+    const totalWithShipping = cartTotal + (cart.length > 0 ? shippingFee : 0);
+
     const config = {
         reference: (new Date()).getTime().toString(),
         email: form.email || "guest@kidofarms.com",
-        amount: cartTotal * 100, // Paystack works in Kobo
+        amount: Math.round(totalWithShipping * 100), // Paystack works in Kobo
         publicKey: 'pk_live_b5974af483a0af6838df8dcad9f24b07bdd09365',
     };
 
@@ -54,7 +68,7 @@ export default function CheckoutPage() {
                     reference: reference.reference,
                     orderId,
                     items: cart,
-                    totalAmount: cartTotal,
+                    totalAmount: totalWithShipping,
                 })
             });
 
@@ -257,9 +271,17 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <div className="space-y-4 pt-8 border-t border-primary/5">
-                                    <div className="flex justify-between font-bold text-2xl">
-                                        <span>Total Amount</span>
-                                        <span className="text-secondary font-serif">₦{cartTotal.toLocaleString()}</span>
+                                    <div className="flex justify-between text-sm font-medium text-primary/60">
+                                        <span>Cart Subtotal</span>
+                                        <span>₦{cartTotal.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm font-medium text-primary/60">
+                                        <span>Logistics ({form.state})</span>
+                                        <span>₦{shippingFee.toLocaleString()}</span>
+                                    </div>
+                                    <div className="flex justify-between font-bold text-2xl pt-4 border-t border-primary/5">
+                                        <span>Grand Total</span>
+                                        <span className="text-secondary font-serif">₦{totalWithShipping.toLocaleString()}</span>
                                     </div>
                                 </div>
 

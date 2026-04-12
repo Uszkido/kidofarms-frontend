@@ -4,7 +4,28 @@ import { eq } from "drizzle-orm";
 import { notFound } from "next/navigation";
 import { ProductDetailsClient } from "./ProductDetailsClient";
 
+import { Metadata } from 'next';
+
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+    const { id } = await params;
+    const product = await db.query.products.findFirst({
+        where: eq(products.id, id)
+    });
+
+    if (!product) return { title: 'Product Not Found | Kido Farms' };
+
+    return {
+        title: `${product.name} | Kido Farms Market`,
+        description: product.description?.substring(0, 160) || `Buy fresh ${product.name} directly from our organic fields.`,
+        openGraph: {
+            title: `${product.name} - Fresh Harvest`,
+            description: product.description,
+            images: product.images?.[0] ? [{ url: product.images[0] }] : [],
+        },
+    };
+}
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;

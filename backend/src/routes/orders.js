@@ -4,6 +4,7 @@ const { db } = require('../db');
 const { orders, orderItems, affiliates, commissions, products } = require('../db/schema');
 const { desc, eq, inArray } = require('drizzle-orm');
 const { sendOrderToBot, sendTelegramAlert } = require('../lib/bot');
+const { sendOrderConfirmation } = require('../lib/email');
 const axios = require('axios');
 
 // Helper to handle order completion tasks (stock, commission, notifications)
@@ -60,8 +61,10 @@ async function completeOrderProcessing(orderId, items, totalAmount, referralCode
             return { ...item, name: p ? p.name : `Product ${item.id}` };
         });
         await sendOrderToBot(orderData, enrichedItems);
+        // 4. Email Confirmation
+        await sendOrderConfirmation(orderData, enrichedItems);
     } catch (err) {
-        console.error("Bot update failed:", err);
+        console.error("Bot/Email update failed:", err);
     }
 }
 

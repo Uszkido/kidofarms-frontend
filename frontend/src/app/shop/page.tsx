@@ -264,6 +264,11 @@ function ShopContent() {
                                                             <Zap size={10} fill="currentColor" /> Flash
                                                         </span>
                                                     )}
+                                                    {Number(prod.stock) <= 0 && (
+                                                        <span className="bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                                                            Sold Out
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -309,13 +314,15 @@ function ShopContent() {
                                                                 quantity: 1,
                                                                 category: prod.category
                                                             })}
-                                                            className="bg-primary text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-secondary hover:text-primary transition-all whitespace-nowrap"
+                                                            disabled={Number(prod.stock) <= 0}
+                                                            className={`bg-primary text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-secondary hover:text-primary transition-all whitespace-nowrap disabled:bg-primary/10 disabled:text-primary/20 disabled:cursor-not-allowed`}
                                                         >
-                                                            Add to Cart
+                                                            {Number(prod.stock) <= 0 ? "Out of Stock" : "Add to Cart"}
                                                         </button>
                                                         <button
                                                             onClick={() => handleGroupBuy(prod.id)}
-                                                            className="bg-white border border-primary/10 text-primary px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:border-secondary transition-all flex items-center justify-center gap-1 group/btn"
+                                                            disabled={Number(prod.stock) <= 0}
+                                                            className="bg-white border border-primary/10 text-primary px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:border-secondary transition-all flex items-center justify-center gap-1 group/btn disabled:opacity-30 disabled:cursor-not-allowed"
                                                         >
                                                             <Users size={12} className="text-secondary group-hover/btn:text-primary" /> Buy as Group
                                                         </button>
