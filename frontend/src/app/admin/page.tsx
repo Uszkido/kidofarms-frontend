@@ -50,6 +50,11 @@ import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 import NotificationBell from "@/components/NotificationBell";
+import KidoVisionModal from "@/components/KidoVisionModal";
+import {
+    Shield,
+    Warehouse
+} from "lucide-react";
 
 
 export const dynamic = 'force-dynamic';
@@ -60,6 +65,17 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [impersonationId, setImpersonationId] = useState("");
     const [isImpersonating, setIsImpersonating] = useState(false);
+    const [isVisionOpen, setIsVisionOpen] = useState(false);
+
+    const downloadMultispectral = () => {
+        const content = "Protocol: FarmVibes-AI-Delta\nRegion: Jos-NG-402\nNDVI: 0.82\nBiomass: 4.2t/ha\nSoil Moisture: 34%\nNitrogen: 82%\nCloud-Cover: 12%\nTimestamp: " + new Date().toISOString();
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'KIDO_MULTISPECTRAL_LAYER_' + new Date().getTime() + '.txt';
+        link.click();
+    };
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -380,7 +396,12 @@ export default function AdminDashboard() {
                                     <div className="h-full bg-green-400" style={{ width: '82%' }} />
                                 </div>
                             </div>
-                            <button className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all underline underline-offset-8">Download Multispectral Layer</button>
+                            <button
+                                onClick={downloadMultispectral}
+                                className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all underline underline-offset-8 active:scale-95"
+                            >
+                                Download Multispectral Layer
+                            </button>
                         </div>
                     </div>
 
@@ -406,7 +427,12 @@ export default function AdminDashboard() {
                                     <p className="text-[9px] font-black text-white/20 text-center tracking-widest">0.2% Confidence</p>
                                 </div>
                             </div>
-                            <button className="w-full bg-orange-400 text-primary py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-white transition-all">Launch Vision Portal</button>
+                            <button
+                                onClick={() => setIsVisionOpen(true)}
+                                className="w-full bg-orange-400 text-primary py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-white transition-all active:scale-95"
+                            >
+                                Launch Vision Portal
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -568,12 +594,18 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </div>
+
+                <KidoVisionModal
+                    isOpen={isVisionOpen}
+                    onClose={() => setIsVisionOpen(false)}
+                    productName="Maize Field Analysis"
+                    productImage="https://images.unsplash.com/photo-1551727974-8af20a3322f1?w=800"
+                    category="Grains"
+                />
             </div>
         </div>
     );
 }
-
-// --- RESTORED & NEW UI COMPONENTS ---
 
 function NodeStatus({ label, status, health, icon, count }: any) {
     return (
