@@ -131,11 +131,23 @@ async function run() {
 
             if (!existing) {
                 const trackingId = `KD-PROD-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+                const growthJournal = item.name.includes("Spinach") ? [
+                    { date: "2026-03-01", milestone: "Nursery Sowing", imageUrl: "https://images.unsplash.com/photo-1523348837708-31652175b058?w=800" },
+                    { date: "2026-03-20", milestone: "Germination & Pricking", imageUrl: "https://images.unsplash.com/photo-1416870213414-459f444853a5?w=800" },
+                    { date: "2026-04-05", milestone: "Vegetative Peak", imageUrl: "https://images.unsplash.com/photo-1592398633469-80ac9034ed8d?w=800" },
+                    { date: "2026-04-12", milestone: "Ready for Harvest", imageUrl: "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?w=800" }
+                ] : item.name.includes("Strawberries") ? [
+                    { date: "2026-02-15", milestone: "Runners Planting", imageUrl: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800" },
+                    { date: "2026-03-10", milestone: "Flowering Stage", imageUrl: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=800" },
+                    { date: "2026-04-01", milestone: "Fruit Ripening", imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800" }
+                ] : [];
+
                 await db.insert(products).values({
                     ...item,
                     ownerId,
                     trackingId,
                     images: [imageUrl],
+                    growthJournal,
                     rating: "4.5",
                     numReviews: 10,
                     isFeatured: Math.random() > 0.8
@@ -143,10 +155,22 @@ async function run() {
                 console.log(`- Inserted: ${item.name}`);
             } else {
                 // Update product category and image
+                const growthJournal = item.name.includes("Spinach") ? [
+                    { date: "2026-03-01", milestone: "Nursery Sowing", imageUrl: "https://images.unsplash.com/photo-1523348837708-31652175b058?w=800" },
+                    { date: "2026-03-20", milestone: "Germination & Pricking", imageUrl: "https://images.unsplash.com/photo-1416870213414-459f444853a5?w=800" },
+                    { date: "2026-04-05", milestone: "Vegetative Peak", imageUrl: "https://images.unsplash.com/photo-1592398633469-80ac9034ed8d?w=800" },
+                    { date: "2026-04-12", milestone: "Ready for Harvest", imageUrl: "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?w=800" }
+                ] : item.name.includes("Strawberries") ? [
+                    { date: "2026-02-15", milestone: "Runners Planting", imageUrl: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?w=800" },
+                    { date: "2026-03-10", milestone: "Flowering Stage", imageUrl: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=800" },
+                    { date: "2026-04-01", milestone: "Fruit Ripening", imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800" }
+                ] : [];
+
                 await db.update(products)
                     .set({
                         category: item.category,
-                        images: [imageUrl]
+                        images: [imageUrl],
+                        growthJournal
                     })
                     .where(eq(products.id, existing.id));
                 console.log(`- Updated: ${item.name} (${item.category})`);

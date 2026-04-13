@@ -169,7 +169,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                         <div className="md:col-span-3">
                             <h2 className="text-[10px] font-black uppercase tracking-[0.5em] text-secondary mb-4">Farm Transparency</h2>
                             <h3 className="text-4xl font-black font-serif italic mb-10 text-primary">The <span className="text-secondary tracking-tighter">Harvest</span> Journey</h3>
-                            <GrowthJourney />
+                            <GrowthJourney stages={product.growthJournal} />
                         </div>
                         <div className="md:col-span-2 space-y-8">
                             <div className="bg-primary rounded-[3rem] p-10 text-white shadow-2xl relative overflow-hidden">

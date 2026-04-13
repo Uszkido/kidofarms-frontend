@@ -21,7 +21,9 @@ import {
     Activity,
     ClipboardCheck,
     Box,
-    Zap
+    Zap,
+    Globe,
+    Leaf
 } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,8 +37,16 @@ const FleetOverviewMap = nextDynamic(() => import("@/components/FleetOverviewMap
     loading: () => <div className="w-full h-[600px] bg-white/5 rounded-[3rem] animate-pulse flex items-center justify-center text-white/20 font-black uppercase tracking-[0.5em] text-[10px]">Initializing Satellite Matrix...</div>
 });
 
+const EmissionCard = ({ label, value, sub }: { label: string, value: string, sub: string }) => (
+    <div className="bg-white/5 p-6 rounded-3xl border border-white/5">
+        <p className="text-[9px] font-black uppercase tracking-widest text-white/20 mb-1">{label}</p>
+        <p className="text-2xl font-black font-serif italic text-white">{value}</p>
+        <p className="text-[8px] font-bold text-secondary uppercase tracking-widest mt-1">{sub}</p>
+    </div>
+);
+
 export default function AdminLogisticsHub() {
-    const [view, setView] = useState<'drivers' | 'dispatches' | 'overview' | 'analytics'>('drivers');
+    const [view, setView] = useState<'drivers' | 'dispatches' | 'overview' | 'analytics' | 'environmental'>('drivers');
     const [drivers, setDrivers] = useState<any[]>([]);
     const [orders, setOrders] = useState<any[]>([]);
     const [users, setUsers] = useState<any[]>([]); // For registering new drivers
@@ -60,8 +70,6 @@ export default function AdminLogisticsHub() {
 
         const newRecs: Record<string, string> = {};
         currentOrders.forEach((order, index) => {
-            // Simulated Logic: Match larger orders to Trucks/Vans, smaller to Bikes
-            // For now, we distribute them to ensure fleet balance
             const recommendedDriver = idleDrivers[index % idleDrivers.length];
             if (recommendedDriver) {
                 newRecs[order.id] = recommendedDriver.id;
@@ -110,7 +118,6 @@ export default function AdminLogisticsHub() {
             setOrders(finalOrders);
             setUsers(Array.isArray(usersData) ? usersData.filter(u => u.role === 'carrier' || u.role === 'customer' || u.role === 'admin') : []);
 
-            // Trigger Optimization
             autoOptimizeDispatch(finalOrders.filter(o => o.orderStatus === 'processing'), finalDrivers);
         } catch (error) {
             console.error("Logistics sync failed", error);
@@ -204,6 +211,12 @@ export default function AdminLogisticsHub() {
                             className={`px-10 py-5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${view === 'analytics' ? 'bg-secondary text-primary shadow-2xl' : 'text-white/40 hover:text-white'}`}
                         >
                             Dynamics Analytics
+                        </button>
+                        <button
+                            onClick={() => setView('environmental')}
+                            className={`px-10 py-5 rounded-[2rem] text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap ${view === 'environmental' ? 'bg-secondary text-primary shadow-2xl' : 'text-white/40 hover:text-white'}`}
+                        >
+                            Environmental Audit
                         </button>
                     </div>
                 </header>
@@ -304,7 +317,7 @@ export default function AdminLogisticsHub() {
                                 ))}
                             </div>
                         </motion.div>
-                    ) : (
+                    ) : view === 'dispatches' ? (
                         <motion.div
                             key="dispatches"
                             initial={{ opacity: 0, y: 20 }}
@@ -385,6 +398,109 @@ export default function AdminLogisticsHub() {
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <motion.div
+                            key="environmental"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="space-y-12"
+                        >
+                            <div className="grid lg:grid-cols-3 gap-10">
+                                <div className="lg:col-span-2 space-y-10">
+                                    <div className="bg-white/5 p-12 rounded-[4rem] border border-white/10 space-y-8 relative overflow-hidden">
+                                        <div className="absolute top-0 right-0 p-12 text-secondary/10">
+                                            <Globe size={120} />
+                                        </div>
+                                        <div className="space-y-2 relative z-10">
+                                            <div className="flex items-center gap-3">
+                                                <Leaf className="text-secondary" size={20} />
+                                                <h3 className="text-4xl font-black font-serif italic uppercase tracking-tighter text-white">Sovereign Carbon <span className="text-secondary">Audit</span></h3>
+                                            </div>
+                                            <p className="text-[10px] font-black uppercase tracking-[0.4em] text-white/30">Protocol: NP-Hardest/Carbon-Calculator Synthesis</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 relative z-10">
+                                            <EmissionCard label="Total CO2 (kg)" value={(orders.length * 1.25).toFixed(2)} sub="Estimated" />
+                                            <EmissionCard label="Offset Value" value="₦5,840" sub="Sovereign Credit" />
+                                            <EmissionCard label="Eco Efficiency" value="96.2%" sub="Green Node Status" />
+                                            <EmissionCard label="Tree Equivalent" value="14" sub="Growth Impact" />
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 rounded-[3rem] p-10 border border-white/5 space-y-6">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-secondary border-l-2 border-secondary pl-4">Emission Log by Vehicle Cluster</h4>
+                                        <div className="space-y-4">
+                                            {[
+                                                { type: 'Motorcycle', factor: 0.08, count: drivers.filter(d => d.vehicleType === 'Motorcycle').length },
+                                                { type: 'Bicycle', factor: 0.00, count: drivers.filter(d => d.vehicleType === 'Bicycle').length },
+                                                { type: 'Van', factor: 0.22, count: drivers.filter(d => d.vehicleType === 'Van').length },
+                                                { type: 'Truck', factor: 0.45, count: drivers.filter(d => d.vehicleType === 'Truck').length }
+                                            ].map((v, i) => (
+                                                <div key={i} className="flex items-center justify-between p-6 bg-white/5 rounded-2xl border border-white/5 group hover:border-secondary transition-all">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="w-10 h-10 bg-secondary/10 rounded-xl flex items-center justify-center text-secondary">
+                                                            {v.type === 'Truck' ? <Truck size={18} /> : v.type === 'Bicycle' ? <Bike size={18} /> : <Zap size={18} />}
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs font-black text-white uppercase">{v.type} Node</p>
+                                                            <p className="text-[8px] font-bold text-white/20 uppercase tracking-widest">{v.count} Units Active</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <p className="text-sm font-black text-white italic">{(v.count * v.factor * 12.5).toFixed(1)} kg</p>
+                                                        <p className="text-[8px] font-black text-secondary uppercase tracking-widest">CO2 Contribution</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-10">
+                                    <div className="bg-secondary rounded-[3rem] p-10 text-primary shadow-2xl space-y-6 relative overflow-hidden group">
+                                        <div className="absolute -bottom-10 -right-10 opacity-10 group-hover:scale-125 transition-transform">
+                                            <ClipboardCheck size={160} />
+                                        </div>
+                                        <h4 className="text-2xl font-black font-serif italic uppercase text-primary tracking-tighter leading-none relative z-10">Provision <br />Carbon Credit</h4>
+                                        <p className="text-[10px] font-black uppercase text-primary/60 tracking-widest relative z-10">Convert delivery efficiency into platform liquidity nodes.</p>
+                                        <button
+                                            onClick={() => {
+                                                const btn = document.getElementById('offset-btn');
+                                                if (btn) {
+                                                    btn.innerHTML = 'Syncing Ledger...';
+                                                    btn.classList.add('animate-pulse');
+                                                    setTimeout(() => {
+                                                        btn.innerHTML = 'Credits Provisioned ✓';
+                                                        btn.classList.remove('animate-pulse');
+                                                        btn.classList.add('bg-white', 'text-secondary');
+                                                        alert('Sovereign Protocol: 14 Offset Credits have been provisioned to the Kido Treasury Node for April 2026.');
+                                                    }, 2000);
+                                                }
+                                            }}
+                                            id="offset-btn"
+                                            className="w-full py-4 bg-primary text-white rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] shadow-xl hover:bg-white hover:text-primary transition-all relative z-10"
+                                        >
+                                            Initialize Offset
+                                        </button>
+                                    </div>
+
+                                    <div className="bg-white/5 p-10 rounded-[3rem] border border-white/5 space-y-6">
+                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20">Sovereign Compliance</h4>
+                                        <div className="space-y-4">
+                                            <div className="flex gap-4">
+                                                <ShieldCheck className="text-green-400 shrink-0" size={16} />
+                                                <p className="text-[9px] font-bold text-white/40 leading-relaxed uppercase">Logistics cluster within 80% range of Euro 5 standards.</p>
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <Activity className="text-secondary shrink-0" size={16} />
+                                                <p className="text-[9px] font-bold text-white/40 leading-relaxed uppercase">Real-time methane pulse monitoring enabled via Sensors Node.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
                     )}

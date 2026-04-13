@@ -24,6 +24,7 @@ export function EditProductClient() {
         isFeatured: false,
     });
     const [images, setImages] = useState<string[]>([]);
+    const [growthJournal, setGrowthJournal] = useState<{ date: string, milestone: string, imageUrl: string }[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
 
     useEffect(() => {
@@ -52,6 +53,7 @@ export function EditProductClient() {
                         isFeatured: data.isFeatured || false,
                     });
                     setImages(data.images || []);
+                    setGrowthJournal(data.growthJournal || []);
                 } else {
                     setError(data.error);
                 }
@@ -84,6 +86,7 @@ export function EditProductClient() {
                 price: form.price.toString(),
                 stock: parseInt(form.stock) || 0,
                 images: images,
+                growthJournal: growthJournal,
             };
 
             const res = await fetch(getApiUrl(`/api/products/${params.id}`), {
@@ -206,6 +209,80 @@ export function EditProductClient() {
                                 onChange={(urls) => setImages(urls)}
                                 onRemove={(url) => setImages(images.filter(i => i !== url))}
                             />
+                        </div>
+
+                        {/* 🌱 GROWTH JOURNAL */}
+                        <div className="bg-white p-10 rounded-[3rem] border border-primary/5 shadow-sm space-y-8">
+                            <div className="flex justify-between items-center">
+                                <div className="space-y-1">
+                                    <h2 className="text-xl font-black font-serif">Growth Journal</h2>
+                                    <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">Document the lifecycle of this harvest</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setGrowthJournal([...growthJournal, { date: new Date().toISOString().split('T')[0], milestone: "Sprouted", imageUrl: "" }])}
+                                    className="px-6 py-3 bg-secondary/10 text-secondary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all flex items-center gap-2"
+                                >
+                                    <Tag size={14} /> Add Milestone
+                                </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                {growthJournal.map((entry, idx) => (
+                                    <div key={idx} className="p-8 bg-neutral-50 rounded-3xl border border-primary/5 flex flex-col md:flex-row gap-6 items-start">
+                                        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+                                            <div className="space-y-2">
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-primary/40">Milestone</label>
+                                                <input
+                                                    type="text"
+                                                    value={entry.milestone}
+                                                    placeholder="E.g. Seedling Stage"
+                                                    onChange={(e) => {
+                                                        const newJournal = [...growthJournal];
+                                                        newJournal[idx].milestone = e.target.value;
+                                                        setGrowthJournal(newJournal);
+                                                    }}
+                                                    className="w-full bg-white border border-primary/10 rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-secondary/30 outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-primary/40">Date</label>
+                                                <input
+                                                    type="date"
+                                                    value={entry.date}
+                                                    onChange={(e) => {
+                                                        const newJournal = [...growthJournal];
+                                                        newJournal[idx].date = e.target.value;
+                                                        setGrowthJournal(newJournal);
+                                                    }}
+                                                    className="w-full bg-white border border-primary/10 rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-secondary/30 outline-none transition-all"
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[8px] font-black uppercase tracking-widest text-primary/40">Image URL</label>
+                                                <input
+                                                    type="text"
+                                                    value={entry.imageUrl}
+                                                    placeholder="Snapshot URL"
+                                                    onChange={(e) => {
+                                                        const newJournal = [...growthJournal];
+                                                        newJournal[idx].imageUrl = e.target.value;
+                                                        setGrowthJournal(newJournal);
+                                                    }}
+                                                    className="w-full bg-white border border-primary/10 rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-secondary/30 outline-none transition-all"
+                                                />
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setGrowthJournal(growthJournal.filter((_, i) => i !== idx))}
+                                            className="p-3 bg-red-50 text-red-400 hover:bg-red-400 hover:text-white rounded-xl transition-all self-center md:self-end"
+                                        >
+                                            <ArrowLeft size={16} className="rotate-45" />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
 
                         <div className="flex justify-end gap-4">

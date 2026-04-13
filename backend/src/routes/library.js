@@ -39,4 +39,20 @@ router.get('/:id', (req, res) => {
     }
 });
 
+// POST /api/library - Inject new protocol
+router.post('/', (req, res) => {
+    try {
+        const { id, content } = req.body;
+        if (!id || !content) return res.status(400).json({ error: "Missing ID or content." });
+
+        const fileName = `${id.toLowerCase().replace(/\s+/g, '_')}.md`;
+        const filePath = path.join(__dirname, '../../../frontend/src/knowledge', fileName);
+
+        fs.writeFileSync(filePath, content, 'utf8');
+        res.json({ success: true, fileName });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 module.exports = router;
