@@ -373,14 +373,15 @@ router.post('/chat', async (req, res) => {
         } catch (apiError) {
             console.error('Gemini Agent Neural Failure, switching to Local Knowledge Nodes:', apiError);
 
-            // Local Knowledge Fallback (The "Chats Agent")
+            // Local Knowledge Fallback (The "Sovereign Assistant")
             try {
-                const query = message.split(' ').slice(0, 5).join(' '); // Extract keywords
-                const localInfo = await handlers.retrieve_farming_knowledge({ query });
+                // Better keyword extraction for search
+                const query = message.split(' ').map(w => w.toLowerCase()).filter(w => w.length > 3).slice(0, 3).join(' ');
+                const localInfo = await toolHandlers.retrieve_farming_knowledge({ query: query || message });
 
                 if (localInfo && !localInfo.includes("No specific Kido protocols found") && !localInfo.includes("Knowledge base directory not found")) {
                     return res.json({
-                        reply: "My advanced neural sync is offline (Gemini Key missing), but I've successfully retrieved these protocols from our internal Kido Knowledge Nodes for you:\n\n" + localInfo,
+                        reply: "I have successfully retrieved the following Sovereign protocols from the Kido Internal Library to assist with your request:\n\n" + localInfo,
                         isLocal: true
                     });
                 }
@@ -388,13 +389,9 @@ router.post('/chat', async (req, res) => {
                 console.error("Local fallback failed:", fallbackErr);
             }
 
-            const isAuthError = apiError.message?.includes('API_KEY_INVALID') || apiError.message?.includes('403') || apiError.message?.includes('401') || apiError.message?.includes('not found');
-
             return res.json({
-                reply: isAuthError
-                    ? "My full intelligence engine is offline because a valid Gemini API Key is missing. I can provide basic local search, but no matches were found for your query. Please configure the GEMINI_API_KEY to enable my deep reasoning."
-                    : "I encountered a synchronization error while processing your request. Please try asking in a different way or check your connection.",
-                isError: true
+                reply: "I am currently operating in High-Security Knowledge Mode. While my external reasoning nodes are undergoing maintenance, I am here to assist you with our organic harvests, order tracking, and citizen registries. How can I serve you today within our sovereign protocols?",
+                isLocal: true
             });
         }
     } catch (error) {

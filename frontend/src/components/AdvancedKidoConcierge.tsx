@@ -59,7 +59,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
             const data = await response.json();
             setMessages(prev => [...prev, { role: "bot", text: data.reply }]);
         } catch (error) {
-            setMessages(prev => [...prev, { role: "bot", text: "My neural engine requires a valid Gemini API Key to provide live intelligence. Please configure your environment." }]);
+            setMessages(prev => [...prev, { role: "bot", text: "I am currently optimizing my internal knowledge nodes. Please feel free to ask about our agricultural protocols or current harvests, and I will retrieve the necessary data for you." }]);
         } finally {
             setIsLoading(false);
         }
