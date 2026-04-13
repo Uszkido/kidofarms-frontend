@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap } from "lucide-react";
+import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap, ShieldCheck } from "lucide-react";
 import { StoryFeed } from "@/components/StoryFeed";
 import Link from "next/link";
 import Image from "next/image";
@@ -14,11 +14,13 @@ import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 import { ActionStatus } from "@/components/ActionStatus";
 import { useSearchParams } from "next/navigation";
+import SustainabilityTrustModal from "@/components/SustainabilityTrustModal";
 
 function ShopContent() {
     const { addToCart } = useCart();
     const { data: session } = useSession();
     const searchParams = useSearchParams();
+    const [vettingProduct, setVettingProduct] = useState<any>(null);
     const initialSearch = searchParams.get("search") || "";
 
     const [products, setProducts] = useState<any[]>([]);
@@ -287,6 +289,13 @@ function ShopContent() {
                                                             <h3 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors">{prod.name}</h3>
                                                         </Link>
                                                     </div>
+                                                    <button
+                                                        onClick={() => setVettingProduct(prod)}
+                                                        className="p-3 bg-secondary/10 text-secondary rounded-2xl hover:bg-secondary hover:text-primary transition-all group/v shadow-lg border border-secondary/20"
+                                                        title="View Sustainability Report"
+                                                    >
+                                                        <ShieldCheck size={20} className="group-hover/v:scale-110 transition-transform" />
+                                                    </button>
                                                 </div>
                                                 <div className="flex items-center gap-1 mb-4 text-secondary">
                                                     <span className="text-xs font-bold">★</span>
@@ -350,6 +359,11 @@ function ShopContent() {
                 </div>
             </main>
             <Footer />
+            <SustainabilityTrustModal
+                isOpen={!!vettingProduct}
+                onClose={() => setVettingProduct(null)}
+                product={vettingProduct}
+            />
         </div>
     );
 }
