@@ -59,7 +59,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
             const data = await response.json();
             setMessages(prev => [...prev, { role: "bot", text: data.reply }]);
         } catch (error) {
-            setMessages(prev => [...prev, { role: "bot", text: "I am currently optimizing my internal knowledge nodes. Please feel free to ask about our agricultural protocols or current harvests, and I will retrieve the necessary data for you." }]);
+            setMessages(prev => [...prev, { role: "bot", text: "I'm optimizing my knowledge nodes right now. How can I assist you with harvests or orders today?" }]);
         } finally {
             setIsLoading(false);
         }
@@ -73,10 +73,10 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         initial={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(10px)" }}
                         animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
                         exit={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(10px)" }}
-                        className="absolute bottom-20 right-0 w-[400px] md:w-[450px] bg-white/90 backdrop-blur-3xl rounded-[3rem] shadow-[0_32px_128px_rgba(0,0,0,0.15)] border border-primary/10 flex flex-col overflow-hidden h-[650px]"
+                        className="absolute bottom-20 right-0 w-[350px] md:w-[400px] bg-white/95 backdrop-blur-3xl rounded-[3rem] shadow-[0_32px_128px_rgba(0,0,0,0.2)] border border-primary/10 flex flex-col overflow-hidden h-[580px]"
                     >
                         {/* Status Bar */}
-                        <div className="bg-primary p-8 text-white overflow-hidden relative">
+                        <div className="bg-primary p-6 text-white overflow-hidden relative">
                             <motion.div
                                 animate={{ x: ["-100%", "200%"] }}
                                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -84,33 +84,51 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                             />
 
                             <div className="flex items-center justify-between relative z-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-secondary rounded-[1.2rem] flex items-center justify-center text-primary shadow-lg shadow-black/20">
-                                        <Bot size={24} />
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-primary shadow-lg">
+                                        <Bot size={20} />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-black font-serif italic tracking-tighter uppercase leading-none">Horizon <span className="text-secondary">AI</span></h4>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40">Unified Intelligence</p>
-                                        </div>
+                                        <h4 className="text-lg font-black font-serif italic tracking-tighter uppercase leading-none text-secondary">Horizon AI</h4>
+                                        <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mt-1">Sovereign Intelligence</p>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsOpen(false)} className="p-3 hover:bg-white/10 rounded-2xl transition-all">
-                                    <X size={24} />
+                                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                                    <X size={20} />
                                 </button>
                             </div>
                         </div>
 
+                        {/* Quick Protocol Buttons */}
+                        <div className="bg-neutral-50 px-6 py-4 flex gap-2 overflow-x-auto scrollbar-hide border-b border-primary/5">
+                            {[
+                                { label: "Harvest status", icon: "🌾" },
+                                { label: "Track my order", icon: "📦" },
+                                { label: "Organic protocols", icon: "🧪" },
+                                { label: "Community impact", icon: "🌍" }
+                            ].map((btn, i) => (
+                                <button
+                                    key={i}
+                                    onClick={() => {
+                                        setInput(btn.label);
+                                        // Auto-send if desired
+                                    }}
+                                    className="whitespace-nowrap px-4 py-2 bg-white border border-primary/10 rounded-full text-[9px] font-black uppercase tracking-wider text-primary hover:bg-secondary hover:border-secondary transition-all shadow-sm flex items-center gap-2"
+                                >
+                                    <span>{btn.icon}</span> {btn.label}
+                                </button>
+                            ))}
+                        </div>
+
                         {/* Chat Body */}
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-6 bg-gradient-to-b from-white to-neutral-50/50 scroll-smooth">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-white to-neutral-50/50 scroll-smooth">
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                                    <div className={`relative max-w-[85%] p-6 rounded-[2.2rem] text-[15px] font-bold leading-relaxed shadow-sm ${msg.role === "user"
+                                    <div className={`relative max-w-[85%] p-4 rounded-[1.8rem] text-[13px] font-bold leading-relaxed shadow-sm ${msg.role === "user"
                                         ? "bg-primary text-white rounded-tr-none"
-                                        : "bg-white border border-primary/5 text-primary rounded-tl-none"
+                                        : "bg-white border border-primary/5 text-primary rounded-tl-none tabular-nums"
                                         }`}>
-                                        <div className="absolute top-2 right-4 opacity-5 italic text-[8px] font-black uppercase tracking-widest">
+                                        <div className="absolute top-1 right-3 opacity-10 italic text-[7px] font-black uppercase tracking-widest">
                                             {msg.role === "user" ? "Citizen" : "Horizon"}
                                         </div>
                                         {msg.text}
@@ -119,35 +137,35 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                             ))}
                             {isLoading && (
                                 <div className="flex justify-start">
-                                    <div className="bg-white/50 backdrop-blur-sm p-5 rounded-[2rem] rounded-tl-none border border-primary/5 flex gap-3 items-center">
-                                        <Loader2 className="animate-spin text-primary" size={20} />
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40">Consulting Knowledge Nodes...</span>
+                                    <div className="bg-white/50 backdrop-blur-sm p-4 rounded-[1.5rem] rounded-tl-none border border-primary/5 flex gap-3 items-center">
+                                        <Loader2 className="animate-spin text-primary" size={16} />
+                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/40 text-center">Nodes syncing...</span>
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-8 border-t border-primary/5 bg-white relative">
+                        <div className="p-6 border-t border-primary/5 bg-white relative">
                             <div className="relative">
                                 <input
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                                    placeholder="Message Horizon AI..."
-                                    className="w-full pl-8 pr-16 py-6 bg-neutral-50 rounded-[2.2rem] text-[15px] font-bold text-primary placeholder:text-primary/20 focus:outline-none ring-4 ring-transparent focus:ring-primary/5 border border-primary/5 transition-all shadow-inner"
+                                    placeholder="Ask Horizon..."
+                                    className="w-full pl-6 pr-14 py-4 bg-neutral-50 rounded-2xl text-[13px] font-bold text-primary placeholder:text-primary/20 focus:outline-none ring-4 ring-transparent focus:ring-primary/5 border border-primary/5 transition-all shadow-inner"
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={!input.trim() || isLoading}
-                                    className="absolute right-3 top-3 p-4 bg-primary text-white rounded-[1.2rem] hover:bg-secondary hover:text-primary transition-all disabled:opacity-30 active:scale-95 shadow-lg shadow-primary/20"
+                                    className="absolute right-2 top-2 p-3 bg-primary text-white rounded-xl hover:bg-secondary hover:text-primary transition-all disabled:opacity-30 active:scale-95 shadow-md"
                                 >
-                                    <Send size={20} />
+                                    <Send size={16} />
                                 </button>
                             </div>
-                            <p className="text-center mt-6 text-[9px] font-black uppercase tracking-[0.3em] text-primary/20 leading-none">
-                                Federated Learning • Kido Organic Protocol
+                            <p className="text-center mt-4 text-[7px] font-black uppercase tracking-[0.3em] text-primary/20 leading-none">
+                                Kido Alpha Protocol • High Security Mode
                             </p>
                         </div>
                     </motion.div>

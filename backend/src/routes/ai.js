@@ -390,7 +390,7 @@ router.post('/chat', async (req, res) => {
             }
 
             return res.json({
-                reply: "I am currently operating in High-Security Knowledge Mode. While my external reasoning nodes are undergoing maintenance, I am here to assist you with our organic harvests, order tracking, and citizen registries. How can I serve you today within our sovereign protocols?",
+                reply: "I am currently in Sovereign Node Mode. I can help you with harvest tracking, organic guides, and community impact stats right now. What would you like to explore?",
                 isLocal: true
             });
         }
