@@ -236,6 +236,28 @@ function ShopContent() {
                                     We harvest only when you order to ensure maximum freshness and nutritional value.
                                 </p>
                             </div>
+
+                            <div className="p-10 rounded-[3rem] bg-[#1a3c34] border border-secondary/20 space-y-8 relative overflow-hidden group">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-2xl -translate-y-10 translate-x-10" />
+                                <div className="space-y-2 relative z-10">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary">Kido Impact Gauge</p>
+                                    <h4 className="text-3xl font-black font-serif italic text-white uppercase leading-none">Social <span className="opacity-40 block">Alpha</span></h4>
+                                </div>
+
+                                <div className="space-y-4 relative z-10">
+                                    <div className="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/5">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-white/40">Student Support</span>
+                                        <span className="text-xs font-black text-secondary">+12 Days</span>
+                                    </div>
+                                    <div className="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/5">
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-white/40">Clean Irrigation</span>
+                                        <span className="text-xs font-black text-white">+1,200 Liters</span>
+                                    </div>
+                                </div>
+                                <p className="text-[9px] font-bold text-white/30 uppercase tracking-[0.1em] leading-relaxed">
+                                    Calculated via Neural Node 09-Impact based on active community participation.
+                                </p>
+                            </div>
                         </aside>
 
                         {/* Product Grid */}

@@ -4,6 +4,7 @@ import { MessageCircle, Send, MessageSquare, X } from "lucide-react";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import ReportIssueModal from "./ReportIssueModal";
+import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import AdvancedKidoConcierge from "./AdvancedKidoConcierge";
 
@@ -11,6 +12,27 @@ export function FloatingSupport() {
     const { data: session } = useSession();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isAiOpen, setIsAiOpen] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
+
+    const handleAnomaly = async () => {
+        setIsReporting(true);
+        try {
+            await fetch(getApiUrl("/api/tickets"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    userId: (session?.user as any)?.id || "00000000-0000-0000-0000-000000000000",
+                    subject: "Anomaly Detected: UI Logic Node",
+                    message: "User initiated anomaly protocol via Floating Support Hub. Potential system variance detected."
+                })
+            });
+            alert("Sovereign Ticket Issued. Deployment squad alerted.");
+        } catch (err) {
+            console.error("Anomaly Protocol Failed", err);
+        } finally {
+            setIsReporting(false);
+        }
+    };
 
     return (
         <div className="fixed bottom-12 right-12 z-[1001] flex flex-col items-end gap-6 pointer-events-none">
@@ -25,10 +47,11 @@ export function FloatingSupport() {
                         animate={{ opacity: 1, x: 0 }}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
-                        onClick={() => setIsReportModalOpen(true)}
-                        className="bg-secondary text-primary font-black uppercase text-[11px] tracking-[0.2em] px-10 py-5 rounded-full shadow-2xl border-2 border-black/5 hover:bg-white transition-all"
+                        onClick={handleAnomaly}
+                        disabled={isReporting}
+                        className="bg-secondary text-primary font-black uppercase text-[11px] tracking-[0.2em] px-10 py-5 rounded-full shadow-2xl border-2 border-black/5 hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2"
                     >
-                        Report Anomaly
+                        {isReporting ? "Issuing..." : "Report Anomaly"}
                     </motion.button>
                 )}
 
