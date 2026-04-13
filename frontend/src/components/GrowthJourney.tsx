@@ -8,9 +8,9 @@ interface GrowthStage {
     date: string;
     stage: string;
     image: string;
-    moisture: string;
-    sunlight: string;
-    temp: string;
+    moisture?: string;
+    sunlight?: string;
+    temp?: string;
 }
 
 const defaultStages: GrowthStage[] = [
@@ -40,9 +40,24 @@ const defaultStages: GrowthStage[] = [
     }
 ];
 
-export const GrowthJourney: React.FC = () => {
+export const GrowthJourney: React.FC<{ stages?: any[] }> = ({ stages }) => {
     const [stageIndex, setStageIndex] = useState(0);
-    const current = defaultStages[stageIndex];
+
+    const activeStages = React.useMemo(() => {
+        if (stages && stages.length > 0) {
+            return stages.map(s => ({
+                date: s.date,
+                stage: s.milestone,
+                image: s.imageUrl || "https://images.unsplash.com/photo-1523348837708-31652175b058?w=800",
+                moisture: "N/A", sunlight: "N/A", temp: "N/A"
+            }));
+        }
+        return defaultStages;
+    }, [stages]);
+
+    // Ensure stageIndex is within bounds if activeStages length changes
+    const displayIndex = Math.min(stageIndex, activeStages.length - 1);
+    const current = activeStages[displayIndex] || activeStages[0];
 
     return (
         <div className="bg-white rounded-[3rem] p-10 border border-primary/5 shadow-2xl relative overflow-hidden">
@@ -68,11 +83,12 @@ export const GrowthJourney: React.FC = () => {
                         alt={current.stage}
                         fill
                         className="object-cover transition-opacity duration-500"
+                        unoptimized
                     />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-primary/80 to-transparent p-6">
                         <div className="flex justify-between items-center text-white">
                             <div>
-                                <p className="text-[10px] font-black uppercase text-secondary/80">Stage {stageIndex + 1}</p>
+                                <p className="text-[10px] font-black uppercase text-secondary/80">Stage {displayIndex + 1}</p>
                                 <h4 className="text-xl font-bold uppercase italic">{current.stage}</h4>
                             </div>
                             <div className="flex gap-4">
@@ -94,8 +110,8 @@ export const GrowthJourney: React.FC = () => {
                     <input
                         type="range"
                         min="0"
-                        max={defaultStages.length - 1}
-                        value={stageIndex}
+                        max={activeStages.length - 1}
+                        value={displayIndex}
                         onChange={(e) => setStageIndex(parseInt(e.target.value))}
                         className="w-full h-2 bg-cream rounded-full appearance-none cursor-pointer accent-secondary"
                     />

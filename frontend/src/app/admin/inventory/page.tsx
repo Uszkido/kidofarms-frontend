@@ -16,12 +16,14 @@ import {
     Boxes,
     ShoppingCart,
     Star,
-    Zap
+    Zap,
+    Mic
 } from "lucide-react";
 import Image from "next/image";
 import { getApiUrl } from "@/lib/api";
 import AddReviewModal from "@/components/AddReviewModal";
 import KidoVisionModal from "@/components/KidoVisionModal";
+import VoiceHarvestWizard from "@/components/VoiceHarvestWizard";
 import { useSession } from "next-auth/react";
 
 export default function AdminInventoryPage() {
@@ -31,6 +33,7 @@ export default function AdminInventoryPage() {
     const [searchTerm, setSearchTerm] = useState("");
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [isVisionModalOpen, setIsVisionModalOpen] = useState(false);
+    const [isVoiceOpen, setIsVoiceOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [stats, setStats] = useState<any>({ activeOrders: 0 });
 
@@ -119,6 +122,12 @@ export default function AdminInventoryPage() {
                                 className="w-full md:w-96 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
                             />
                         </div>
+                        <button
+                            onClick={() => setIsVoiceOpen(true)}
+                            className="bg-white/5 border border-white/10 text-white px-8 py-6 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-white hover:text-primary transition-all flex items-center justify-center gap-3"
+                        >
+                            <Mic size={18} className="text-secondary" /> Voice List
+                        </button>
                         <Link href="/admin/inventory/new" className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
                             <Plus size={18} /> New manifest Entry
                         </Link>
@@ -265,6 +274,12 @@ export default function AdminInventoryPage() {
                 productName={selectedProduct?.name}
                 category={selectedProduct?.category}
                 productImage={selectedProduct?.images?.[0]}
+            />
+
+            <VoiceHarvestWizard
+                isOpen={isVoiceOpen}
+                onClose={() => setIsVoiceOpen(false)}
+                onComplete={fetchProducts}
             />
         </div>
     );

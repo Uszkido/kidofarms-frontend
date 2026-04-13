@@ -352,6 +352,65 @@ export default function AdminDashboard() {
                     </div>
                 </div>
 
+                {/* 🛰️ SOVEREIGN SATELLITE & VISION (NEW REPO INTEGRATIONS) */}
+                <div className="grid lg:grid-cols-2 gap-10 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000 delay-300">
+                    <div className="bg-white/5 border border-white/10 rounded-[4rem] p-12 space-y-8 relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-blue-500/10 rounded-full blur-[60px]" />
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 bg-blue-500/20 rounded-2xl flex items-center justify-center text-blue-400">
+                                <Satellite size={32} />
+                            </div>
+                            <h3 className="text-2xl font-black font-serif uppercase italic text-white">Satellite Watch <br /><span className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-400/60 font-sans not-italic">Powered by FarmVibes-AI Protocols</span></h3>
+                        </div>
+                        <div className="space-y-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Regional Overpass Analysis (Jos-NG-402)</p>
+                            <div className="bg-black/40 rounded-3xl p-6 border border-white/5 space-y-4">
+                                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
+                                    <span>Cloud Cover</span>
+                                    <span className="text-white">12%</span>
+                                </div>
+                                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-blue-400" style={{ width: '12%' }} />
+                                </div>
+                                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-white/40">
+                                    <span>NDVI Biomass</span>
+                                    <span className="text-green-400">0.82 (Rich)</span>
+                                </div>
+                                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full bg-green-400" style={{ width: '82%' }} />
+                                </div>
+                            </div>
+                            <button className="w-full py-4 text-[10px] font-black uppercase tracking-widest text-blue-400 hover:text-white transition-all underline underline-offset-8">Download Multispectral Layer</button>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 rounded-[4rem] p-12 space-y-8 relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 w-40 h-40 bg-orange-500/10 rounded-full blur-[60px]" />
+                        <div className="flex items-center gap-4">
+                            <div className="w-14 h-14 bg-orange-500/20 rounded-2xl flex items-center justify-center text-orange-400">
+                                <ImagePlus size={32} />
+                            </div>
+                            <h3 className="text-2xl font-black font-serif uppercase italic text-white">Intelligence Scanning <br /><span className="text-[10px] font-black uppercase tracking-[0.4em] text-orange-400/60 font-sans not-italic">Powered by Edge Impulse Mobile</span></h3>
+                        </div>
+                        <div className="space-y-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Computer Vision Classifier</p>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col items-center gap-3">
+                                    <div className="text-2xl">🌱</div>
+                                    <p className="text-[10px] font-black uppercase text-white/40">Healthy Maize</p>
+                                    <p className="text-[9px] font-black text-orange-400 text-center tracking-widest">98.4% Confidence</p>
+                                </div>
+                                <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col items-center gap-3">
+                                    <div className="text-2xl">🍂</div>
+                                    <p className="text-[10px] font-black uppercase text-white/40">Armyworm Stress</p>
+                                    <p className="text-[9px] font-black text-white/20 text-center tracking-widest">0.2% Confidence</p>
+                                </div>
+                            </div>
+                            <button className="w-full bg-orange-400 text-primary py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl hover:bg-white transition-all">Launch Vision Portal</button>
+                        </div>
+                    </div>
+                </div>
+
                 {/* 🏗️ SYSTEM INFRASTRUCTURE & FINANCE OVERRIDES */}
                 <div className="grid xl:grid-cols-12 gap-10 pb-20">
                     <div className="xl:col-span-8 space-y-10">

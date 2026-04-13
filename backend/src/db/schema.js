@@ -95,6 +95,7 @@ const products = pgTable("products", {
     price: numeric("price", { precision: 12, scale: 2 }).notNull(),
     category: text("category").notNull(),
     images: jsonb("images").default([]),
+    growthJournal: jsonb("growth_journal").default([]),
     stock: integer("stock").default(0).notNull(),
     unit: unitEnum("unit").default("piece"),
     farmSource: text("farm_source"),

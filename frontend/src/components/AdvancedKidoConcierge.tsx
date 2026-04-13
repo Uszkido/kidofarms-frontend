@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Sparkles, Send, Search, BookOpen, FileText, Bot, User, Loader2 } from "lucide-react";
+import { MessageCircle, X, Sparkles, Send, Search, BookOpen, FileText, Bot, User, Loader2, BarChart3, ShieldCheck, Mic } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
 type Message = {
@@ -105,13 +105,16 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                                 { label: "Harvest status", icon: "🌾" },
                                 { label: "Track my order", icon: "📦" },
                                 { label: "Organic protocols", icon: "🧪" },
-                                { label: "Community impact", icon: "🌍" }
-                            ].map((btn, i) => (
+                                { icon: <BarChart3 size={16} />, label: "Check Carbon Score", action: () => window.location.href = '/admin/logistics' },
+                                { icon: <ShieldCheck size={16} />, label: "View Sensor Health", action: () => window.location.href = '/admin/logistics' },
+                                { icon: <Mic size={16} />, label: "Voice Harvest Hub", action: () => window.location.href = '/admin/inventory' },
+                                { label: "Audit Supply Chain Carbon", icon: "🌍" }
+                            ].map((btn: any, i) => (
                                 <button
                                     key={i}
                                     onClick={() => {
-                                        setInput(btn.label);
-                                        // Auto-send if desired
+                                        if (btn.action) btn.action();
+                                        else setInput(btn.label);
                                     }}
                                     className="whitespace-nowrap px-4 py-2 bg-white border border-primary/10 rounded-full text-[9px] font-black uppercase tracking-wider text-primary hover:bg-secondary hover:border-secondary transition-all shadow-sm flex items-center gap-2"
                                 >
