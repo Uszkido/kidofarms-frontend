@@ -51,11 +51,6 @@ import { useSession, signIn } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 import NotificationBell from "@/components/NotificationBell";
 import KidoVisionModal from "@/components/KidoVisionModal";
-import {
-    Shield,
-    Warehouse
-} from "lucide-react";
-
 
 export const dynamic = 'force-dynamic';
 
