@@ -6,13 +6,21 @@ import { motion } from "framer-motion";
 import ReportIssueModal from "./ReportIssueModal";
 import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import AdvancedKidoConcierge from "./AdvancedKidoConcierge";
 
 export function FloatingSupport() {
     const { data: session } = useSession();
+    const pathname = usePathname();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isAiOpen, setIsAiOpen] = useState(false);
     const [isReporting, setIsReporting] = useState(false);
+
+    // Suppress on specific professional/clean routes
+    const excludedRoutes = ['/login', '/register', '/admin', '/forgot-password', '/verify-account'];
+    const isExcluded = excludedRoutes.some(route => pathname?.startsWith(route));
+
+    if (isExcluded) return null;
 
     const handleAnomaly = async () => {
         setIsReporting(true);
