@@ -50,8 +50,9 @@ import { BlueprintCanvas } from "@/components/dashboard/BlueprintCanvas";
 
 export default function FarmerDashboard() {
     const router = useRouter();
+    // Activation protocol: Direct access to Farmer Logic Nodes enabled
     useEffect(() => {
-        router.push("/dashboard/supplier");
+        // Redirection protocol halted. 
     }, [router]);
 
     const [actionState, setActionState] = useState<{
