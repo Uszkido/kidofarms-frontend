@@ -52,6 +52,7 @@ import { getApiUrl } from "@/lib/api";
 import NotificationBell from "@/components/NotificationBell";
 import KidoVisionModal from "@/components/KidoVisionModal";
 import { motion, AnimatePresence } from "framer-motion";
+import AdminSovereigntyManager from "@/components/AdminSovereigntyManager";
 
 function HubSyncTicker() {
     const [events, setEvents] = useState<string[]>([
@@ -107,6 +108,7 @@ export default function AdminDashboard() {
     const [impersonationId, setImpersonationId] = useState("");
     const [isImpersonating, setIsImpersonating] = useState(false);
     const [isVisionOpen, setIsVisionOpen] = useState(false);
+    const [isSovereigntyManagerOpen, setIsSovereigntyManagerOpen] = useState(false);
 
     const downloadMultispectral = () => {
         const content = "Protocol: FarmVibes-AI-Delta\nRegion: Jos-NG-402\nNDVI: 0.82\nBiomass: 4.2t/ha\nSoil Moisture: 34%\nNitrogen: 82%\nCloud-Cover: 12%\nTimestamp: " + new Date().toISOString();
@@ -299,7 +301,19 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/payouts" icon={<CreditCard size={20} />} label="Payouts" permission="finance" />
                         <ActionBtn href="/admin/system" icon={<Activity size={20} />} label="System Vitality" permission="global_data_command" />
                         <ActionBtn href="/admin/subscribers" icon={<Mail size={20} />} label="Subscribers" permission="users" />
-                        <ActionBtn href="/admin/sensors" icon={<Satellite size={20} />} label="Crop & GPS Sensors" permission="global_data_command" />
+                        <ActionBtn href="/admin/sensor-fleet" icon={<Satellite size={20} />} label="Sensor Fleet" permission="global_data_command" />
+                        <button
+                            onClick={() => setIsSovereigntyManagerOpen(true)}
+                            className="bg-white/5 border border-white/10 rounded-[2rem] p-8 flex flex-col items-center justify-center gap-4 group hover:bg-secondary transition-all shadow-xl"
+                        >
+                            <div className="w-16 h-16 bg-secondary text-primary rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-primary group-hover:text-secondary transition-all">
+                                <Database size={32} />
+                            </div>
+                            <div className="text-center">
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white group-hover:text-primary">Intel Management</p>
+                                <p className="text-[8px] font-bold uppercase text-white/20 mt-1 flex items-center justify-center gap-1 group-hover:text-primary/40">Edit Vault & Exchange <ArrowRight size={10} /></p>
+                            </div>
+                        </button>
                         <ActionBtn href="/admin/reviews" icon={<Star size={20} />} label="Review Queue" permission="content" />
                         <ActionBtn href="/admin/verifications" icon={<ShieldCheck size={20} />} label="Sovereign Accreditation" permission="global_data_command" />
                         <ActionBtn href="/admin/tickets" icon={<MessageSquare size={20} />} label="Support Desk" permission="orders" />

@@ -16,15 +16,33 @@ export const Header = () => {
     const userRole = (session?.user as any)?.role;
     const isBusiness = ['business', 'wholesale_buyer', 'retailer', 'hotel', 'distributor'].includes(userRole);
 
-    const navLinks = [
+    const mainLinks = [
         { label: "Marketplace", href: "/shop" },
-        ...(!isBusiness ? [{ label: "Subscriptions", href: "/subscriptions" }] : []),
-        { label: "Track Order", href: "/track-order" },
-        { label: "Our Vision", href: "/about" },
-        { label: "Sovereign Vault", href: "/vault" },
-        { label: "Intelligence Exchange", href: "/exchange" },
-        { label: "Farm Blog", href: "/blog" },
-        ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
+        {
+            label: "Sovereignty",
+            href: "#",
+            children: [
+                { label: "Sovereign Vault", href: "/vault" },
+                { label: "Intelligence Exchange", href: "/exchange" },
+            ]
+        },
+        {
+            label: "Ecosystem",
+            href: "#",
+            children: [
+                { label: "Our Vision", href: "/about" },
+                { label: "Farm Blog", href: "/blog" },
+                ...(!isBusiness ? [{ label: "Subscriptions", href: "/subscriptions" }] : []),
+            ]
+        },
+        {
+            label: "Support",
+            href: "#",
+            children: [
+                { label: "Track Order", href: "/track-order" },
+                ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
+            ]
+        },
     ];
 
     const languages = [
@@ -42,30 +60,53 @@ export const Header = () => {
                     <motion.div
                         whileHover={{ scale: 1.05, rotate: -2 }}
                         whileTap={{ scale: 0.95 }}
-                        className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center relative overflow-hidden shadow-xl">
+                        className="w-12 h-12 md:w-16 md:h-16 bg-white rounded-xl md:rounded-2xl flex items-center justify-center relative overflow-hidden shadow-xl">
                         <Image src="/logo.svg" alt="Kido Farms" fill className="p-2 object-contain" priority />
                     </motion.div>
                     <div className="flex flex-col">
-                        <span className="text-xl md:text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
-                        <span className="text-[7px] md:text-[9px] font-black uppercase tracking-[0.4em] text-secondary">Premium Network</span>
+                        <span className="text-lg md:text-2xl font-black tracking-tighter uppercase leading-none">Kido Farms</span>
+                        <span className="text-[6px] md:text-[9px] font-black uppercase tracking-[0.4em] text-secondary">Premium Network</span>
                     </div>
                 </Link>
 
                 {/* Global Desktop Nav */}
-                <nav className="hidden lg:flex items-center gap-8">
-                    {navLinks.map((link) => (
-                        <Link
-                            key={link.label}
-                            href={link.href}
-                            className="relative text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-secondary transition-colors group"
-                        >
-                            {link.label}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all group-hover:w-full" />
-                        </Link>
+                <nav className="hidden lg:flex items-center gap-6 xl:gap-10">
+                    {mainLinks.map((link) => (
+                        <div key={link.label} className="relative group py-4">
+                            {link.children ? (
+                                <>
+                                    <button className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-white/60 group-hover:text-secondary transition-colors">
+                                        {link.label}
+                                        <X size={10} className="rotate-45 group-hover:rotate-0 transition-transform" />
+                                    </button>
+                                    <div className="absolute top-full left-0 w-64 bg-primary border border-white/10 rounded-2xl p-4 shadow-2xl opacity-0 translate-y-4 pointer-events-none group-hover:opacity-100 group-hover:translate-y-0 group-hover:pointer-events-auto transition-all duration-300 backdrop-blur-3xl">
+                                        <div className="space-y-1">
+                                            {link.children.map((child) => (
+                                                <Link
+                                                    key={child.label}
+                                                    href={child.href}
+                                                    className="block p-4 text-[10px] font-black uppercase tracking-widest text-white/40 hover:text-secondary hover:bg-white/5 rounded-xl transition-all"
+                                                >
+                                                    {child.label}
+                                                </Link>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <Link
+                                    href={link.href}
+                                    className="relative text-[10px] font-black uppercase tracking-widest text-white/60 hover:text-secondary transition-colors group"
+                                >
+                                    {link.label}
+                                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-secondary transition-all group-hover:w-full" />
+                                </Link>
+                            )}
+                        </div>
                     ))}
 
                     {session?.user && (session.user as any).role === "admin" && (
-                        <Link href="/admin" className="bg-white/10 hover:bg-secondary hover:text-primary px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all flex items-center gap-2">
+                        <Link href="/admin" className="bg-secondary text-primary px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg active:scale-95">
                             Admin Hub
                         </Link>
                     )}
@@ -99,35 +140,36 @@ export const Header = () => {
                                                                     (session.user as any).role === "subscriber" ? "/dashboard/subscriber" :
                                                                         "/dashboard/consumer"
                                 }
-                                className="flex items-center gap-3 bg-white/5 hover:bg-secondary hover:text-primary px-4 md:px-5 py-2.5 rounded-full transition-all border border-white/5 shadow-lg group"
+                                className="flex items-center gap-3 bg-white/5 hover:bg-secondary hover:text-primary px-3 md:px-5 py-2 md:py-2.5 rounded-full transition-all border border-white/5 shadow-lg group"
                             >
-                                <div className="shrink-0 w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all overflow-hidden">
+                                <div className="shrink-0 w-6 h-6 md:w-7 md:h-7 rounded-full bg-secondary/20 flex items-center justify-center text-secondary group-hover:bg-primary group-hover:text-white transition-all overflow-hidden text-[10px]">
                                     {session.user?.image ? (
                                         <Image src={session.user.image} alt="User" width={28} height={28} />
                                     ) : (
-                                        <User size={14} />
+                                        <User size={12} />
                                     )}
                                 </div>
-                                <span className="text-[10px] font-black tracking-widest uppercase truncate max-w-[100px]">
+                                <span className="text-[10px] font-black tracking-widest uppercase truncate max-w-[60px] md:max-w-[100px]">
                                     {session.user?.name?.split(' ')[0] || "Account"}
                                 </span>
                             </Link>
-                            <div className="hidden md:block">
-                                <LogoutButton />
-                            </div>
                         </div>
                     ) : (
                         <Link href="/login" className="flex items-center gap-3 bg-white/5 hover:bg-secondary hover:text-primary px-5 py-2.5 rounded-full transition-all border border-white/5 shadow-lg group">
-                            <span className="text-[10px] font-black tracking-widest uppercase">Sign In</span>
+                            <span className="text-[10px] font-black tracking-widest uppercase font-serif italic tracking-tighter">Enter Network</span>
                         </Link>
                     )}
+
+                    <div className="hidden md:flex items-center gap-4">
+                        <LogoutButton />
+                    </div>
 
                     <div className="w-px h-6 bg-white/10 mx-2 hidden md:block" />
                     <CartCount />
 
                     <button
                         onClick={() => setIsMenuOpen(true)}
-                        className="lg:hidden p-2 bg-white/5 rounded-xl text-white hover:bg-secondary hover:text-primary transition-all active:scale-95"
+                        className="lg:hidden p-2.5 bg-white/5 rounded-xl text-white hover:bg-secondary hover:text-primary transition-all active:scale-95"
                     >
                         <Menu size={20} />
                     </button>
@@ -165,22 +207,41 @@ export const Header = () => {
                                 </button>
                             </div>
 
-                            <nav className="flex flex-col gap-8">
-                                {navLinks.map((link, i) => (
+                            <nav className="flex flex-col gap-6">
+                                {mainLinks.map((link, i) => (
                                     <motion.div
                                         key={link.label}
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
                                         transition={{ delay: i * 0.1 }}
+                                        className="space-y-4"
                                     >
-                                        <Link
-                                            href={link.href}
-                                            onClick={() => setIsMenuOpen(false)}
-                                            className="text-3xl font-black font-serif text-white hover:text-secondary transition-colors flex items-center justify-between group"
-                                        >
-                                            {link.label}
-                                            <ArrowRight size={24} className="opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all text-secondary" />
-                                        </Link>
+                                        {link.children ? (
+                                            <>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary/40">{link.label}</span>
+                                                <div className="flex flex-col gap-4 pl-4 border-l border-white/5">
+                                                    {link.children.map((child) => (
+                                                        <Link
+                                                            key={child.label}
+                                                            href={child.href}
+                                                            onClick={() => setIsMenuOpen(false)}
+                                                            className="text-xl font-black font-serif text-white hover:text-secondary transition-colors"
+                                                        >
+                                                            {child.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <Link
+                                                href={link.href}
+                                                onClick={() => setIsMenuOpen(false)}
+                                                className="text-2xl font-black font-serif text-white hover:text-secondary transition-colors flex items-center justify-between group"
+                                            >
+                                                {link.label}
+                                                <ArrowRight size={20} className="text-secondary" />
+                                            </Link>
+                                        )}
                                     </motion.div>
                                 ))}
 
@@ -188,12 +249,12 @@ export const Header = () => {
                                     <motion.div
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: navLinks.length * 0.1 }}
+                                        transition={{ delay: (mainLinks.length + 1) * 0.1 }}
                                     >
                                         <Link
                                             href="/admin"
                                             onClick={() => setIsMenuOpen(false)}
-                                            className="bg-white/10 text-white px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:bg-secondary hover:text-primary transition-all shadow-xl"
+                                            className="bg-secondary text-primary px-8 py-5 rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 shadow-xl mt-4"
                                         >
                                             Admin Hub
                                         </Link>
