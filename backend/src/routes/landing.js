@@ -3,16 +3,21 @@ const router = express.Router();
 const { db } = require('../db');
 const { eq } = require('drizzle-orm');
 
+const { withCache, cacheDel } = require('../lib/cache');
+
 // Get all landing sections
 router.get('/', async (req, res) => {
     try {
-        // Use db.query to avoid potential require circularity with schema.js
-        const sections = await db.query.landingSections.findMany();
+        const config = await withCache('landing:sections', async () => {
+            // Use db.query to avoid potential require circularity with schema.js
+            const sections = await db.query.landingSections.findMany();
 
-        const config = sections.reduce((acc, section) => {
-            acc[section.id] = section.content;
-            return acc;
-        }, {});
+            return sections.reduce((acc, section) => {
+                acc[section.id] = section.content;
+                return acc;
+            }, {});
+        }, 300); // Cache for 5 mins
+
         res.json(config);
     } catch (error) {
         console.error('Landing API Error:', error.message);
@@ -36,6 +41,8 @@ router.patch('/:id', async (req, res) => {
                 target: landingSections.id,
                 set: { content, updatedAt: new Date() }
             });
+
+        await cacheDel('landing:sections');
         res.json({ message: `Section ${id} updated`, content });
     } catch (error) {
         console.error('Landing API Update Error:', error);

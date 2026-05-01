@@ -6,6 +6,8 @@ const { eq, and, desc } = require('drizzle-orm');
 const crypto = require('crypto');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
+const { withCache, cacheDel } = require('../lib/cache');
+
 const generateTrackingId = () => `KD-PROD-${crypto.randomBytes(2).toString("hex").toUpperCase()}`;
 
 // GET /api/products
@@ -13,24 +15,28 @@ router.get('/', async (req, res) => {
     const { category, featured, search } = req.query;
 
     try {
-        const { ilike, or } = require('drizzle-orm');
-        let conditions = [];
-        if (category && category !== 'All') {
-            conditions.push(eq(products.category, category));
-        }
-        if (featured === 'true') {
-            conditions.push(eq(products.isFeatured, true));
-        }
-        if (search) {
-            conditions.push(or(
-                ilike(products.name, `%${search}%`),
-                ilike(products.description, `%${search}%`)
-            ));
-        }
+        const cacheKey = `products:cat-${category || 'all'}:feat-${featured || 'false'}:search-${search || 'none'}`;
 
-        const data = await db.select().from(products)
-            .where(conditions.length > 0 ? and(...conditions) : undefined)
-            .orderBy(desc(products.createdAt));
+        const data = await withCache(cacheKey, async () => {
+            const { ilike, or } = require('drizzle-orm');
+            let conditions = [];
+            if (category && category !== 'All') {
+                conditions.push(eq(products.category, category));
+            }
+            if (featured === 'true') {
+                conditions.push(eq(products.isFeatured, true));
+            }
+            if (search) {
+                conditions.push(or(
+                    ilike(products.name, `%${search}%`),
+                    ilike(products.description, `%${search}%`)
+                ));
+            }
+
+            return await db.select().from(products)
+                .where(conditions.length > 0 ? and(...conditions) : undefined)
+                .orderBy(desc(products.createdAt));
+        }, 120); // Cache for 2 minutes
 
         res.json(data);
     } catch (error) {
@@ -64,6 +70,7 @@ router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin', 'vendor
             ownerId: req.user.id, // Assigned from auth middleware
         };
         const [product] = await db.insert(products).values(payload).returning();
+        await cacheDel('products:*');
         res.status(201).json(product);
     } catch (error) {
         console.error(error);
@@ -87,6 +94,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
             .set(body)
             .where(eq(products.id, req.params.id))
             .returning();
+        await cacheDel('products:*');
         res.json(updated);
     } catch (error) {
         res.status(400).json({ error: 'Failed' });
@@ -104,6 +112,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         }
 
         await db.delete(products).where(eq(products.id, req.params.id));
+        await cacheDel('products:*');
         res.status(204).end();
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete product' });

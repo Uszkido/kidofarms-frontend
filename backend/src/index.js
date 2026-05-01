@@ -1,7 +1,10 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const { db } = require('./db');
+const { globalLimiter, authLimiter, aiLimiter, writeLimiter } = require('./middleware/rateLimiter');
+
 const productsRoutes = require('./routes/products');
 const categoriesRoutes = require('./routes/categories');
 const blogRoutes = require('./routes/blog');
@@ -43,10 +46,7 @@ const shipmentsRoutes = require('./routes/shipments');
 const driversRoutes = require('./routes/drivers');
 const libraryRoutes = require('./routes/library');
 
-// ... (rest of the imports)
-
 const path = require('path');
-
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -57,12 +57,22 @@ const allowedOrigins = [
     ...(process.env.FRONTEND_URL ? [process.env.FRONTEND_URL] : ['https://kidofarms.vercel.app']),
 ];
 
-app.use(cors({
-    origin: allowedOrigins,
-    credentials: true
+// ── Performance & Security Middleware ───────────────────────────
+// 1. GZIP compression — reduces response payload by ~60-70%
+app.use(compression({
+    level: 6,       // balanced speed vs compression ratio
+    threshold: 1024 // only compress responses > 1KB
 }));
-app.use(express.json());
+
+// 2. CORS
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+// 3. JSON body parser
+app.use(express.json({ limit: '10mb' }));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
+
+// 4. Global rate limiter — 500 req/min per IP across all routes
+app.use('/api', globalLimiter);
 
 
 // Basic health check
@@ -76,7 +86,7 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/blog', blogRoutes);
 app.use('/api/subscribers', subscribersRoutes);
 app.use('/api/users', usersRoutes);
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes); // Built-in protection against brute force
 app.use('/api/orders', ordersRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/vendors', vendorsRoutes);
@@ -103,7 +113,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/upload', uploadRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/ai', aiLimiter, aiRoutes); // Strict rate limiting to protect OpenAI/Gemini quotas
 app.use('/api/academy', academyRoutes);
 app.use('/api/energy', energyRoutes);
 app.use('/api/globalbridge', globalBridgeRoutes);
