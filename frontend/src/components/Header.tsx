@@ -22,6 +22,7 @@ export const Header = () => {
         { label: "Track Order", href: "/track-order" },
         { label: "Our Vision", href: "/about" },
         { label: "Sovereign Vault", href: "/vault" },
+        { label: "Intelligence Exchange", href: "/exchange" },
         { label: "Farm Blog", href: "/blog" },
         ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
     ];
