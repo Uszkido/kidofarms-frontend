@@ -23,23 +23,11 @@ export function FloatingSupport() {
     if (isExcluded) return null;
 
     const handleAnomaly = async () => {
-        setIsReporting(true);
-        try {
-            await fetch(getApiUrl("/api/tickets"), {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    userId: (session?.user as any)?.id || "00000000-0000-0000-0000-000000000000",
-                    subject: "Anomaly Detected: UI Logic Node",
-                    message: "User initiated anomaly protocol via Floating Support Hub. Potential system variance detected."
-                })
-            });
-            alert("Sovereign Ticket Issued. Deployment squad alerted.");
-        } catch (err) {
-            console.error("Anomaly Protocol Failed", err);
-        } finally {
-            setIsReporting(false);
-        }
+        setIsAiOpen(true);
+        // Give the AI window a tiny moment to mount and animate before dropping the text in
+        setTimeout(() => {
+            window.dispatchEvent(new CustomEvent('ai-trigger-message', { detail: 'Report Anomaly: ' }));
+        }, 100);
     };
 
     return (

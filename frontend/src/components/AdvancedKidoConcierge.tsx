@@ -34,6 +34,15 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
         }
     }, [messages]);
 
+    useEffect(() => {
+        const handleAiTrigger = (e: any) => {
+            if (!internalOpen && !forceOpen) setInternalOpen(true);
+            setInput(e.detail);
+        };
+        window.addEventListener('ai-trigger-message', handleAiTrigger);
+        return () => window.removeEventListener('ai-trigger-message', handleAiTrigger);
+    }, [internalOpen, forceOpen]);
+
     const handleSend = async () => {
         if (!input.trim() || isLoading) return;
 
@@ -106,8 +115,8 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                             {[
                                 { label: "Harvest Status", icon: "🌾" },
                                 { label: "Track My Order", icon: "📦" },
+                                { label: "Report Anomaly", icon: "⚠️" },
                                 { label: "Organic Protocols", icon: "🧪" },
-                                { label: "Carbon Score", icon: "🌍" },
                                 { label: "Sensor Health", icon: "📡" },
                             ].map((btn: any, i) => (
                                 <button

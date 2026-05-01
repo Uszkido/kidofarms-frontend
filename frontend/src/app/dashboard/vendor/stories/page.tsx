@@ -12,7 +12,12 @@ import {
     Video,
     Search,
     ChevronRight,
-    Camera
+    Camera,
+    Sparkles,
+    Zap,
+    Circle,
+    CheckCircle2,
+    X
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,6 +30,8 @@ export default function VendorStoriesPage() {
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
 
     const { data: session } = useSession();
     const merchantId = (session?.user as any)?.id || "";
@@ -70,8 +77,13 @@ export default function VendorStoriesPage() {
             if (res.ok) {
                 const newStory = await res.json();
                 setStories([newStory, ...stories]);
-                setIsModalOpen(false);
-                setFormData({ ...formData, mediaUrl: "", caption: "" });
+                setSuccess(true);
+                setTimeout(() => {
+                    setIsModalOpen(false);
+                    setSuccess(false);
+                    setPreview(null);
+                    setFormData({ ...formData, mediaUrl: "", caption: "" });
+                }, 2000);
             }
         } catch (err) {
             console.error(err);
@@ -149,73 +161,101 @@ export default function VendorStoriesPage() {
 
             {/* Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center p-6 bg-primary/20 backdrop-blur-md">
-                    <div className="bg-white w-full max-w-xl rounded-[4rem] p-12 shadow-2xl relative overflow-hidden animate-in fade-in zoom-in duration-300">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary rounded-full blur-[100px] opacity-10 -translate-y-32 translate-x-32" />
+                <div className="fixed inset-0 z-[2000] bg-black text-white p-6 flex flex-col items-center justify-center animate-in fade-in duration-300">
+                    <div className="w-full max-w-md space-y-8">
+                        <div className="flex justify-between items-center">
+                            <button onClick={() => { setIsModalOpen(false); setPreview(null); setSuccess(false); }} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all text-white">
+                                <X size={24} />
+                            </button>
+                            <h2 className="text-sm font-black uppercase tracking-[0.3em] text-secondary">Broadcasting Live</h2>
+                            <div className="w-10 h-10" />
+                        </div>
 
-                        <div className="relative space-y-8">
-                            <div>
-                                <h1 className="text-4xl font-extrabold font-serif tracking-tighter uppercase">Post <span className="text-secondary italic">Update</span></h1>
-                                <p className="text-primary/40 font-medium text-sm mt-2">What's happening on the farm right now?</p>
+                        <div className="aspect-[9/16] bg-neutral-900 rounded-[3rem] border-4 border-white/10 relative overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)]">
+                            {!preview ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
+                                    <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center text-primary animate-pulse">
+                                        <Camera size={32} />
+                                    </div>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Camera Node Initializing...</p>
+
+                                    <button
+                                        onClick={() => {
+                                            const demoUrl = "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80";
+                                            setPreview(demoUrl);
+                                            setFormData({ ...formData, mediaUrl: demoUrl, caption: "Live view from Kido Merchants!" });
+                                        }}
+                                        className="mt-8 text-secondary font-black text-xs uppercase tracking-widest bg-white/5 py-3 px-6 rounded-full border border-white/10 hover:bg-white/10 transition-all"
+                                    >
+                                        Activate Feed
+                                    </button>
+                                </div>
+                            ) : (
+                                <img src={preview} className="w-full h-full object-cover" alt="Preview" />
+                            )}
+
+                            {/* Camera Interface Overlay */}
+                            <div className="absolute inset-x-0 bottom-12 px-8 flex flex-col items-center gap-6">
+                                {isSubmitting ? (
+                                    <div className="bg-black/60 backdrop-blur-3xl p-8 rounded-[2rem] border border-white/10 flex flex-col items-center gap-4 text-center">
+                                        <Loader2 className="animate-spin text-secondary" size={32} />
+                                        <p className="text-xs font-black uppercase tracking-widest">Broadcasting Harvest to Network...</p>
+                                    </div>
+                                ) : success ? (
+                                    <div className="bg-secondary p-8 rounded-[2rem] flex flex-col items-center gap-4 text-center w-full shadow-2xl">
+                                        <CheckCircle2 className="text-primary animate-bounce pt-2" size={36} />
+                                        <p className="text-sm font-black uppercase tracking-widest text-primary pb-2">Transmission Successful</p>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {preview && (
+                                            <div className="w-full bg-black/60 backdrop-blur-md p-4 rounded-2xl mb-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Add a live caption..."
+                                                    value={formData.caption}
+                                                    onChange={e => setFormData({ ...formData, caption: e.target.value })}
+                                                    className="w-full bg-transparent text-white font-serif italic text-lg outline-none placeholder:text-white/40 text-center"
+                                                />
+                                            </div>
+                                        )}
+                                        <div className="flex gap-6">
+                                            <button className="p-5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all">
+                                                <Sparkles size={24} className="text-secondary" />
+                                            </button>
+                                            <button
+                                                className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center p-1 cursor-default opacity-50"
+                                            >
+                                                <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+                                                    <Circle size={16} className="text-red-500 fill-red-500" />
+                                                </div>
+                                            </button>
+                                            <button className="p-5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all">
+                                                <Zap size={24} className="text-secondary" />
+                                            </button>
+                                        </div>
+                                        {preview && (
+                                            <button
+                                                onClick={handlePublish}
+                                                className="w-full bg-secondary text-primary py-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all animate-in slide-in-from-bottom-4 flex items-center justify-center gap-2"
+                                            >
+                                                <Zap size={16} /> Broadcast Story
+                                            </button>
+                                        )}
+                                    </>
+                                )}
                             </div>
 
-                            <form onSubmit={handlePublish} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Media URL</label>
-                                    <div className="relative">
-                                        <input
-                                            type="url" required placeholder="https://..."
-                                            value={formData.mediaUrl}
-                                            onChange={e => setFormData({ ...formData, mediaUrl: e.target.value })}
-                                            className="w-full bg-neutral-50 border border-primary/10 rounded-2xl pl-12 pr-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 transition-all font-medium"
-                                        />
-                                        <ImageIcon className="absolute left-4 top-1/2 -translate-y-1/2 text-primary/20" size={20} />
-                                    </div>
+                            {/* Tags Overlay */}
+                            <div className="absolute top-12 left-8 space-y-2">
+                                <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                                    <Circle size={8} className="text-red-500 fill-red-500 animate-pulse" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">Sector Live</span>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Caption</label>
-                                    <textarea
-                                        required maxLength={100} rows={3} placeholder="Tell your customers about this harvest..."
-                                        value={formData.caption}
-                                        onChange={e => setFormData({ ...formData, caption: e.target.value })}
-                                        className="w-full bg-neutral-50 border border-primary/10 rounded-3xl px-6 py-4 outline-none focus:ring-2 focus:ring-secondary/30 transition-all font-medium resize-none"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-6">
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, mediaType: 'image' })}
-                                        className={`py-4 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest ${formData.mediaType === 'image' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-primary/5 bg-neutral-50 text-primary/40'}`}
-                                    >
-                                        <ImageIcon size={14} /> Image
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, mediaType: 'video' })}
-                                        className={`py-4 rounded-2xl border flex items-center justify-center gap-2 transition-all font-black text-[10px] uppercase tracking-widest ${formData.mediaType === 'video' ? 'border-secondary bg-secondary/10 text-secondary' : 'border-primary/5 bg-neutral-50 text-primary/40'}`}
-                                    >
-                                        <Video size={14} /> Video
-                                    </button>
-                                </div>
-
-                                <div className="flex gap-4 pt-4">
-                                    <button
-                                        type="button" onClick={() => setIsModalOpen(false)}
-                                        className="flex-grow py-4 rounded-2xl font-black text-sm uppercase tracking-widest text-primary/40 hover:bg-neutral-50 transition-all"
-                                    >
-                                        Later
-                                    </button>
-                                    <button
-                                        type="submit" disabled={isSubmitting}
-                                        className="flex-[2] bg-primary text-white py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2"
-                                    >
-                                        {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : "Publish Now"}
-                                    </button>
-                                </div>
-                            </form>
+                            </div>
                         </div>
+
+                        <p className="text-center text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">Mobile Feed Link Active</p>
                     </div>
                 </div>
             )}
