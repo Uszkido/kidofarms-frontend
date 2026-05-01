@@ -16,7 +16,8 @@ import {
     Check,
     Gift,
     Zap,
-    Layout
+    Layout,
+    Leaf
 } from "lucide-react";
 import Link from "next/link";
 import { getApiUrl } from "@/lib/api";
@@ -29,7 +30,7 @@ const DEFAULT_SETTINGS = {
         fontFamily: "Outfit, sans-serif"
     },
     logoConfig: {
-        mainLogo: "/logo-kido.png",
+        mainLogo: "/logo.svg",
         overlayType: "none",
         isOverlayActive: false
     }
@@ -61,9 +62,9 @@ export default function AdminSettingsPage() {
             } else {
                 alert(data.error || "Upload failed");
             }
-        } catch (error) {
-            console.error(error);
-            alert("Network error during upload");
+        } catch (error: any) {
+            console.error("Upload Logic Error:", error);
+            alert(`Network error: ${error.message || "Connection refused"}. Check if NEXT_PUBLIC_API_URL is configured correctly for production.`);
         } finally {
             setIsUploading(false);
         }
@@ -306,7 +307,18 @@ export default function AdminSettingsPage() {
                                     {/* Mock Logo Preview */}
                                     <div className="p-8 bg-gray-900 rounded-[2.5rem] border border-white/10 flex items-center justify-center relative overflow-hidden">
                                         <div className="relative group">
-                                            <img src={settings.logoConfig?.mainLogo} className="h-10 w-auto" />
+                                            {settings.logoConfig?.mainLogo ? (
+                                                <img
+                                                    src={settings.logoConfig.mainLogo}
+                                                    className="h-10 w-auto"
+                                                    onError={(e) => {
+                                                        (e.target as HTMLImageElement).src = 'https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/leaf.svg';
+                                                        (e.target as HTMLImageElement).classList.add('opacity-50', 'invert');
+                                                    }}
+                                                />
+                                            ) : (
+                                                <Leaf size={32} className="text-secondary opacity-50" />
+                                            )}
                                             {settings.logoConfig?.overlayType === 'christmas' && (
                                                 <div className="absolute -top-3 -left-3 -rotate-12 animate-bounce">
                                                     <Gift className="text-red-500" size={24} />
