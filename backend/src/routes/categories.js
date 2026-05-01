@@ -6,9 +6,13 @@ const { categories } = require('../db/schema');
 const { eq } = require('drizzle-orm');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
+const { withCache, cacheDel } = require('../lib/cache');
+
 router.get('/', async (req, res) => {
     try {
-        const data = await db.select().from(categories);
+        const data = await withCache('categories:all', async () => {
+            return await db.select().from(categories);
+        }, 120);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed' });
@@ -19,6 +23,7 @@ router.get('/', async (req, res) => {
 router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [category] = await db.insert(categories).values(req.body).returning();
+        await cacheDel('categories:all');
         res.status(201).json(category);
     } catch (error) {
         res.status(400).json({ error: 'Failed' });
@@ -32,6 +37,7 @@ router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), as
             .set(req.body)
             .where(eq(categories.id, req.params.id))
             .returning();
+        await cacheDel('categories:all');
         res.json(updated);
     } catch (error) {
         res.status(400).json({ error: 'Failed' });
@@ -42,6 +48,7 @@ router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), as
 router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         await db.delete(categories).where(eq(categories.id, req.params.id));
+        await cacheDel('categories:all');
         res.status(204).end();
     } catch (error) {
         res.status(500).json({ error: 'Failed to delete' });
