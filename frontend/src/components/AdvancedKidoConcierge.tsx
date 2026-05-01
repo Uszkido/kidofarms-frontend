@@ -73,7 +73,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         initial={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(20px)" }}
                         animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
                         exit={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(20px)" }}
-                        className="absolute bottom-24 right-0 w-[400px] md:w-[450px] bg-[#040d0a]/95 backdrop-blur-3xl rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col overflow-hidden h-[650px]"
+                        className="absolute bottom-20 md:bottom-24 right-0 w-[calc(100vw-3rem)] sm:w-[400px] md:w-[450px] bg-[#040d0a]/95 backdrop-blur-3xl rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col overflow-hidden overflow-x-hidden h-[500px] md:h-[650px]"
                     >
                         {/* Status Bar */}
                         <div className="bg-secondary/10 p-8 border-b border-white/5 relative overflow-hidden">
@@ -121,10 +121,10 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         </div>
 
                         {/* Chat Body */}
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth custom-scrollbar">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-8 space-y-8 scroll-smooth custom-scrollbar">
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                                    <div className={`relative max-w-[85%] p-6 rounded-[2.5rem] text-sm font-medium leading-relaxed shadow-lg ${msg.role === "user"
+                                    <div className={`relative max-w-[90%] md:max-w-[85%] p-5 md:p-6 rounded-[2rem] md:rounded-[2.5rem] text-sm font-medium leading-relaxed shadow-lg break-words whitespace-pre-wrap ${msg.role === "user"
                                         ? "bg-primary text-white border border-secondary/20 rounded-tr-none"
                                         : "bg-white/5 border border-white/10 text-white/80 rounded-tl-none font-sans"
                                         }`}>
