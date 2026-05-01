@@ -21,9 +21,18 @@ export const Header = () => {
         ...(!isBusiness ? [{ label: "Subscriptions", href: "/subscriptions" }] : []),
         { label: "Track Order", href: "/track-order" },
         { label: "Our Vision", href: "/about" },
+        { label: "Sovereign Vault", href: "/vault" },
         { label: "Farm Blog", href: "/blog" },
         ...(session ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
     ];
+
+    const languages = [
+        { code: "en", label: "EN" },
+        { code: "pg", label: "PDG" },
+        { code: "hs", label: "HSA" },
+        { code: "yo", label: "YOR" },
+    ];
+    const [currentLang, setCurrentLang] = useState("en");
 
     return (
         <header className="bg-primary/95 backdrop-blur-xl text-white py-4 sticky top-0 z-[60] shadow-2xl border-b border-white/10">
@@ -59,6 +68,18 @@ export const Header = () => {
                             Admin Hub
                         </Link>
                     )}
+
+                    <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                        {languages.map((lang) => (
+                            <button
+                                key={lang.code}
+                                onClick={() => setCurrentLang(lang.code)}
+                                className={`px-2 py-1 text-[8px] font-black rounded-lg transition-all ${currentLang === lang.code ? 'bg-secondary text-primary' : 'text-white/30 hover:text-white'}`}
+                            >
+                                {lang.code}
+                            </button>
+                        ))}
+                    </div>
                 </nav>
 
                 <div className="flex items-center gap-3 md:gap-6">

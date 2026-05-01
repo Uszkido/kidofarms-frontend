@@ -3,15 +3,17 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf, ArrowLeft, Loader2 } from "lucide-react";
+import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf, ArrowLeft, Loader2, User, ArrowRight } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import ProductReviews from "@/components/ProductReviews";
 import { ActionStatus } from "@/components/ActionStatus";
 import { GrowthJourney } from "@/components/GrowthJourney";
+import FarmerStoryModal from "@/components/FarmerStoryModal";
 
 export function ProductDetailsClient({ product, id }: { product: any, id: string }) {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
+    const [isFarmerModalOpen, setIsFarmerModalOpen] = useState(false);
     const [actionState, setActionState] = useState<{
         isOpen: boolean;
         title: string;
@@ -101,13 +103,32 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
 
                             <div className="space-y-4 pt-6 border-t border-primary/5">
                                 <h3 className="font-bold uppercase text-[12px] tracking-widest text-primary/40">The Farm Source</h3>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-cream flex items-center justify-center text-primary">
-                                        <Truck size={20} />
+                                <button
+                                    onClick={() => setIsFarmerModalOpen(true)}
+                                    className="flex items-center gap-3 group text-left"
+                                >
+                                    <div className="w-12 h-12 rounded-2xl bg-cream flex items-center justify-center text-primary group-hover:bg-secondary transition-colors">
+                                        <User size={24} />
                                     </div>
-                                    <span className="font-medium">{product.farmSource || "Kido Farms Network"}</span>
-                                </div>
+                                    <div className="space-y-0.5">
+                                        <p className="font-bold text-primary italic uppercase tracking-tighter group-hover:text-secondary transition-colors">{product.farmSource || "Kido Verified Producer"}</p>
+                                        <p className="text-[9px] font-bold uppercase tracking-widest text-primary/30 flex items-center gap-2">
+                                            View Biotic Signature <ArrowRight size={10} className="group-hover:translate-x-1 transition-transform" />
+                                        </p>
+                                    </div>
+                                </button>
                             </div>
+
+                            <FarmerStoryModal
+                                isOpen={isFarmerModalOpen}
+                                onClose={() => setIsFarmerModalOpen(false)}
+                                farmerName={product.farmSource}
+                                bio={product.farmerBio}
+                                location={product.farmLocation}
+                                years={product.yearsActive}
+                                specialty={product.category}
+                                experience="Master Producer"
+                            />
 
                             <div className="grid grid-cols-2 gap-4">
                                 {["Rich in Vitamin C", "High Fiber Content", "Zero Pesticides", "Locally Grown"].map((benefit, i) => (
@@ -184,9 +205,11 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                         {[
                                             { label: "Harvest Date", value: "April 10, 2026" },
                                             { label: "Time in Cold Storage", value: "2 Days" },
-                                            { label: "Transit Distance", value: "142km" },
-                                            { label: "Est. Shelf Life", value: "12 Days" },
-                                        ].map((stat, i) => (
+                                            { label: "Our Vision", href: "/about" },
+                                            { label: "Sovereign Vault", href: "/vault" },
+                                            { label: "Farm Blog", href: "/blog" },
+                                            ...(typeof window !== 'undefined' && localStorage.getItem('session') ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
+                                        ].map((stat: any, i) => (
                                             <div key={i} className="flex justify-between items-center text-[10px] font-black uppercase">
                                                 <span className="text-white/40">{stat.label}</span>
                                                 <span className="text-secondary">{stat.value}</span>
