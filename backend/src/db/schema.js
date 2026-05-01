@@ -606,6 +606,21 @@ const gisPlots = pgTable("gis_plots", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Intel Contents Table (Sovereign Vault + Intel Exchange)
+const intelContents = pgTable("intel_contents", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    title: text("title").notNull(),
+    body: text("body").default(""),
+    type: text("type").default("Technical"),       // Technical, Research, Advisory, Community, Admin
+    category: text("category").default("General"),
+    section: text("section").default("vault"),     // vault | exchange
+    status: text("status").default("draft"),       // draft | published
+    isLive: boolean("is_live").default(false),
+    authorId: uuid("author_id").references(() => users.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 module.exports = {
     users,
     categories,
@@ -653,6 +668,7 @@ module.exports = {
     storiesRelations,
     poultryBatches,
     gisPlots,
+    intelContents,
     roleEnum,
     unitEnum,
     paymentMethodEnum,

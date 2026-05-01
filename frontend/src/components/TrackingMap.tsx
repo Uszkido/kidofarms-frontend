@@ -42,8 +42,8 @@ export default function TrackingMap({ lat, lng, title, details }: TrackingMapPro
             iconAnchor: [12, 41],
         });
     }, []);
-    const geoapifyApiKey = process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
-    const tileUrl = `https://maps.geoapify.com/v1/tile/dark-matter/{z}/{x}/{y}@2x.png?apiKey=${geoapifyApiKey}`;
+    const tileUrl = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
+    const tileAttribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
     return (
         <div className="h-[400px] w-full rounded-3xl overflow-hidden border-2 border-white/10 shadow-2xl relative z-10 bg-[#161616]">
@@ -55,7 +55,7 @@ export default function TrackingMap({ lat, lng, title, details }: TrackingMapPro
                 style={{ height: "100%", width: "100%" }}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://www.geoapify.com/">Geoapify</a>'
+                    attribution={tileAttribution}
                     url={tileUrl}
                 />
                 {icon && (
