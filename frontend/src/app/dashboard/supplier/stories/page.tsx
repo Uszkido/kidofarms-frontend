@@ -22,15 +22,32 @@ export default function SupplierStoriesPage() {
     const [success, setSuccess] = useState(false);
     const router = useRouter();
 
-    const simulateUpload = () => {
+    const [formData, setFormData] = useState({
+        vendorId: "supplier_v1",
+        mediaUrl: "",
+        caption: "Live transmission from Supplier Node",
+        mediaType: "image",
+    });
+
+    const handlePublish = async () => {
         setUploading(true);
-        setTimeout(() => {
+        try {
+            const res = await fetch("/api/stories", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...formData, mediaUrl: preview || "" }),
+            });
+            if (res.ok) {
+                setSuccess(true);
+                setTimeout(() => {
+                    router.push("/dashboard/supplier");
+                }, 2000);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
             setUploading(false);
-            setSuccess(true);
-            setTimeout(() => {
-                router.push("/dashboard/supplier");
-            }, 2000);
-        }, 3000);
+        }
     };
 
     return (
@@ -70,6 +87,17 @@ export default function SupplierStoriesPage() {
                             </div>
                         ) : (
                             <>
+                                {preview && (
+                                    <div className="w-full bg-black/60 backdrop-blur-md p-4 rounded-2xl mb-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Add a live caption..."
+                                            value={formData.caption}
+                                            onChange={e => setFormData({ ...formData, caption: e.target.value })}
+                                            className="w-full bg-transparent text-white font-serif italic text-lg outline-none placeholder:text-white/40 text-center"
+                                        />
+                                    </div>
+                                )}
                                 <div className="flex gap-6">
                                     <button className="p-5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all">
                                         <Sparkles size={24} className="text-secondary" />
@@ -78,7 +106,9 @@ export default function SupplierStoriesPage() {
                                         onClick={() => setPreview("https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80")}
                                         className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center p-1 hover:scale-110 transition-transform"
                                     >
-                                        <div className="w-full h-full bg-white rounded-full" />
+                                        <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+                                            <Circle size={16} className={`text-red-500 fill-red-500 ${preview ? 'opacity-100' : 'opacity-0'}`} />
+                                        </div>
                                     </button>
                                     <button className="p-5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all">
                                         <Zap size={24} className="text-secondary" />
@@ -86,10 +116,10 @@ export default function SupplierStoriesPage() {
                                 </div>
                                 {preview && (
                                     <button
-                                        onClick={simulateUpload}
-                                        className="w-full bg-secondary text-primary py-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all animate-in slide-in-from-bottom-4"
+                                        onClick={handlePublish}
+                                        className="w-full bg-secondary text-primary py-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all animate-in slide-in-from-bottom-4 flex items-center justify-center gap-2"
                                     >
-                                        Broadcast Story
+                                        <Zap size={16} /> Broadcast Story
                                     </button>
                                 )}
                             </>
