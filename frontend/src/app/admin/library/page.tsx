@@ -12,6 +12,8 @@ export default function AdminLibraryPage() {
     const [docLoading, setDocLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [view, setView] = useState<'protocol' | 'graph'>('protocol');
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState("");
 
     const [isInjecting, setIsInjecting] = useState(false);
     const [newProto, setNewProto] = useState({ id: "", content: "" });
@@ -51,12 +53,46 @@ export default function AdminLibraryPage() {
         }
     };
 
+    const handleSaveEdit = async () => {
+        if (!selectedDoc) return;
+        setSubmitting(true);
+        try {
+            const res = await fetch(getApiUrl("/api/library"), {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: selectedDoc.id, content: editContent })
+            });
+            if (res.ok) {
+                setIsEditing(false);
+                fetchDocContent(selectedDoc.id);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to permanently erase this protocol node?")) return;
+        try {
+            const res = await fetch(getApiUrl(`/api/library/${id}`), { method: "DELETE" });
+            if (res.ok) {
+                setSelectedDoc(null);
+                refreshDocs();
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
     const fetchDocContent = async (id: string) => {
         setDocLoading(true);
         try {
             const res = await fetch(getApiUrl(`/api/library/${id}`));
             const data = await res.json();
             setSelectedDoc(data);
+            setEditContent(data.content);
         } catch (err) {
             console.error(err);
         } finally {
@@ -130,19 +166,31 @@ export default function AdminLibraryPage() {
 
                     {/* RIGHT: CONTENT VIEWER */}
                     <main className="bg-white/5 rounded-[4rem] border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden min-h-[600px] flex flex-col">
-                        <div className="flex border-b border-white/10">
-                            <button
-                                onClick={() => setView('protocol')}
-                                className={`px-8 py-5 text-[10px] font-black uppercase tracking-widest transition-all ${view === 'protocol' ? 'text-secondary border-b-2 border-secondary' : 'text-white/30 hover:text-white'}`}
-                            >
-                                Protocol View
-                            </button>
-                            <button
-                                onClick={() => setView('graph')}
-                                className={`px-8 py-5 text-[10px] font-black uppercase tracking-widest transition-all ${view === 'graph' ? 'text-secondary border-b-2 border-secondary' : 'text-white/30 hover:text-white'}`}
-                            >
-                                Neural Graph
-                            </button>
+                        <div className="flex justify-between items-center border-b border-white/10 pr-10">
+                            <div className="flex">
+                                <button
+                                    onClick={() => setView('protocol')}
+                                    className={`px-8 py-5 text-[10px] font-black uppercase tracking-widest transition-all ${view === 'protocol' ? 'text-secondary border-b-2 border-secondary' : 'text-white/30 hover:text-white'}`}
+                                >
+                                    Protocol View
+                                </button>
+                                <button
+                                    onClick={() => setView('graph')}
+                                    className={`px-8 py-5 text-[10px] font-black uppercase tracking-widest transition-all ${view === 'graph' ? 'text-secondary border-b-2 border-secondary' : 'text-white/30 hover:text-white'}`}
+                                >
+                                    Neural Graph
+                                </button>
+                            </div>
+                            {selectedDoc && view === 'protocol' && (
+                                <div className="flex gap-4">
+                                    <button onClick={() => setIsEditing(!isEditing)} className="text-[10px] font-black uppercase tracking-widest text-[#E6EDF3]/40 hover:text-secondary transition-all">
+                                        {isEditing ? "Cancel" : "Edit Protocol"}
+                                    </button>
+                                    <button onClick={() => handleDelete(selectedDoc.id)} className="text-[10px] font-black uppercase tracking-widest text-red-500/40 hover:text-red-500 transition-all">
+                                        Wipe Node
+                                    </button>
+                                </div>
+                            )}
                         </div>
 
                         {docLoading ? (
@@ -181,7 +229,7 @@ export default function AdminLibraryPage() {
                                 </div>
                             </div>
                         ) : selectedDoc ? (
-                            <div className="p-12 lg:p-20 space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-700">
+                            <div className="p-12 lg:p-20 space-y-10 animate-in fade-in slide-in-from-bottom-5 duration-700 flex-1 flex flex-col">
                                 <div className="space-y-4">
                                     <div className="flex items-center gap-3">
                                         <ShieldCheck size={18} className="text-secondary" />
@@ -192,10 +240,27 @@ export default function AdminLibraryPage() {
                                     </h2>
                                 </div>
 
-                                <div className="prose prose-invert prose-emerald max-w-none">
-                                    <div className="bg-black/20 rounded-[3rem] p-10 lg:p-16 border border-white/5 leading-relaxed text-white/70 font-medium whitespace-pre-wrap font-sans text-lg">
-                                        {selectedDoc.content}
-                                    </div>
+                                <div className="flex-1 flex flex-col">
+                                    {isEditing ? (
+                                        <div className="flex-1 flex flex-col gap-6">
+                                            <textarea
+                                                value={editContent}
+                                                onChange={(e) => setEditContent(e.target.value)}
+                                                className="flex-1 bg-black/40 rounded-[3rem] p-10 lg:p-16 border border-secondary/30 outline-none focus:border-secondary transition-all text-white/90 font-mono text-lg resize-none"
+                                            />
+                                            <button
+                                                onClick={handleSaveEdit}
+                                                disabled={submitting}
+                                                className="bg-secondary text-primary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.4em] text-[10px] hover:bg-white transition-all shadow-2xl active:scale-95 disabled:opacity-30"
+                                            >
+                                                {submitting ? "Processing..." : "Commit Changes"}
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <div className="bg-black/20 rounded-[3rem] p-10 lg:p-16 border border-white/5 leading-relaxed text-white/70 font-medium whitespace-pre-wrap font-sans text-lg flex-1">
+                                            {selectedDoc.content}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ) : (
