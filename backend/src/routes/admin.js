@@ -18,6 +18,32 @@ const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345
 // 1. GET /api/admin/stats - Super Admin Dashboard Statistics
 router.get('/stats', async (req, res) => {
     try {
+        const [siteSettings] = await db.select().from(settings).where(eq(settings.id, 'site_config')).limit(1);
+        const mock = siteSettings?.themeConfig?.mockStats;
+
+        if (mock?.useMock) {
+            return res.json({
+                users: mock.users || 0,
+                orders: mock.orders || 0,
+                revenue: mock.revenue || 0,
+                pending: 42,
+                recentOrders: [],
+                networkNodes: {
+                    distributors: { total: 24, verified: 22 },
+                    retailers: { total: 156, verified: 140 },
+                    wholesale: { total: 89, verified: 82 },
+                    b2b: { total: 12, verified: 10 },
+                    logistics: { total: 5, verified: 5 },
+                    team: { total: 8, verified: 8 }
+                },
+                activeNodes: 2408,
+                trustIndex: '99.9%',
+                lastMonthGrowth: '+28%',
+                fleetEfficiency: '98.4%',
+                activeOrders: 42
+            });
+        }
+
         const [userCount] = await db.select({ count: sql`count(*)` }).from(users);
         const [orderCount] = await db.select({ count: sql`count(*)` }).from(orders);
         const [totalRevenue] = await db.select({ sum: sql`sum(total_amount)` }).from(orders);
