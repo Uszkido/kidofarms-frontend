@@ -45,7 +45,9 @@ const carriersRoutes = require('./routes/carriers');
 const shipmentsRoutes = require('./routes/shipments');
 const driversRoutes = require('./routes/drivers');
 const libraryRoutes = require('./routes/library');
-
+const gisRoutes = require('./routes/gis');
+const poultryRoutes = require('./routes/poultry');
+const passportsRoutes = require('./routes/passports');
 const path = require('path');
 
 const app = express();
@@ -121,6 +123,9 @@ app.use('/api/carriers', carriersRoutes);
 app.use('/api/shipments', shipmentsRoutes);
 app.use('/api/drivers', driversRoutes);
 app.use('/api/library', libraryRoutes);
+app.use('/api/gis', gisRoutes);
+app.use('/api/poultry', poultryRoutes);
+app.use('/api/passports', passportsRoutes);
 
 
 

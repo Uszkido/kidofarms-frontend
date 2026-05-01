@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import {
     Activity,
     Plus,
@@ -25,25 +26,22 @@ export default function VendorStoriesPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Mocking merchant ID for now - in production this would come from session
-    const merchantId = "vendor_id_here";
+    const { data: session } = useSession();
+    const merchantId = (session?.user as any)?.id || "";
 
     const [formData, setFormData] = useState({
-        vendorId: "", // Will set this on submit or from session
+        vendorId: "",
         mediaUrl: "",
         caption: "",
         mediaType: "image",
     });
 
     useEffect(() => {
-        // In a real app, we'd fetch the current user first
-        const fetchCurrentUser = async () => {
-            // Mocking current vendor
-            setFormData(prev => ({ ...prev, vendorId: "v1" })); // Example vendor ID
-        };
-        fetchCurrentUser();
+        if (merchantId) {
+            setFormData(prev => ({ ...prev, vendorId: merchantId }));
+        }
         fetchMyStories();
-    }, []);
+    }, [merchantId]);
 
     const fetchMyStories = async () => {
         try {

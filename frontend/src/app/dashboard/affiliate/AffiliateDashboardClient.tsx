@@ -30,8 +30,7 @@ export function AffiliateDashboardClient() {
     const [loading, setLoading] = useState(true);
     const [copied, setCopied] = useState(false);
 
-    // Mock User ID for demonstration - in production, get from auth session
-    const userId = "mock-user-id";
+    const userId = (session?.user as any)?.id || "";
 
     useEffect(() => {
         // Fetch real data from backend
