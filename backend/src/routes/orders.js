@@ -92,7 +92,7 @@ router.post('/', async (req, res) => {
             guestEmail,
             guestPhone,
             totalAmount: totalAmount.toString(),
-            orderStatus: paymentMethod === 'card' ? 'pending' : 'processing',
+            orderStatus: 'processing', // Aligning with DB Enum (processing/shipped/delivered/cancelled)
             paymentStatus: 'pending',
             street,
             city,
