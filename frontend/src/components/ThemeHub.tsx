@@ -31,6 +31,8 @@ export default function ThemeHub({ children }: { children: React.ReactNode }) {
                     root.style.setProperty('--secondary-color', data.themeConfig.secondaryColor);
                     root.style.setProperty('--accent-color', data.themeConfig.accentColor);
                     root.style.setProperty('--font-family', data.themeConfig.fontFamily);
+                    root.style.setProperty('--border-radius', data.themeConfig.borderRadius || '2.5rem');
+                    root.style.setProperty('--glass-intensity', `${data.themeConfig.glassIntensity || '10'}%`);
                 }
             }
         } catch (err) {

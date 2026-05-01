@@ -173,7 +173,7 @@ export default function AdminDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-[#040d0a] text-[#E6EDF3] p-10 font-sans selection:bg-secondary selection:text-primary">
+        <div className="min-h-screen bg-primary text-[#E6EDF3] p-10 font-sans selection:bg-secondary selection:text-primary transition-colors duration-1000">
             <div className="max-w-[1600px] mx-auto space-y-20">
                 {/* 🌌 COMMAND HEADER */}
                 <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
@@ -197,7 +197,7 @@ export default function AdminDashboard() {
 
                     <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
                         <NotificationBell />
-                        <Link href="/admin/settings" className="bg-white/5 p-6 rounded-[2.5rem] border border-secondary/30 hover:bg-secondary hover:text-primary backdrop-blur-3xl flex items-center gap-5 shadow-2xl transition-all group">
+                        <Link href="/admin/settings" className="bg-white/5 p-6 rounded-sovereign border border-secondary/30 hover:bg-secondary hover:text-primary backdrop-blur-3xl flex items-center gap-5 shadow-2xl transition-all group">
                             <div className="w-14 h-14 rounded-2xl bg-secondary/10 group-hover:bg-white/20 flex items-center justify-center text-secondary shadow-xl transition-colors">
                                 <Palette size={28} />
                             </div>
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
                                 <p className="text-[10px] font-black font-serif italic text-white group-hover:text-primary uppercase tracking-widest">Logo & Theme</p>
                             </div>
                         </Link>
-                        <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
+                        <div className="bg-white/5 p-6 rounded-sovereign border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
                             <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-xl">
                                 <Users size={28} />
                             </div>
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
                                 <p className="text-2xl font-black font-serif italic text-white">{stats?.users || 0}</p>
                             </div>
                         </div>
-                        <div className="bg-white/5 p-6 rounded-[2.5rem] border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
+                        <div className="bg-white/5 p-6 rounded-sovereign border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
                             <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-secondary shadow-xl">
                                 <Activity size={28} />
                             </div>
@@ -713,7 +713,7 @@ function CommandCard({ title, desc, icon, href, color, accent, glow }: any) {
         <Link href={href} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 ${glow}`}>
             <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
             <div className="relative z-10 space-y-6">
-                <div className={`w-24 h-24 rounded-[2.5rem] bg-[#040d0a] border border-white/5 flex items-center justify-center ${accent} shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
+                <div className={`w-24 h-24 rounded-sovereign bg-[#040d0a] border border-white/5 flex items-center justify-center ${accent} shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
                     {icon}
                 </div>
                 <div>
