@@ -109,6 +109,7 @@ export default function AdminDashboard() {
     const [isImpersonating, setIsImpersonating] = useState(false);
     const [isVisionOpen, setIsVisionOpen] = useState(false);
     const [isSovereigntyManagerOpen, setIsSovereigntyManagerOpen] = useState(false);
+    const [dashboardContent, setDashboardContent] = useState<any>(null);
 
     const downloadMultispectral = () => {
         const content = "Protocol: FarmVibes-AI-Delta\nRegion: Jos-NG-402\nNDVI: 0.82\nBiomass: 4.2t/ha\nSoil Moisture: 34%\nNitrogen: 82%\nCloud-Cover: 12%\nTimestamp: " + new Date().toISOString();
@@ -121,17 +122,31 @@ export default function AdminDashboard() {
     };
 
     useEffect(() => {
-        const fetchStats = async () => {
+        const fetchData = async () => {
             try {
-                const res = await fetch(getApiUrl("/api/admin/stats"));
-                if (res.ok) setStats(await res.json());
+                const [statsRes, contentRes] = await Promise.all([
+                    fetch(getApiUrl("/api/admin/stats")),
+                    fetch(getApiUrl("/api/landing"))
+                ]);
+
+                if (statsRes.ok) setStats(await statsRes.json());
+                if (contentRes.ok) {
+                    const content = await contentRes.json();
+                    setDashboardContent(content.admin_dashboard || {
+                        title: "Command",
+                        titleItalic: "Center",
+                        subtitle: "Sovereign Node Oversight & Intelligence Grid",
+                        healthStatus: "Optimal",
+                        securityDirectives: ["ENFORCE_QUANTUM_HANDSHAKE", "ROTATING_MSR_VAULT", "ISOLATE_PLATEAU_NODES"]
+                    });
+                }
             } catch (err) {
                 console.error(err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchStats();
+        fetchData();
     }, []);
 
     const handleImpersonate = async () => {
@@ -165,7 +180,7 @@ export default function AdminDashboard() {
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
                             <span className="w-16 h-1.5 bg-secondary rounded-full" />
-                            <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">Sovereign Control Node</h2>
+                            <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">{dashboardContent?.subtitle || "Sovereign Control Node"}</h2>
                         </div>
                         <h1 className="text-7xl lg:text-[10rem] font-black font-serif italic uppercase leading-[0.85] tracking-tighter text-white">
                             Hello, <br />
@@ -310,8 +325,8 @@ export default function AdminDashboard() {
                                 <Database size={32} />
                             </div>
                             <div className="text-center">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-white group-hover:text-primary">Intel Management</p>
-                                <p className="text-[8px] font-bold uppercase text-white/20 mt-1 flex items-center justify-center gap-1 group-hover:text-primary/40">Edit Vault & Exchange <ArrowRight size={10} /></p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-white group-hover:text-primary">Sovereign Control</p>
+                                <p className="text-[8px] font-bold uppercase text-white/20 mt-1 flex items-center justify-center gap-1 group-hover:text-primary/40">Edit Content & Visuals <ArrowRight size={10} /></p>
                             </div>
                         </button>
                         <ActionBtn href="/admin/reviews" icon={<Star size={20} />} label="Review Queue" permission="content" />

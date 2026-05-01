@@ -74,7 +74,17 @@ router.post('/init', async (req, res) => {
             },
             { id: 'trends', content: { label: "Live Market", title: "Regional", titleItalic: "Demand Shifts", subtitle: "Real-time insights from the Kido network.", stat1Value: "94%", stat1Label: "Freshness Index", stat2Value: "12k", stat2Label: "Active Baskets", btnText: "View Insights" } },
             { id: 'advantage', content: { title: "The Kido", titleItalic: "Advantage", subtitle: "Why 15,000+ families trust our network.", items: [{ title: "Verified Origin", desc: "Every seed is tracked from planting to your plate." }, { title: "Fair Pricing", desc: "Direct farmer links ensure 30% better value." }] } },
-            { id: 'farmer_cta', content: { title: "Empowering", titleItalic: "The Soil", subtitle: "Join 500+ verified farmers scale their reach.", btn1Text: "Register Farm", btn2Text: "Download App" } }
+            { id: 'farmer_cta', content: { title: "Empowering", titleItalic: "The Soil", subtitle: "Join 500+ verified farmers scale their reach.", btn1Text: "Register Farm", btn2Text: "Download App" } },
+            {
+                id: 'admin_dashboard',
+                content: {
+                    title: "Command",
+                    titleItalic: "Center",
+                    subtitle: "Sovereign Node Oversight & Intelligence Grid",
+                    healthStatus: "Optimal",
+                    securityDirectives: ["ENFORCE_QUANTUM_HANDSHAKE", "ROTATING_MSR_VAULT", "ISOLATE_PLATEAU_NODES"]
+                }
+            }
         ];
 
         for (const section of defaultContent) {

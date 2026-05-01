@@ -39,17 +39,32 @@ router.get('/:id', (req, res) => {
     }
 });
 
-// POST /api/library - Inject new protocol
+// POST /api/library - Inject or Update protocol
 router.post('/', (req, res) => {
     try {
         const { id, content } = req.body;
         if (!id || !content) return res.status(400).json({ error: "Missing ID or content." });
 
-        const fileName = `${id.toLowerCase().replace(/\s+/g, '_')}.md`;
+        const fileName = id.endsWith('.md') ? id : `${id.toLowerCase().replace(/\s+/g, '_')}.md`;
         const filePath = path.join(__dirname, '../../../frontend/src/knowledge', fileName);
 
         fs.writeFileSync(filePath, content, 'utf8');
         res.json({ success: true, fileName });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /api/library/:id - Wipe a knowledge node
+router.delete('/:id', (req, res) => {
+    try {
+        const filePath = path.join(__dirname, '../../../frontend/src/knowledge', `${req.params.id}.md`);
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            res.json({ success: true });
+        } else {
+            res.status(404).json({ error: "Node not found." });
+        }
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
