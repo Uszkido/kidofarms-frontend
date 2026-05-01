@@ -48,6 +48,7 @@ const libraryRoutes = require('./routes/library');
 const gisRoutes = require('./routes/gis');
 const poultryRoutes = require('./routes/poultry');
 const passportsRoutes = require('./routes/passports');
+const adminVerificationsRoutes = require('./routes/admin_verifications');
 const path = require('path');
 
 const app = express();
@@ -112,6 +113,7 @@ app.use('/api/team', teamRoutes);
 app.use('/api/impact', impactRoutes);
 app.use('/api/investments', investmentsRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/verifications', adminVerificationsRoutes);
 app.use('/api/tickets', ticketsRoutes);
 app.use('/api/reviews', reviewsRoutes);
 app.use('/api/upload', uploadRoutes);
