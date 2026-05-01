@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, BookOpen, MessageSquare, Plus, Edit3, Trash2, ShieldCheck, Globe, Zap, Database, ArrowRight, Save, Loader2, Radio } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import { useSession } from "next-auth/react";
+import { getApiUrl } from "@/lib/api";
 
 interface ContentItem {
     id: string;
@@ -18,6 +20,7 @@ interface ContentItem {
 }
 
 export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+    const { data: session } = useSession();
     const [activeTab, setActiveTab] = useState<"vault" | "exchange">("vault");
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
@@ -29,8 +32,8 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
     const fetchIntel = async () => {
         setIsLoading(true);
         try {
-            const res = await fetch(`http://localhost:5001/api/admin/intel?section=${activeTab}`, {
-                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` }
+            const res = await fetch(getApiUrl(`/api/admin/intel?section=${activeTab}`), {
+                headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -45,7 +48,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
 
     useEffect(() => {
         if (isOpen) fetchIntel();
-    }, [activeTab, isOpen]);
+    }, [activeTab, isOpen, (session as any)?.accessToken]);
 
     const handleCreateNew = () => {
         setSelectedItem({
@@ -64,15 +67,15 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
     const handleSave = async () => {
         try {
             const url = isCreating
-                ? "http://localhost:5001/api/admin/intel"
-                : `http://localhost:5001/api/admin/intel/${selectedItem.id}`;
+                ? getApiUrl("/api/admin/intel")
+                : getApiUrl(`/api/admin/intel/${selectedItem.id}`);
             const method = isCreating ? "POST" : "PATCH";
 
             const res = await fetch(url, {
                 method,
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem('token')}`
+                    "Authorization": `Bearer ${(session as any)?.accessToken}`
                 },
                 body: JSON.stringify(selectedItem)
             });
@@ -92,16 +95,16 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
     const handleDelete = async (id: string) => {
         if (!confirm("Confirm catastrophic wipe of this intelligence root?")) return;
         try {
-            const res = await fetch(`http://localhost:5001/api/admin/intel/${id}`, {
+            const res = await fetch(getApiUrl(`/api/admin/intel/${id}`), {
                 method: "DELETE",
-                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` }
+                headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
             });
             if (res.ok) {
                 toast.success("Intelligence erased.")
                 fetchIntel();
             }
         } catch (error) {
-            toast.error("Failed to erase node");
+            toast.error("Link Failure");
         }
     };
 
