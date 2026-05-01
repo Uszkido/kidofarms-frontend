@@ -660,6 +660,11 @@ export default function AdminDashboard() {
                     productImage="https://images.unsplash.com/photo-1551727974-8af20a3322f1?w=800"
                     category="Grains"
                 />
+
+                <AdminSovereigntyManager
+                    isOpen={isSovereigntyManagerOpen}
+                    onClose={() => setIsSovereigntyManagerOpen(false)}
+                />
             </div>
         </div>
     );
