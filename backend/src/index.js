@@ -49,6 +49,7 @@ const gisRoutes = require('./routes/gis');
 const poultryRoutes = require('./routes/poultry');
 const passportsRoutes = require('./routes/passports');
 const adminVerificationsRoutes = require('./routes/admin_verifications');
+const provenanceRoutes = require('./routes/provenance');
 const path = require('path');
 
 const app = express();
@@ -128,6 +129,7 @@ app.use('/api/library', libraryRoutes);
 app.use('/api/gis', gisRoutes);
 app.use('/api/poultry', poultryRoutes);
 app.use('/api/passports', passportsRoutes);
+app.use('/api/provenance', provenanceRoutes);
 
 
 
