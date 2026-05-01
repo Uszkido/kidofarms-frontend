@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments, notifications, systemHealth, subscribers } = require('../db/schema');
+const { users, orders, otps, activityLogs, products, harvests, walletTransactions, settings, storageNodes, wallets, farmers, vendors, carriers, jobApplications, affiliates, academyCourses, energyMarketplace, globalBridge, warehouseInventory, sensors, tasks, tickets, blogPosts, shipments, notifications, systemHealth, subscribers, intelContents } = require('../db/schema');
 const { desc, eq, sql, or, lt, and } = require('drizzle-orm');
 const { authenticateToken, authorizeRoles, authorizePermissions } = require('../middleware/authMiddleware');
 const { sendBroadcastEmail } = require('../lib/email');
@@ -1015,6 +1015,137 @@ router.get('/products/low-stock', async (req, res) => {
         res.json(lowStock);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch depletion alerts' });
+    }
+});
+
+
+// ─── INTEL MANAGEMENT (Sovereign Vault + Intel Exchange) ─────────────────────
+
+// 29. GET /api/admin/intel - Fetch all intel content (optionally by section: vault | exchange)
+router.get('/intel', async (req, res) => {
+    try {
+        const { section } = req.query;
+        let query = db.select().from(intelContents).orderBy(desc(intelContents.createdAt));
+        if (section) {
+            query = db.select().from(intelContents)
+                .where(eq(intelContents.section, section))
+                .orderBy(desc(intelContents.createdAt));
+        }
+        const items = await query;
+        res.json(items);
+    } catch (error) {
+        console.error('Intel Fetch Error:', error);
+        res.status(500).json({ error: 'Failed to fetch intel contents' });
+    }
+});
+
+// 30. POST /api/admin/intel - Create new intel content
+router.post('/intel', async (req, res) => {
+    const { title, body, type, category, section, status } = req.body;
+    if (!title) return res.status(400).json({ error: 'Title is required' });
+    try {
+        const [item] = await db.insert(intelContents).values({
+            title,
+            body: body || '',
+            type: type || 'Technical',
+            category: category || 'General',
+            section: section || 'vault',
+            status: status || 'draft',
+            isLive: false,
+            authorId: req.user.id
+        }).returning();
+
+        await db.insert(activityLogs).values({
+            action: 'INTEL_CREATE',
+            entity: 'intel_contents',
+            details: { title, section: section || 'vault' },
+            userId: req.user.id
+        });
+
+        res.status(201).json(item);
+    } catch (error) {
+        console.error('Intel Create Error:', error);
+        res.status(500).json({ error: 'Failed to create intel content' });
+    }
+});
+
+// 31. PATCH /api/admin/intel/:id - Update intel content
+router.patch('/intel/:id', async (req, res) => {
+    const { id } = req.params;
+    const { title, body, type, category, status } = req.body;
+    try {
+        const [updated] = await db.update(intelContents)
+            .set({ title, body, type, category, status, updatedAt: new Date() })
+            .where(eq(intelContents.id, id))
+            .returning();
+
+        if (!updated) return res.status(404).json({ error: 'Intel item not found' });
+
+        await db.insert(activityLogs).values({
+            action: 'INTEL_UPDATE',
+            entity: 'intel_contents',
+            details: { id, changes: req.body },
+            userId: req.user.id
+        });
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Intel Update Error:', error);
+        res.status(500).json({ error: 'Failed to update intel content' });
+    }
+});
+
+// 32. PATCH /api/admin/intel/:id/golive - Toggle Live status
+router.patch('/intel/:id/golive', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const existing = await db.query.intelContents.findFirst({ where: eq(intelContents.id, id) });
+        if (!existing) return res.status(404).json({ error: 'Intel item not found' });
+
+        const newLiveState = !existing.isLive;
+        const [updated] = await db.update(intelContents)
+            .set({
+                isLive: newLiveState,
+                status: newLiveState ? 'published' : 'draft',
+                updatedAt: new Date()
+            })
+            .where(eq(intelContents.id, id))
+            .returning();
+
+        await db.insert(activityLogs).values({
+            action: newLiveState ? 'INTEL_GO_LIVE' : 'INTEL_TAKE_OFFLINE',
+            entity: 'intel_contents',
+            details: { id, title: existing.title, isLive: newLiveState },
+            userId: req.user.id
+        });
+
+        res.json({ message: newLiveState ? 'Content is now LIVE' : 'Content taken offline', item: updated });
+    } catch (error) {
+        console.error('Intel GoLive Error:', error);
+        res.status(500).json({ error: 'Failed to toggle live status' });
+    }
+});
+
+// 33. DELETE /api/admin/intel/:id - Delete intel content
+router.delete('/intel/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const existing = await db.query.intelContents.findFirst({ where: eq(intelContents.id, id) });
+        if (!existing) return res.status(404).json({ error: 'Intel item not found' });
+
+        await db.delete(intelContents).where(eq(intelContents.id, id));
+
+        await db.insert(activityLogs).values({
+            action: 'INTEL_DELETE',
+            entity: 'intel_contents',
+            details: { id, title: existing.title },
+            userId: req.user.id
+        });
+
+        res.json({ message: 'Intel content deleted successfully' });
+    } catch (error) {
+        console.error('Intel Delete Error:', error);
+        res.status(500).json({ error: 'Failed to delete intel content' });
     }
 });
 

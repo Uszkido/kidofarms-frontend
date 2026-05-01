@@ -102,18 +102,18 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         </div>
 
                         {/* Quick Protocol Buttons */}
-                        <div className="px-8 py-4 flex gap-3 overflow-x-auto scrollbar-hide border-b border-white/5 bg-white/[0.02]">
+                        <div className="px-6 py-4 flex flex-wrap gap-2 border-b border-white/5 bg-white/[0.02]">
                             {[
-                                { label: "Harvest status", icon: "🌾" },
-                                { label: "Track my order", icon: "📦" },
-                                { label: "Organic protocols", icon: "🧪" },
+                                { label: "Harvest Status", icon: "🌾" },
+                                { label: "Track My Order", icon: "📦" },
+                                { label: "Organic Protocols", icon: "🧪" },
                                 { label: "Carbon Score", icon: "🌍" },
                                 { label: "Sensor Health", icon: "📡" },
                             ].map((btn: any, i) => (
                                 <button
                                     key={i}
                                     onClick={() => setInput(btn.label)}
-                                    className="whitespace-nowrap px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white/60 hover:bg-secondary hover:text-primary hover:border-secondary transition-all shadow-sm flex items-center gap-2"
+                                    className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] font-black uppercase tracking-wider text-white/60 hover:bg-secondary hover:text-primary hover:border-secondary transition-all shadow-sm flex items-center gap-1.5 shrink-0"
                                 >
                                     <span>{btn.icon}</span> {btn.label}
                                 </button>
