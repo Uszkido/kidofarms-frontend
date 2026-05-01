@@ -31,6 +31,9 @@ export default function FarmerStoriesPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [preview, setPreview] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [stream, setStream] = useState<MediaStream | null>(null);
+    const [isCountingDown, setIsCountingDown] = useState(false);
+    const [countdown, setCountdown] = useState(3);
 
     const [formData, setFormData] = useState({
         vendorId: "farmer_v1", // Using farmer as a vendor for stories feed
@@ -38,6 +41,97 @@ export default function FarmerStoriesPage() {
         caption: "",
         mediaType: "image",
     });
+
+    const startCamera = async () => {
+        try {
+            const mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'user', width: { ideal: 1280 }, height: { ideal: 720 } },
+                audio: false
+            });
+            setStream(mediaStream);
+            const video = document.getElementById('viewfinder') as HTMLVideoElement;
+            if (video) video.srcObject = mediaStream;
+        } catch (err) {
+            console.error("Camera access denied:", err);
+            alert("Sovereign Camera Access Required. Check permissions.");
+        }
+    };
+
+    const stopCamera = () => {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            setStream(null);
+        }
+    };
+
+    const handleBroadcast = async () => {
+        setIsCountingDown(true);
+        let count = 3;
+        const interval = setInterval(() => {
+            count--;
+            setCountdown(count);
+            if (count === 0) {
+                clearInterval(interval);
+                captureAndUpload();
+            }
+        }, 1000);
+    };
+
+    const captureAndUpload = async () => {
+        const video = document.getElementById('viewfinder') as HTMLVideoElement;
+        if (!video) return;
+
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(video, 0, 0);
+
+        const blob = await new Promise<Blob | null>(res => canvas.toBlob(res, 'image/jpeg', 0.8));
+        if (!blob) return;
+
+        setIsSubmitting(true);
+        try {
+            const formDataUpload = new FormData();
+            formDataUpload.append("image", blob, "horizon-broadcast.jpg");
+
+            const uploadRes = await fetch(getApiUrl("/api/upload"), {
+                method: "POST",
+                body: formDataUpload
+            });
+
+            if (uploadRes.ok) {
+                const uploadData = await uploadRes.json();
+                const postRes = await fetch(getApiUrl("/api/stories"), {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        ...formData,
+                        mediaUrl: uploadData.url,
+                        caption: formData.caption || "Live from the Kido Nexus Hub!"
+                    }),
+                });
+
+                if (postRes.ok) {
+                    const newStory = await postRes.json();
+                    setStories([newStory, ...stories]);
+                    setSuccess(true);
+                    stopCamera();
+                    setTimeout(() => {
+                        setIsModalOpen(false);
+                        setSuccess(false);
+                        setFormData({ ...formData, mediaUrl: "", caption: "" });
+                    }, 2000);
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsSubmitting(false);
+            setIsCountingDown(false);
+            setCountdown(3);
+        }
+    };
 
     useEffect(() => {
         fetchMyStories();
@@ -152,7 +246,7 @@ export default function FarmerStoriesPage() {
                 <div className="fixed inset-0 z-[2000] bg-black text-white p-6 flex flex-col items-center justify-center animate-in fade-in duration-300">
                     <div className="w-full max-w-md space-y-8">
                         <div className="flex justify-between items-center">
-                            <button onClick={() => { setIsModalOpen(false); setPreview(null); setSuccess(false); }} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all text-white">
+                            <button onClick={() => { stopCamera(); setIsModalOpen(false); setSuccess(false); }} className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all text-white">
                                 <X size={24} />
                             </button>
                             <h2 className="text-sm font-black uppercase tracking-[0.3em] text-secondary">Broadcasting Live</h2>
@@ -160,90 +254,69 @@ export default function FarmerStoriesPage() {
                         </div>
 
                         <div className="aspect-[9/16] bg-neutral-900 rounded-[3rem] border-4 border-white/10 relative overflow-hidden shadow-[0_0_80px_rgba(0,0,0,0.5)]">
-                            {!preview ? (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4">
-                                    <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center text-primary animate-pulse">
-                                        <Camera size={32} />
-                                    </div>
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-white/40">Camera Node Initializing...</p>
-
-                                    <button
-                                        onClick={() => {
-                                            const demoUrl = "https://images.unsplash.com/photo-1595841696650-6ed676d15bd3?auto=format&fit=crop&q=80";
-                                            setPreview(demoUrl);
-                                            setFormData({ ...formData, mediaUrl: demoUrl, caption: "Live Harvest Update from Kido Farms!" });
-                                        }}
-                                        className="mt-8 text-secondary font-black text-xs uppercase tracking-widest bg-white/5 py-3 px-6 rounded-full border border-white/10 hover:bg-white/10 transition-all"
-                                    >
-                                        Activate Feed
-                                    </button>
+                            {success ? (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 bg-secondary text-primary animate-in zoom-in duration-500">
+                                    <CheckCircle2 size={64} />
+                                    <h3 className="text-2xl font-black font-serif italic uppercase">Broadcast Live</h3>
+                                    <p className="text-[10px] font-black tracking-widest uppercase opacity-60">Session Propagated to Network</p>
                                 </div>
                             ) : (
-                                <img src={preview} className="w-full h-full object-cover" alt="Preview" />
-                            )}
+                                <>
+                                    <video
+                                        id="viewfinder"
+                                        autoPlay
+                                        playsInline
+                                        muted
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
 
-                            {/* Camera Interface Overlay */}
-                            <div className="absolute inset-x-0 bottom-12 px-8 flex flex-col items-center gap-6">
-                                {isSubmitting ? (
-                                    <div className="bg-black/60 backdrop-blur-3xl p-8 rounded-[2rem] border border-white/10 flex flex-col items-center gap-4 text-center">
-                                        <Loader2 className="animate-spin text-secondary" size={32} />
-                                        <p className="text-xs font-black uppercase tracking-widest">Broadcasting Harvest to Network...</p>
-                                    </div>
-                                ) : success ? (
-                                    <div className="bg-secondary p-8 rounded-[2rem] flex flex-col items-center gap-4 text-center w-full shadow-2xl">
-                                        <CheckCircle2 className="text-primary animate-bounce pt-2" size={36} />
-                                        <p className="text-sm font-black uppercase tracking-widest text-primary pb-2">Transmission Successful</p>
-                                    </div>
-                                ) : (
-                                    <>
-                                        {preview && (
-                                            <div className="w-full bg-black/60 backdrop-blur-md p-4 rounded-2xl mb-2">
-                                                <input
-                                                    type="text"
-                                                    placeholder="Add a live caption..."
-                                                    value={formData.caption}
-                                                    onChange={e => setFormData({ ...formData, caption: e.target.value })}
-                                                    className="w-full bg-transparent text-white font-serif italic text-lg outline-none placeholder:text-white/40 text-center"
-                                                />
+                                    {!stream && (
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-6 bg-black/80 backdrop-blur-sm">
+                                            <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center text-primary shadow-[0_0_40px_rgba(197,160,89,0.3)]">
+                                                <Camera size={32} />
                                             </div>
-                                        )}
-                                        <div className="flex gap-6">
-                                            <button className="p-5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all">
-                                                <Sparkles size={24} className="text-secondary" />
-                                            </button>
+                                            <div className="text-center space-y-2">
+                                                <h3 className="text-xl font-black font-serif italic">Camera Node Offline</h3>
+                                                <p className="text-[9px] font-black uppercase tracking-widest text-white/40">Authorize hardware for real-time feed</p>
+                                            </div>
                                             <button
-                                                className="w-24 h-24 rounded-full border-4 border-white flex items-center justify-center p-1 cursor-default opacity-50"
+                                                onClick={startCamera}
+                                                className="bg-secondary text-primary px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all"
                                             >
-                                                <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
-                                                    <Circle size={16} className="text-red-500 fill-red-500" />
-                                                </div>
-                                            </button>
-                                            <button className="p-5 bg-white/10 backdrop-blur-xl rounded-full border border-white/20 hover:bg-white/20 transition-all">
-                                                <Zap size={24} className="text-secondary" />
+                                                Initialize Lens
                                             </button>
                                         </div>
-                                        {preview && (
-                                            <button
-                                                onClick={handlePublish}
-                                                className="w-full bg-secondary text-primary py-6 rounded-2xl font-black uppercase text-xs tracking-widest shadow-2xl hover:bg-white transition-all animate-in slide-in-from-bottom-4 flex items-center justify-center gap-2"
-                                            >
-                                                <Zap size={16} /> Broadcast Story
-                                            </button>
-                                        )}
-                                    </>
-                                )}
-                            </div>
+                                    )}
 
-                            {/* Tags Overlay */}
-                            <div className="absolute top-12 left-8 space-y-2">
-                                <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
-                                    <Circle size={8} className="text-red-500 fill-red-500 animate-pulse" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Sector Live</span>
-                                </div>
-                            </div>
+                                    {stream && (
+                                        <div className="absolute inset-x-0 bottom-10 flex flex-col items-center px-10 space-y-6">
+                                            {isCountingDown ? (
+                                                <div className="text-8xl font-black font-serif italic text-secondary animate-ping">
+                                                    {countdown}
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <input
+                                                        placeholder="Enter Broadcast Intent..."
+                                                        className="w-full bg-black/40 border border-white/20 rounded-2xl px-6 py-4 text-xs font-black uppercase tracking-widest outline-none focus:border-secondary transition-all"
+                                                        value={formData.caption}
+                                                        onChange={(e) => setFormData({ ...formData, caption: e.target.value })}
+                                                    />
+                                                    <button
+                                                        disabled={isSubmitting}
+                                                        onClick={handleBroadcast}
+                                                        className="w-full bg-red-600 hover:bg-red-500 text-white py-4 rounded-2xl font-black text-xs uppercase tracking-[0.3em] shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all disabled:opacity-50"
+                                                    >
+                                                        {isSubmitting ? <Loader2 className="animate-spin" /> : <> <Circle className="fill-white animate-pulse" size={14} /> Go Live Now </>}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+                                </>
+                            )}
                         </div>
-
-                        <p className="text-center text-white/20 text-[10px] font-black uppercase tracking-[0.3em]">Mobile Feed Link Active</p>
                     </div>
                 </div>
             )}
