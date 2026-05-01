@@ -14,21 +14,12 @@ export function FloatingSupport() {
     const pathname = usePathname();
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [isAiOpen, setIsAiOpen] = useState(false);
-    const [isReporting, setIsReporting] = useState(false);
 
     // Suppress on specific professional/clean routes
     const excludedRoutes = ['/login', '/register', '/admin', '/forgot-password', '/verify-account'];
     const isExcluded = excludedRoutes.some(route => pathname?.startsWith(route));
 
     if (isExcluded) return null;
-
-    const handleAnomaly = async () => {
-        setIsAiOpen(true);
-        // Give the AI window a tiny moment to mount and animate before dropping the text in
-        setTimeout(() => {
-            window.dispatchEvent(new CustomEvent('ai-trigger-message', { detail: 'Report Anomaly: ' }));
-        }, 100);
-    };
 
     return (
         <div className="fixed bottom-6 right-6 md:bottom-12 md:right-12 z-[1001] flex flex-col items-end gap-3 md:gap-6 pointer-events-none">
@@ -37,19 +28,6 @@ export function FloatingSupport() {
 
             {/* Unified Action Pill Trigger */}
             <div className="flex flex-col-reverse items-end md:flex-row md:items-center gap-3 md:gap-4 pointer-events-auto group">
-                {session && (
-                    <motion.button
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={handleAnomaly}
-                        disabled={isReporting}
-                        className="bg-secondary text-primary font-black uppercase text-[9px] md:text-[11px] tracking-[0.2em] px-6 md:px-10 py-3 md:py-5 rounded-full shadow-2xl border-2 border-black/5 hover:bg-white transition-all disabled:opacity-50 flex items-center gap-2 whitespace-nowrap"
-                    >
-                        {isReporting ? "Issuing..." : "Report Anomaly"}
-                    </motion.button>
-                )}
 
                 <motion.button
                     whileHover={{ scale: 1.1, rotate: 5 }}

@@ -621,6 +621,55 @@ const intelContents = pgTable("intel_contents", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// 1. Cryptographic Provenance Ledger
+const cropLedger = pgTable("crop_ledger", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id").references(() => products.id),
+    signatureDetails: text("signature_details").notNull(),
+    hash: text("hash").notNull(),
+    timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// 2. Live Wholesale Commodity Exchange (Bids/Auctions)
+const auctions = pgTable("auctions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    harvestId: uuid("harvest_id").references(() => harvests.id),
+    title: text("title").notNull(),
+    startingPrice: numeric("starting_price", { precision: 12, scale: 2 }).notNull(),
+    currentHighestBid: numeric("current_highest_bid", { precision: 12, scale: 2 }).default("0"),
+    status: text("status").default("active"),
+    endTime: timestamp("end_time").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+});
+
+const auctionBids = pgTable("auction_bids", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    auctionId: uuid("auction_id").references(() => auctions.id),
+    bidderId: uuid("bidder_id").references(() => users.id),
+    amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+    timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// 3. IoT Telemetry & Drone Radar
+const telemetry = pgTable("telemetry", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    farmId: text("farm_id").notNull(),
+    sensorType: text("sensor_type").notNull(),
+    value: numeric("value", { precision: 10, scale: 2 }).notNull(),
+    status: text("status").default("nominal"),
+    timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+// 5. Automated Subscriptions (Drops)
+const subscriptionDrops = pgTable("subscription_drops", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    subscriberId: uuid("subscriber_id").references(() => subscribers.id),
+    dropDate: timestamp("drop_date").notNull(),
+    status: text("status").default("scheduled"),
+    contents: jsonb("contents").default([]),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 module.exports = {
     users,
     categories,
@@ -669,6 +718,11 @@ module.exports = {
     poultryBatches,
     gisPlots,
     intelContents,
+    cropLedger,
+    auctions,
+    auctionBids,
+    telemetry,
+    subscriptionDrops,
     roleEnum,
     unitEnum,
     paymentMethodEnum,
