@@ -58,4 +58,16 @@ router.get('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (
     }
 });
 
+// Update carrier status
+router.patch('/:id/status', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        await db.update(carriers).set({ status }).where(eq(carriers.id, id));
+        res.json({ message: `Carrier node status updated to ${status}` });
+    } catch (error) {
+        res.status(500).json({ error: 'Failed to update carrier node status' });
+    }
+});
+
 module.exports = router;

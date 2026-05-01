@@ -51,6 +51,52 @@ import { useSession, signIn } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 import NotificationBell from "@/components/NotificationBell";
 import KidoVisionModal from "@/components/KidoVisionModal";
+import { motion, AnimatePresence } from "framer-motion";
+
+function HubSyncTicker() {
+    const [events, setEvents] = useState<string[]>([
+        "PRIME_NODE: RE-ESTABLISHING SECURE CONNECTION...",
+        "DATA_HUB: AGGREGATING REGIONAL HARVEST NODES...",
+        "SECURITY_VAULT: ROTATING QUANTUM ENCRYPTION KEYS...",
+        "MARKET_ORACLE: SCANNING LIVE PRICE INDEX...",
+        "LOGISTICS_GRID: OPTIMIZING CARRIER CLUSTERS EX-PLATEAU",
+    ]);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            const newEvents = [
+                `TXG_LOG: Citizen ${Math.floor(Math.random() * 9000 + 1000)} credited ₦${(Math.random() * 50000).toFixed(0)}`,
+                `VAULT_UPDATE: Bio-digital fingerprint ${Math.random().toString(36).substring(7).toUpperCase()} synchronized`,
+                `GIS_SCAN: NDVI variance detected in Node-${Math.floor(Math.random() * 100)}`,
+                `BOT_ALERT: New Sovereignty Accreditation request from Vendor-${Math.floor(Math.random() * 500)}`,
+                `NETWORK: Parity maintained with Global Agritech Hub`,
+            ];
+            setEvents(prev => [newEvents[Math.floor(Math.random() * newEvents.length)], ...prev.slice(0, 4)]);
+        }, 4000);
+        return () => clearInterval(interval);
+    }, []);
+
+    return (
+        <div className="bg-white/5 border-y border-white/5 py-4 overflow-hidden -mx-10 mt-10 backdrop-blur-3xl px-10">
+            <div className="flex items-center gap-10 whitespace-nowrap animate-marquee">
+                <AnimatePresence mode="popLayout">
+                    {events.map((ev, i) => (
+                        <motion.div
+                            key={ev + i}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            className="flex items-center gap-4 text-[9px] font-black uppercase tracking-[0.4em]"
+                        >
+                            <span className="w-2 h-2 bg-secondary rounded-full shadow-[0_0_10px_#C4FF01]" />
+                            <span className={i === 0 ? "text-secondary" : "text-white/40"}>{ev}</span>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
+        </div>
+    );
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -164,6 +210,8 @@ export default function AdminDashboard() {
                     </div>
                 </header>
 
+                <HubSyncTicker />
+
                 {/* 🕹️ SOVEREIGN COMMAND CENTER */}
                 <div className="grid lg:grid-cols-3 gap-10 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     <CommandCard
@@ -253,6 +301,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/subscribers" icon={<Mail size={20} />} label="Subscribers" permission="users" />
                         <ActionBtn href="/admin/sensors" icon={<Satellite size={20} />} label="Crop & GPS Sensors" permission="global_data_command" />
                         <ActionBtn href="/admin/reviews" icon={<Star size={20} />} label="Review Queue" permission="content" />
+                        <ActionBtn href="/admin/verifications" icon={<ShieldCheck size={20} />} label="Sovereign Accreditation" permission="global_data_command" />
                         <ActionBtn href="/admin/tickets" icon={<MessageSquare size={20} />} label="Support Desk" permission="orders" />
                     </div>
                 </div>

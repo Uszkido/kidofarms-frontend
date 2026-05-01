@@ -85,7 +85,38 @@ export const authOptions: NextAuthOptions = {
     },
 
     callbacks: {
-        async jwt({ token, user }) {
+        async signIn({ user, account, profile }: any) {
+            if (account?.provider === "google") {
+                try {
+                    const res = await fetch(`${API_URL}/api/auth/social-login`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            email: user.email,
+                            name: user.name,
+                            image: user.image
+                        }),
+                    });
+
+                    if (res.ok) {
+                        const data = await res.json();
+                        // Attach our custom data to the user object
+                        user.id = String(data.user.id);
+                        user.accessToken = data.token;
+                        user.role = data.user.role;
+                        user.permissions = data.user.permissions || [];
+                        return true;
+                    }
+                    console.error("Social login sync failed on backend");
+                    return false;
+                } catch (err) {
+                    console.error("Social login error:", err);
+                    return false;
+                }
+            }
+            return true;
+        },
+        async jwt({ token, user, account }: any) {
             if (user) {
                 token.id = user.id;
                 token.role = (user as any).role;
@@ -94,7 +125,7 @@ export const authOptions: NextAuthOptions = {
             }
             return token;
         },
-        async session({ session, token }) {
+        async session({ session, token }: any) {
             if (session.user) {
                 (session.user as any).id = token.id;
                 (session.user as any).role = token.role;

@@ -70,53 +70,50 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(10px)" }}
+                        initial={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(20px)" }}
                         animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                        exit={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(10px)" }}
-                        className="absolute bottom-20 right-0 w-[350px] md:w-[400px] bg-white/95 backdrop-blur-3xl rounded-[3rem] shadow-[0_32px_128px_rgba(0,0,0,0.2)] border border-primary/10 flex flex-col overflow-hidden h-[580px]"
+                        exit={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(20px)" }}
+                        className="absolute bottom-24 right-0 w-[400px] md:w-[450px] bg-[#040d0a]/95 backdrop-blur-3xl rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col overflow-hidden h-[650px]"
                     >
                         {/* Status Bar */}
-                        <div className="bg-primary p-6 text-white overflow-hidden relative">
+                        <div className="bg-secondary/10 p-8 border-b border-white/5 relative overflow-hidden">
                             <motion.div
                                 animate={{ x: ["-100%", "200%"] }}
                                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                                className="absolute top-0 left-0 w-1/2 h-0.5 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-50"
+                                className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-secondary to-transparent opacity-20"
                             />
 
                             <div className="flex items-center justify-between relative z-10">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-secondary rounded-xl flex items-center justify-center text-primary shadow-lg">
-                                        <Bot size={20} />
+                                <div className="flex items-center gap-4">
+                                    <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center text-primary shadow-[0_10px_30px_rgba(196,255,1,0.3)]">
+                                        <Bot size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="text-lg font-black font-serif italic tracking-tighter uppercase leading-none text-secondary">Horizon AI</h4>
-                                        <p className="text-[8px] font-black uppercase tracking-[0.2em] text-white/40 mt-1">Sovereign Intelligence</p>
+                                        <h4 className="text-xl font-black font-serif italic tracking-tighter uppercase leading-none text-white">Horizon AI</h4>
+                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary mt-1 flex items-center gap-2">
+                                            <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse" /> Unified Intelligence
+                                        </p>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsOpen(false)} className="p-2 hover:bg-white/10 rounded-xl transition-all">
+                                <button onClick={() => setIsOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-white/30 hover:text-white transition-all">
                                     <X size={20} />
                                 </button>
                             </div>
                         </div>
 
                         {/* Quick Protocol Buttons */}
-                        <div className="bg-neutral-50 px-6 py-4 flex gap-2 overflow-x-auto scrollbar-hide border-b border-primary/5">
+                        <div className="px-8 py-4 flex gap-3 overflow-x-auto scrollbar-hide border-b border-white/5 bg-white/[0.02]">
                             {[
                                 { label: "Harvest status", icon: "🌾" },
                                 { label: "Track my order", icon: "📦" },
                                 { label: "Organic protocols", icon: "🧪" },
-                                { icon: <BarChart3 size={16} />, label: "Check Carbon Score", action: () => window.location.href = '/admin/logistics' },
-                                { icon: <ShieldCheck size={16} />, label: "View Sensor Health", action: () => window.location.href = '/admin/logistics' },
-                                { icon: <Mic size={16} />, label: "Voice Harvest Hub", action: () => window.location.href = '/admin/inventory' },
-                                { label: "Audit Supply Chain Carbon", icon: "🌍" }
+                                { label: "Carbon Score", icon: "🌍" },
+                                { label: "Sensor Health", icon: "📡" },
                             ].map((btn: any, i) => (
                                 <button
                                     key={i}
-                                    onClick={() => {
-                                        if (btn.action) btn.action();
-                                        else setInput(btn.label);
-                                    }}
-                                    className="whitespace-nowrap px-4 py-2 bg-white border border-primary/10 rounded-full text-[9px] font-black uppercase tracking-wider text-primary hover:bg-secondary hover:border-secondary transition-all shadow-sm flex items-center gap-2"
+                                    onClick={() => setInput(btn.label)}
+                                    className="whitespace-nowrap px-5 py-2.5 bg-white/5 border border-white/10 rounded-full text-[10px] font-black uppercase tracking-widest text-white/60 hover:bg-secondary hover:text-primary hover:border-secondary transition-all shadow-sm flex items-center gap-2"
                                 >
                                     <span>{btn.icon}</span> {btn.label}
                                 </button>
@@ -124,51 +121,59 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         </div>
 
                         {/* Chat Body */}
-                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-white to-neutral-50/50 scroll-smooth">
+                        <div ref={scrollRef} className="flex-1 overflow-y-auto p-8 space-y-8 scroll-smooth custom-scrollbar">
                             {messages.map((msg, i) => (
                                 <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                                    <div className={`relative max-w-[85%] p-4 rounded-[1.8rem] text-[13px] font-bold leading-relaxed shadow-sm ${msg.role === "user"
-                                        ? "bg-primary text-white rounded-tr-none"
-                                        : "bg-white border border-primary/5 text-primary rounded-tl-none tabular-nums"
+                                    <div className={`relative max-w-[85%] p-6 rounded-[2.5rem] text-sm font-medium leading-relaxed shadow-lg ${msg.role === "user"
+                                        ? "bg-primary text-white border border-secondary/20 rounded-tr-none"
+                                        : "bg-white/5 border border-white/10 text-white/80 rounded-tl-none font-sans"
                                         }`}>
-                                        <div className="absolute top-1 right-3 opacity-10 italic text-[7px] font-black uppercase tracking-widest">
-                                            {msg.role === "user" ? "Citizen" : "Horizon"}
-                                        </div>
+                                        {msg.role === "bot" && (
+                                            <div className="flex items-center gap-2 mb-3 px-3 py-1 bg-secondary/10 text-secondary rounded-full border border-secondary/20 w-fit">
+                                                <ShieldCheck size={12} />
+                                                <span className="text-[8px] font-black uppercase tracking-widest">Kido Verified Result</span>
+                                            </div>
+                                        )}
                                         {msg.text}
                                     </div>
                                 </div>
                             ))}
                             {isLoading && (
                                 <div className="flex justify-start">
-                                    <div className="bg-white/50 backdrop-blur-sm p-4 rounded-[1.5rem] rounded-tl-none border border-primary/5 flex gap-3 items-center">
-                                        <Loader2 className="animate-spin text-primary" size={16} />
-                                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-primary/40 text-center">Nodes syncing...</span>
+                                    <div className="flex gap-4">
+                                        <div className="w-10 h-10 rounded-xl bg-secondary text-primary flex items-center justify-center animate-pulse">
+                                            <Sparkles size={18} />
+                                        </div>
+                                        <div className="bg-white/5 p-6 rounded-[2rem] rounded-tl-none border border-white/5 flex items-center gap-4">
+                                            <Loader2 size={20} className="animate-spin text-secondary" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-white/20">Syncing Neurons...</span>
+                                        </div>
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-6 border-t border-primary/5 bg-white relative">
-                            <div className="relative">
+                        <div className="p-8 border-t border-white/5 bg-white/[0.02]">
+                            <div className="relative group">
                                 <input
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyPress={(e) => e.key === "Enter" && handleSend()}
-                                    placeholder="Ask Horizon..."
-                                    className="w-full pl-6 pr-14 py-4 bg-neutral-50 rounded-2xl text-[13px] font-bold text-primary placeholder:text-primary/20 focus:outline-none ring-4 ring-transparent focus:ring-primary/5 border border-primary/5 transition-all shadow-inner"
+                                    placeholder="Consult Horizon AI Master..."
+                                    className="w-full pl-6 pr-16 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/10 focus:outline-none focus:border-secondary transition-all shadow-inner font-medium"
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={!input.trim() || isLoading}
-                                    className="absolute right-2 top-2 p-3 bg-primary text-white rounded-xl hover:bg-secondary hover:text-primary transition-all disabled:opacity-30 active:scale-95 shadow-md"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-4 bg-secondary text-primary rounded-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-30 shadow-xl"
                                 >
-                                    <Send size={16} />
+                                    <Send size={20} />
                                 </button>
                             </div>
-                            <p className="text-center mt-4 text-[7px] font-black uppercase tracking-[0.3em] text-primary/20 leading-none">
-                                Kido Alpha Protocol • High Security Mode
+                            <p className="text-center mt-6 text-[8px] font-black uppercase tracking-[0.4em] text-white/10 leading-none">
+                                Federated AI Network • Jos-Jos Node Status: GREEN
                             </p>
                         </div>
                     </motion.div>
