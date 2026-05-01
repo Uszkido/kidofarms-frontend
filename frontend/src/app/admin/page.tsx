@@ -301,7 +301,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/payouts" icon={<CreditCard size={20} />} label="Payouts" permission="finance" />
                         <ActionBtn href="/admin/system" icon={<Activity size={20} />} label="System Vitality" permission="global_data_command" />
                         <ActionBtn href="/admin/subscribers" icon={<Mail size={20} />} label="Subscribers" permission="users" />
-                        <ActionBtn href="/admin/sensor-fleet" icon={<Satellite size={20} />} label="Sensor Fleet" permission="global_data_command" />
+                        <ActionBtn href="/admin/sensors" icon={<Satellite size={20} />} label="Sensor Fleet" permission="global_data_command" />
                         <button
                             onClick={() => setIsSovereigntyManagerOpen(true)}
                             className="bg-white/5 border border-white/10 rounded-[2rem] p-8 flex flex-col items-center justify-center gap-4 group hover:bg-secondary transition-all shadow-xl"

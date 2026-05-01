@@ -4,56 +4,40 @@ import { motion } from "framer-motion";
 import {
     BookOpen,
     ShieldCheck,
-    Zap,
-    Droplet,
     Sun,
-    Wind,
-    FileText,
     Download,
     Lock,
     Search,
+    Loader2,
     Satellite
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-
-const protocols = [
-    {
-        title: "Soil Biology V5",
-        desc: "Advanced microbial deployment strategies for Jos High-Plateau regions.",
-        category: "Soil Health",
-        icon: <Droplet className="text-secondary" />,
-        status: "Verified",
-        difficulty: "Intermmediate"
-    },
-    {
-        title: "Drip-Nexus Irrigation",
-        desc: "Zero-waste water management using IoT-linked solar pumps.",
-        category: "Technology",
-        icon: <Zap className="text-secondary" />,
-        status: "Optimized",
-        difficulty: "Advanced"
-    },
-    {
-        title: "Organic Yield Shield",
-        desc: "Biological pest control without the use of synthetic neurotoxins.",
-        category: "Protection",
-        icon: <ShieldCheck className="text-secondary" />,
-        status: "Mastered",
-        difficulty: "Beginner"
-    },
-    {
-        title: "Regen-Cycle Tillage",
-        desc: "Zero-till farming methods designed for maximum carbon sequestration.",
-        category: "Sustainability",
-        icon: <Sun className="text-secondary" />,
-        status: "Global Parity",
-        difficulty: "Intermmediate"
-    }
-];
+import { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 
 export default function VaultPage() {
+    const [protocols, setProtocols] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProtocols = async () => {
+            try {
+                const res = await fetch(getApiUrl("/api/admin/intel?section=vault"));
+                if (res.ok) {
+                    const data = await res.json();
+                    setProtocols(data.filter((i: any) => i.isLive));
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchProtocols();
+    }, []);
+
     return (
         <div className="min-h-screen bg-[#040d0a] text-white flex flex-col">
             <Header />
@@ -107,44 +91,55 @@ export default function VaultPage() {
                     </div>
 
                     <div className="grid md:grid-cols-2 gap-10">
-                        {protocols.map((p, i) => (
-                            <motion.div
-                                key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ delay: i * 0.1 }}
-                                className="bg-white/[0.02] border border-white/5 p-12 rounded-[3.5rem] space-y-10 group hover:border-secondary/20 transition-all relative overflow-hidden"
-                            >
-                                <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/5 rounded-full blur-3xl -translate-y-20 translate-x-20" />
+                        {loading ? (
+                            <div className="col-span-full flex justify-center py-20">
+                                <Loader2 className="animate-spin text-secondary" size={48} />
+                            </div>
+                        ) : protocols.length === 0 ? (
+                            <div className="col-span-full text-center py-20 border-2 border-dashed border-white/5 rounded-[3.5rem]">
+                                <ShieldCheck size={48} className="text-white/10 mx-auto mb-4" />
+                                <p className="text-white/20 font-black uppercase tracking-widest">No protocols currently synchronized</p>
+                            </div>
+                        ) : (
+                            protocols.map((p, i) => (
+                                <motion.div
+                                    key={p.id}
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="bg-white/[0.02] border border-white/5 p-12 rounded-[3.5rem] space-y-10 group hover:border-secondary/20 transition-all relative overflow-hidden"
+                                >
+                                    <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/5 rounded-full blur-3xl -translate-y-20 translate-x-20" />
 
-                                <div className="flex justify-between items-start relative z-10">
-                                    <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
-                                        {p.icon}
+                                    <div className="flex justify-between items-start relative z-10">
+                                        <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center">
+                                            <Sun className="text-secondary" />
+                                        </div>
+                                        <div className="bg-white/5 px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-white/40">
+                                            {p.category}
+                                        </div>
                                     </div>
-                                    <div className="bg-white/5 px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest text-white/40">
-                                        {p.status}
-                                    </div>
-                                </div>
 
-                                <div className="space-y-4 relative z-10">
-                                    <h4 className="text-4xl font-black font-serif uppercase tracking-tighter text-white">{p.title}</h4>
-                                    <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed">
-                                        {p.desc}
-                                    </p>
-                                </div>
-
-                                <div className="flex justify-between items-end relative z-10">
-                                    <div className="space-y-2">
-                                        <h5 className="text-[7px] font-black uppercase tracking-[0.4em] text-white/20">Citizen Level</h5>
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-secondary">{p.difficulty}</p>
+                                    <div className="space-y-4 relative z-10">
+                                        <h4 className="text-4xl font-black font-serif uppercase tracking-tighter text-white">{p.title}</h4>
+                                        <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-relaxed line-clamp-3">
+                                            {p.body}
+                                        </p>
                                     </div>
-                                    <button className="bg-white/5 p-5 rounded-2xl hover:bg-secondary hover:text-primary transition-all group/btn">
-                                        <Download size={24} className="group-hover/btn:translate-y-1 transition-transform" />
-                                    </button>
-                                </div>
-                            </motion.div>
-                        ))}
+
+                                    <div className="flex justify-between items-end relative z-10">
+                                        <div className="space-y-2">
+                                            <h5 className="text-[7px] font-black uppercase tracking-[0.4em] text-white/20">Citizen Level</h5>
+                                            <p className="text-[10px] font-black uppercase tracking-widest text-secondary">{p.type}</p>
+                                        </div>
+                                        <button className="bg-white/5 p-5 rounded-2xl hover:bg-secondary hover:text-primary transition-all group/btn">
+                                            <Download size={24} className="group-hover/btn:translate-y-1 transition-transform" />
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            ))
+                        )}
                     </div>
                 </section>
 

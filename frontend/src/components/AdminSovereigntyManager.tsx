@@ -110,9 +110,9 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
 
     const handleGoLiveToggle = async (id: string, currentLive: boolean) => {
         try {
-            const res = await fetch(`http://localhost:5001/api/admin/intel/${id}/golive`, {
+            const res = await fetch(getApiUrl(`/api/admin/intel/${id}/golive`), {
                 method: "PATCH",
-                headers: { "Authorization": `Bearer ${localStorage.getItem('token')}` }
+                headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
             });
             if (res.ok) {
                 toast.success(currentLive ? "Protocol suppressed (Offline)" : "Protocol LIVE across mesh");
