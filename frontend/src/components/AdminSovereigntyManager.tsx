@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, BookOpen, MessageSquare, Plus, Edit3, Trash2, ShieldCheck, Globe, Zap, Database, ArrowRight, Save, Loader2, Radio, Palette } from "lucide-react";
+import { X, BookOpen, MessageSquare, Plus, Edit3, Trash2, ShieldCheck, Globe, Zap, Database, ArrowRight, Save, Loader2, Radio, Palette, Layout, Monitor, Cpu } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -21,7 +21,7 @@ interface ContentItem {
 
 export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { data: session } = useSession();
-    const [activeTab, setActiveTab] = useState<"vault" | "exchange" | "content" | "visuals">("vault");
+    const [activeTab, setActiveTab] = useState<"vault" | "exchange" | "content" | "visuals" | "architect">("vault");
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [items, setItems] = useState<ContentItem[]>([]);
@@ -178,6 +178,9 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                                     <button onClick={() => setActiveTab("visuals")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "visuals" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
                                         <Palette size={20} /> <span className="text-[11px] font-black uppercase">Visual Aesthetic</span>
                                     </button>
+                                    <button onClick={() => setActiveTab("architect")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "architect" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
+                                        <Layout size={20} /> <span className="text-[11px] font-black uppercase">Layout Architect</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +198,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                             <div className="space-y-2">
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/40 leading-none">Command Interface</h3>
                                 <h2 className="text-4xl font-black font-serif italic text-primary uppercase tracking-tighter flex items-center gap-4">
-                                    {activeTab === "vault" ? "Knowledge Repository" : activeTab === "exchange" ? "Community Advisories" : activeTab === "content" ? "Sovereign Dashboard CMS" : "Global Visual Registry"}
+                                    {activeTab === "vault" ? "Knowledge Repository" : activeTab === "exchange" ? "Community Advisories" : activeTab === "content" ? "Sovereign Dashboard CMS" : activeTab === "visuals" ? "Global Visual Registry" : "Template Architect Node"}
                                     {isLoading && <Loader2 size={24} className="animate-spin text-secondary" />}
                                 </h2>
                             </div>
@@ -335,6 +338,76 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                                 </div>
                             </div>
                         )}
+
+                        {/* --- VIEW: TEMPLATE ARCHITECT --- */}
+                        {activeTab === "architect" && globalSettings && (
+                            <div className="space-y-16 animate-in fade-in duration-700">
+                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                                    <PresetCard
+                                        title="Neo-Digital"
+                                        desc="Sharp, high-contrast, technical grid aesthetic."
+                                        active={globalSettings.themeConfig?.templateId === 'neo_digital'}
+                                        onClick={() => handleSaveSettings({ ...globalSettings, themeConfig: { ...globalSettings.themeConfig, templateId: 'neo_digital', primaryColor: '#040d0a', secondaryColor: '#C5A059', accentColor: '#1a3c34', borderRadius: '2.5rem', fontFamily: 'Outfit, sans-serif' } })}
+                                        icon={<Monitor size={32} />}
+                                    />
+                                    <PresetCard
+                                        title="Heritage Organic"
+                                        desc="Classic serif, earth tones, and soft rounded nodes."
+                                        active={globalSettings.themeConfig?.templateId === 'heritage_organic'}
+                                        onClick={() => handleSaveSettings({ ...globalSettings, themeConfig: { ...globalSettings.themeConfig, templateId: 'heritage_organic', primaryColor: '#2b1a11', secondaryColor: '#8b4513', accentColor: '#228b22', borderRadius: '0.75rem', fontFamily: "'Playfair Display', serif" } })}
+                                        icon={<Globe size={32} />}
+                                    />
+                                    <PresetCard
+                                        title="Cyber-Agriculture"
+                                        desc="Vibrant green phosphors on deep matrix black."
+                                        active={globalSettings.themeConfig?.templateId === 'cyber_agri'}
+                                        onClick={() => handleSaveSettings({ ...globalSettings, themeConfig: { ...globalSettings.themeConfig, templateId: 'cyber_agri', primaryColor: '#000000', secondaryColor: '#00ff00', accentColor: '#333333', borderRadius: '0rem', fontFamily: 'Inter, sans-serif' } })}
+                                        icon={<Cpu size={32} />}
+                                    />
+                                </div>
+
+                                <div className="p-10 bg-neutral-50 rounded-[4rem] border border-primary/5 space-y-12">
+                                    <h4 className="text-[12px] font-black uppercase tracking-[0.3em] text-primary">Granular Logic Configuration</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                        <div className="space-y-6">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Node Curvature</label>
+                                                <span className="text-[10px] font-black text-primary">{globalSettings.themeConfig?.borderRadius || '2.5rem'}</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="4"
+                                                step="0.5"
+                                                value={parseFloat(globalSettings.themeConfig?.borderRadius || '2.5')}
+                                                onChange={(e) => setGlobalSettings({ ...globalSettings, themeConfig: { ...globalSettings.themeConfig, borderRadius: `${e.target.value}rem` } })}
+                                                className="w-full accent-secondary"
+                                            />
+                                        </div>
+                                        <div className="space-y-6">
+                                            <div className="flex justify-between items-center">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40">Glassmorphism Intensity</label>
+                                                <span className="text-[10px] font-black text-primary">{globalSettings.themeConfig?.glassIntensity || '10'}%</span>
+                                            </div>
+                                            <input
+                                                type="range"
+                                                min="0"
+                                                max="40"
+                                                value={globalSettings.themeConfig?.glassIntensity || '10'}
+                                                onChange={(e) => setGlobalSettings({ ...globalSettings, themeConfig: { ...globalSettings.themeConfig, glassIntensity: e.target.value } })}
+                                                className="w-full accent-secondary"
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleSaveSettings(globalSettings)}
+                                        className="w-full bg-primary text-secondary py-6 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.4em] shadow-2xl hover:scale-[1.02] transition-all"
+                                    >
+                                        Seal Architecture Logic
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>
@@ -359,5 +432,30 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                 )}
             </AnimatePresence>
         </div>
+    );
+}
+
+function PresetCard({ title, desc, active, onClick, icon }: any) {
+    return (
+        <button
+            onClick={onClick}
+            className={`p-10 rounded-[3rem] border transition-all text-left space-y-6 group relative overflow-hidden ${active
+                ? 'bg-primary text-secondary border-secondary shadow-2xl scale-105'
+                : 'bg-neutral-50 border-primary/5 text-primary/40 hover:border-secondary hover:text-primary'
+                }`}
+        >
+            <div className={`w-16 h-16 rounded-2xl flex items-center justify-center transition-all ${active ? 'bg-secondary text-primary' : 'bg-white text-primary group-hover:bg-secondary group-hover:scale-110'}`}>
+                {icon}
+            </div>
+            <div>
+                <h4 className="text-xl font-black font-serif italic uppercase tracking-tighter mb-2">{title}</h4>
+                <p className="text-[9px] font-black uppercase tracking-widest leading-relaxed opacity-60">{desc}</p>
+            </div>
+            {active && (
+                <div className="absolute top-6 right-6">
+                    <Zap size={16} fill="currentColor" className="text-secondary animate-pulse" />
+                </div>
+            )}
+        </button>
     );
 }

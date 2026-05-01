@@ -8,37 +8,27 @@
 
 :root {
   --background: #e5e0d5;
-  /* Darker Warm Linen */
   --foreground: #1a3c34;
-  /* Forest Green */
-  --card: #cdc8bc;
-  /* Darker Warm Card */
-  --card-foreground: #1a3c34;
-  --primary: #1a3c34;
-  --primary-foreground: #f9f7f2;
-  --secondary: #c5a059;
-  /* Gold */
-  --secondary-foreground: #1a3c34;
-  --accent: #4a7c59;
-  /* Accent Green */
-  --accent-foreground: #f9f7f2;
-  --border: #b8b2a6;
-  --input: #b8b2a6;
-  --ring: #1a3c34;
+  --primary-color: #1a3c34;
+  --secondary-color: #c5a059;
+  --accent-color: #4a7c59;
+  --border-radius: 2.5rem;
+  --glass-intensity: 10%;
+  --font-family: "Outfit", sans-serif;
+  --font-serif-family: "Playfair Display", serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
+  --color-primary: var(--primary-color);
+  --color-secondary: var(--secondary-color);
+  --color-accent: var(--accent-color);
 
-  --font-serif: "Playfair Display", serif;
-  --font-sans: "Outfit", sans-serif;
+  --font-serif: var(--font-serif-family);
+  --font-sans: var(--font-family);
+
+  --radius-sovereign: var(--border-radius);
 }
 
 body {
