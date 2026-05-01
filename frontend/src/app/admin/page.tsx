@@ -122,6 +122,8 @@ export default function AdminDashboard() {
         { id: 'audit', title: 'Audit Ledger', desc: 'Trace every financial transaction and protocol modification within the Sovereign Ledger.', href: '/admin/audit', icon: <Database size={48} />, color: 'from-blue-500/20 to-transparent', accent: 'text-blue-400', glow: 'shadow-[0_0_50px_-12px_rgba(96,165,250,0.3)]' },
         { id: 'market', title: 'Market Oracle', desc: 'Override commodity price indexes and reconfigure local market logistics dynamically.', href: '/admin/marketplace', icon: <Monitor size={48} />, color: 'from-purple-500/20 to-transparent', accent: 'text-purple-400', glow: 'shadow-[0_0_50px_-12px_rgba(192,132,252,0.3)]' },
         { id: 'users', title: 'Citizen Registry', desc: 'Manage every registered citizen, vendor, and farmer node in the Kido Global Network.', href: '/admin/users', icon: <Users size={48} />, color: 'from-secondary/20 to-transparent', accent: 'text-secondary', glow: 'shadow-[0_0_50px_-12px_rgba(196,255,1,0.3)]' },
+        { id: 'architect', title: 'Template Architect', desc: 'Seal architecture logic, reconfigure global layouts, and toggle design presets.', onClick: () => setIsSovereigntyManagerOpen(true), icon: <LayoutDashboard size={48} />, color: 'from-orange-500/20 to-transparent', accent: 'text-orange-400', glow: 'shadow-[0_0_50px_-12px_rgba(251,146,60,0.3)]' },
+        { id: 'visuals', title: 'Visual Aesthetic', desc: 'Modify global chroma layers, chroma keys, and brand typography grids.', onClick: () => setIsSovereigntyManagerOpen(true), icon: <Palette size={48} />, color: 'from-pink-500/20 to-transparent', accent: 'text-pink-400', glow: 'shadow-[0_0_50px_-12px_rgba(244,114,182,0.3)]' },
     ];
 
     const filteredActions = quickActions.filter(action =>
@@ -279,6 +281,7 @@ export default function AdminDashboard() {
                                 desc={action.desc}
                                 icon={action.icon}
                                 href={action.href}
+                                onClick={action.onClick}
                                 color={action.color}
                                 accent={action.accent}
                                 glow={action.glow}
@@ -743,9 +746,9 @@ function NodeStatus({ label, status, health, icon, count }: any) {
     );
 }
 
-function CommandCard({ title, desc, icon, href, color, accent, glow }: any) {
-    return (
-        <Link href={href} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 ${glow}`}>
+function CommandCard({ title, desc, icon, href, onClick, color, accent, glow }: any) {
+    const content = (
+        <>
             <div className={`absolute inset-0 bg-gradient-to-br ${color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
             <div className="relative z-10 space-y-6">
                 <div className={`w-24 h-24 rounded-sovereign bg-[#040d0a] border border-white/5 flex items-center justify-center ${accent} shadow-2xl group-hover:scale-110 transition-transform duration-500`}>
@@ -763,6 +766,20 @@ function CommandCard({ title, desc, icon, href, color, accent, glow }: any) {
                     Initiate Protocol <ArrowRight size={16} />
                 </div>
             </div>
+        </>
+    );
+
+    if (onClick) {
+        return (
+            <button onClick={onClick} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 text-left w-full h-full ${glow}`}>
+                {content}
+            </button>
+        );
+    }
+
+    return (
+        <Link href={href || "#"} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 ${glow}`}>
+            {content}
         </Link>
     );
 }
