@@ -33,7 +33,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
         setIsLoading(true);
         try {
             const res = await fetch(getApiUrl(`/api/admin/intel?section=${activeTab}`), {
-                headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
+                headers: { "Authorization": `Bearer ${(session?.user as any)?.accessToken}` }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -75,7 +75,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                 method,
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${(session as any)?.accessToken}`
+                    "Authorization": `Bearer ${(session?.user as any)?.accessToken}`
                 },
                 body: JSON.stringify(selectedItem)
             });
@@ -97,7 +97,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
         try {
             const res = await fetch(getApiUrl(`/api/admin/intel/${id}`), {
                 method: "DELETE",
-                headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
+                headers: { "Authorization": `Bearer ${(session?.user as any)?.accessToken}` }
             });
             if (res.ok) {
                 toast.success("Intelligence erased.")
@@ -112,7 +112,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
         try {
             const res = await fetch(getApiUrl(`/api/admin/intel/${id}/golive`), {
                 method: "PATCH",
-                headers: { "Authorization": `Bearer ${(session as any)?.accessToken}` }
+                headers: { "Authorization": `Bearer ${(session?.user as any)?.accessToken}` }
             });
             if (res.ok) {
                 toast.success(currentLive ? "Protocol suppressed (Offline)" : "Protocol LIVE across mesh");
