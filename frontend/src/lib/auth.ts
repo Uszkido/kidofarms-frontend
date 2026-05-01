@@ -2,6 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
 const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
@@ -88,13 +89,20 @@ export const authOptions: NextAuthOptions = {
         async signIn({ user, account, profile }: any) {
             if (account?.provider === "google") {
                 try {
+                    let pendingRole = 'customer';
+                    try {
+                        const cookieStore = await cookies();
+                        pendingRole = cookieStore.get('pending_social_role')?.value || 'customer';
+                    } catch (e) { }
+
                     const res = await fetch(`${API_URL}/api/auth/social-login`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             email: user.email,
                             name: user.name,
-                            image: user.image
+                            image: user.image,
+                            role: pendingRole
                         }),
                     });
 

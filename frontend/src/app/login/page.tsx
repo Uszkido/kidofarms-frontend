@@ -20,6 +20,8 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
     const [error, setError] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [role, setRole] = useState(initialRole);
+    const [showGoogleRoleModal, setShowGoogleRoleModal] = useState(false);
+    const [selectedGoogleRole, setSelectedGoogleRole] = useState("customer");
     const [form, setForm] = useState({
         name: "",
         email: "",
@@ -121,10 +123,15 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
         }
     };
 
-    const handleGoogleLogin = async () => {
+    const triggerGoogleModal = () => setShowGoogleRoleModal(true);
+
+    const executeGoogleLogin = async () => {
         setLoading(true);
+        setShowGoogleRoleModal(false);
         try {
-            await signIn("google", { callbackUrl: "/dashboard/consumer" });
+            // Drop a cookie that NextAuth can read server-side during the callback
+            document.cookie = `pending_social_role=${selectedGoogleRole}; path=/;`;
+            await signIn("google", { callbackUrl: "/dashboard/consumer" }); // Redirection is handled locally next
         } catch (err) {
             setError("Google linkage failed.");
         } finally {
@@ -285,7 +292,7 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
 
                         <button
                             type="button"
-                            onClick={handleGoogleLogin}
+                            onClick={triggerGoogleModal}
                             className="w-full bg-white border border-gray-100 text-primary py-6 rounded-3xl font-black uppercase tracking-[0.2em] hover:bg-gray-50 hover:scale-[1.02] active:scale-95 transition-all shadow-sm flex items-center justify-center gap-4"
                         >
                             <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -314,6 +321,40 @@ function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
                     </div>
                 </div>
             </div>
+
+            {/* Google Role Selection Modal */}
+            {showGoogleRoleModal && (
+                <div className="fixed inset-0 bg-primary/60 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full space-y-6 shadow-2xl relative">
+                        <button onClick={() => setShowGoogleRoleModal(false)} className="absolute top-4 right-4 p-2 text-gray-400 hover:text-primary transition-all">
+                            <X size={20} />
+                        </button>
+                        <div className="text-center space-y-2">
+                            <h3 className="text-2xl font-black font-serif text-primary">SELECT ROLE</h3>
+                            <p className="text-xs font-black uppercase tracking-widest text-gray-400">Choose your network node before entering</p>
+                        </div>
+                        <div className="space-y-3">
+                            {['customer', 'farmer', 'vendor', 'carrier', 'affiliate'].map(r => (
+                                <button
+                                    key={r}
+                                    onClick={() => setSelectedGoogleRole(r)}
+                                    className={`w-full py-4 px-6 rounded-2xl border-2 text-left flex justify-between items-center transition-all ${selectedGoogleRole === r ? 'border-secondary bg-secondary/10' : 'border-gray-100 hover:border-gray-300'}`}
+                                >
+                                    <span className="text-xs font-black uppercase tracking-widest text-primary">{r}</span>
+                                    {selectedGoogleRole === r && <div className="w-3 h-3 rounded-full bg-secondary" />}
+                                </button>
+                            ))}
+                        </div>
+                        <button
+                            onClick={executeGoogleLogin}
+                            disabled={loading}
+                            className="w-full bg-primary text-white py-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-lg flex items-center justify-center gap-3 hover:bg-secondary hover:text-primary transition-all"
+                        >
+                            {loading ? <Loader2 className="animate-spin" size={18} /> : "Continue with Google"}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

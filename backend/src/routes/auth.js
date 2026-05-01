@@ -310,8 +310,11 @@ router.post('/signup/career', async (req, res) => {
 
 router.post('/social-login', async (req, res) => {
     try {
-        const { email, name, image } = req.body;
+        const { email, name, image, role } = req.body;
         if (!email) return res.status(400).json({ error: 'Email is required' });
+
+        const allowedRoles = ['customer', 'consumer', 'farmer', 'vendor', 'carrier', 'affiliate'];
+        const validatedRole = allowedRoles.includes(role) ? role : 'customer';
 
         let user = await db.query.users.findFirst({
             where: eq(users.email, email)
@@ -319,17 +322,43 @@ router.post('/social-login', async (req, res) => {
 
         if (!user) {
             // Create user if they don't exist
-            // Social users don't have a password, so we set a placeholder
-            // This is safe because they will always login via Google
             const placeholderPassword = await bcrypt.hash(Math.random().toString(36), 10);
-            const [newUser] = await db.insert(users).values({
-                name: name || email.split('@')[0],
-                email,
-                password: placeholderPassword,
-                role: 'customer',
-                isVerified: true
-            }).returning();
-            user = newUser;
+
+            const result = await db.transaction(async (tx) => {
+                const [newUser] = await tx.insert(users).values({
+                    name: name || email.split('@')[0],
+                    email,
+                    password: placeholderPassword,
+                    role: validatedRole,
+                    isVerified: true
+                }).returning();
+
+                // Create stub profile if role needs one
+                if (validatedRole === 'farmer') {
+                    await tx.insert(farmers).values({
+                        userId: newUser.id,
+                        farmName: `${newUser.name}'s Farm`,
+                        farmLocationState: "Pending",
+                        farmLocationLga: "Pending",
+                        status: 'pending'
+                    });
+                } else if (validatedRole === 'affiliate') {
+                    await tx.insert(affiliates).values({
+                        userId: newUser.id,
+                        referralCode: `KIDO-${newUser.name.substring(0, 3).toUpperCase()}-${Math.floor(1000 + Math.random() * 9000)}`,
+                        status: 'pending'
+                    });
+                } else if (validatedRole === 'carrier') {
+                    await tx.insert(carriers).values({
+                        userId: newUser.id,
+                        companyName: `${newUser.name} Logistics`,
+                        status: 'pending'
+                    });
+                }
+
+                return newUser;
+            });
+            user = result;
         }
 
         const token = jwt.sign(
