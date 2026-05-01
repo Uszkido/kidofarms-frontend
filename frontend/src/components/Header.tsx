@@ -203,7 +203,7 @@ export const Header = () => {
                         </div>
                     ) : (
                         <Link href="/login" className="flex items-center gap-3 bg-white/5 hover:bg-secondary hover:text-primary px-5 py-2.5 rounded-full transition-all border border-white/5 shadow-lg group">
-                            <span className="text-[10px] font-black tracking-widest uppercase font-serif italic tracking-tighter">Enter Network</span>
+                            <span className="text-[10px] font-black tracking-widest uppercase font-serif italic tracking-tighter">LOGIN / SIGNUP</span>
                         </Link>
                     )}
 
