@@ -60,3 +60,26 @@ h4,
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
+
+/* Hide Google Translate UI */
+.goog-te-banner-frame.skiptranslate,
+.goog-te-gadget-icon,
+.goog-tooltip {
+  display: none !important;
+}
+
+body {
+  top: 0px !important;
+}
+
+.skiptranslate {
+  color: transparent !important;
+}
+
+.skiptranslate>span {
+  color: inherit;
+}
+
+.skiptranslate iframe {
+  display: none;
+}

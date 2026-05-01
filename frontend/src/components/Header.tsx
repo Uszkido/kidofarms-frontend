@@ -7,7 +7,7 @@ import { Search, User, Menu, BarChart3, ShoppingCart, X, ArrowRight } from "luci
 import LogoutButton from './LogoutButton';
 import CartCount from './CartCount';
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export const Header = () => {
     const { data: session } = useSession();
@@ -52,6 +52,53 @@ export const Header = () => {
         { code: "yo", label: "YOR" },
     ];
     const [currentLang, setCurrentLang] = useState("en");
+
+    useEffect(() => {
+        const getCookie = (name: string) => {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop()?.split(';').shift();
+        };
+        const googtrans = getCookie('googtrans');
+        if (googtrans) {
+            const target = googtrans.split('/').pop() || 'en';
+            const reverseMap: Record<string, string> = {
+                'en': 'en',
+                'pcm': 'pg',
+                'ha': 'hs',
+                'yo': 'yo'
+            };
+            if (reverseMap[target]) {
+                setCurrentLang(reverseMap[target]);
+            }
+        }
+    }, []);
+
+    const handleLangChange = (code: string) => {
+        setCurrentLang(code);
+
+        // Map internal codes to Google Translate codes
+        const map: Record<string, string> = {
+            'en': 'en',
+            'pg': 'pcm', // Nigerian Pidgin
+            'hs': 'ha',  // Hausa
+            'yo': 'yo'   // Yoruba
+        };
+
+        const target = map[code] || 'en';
+
+        // Check if cookie suggests we are already in same state 
+        document.cookie = `googtrans=/en/${target}; path=/; domain=${window.location.hostname}`;
+        document.cookie = `googtrans=/en/${target}; path=/;`;
+
+        const select = document.querySelector('.goog-te-combo') as HTMLSelectElement;
+        if (select) {
+            select.value = target;
+            select.dispatchEvent(new Event('change'));
+        } else {
+            window.location.reload(); // Fallback
+        }
+    };
 
     return (
         <header className="bg-primary/95 backdrop-blur-xl text-white py-4 sticky top-0 z-[60] shadow-2xl border-b border-white/10">
@@ -115,7 +162,7 @@ export const Header = () => {
                         {languages.map((lang) => (
                             <button
                                 key={lang.code}
-                                onClick={() => setCurrentLang(lang.code)}
+                                onClick={() => handleLangChange(lang.code)}
                                 className={`px-2 py-1 text-[8px] font-black rounded-lg transition-all ${currentLang === lang.code ? 'bg-secondary text-primary' : 'text-white/30 hover:text-white'}`}
                             >
                                 {lang.code}

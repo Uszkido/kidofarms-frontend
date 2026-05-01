@@ -39,8 +39,21 @@ export default function RootLayout({
             }(document, "script"));
           `}
         </Script>
+        <Script id="google-translate" strategy="afterInteractive">
+          {`
+            function googleTranslateElementInit() {
+              new google.translate.TranslateElement({
+                  pageLanguage: 'en',
+                  includedLanguages: 'en,ha,yo,pcm',
+                  autoDisplay: false
+              }, 'google_translate_element');
+            }
+          `}
+        </Script>
+        <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="afterInteractive" />
       </head>
       <body className="antialiased flex flex-col min-h-screen relative">
+        <div id="google_translate_element" className="hidden opacity-0 pointer-events-none absolute -top-96"></div>
         <Providers>
           <ThemeHub>
             <Suspense fallback={null}>
