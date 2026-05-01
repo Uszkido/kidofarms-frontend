@@ -32,6 +32,7 @@ export function TraceContent() {
 
     const [loading, setLoading] = useState(true);
     const [passport, setPassport] = useState<any>(null);
+    const [ledger, setLedger] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
@@ -41,21 +42,39 @@ export function TraceContent() {
     const fetchDNA = async () => {
         try {
             setLoading(true);
-            const res = await fetch(getApiUrl(`/api/horizon/dna/${productId || id}`));
-            if (res.ok) {
-                setPassport(await res.json());
+            const targetId = productId || id;
+            // Fetch real product and ledger data
+            const [productRes, ledgerRes] = await Promise.all([
+                fetch(getApiUrl(`/api/products/${targetId}`)),
+                fetch(getApiUrl(`/api/provenance/${targetId}`))
+            ]);
+
+            if (productRes.ok) {
+                const prod = await productRes.json();
+                setPassport({
+                    id: prod.id || targetId,
+                    productName: prod.name || "Sovereign Harvest",
+                    farmerName: prod.farmer?.farmName || "Kido Nexus Hub",
+                    location: prod.farmer?.farmLocationState || "Global Exchange",
+                    imageUrl: prod.images?.[0] || "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800"
+                });
             } else {
                 setPassport({
-                    id: id,
+                    id: targetId,
                     productName: "Heritage Grain",
-                    farmerName: "Aminu Jos",
-                    location: "Jos Highlands, Plateau",
+                    farmerName: "Kido System Node",
+                    location: "Decentralized Reserve",
                     imageUrl: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=800"
                 });
             }
+
+            if (ledgerRes.ok) {
+                const ledgerData = await ledgerRes.json();
+                setLedger(ledgerData.length > 0 ? ledgerData : []);
+            }
         } catch (err) {
             console.error(err);
-            setError("Network Interruption");
+            setError("Ledger Desync");
         } finally {
             setLoading(false);
         }
@@ -153,11 +172,22 @@ export function TraceContent() {
                                     </div>
 
                                     <div className="space-y-10 border-l-2 border-white/10 pl-12 relative ml-4">
-                                        <TimelineEvent label="DNA Initialization" date="Jan 10, 2026" details="Registered non-GMO Grain Node 42A." status="complete" />
-                                        <TimelineEvent label="Neural Monitoring" date="Feb 15, 2026" details="Sensor Array 09-Jos active. Irrigation sync: 100%." status="complete" />
-                                        <TimelineEvent label="Final Ripening" date="Mar 01, 2026" details="Vitality index optimal. Ready for Sovereign extract." status="complete" />
-                                        <TimelineEvent label="Sovereign Harvest" date="Mar 08, 2026" details="Handpicked at dawn by Master Citizen Nodes." status="active" />
-                                        <TimelineEvent label="Node Export" date="Pending" details="Packaging into Heritage Cold-Vaults." status="upcoming" />
+                                        {ledger.length > 0 ? (
+                                            ledger.map((entry, idx) => (
+                                                <TimelineEvent
+                                                    key={entry.id}
+                                                    label={`Node State: ${new Date(entry.timestamp).toLocaleDateString()}`}
+                                                    date={new Date(entry.timestamp).toLocaleTimeString()}
+                                                    details={entry.signatureDetails}
+                                                    hash={entry.hash}
+                                                    status={idx === 0 ? "complete" : "inactive"}
+                                                />
+                                            ))
+                                        ) : (
+                                            <>
+                                                <TimelineEvent label="DNA Initialization" date="Syncing..." details="Awaiting first cryptographic block." status="upcoming" />
+                                            </>
+                                        )}
                                     </div>
                                 </section>
 
@@ -177,7 +207,7 @@ export function TraceContent() {
     );
 }
 
-function TimelineEvent({ label, date, details, status }: any) {
+function TimelineEvent({ label, date, details, status, hash }: any) {
     return (
         <div className={`relative ${status === 'upcoming' ? 'opacity-20' : 'opacity-100'}`}>
             <div className={`absolute -left-[57px] top-1.5 w-6 h-6 rounded-full border-4 border-[#040d0a] shadow-2xl flex items-center justify-center ${status === 'complete' ? 'bg-primary' :
@@ -191,6 +221,11 @@ function TimelineEvent({ label, date, details, status }: any) {
                     <p className="text-[9px] font-black text-secondary uppercase tracking-widest">{date}</p>
                 </div>
                 <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest leading-relaxed">{details}</p>
+                {hash && (
+                    <div className="mt-2 p-2 bg-black/40 rounded-lg border border-white/5 inline-block">
+                        <p className="text-[7px] font-mono text-secondary/70 uppercase tracking-widest">SHA-256 Block: {hash}</p>
+                    </div>
+                )}
             </div>
         </div>
     );
