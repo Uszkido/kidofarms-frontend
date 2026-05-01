@@ -1,6 +1,7 @@
 "use client";
 import { TrendingUp, Users, MapPin, BarChart3 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getApiUrl } from "@/lib/api";
 
 export default function ImpactSection() {
     const [metrics, setMetrics] = useState({
@@ -12,7 +13,7 @@ export default function ImpactSection() {
     useEffect(() => {
         async function loadMetrics() {
             try {
-                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'}/api/impact`);
+                const res = await fetch(getApiUrl("/api/impact"));
                 if (!res.ok) return;
                 const data = await res.json();
                 if (data && typeof data === 'object' && !data.error) {

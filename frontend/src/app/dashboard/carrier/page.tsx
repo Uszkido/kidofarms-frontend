@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getApiUrl } from "@/lib/api";
 import {
+    Loader2,
     Truck,
     Navigation,
     Clock,
@@ -16,12 +18,35 @@ import {
 import Link from "next/link";
 
 export default function CarrierDashboard() {
-    const [tasks] = useState([
-        { id: "NODE-Lagos-092", route: "Ikorodu → Lekki", item: "Bulbous Onions", deadline: "2h 40m", status: "Incoming", value: "₦4,500" },
-        { id: "NODE-Lagos-085", route: "Epe → Victoria Island", item: "Live Catfish", deadline: "1h 15m", status: "Priority", value: "₦6,200" },
-    ]);
-
+    const [tasks, setTasks] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
     const [isBroadcasting, setIsBroadcasting] = useState(true);
+
+    useEffect(() => {
+        const fetchShipments = async () => {
+            try {
+                const res = await fetch(getApiUrl("/api/shipments"));
+                if (res.ok) {
+                    const data = await res.json();
+                    // Map backend shipments to frontend task structure
+                    const mapped = data.map((s: any) => ({
+                        id: s.id.substring(0, 8),
+                        route: `${s.origin} → ${s.destination}`,
+                        item: s.vehicleInfo || "Express Cargo",
+                        deadline: "Active Node",
+                        status: s.status === 'pending' ? 'Incoming' : 'In Transit',
+                        value: "₦0" // Value not in schema, placeholder
+                    }));
+                    setTasks(mapped);
+                }
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchShipments();
+    }, []);
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4">
@@ -43,8 +68,8 @@ export default function CarrierDashboard() {
                         <button
                             onClick={() => setIsBroadcasting(!isBroadcasting)}
                             className={`px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border transition-all ${isBroadcasting
-                                    ? 'bg-green-500/10 text-green-600 border-green-500/20'
-                                    : 'bg-neutral-100 text-neutral-400 border-neutral-200'
+                                ? 'bg-green-500/10 text-green-600 border-green-500/20'
+                                : 'bg-neutral-100 text-neutral-400 border-neutral-200'
                                 }`}
                         >
                             {isBroadcasting ? 'Broadcasting Active' : 'Radio Silence'}

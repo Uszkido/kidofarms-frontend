@@ -3,12 +3,13 @@ const router = express.Router();
 const { db } = require('../db');
 const { wallets, walletTransactions } = require('../db/schema');
 const { eq, desc } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
 
 // GET /api/wallet (Get user balance and transactions)
 router.get('/', async (req, res) => {
-    const { userId } = req.query;
-    if (!userId) return res.status(400).json({ error: 'userId required' });
-
+    const userId = req.user.id;
     try {
         let [wallet] = await db.select().from(wallets).where(eq(wallets.userId, userId));
 
@@ -32,7 +33,8 @@ router.get('/', async (req, res) => {
 
 // POST /api/wallet/credit (Simulate adding funds or referral reward)
 router.post('/credit', async (req, res) => {
-    const { userId, amount, description } = req.body;
+    const userId = req.user.id;
+    const { amount, description } = req.body;
     try {
         const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, userId));
         if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
@@ -59,7 +61,8 @@ router.post('/credit', async (req, res) => {
 
 // POST /api/wallet/cashout (Withdrawal)
 router.post('/cashout', async (req, res) => {
-    const { userId, amount, bankDetails } = req.body;
+    const userId = req.user.id;
+    const { amount, bankDetails } = req.body;
     try {
         const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, userId));
         if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
