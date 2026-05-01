@@ -44,7 +44,10 @@ import {
     Phone,
     Plus,
     Mail,
-    Satellite
+    Satellite,
+    Search,
+    X,
+    Monitor
 } from "lucide-react";
 import Link from "next/link";
 import { useSession, signIn } from "next-auth/react";
@@ -110,6 +113,21 @@ export default function AdminDashboard() {
     const [isVisionOpen, setIsVisionOpen] = useState(false);
     const [isSovereigntyManagerOpen, setIsSovereigntyManagerOpen] = useState(false);
     const [dashboardContent, setDashboardContent] = useState<any>(null);
+    const [searchQuery, setSearchQuery] = useState("");
+
+    const quickActions = [
+        { id: 'registry', title: 'Add Node', desc: 'Inject new citizens, assets, or infrastructure into the Kido Farms matrix instantly.', href: '/admin/registry', icon: <Plus size={48} />, color: 'from-green-500/20 to-transparent', accent: 'text-green-400', glow: 'shadow-[0_0_50px_-12px_rgba(74,222,128,0.3)]' },
+        { id: 'tasks', title: 'Assign Mission', desc: 'Delegate protocols and tasks to regional staff and node managers across the network.', href: '/admin/tasks', icon: <Fingerprint size={48} />, color: 'from-secondary/20 to-transparent', accent: 'text-secondary', glow: 'shadow-[0_0_50px_-12px_rgba(196,255,1,0.3)]' },
+        { id: 'broadcast', title: 'Broadcast Signal', desc: 'Communicate urgent directives or network-wide advisories to all synchronized nodes.', href: '/admin/broadcast', icon: <Zap size={48} />, color: 'from-red-500/20 to-transparent', accent: 'text-red-400', glow: 'shadow-[0_0_50px_-12px_rgba(248,113,113,0.3)]' },
+        { id: 'audit', title: 'Audit Ledger', desc: 'Trace every financial transaction and protocol modification within the Sovereign Ledger.', href: '/admin/audit', icon: <Database size={48} />, color: 'from-blue-500/20 to-transparent', accent: 'text-blue-400', glow: 'shadow-[0_0_50px_-12px_rgba(96,165,250,0.3)]' },
+        { id: 'market', title: 'Market Oracle', desc: 'Override commodity price indexes and reconfigure local market logistics dynamically.', href: '/admin/marketplace', icon: <Monitor size={48} />, color: 'from-purple-500/20 to-transparent', accent: 'text-purple-400', glow: 'shadow-[0_0_50px_-12px_rgba(192,132,252,0.3)]' },
+        { id: 'users', title: 'Citizen Registry', desc: 'Manage every registered citizen, vendor, and farmer node in the Kido Global Network.', href: '/admin/users', icon: <Users size={48} />, color: 'from-secondary/20 to-transparent', accent: 'text-secondary', glow: 'shadow-[0_0_50px_-12px_rgba(196,255,1,0.3)]' },
+    ];
+
+    const filteredActions = quickActions.filter(action =>
+        action.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        action.desc.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
     const downloadMultispectral = () => {
         const content = "Protocol: FarmVibes-AI-Delta\nRegion: Jos-NG-402\nNDVI: 0.82\nBiomass: 4.2t/ha\nSoil Moisture: 34%\nNitrogen: 82%\nCloud-Cover: 12%\nTimestamp: " + new Date().toISOString();
@@ -229,35 +247,52 @@ export default function AdminDashboard() {
 
                 <HubSyncTicker />
 
+                {/* 🔍 SEARCH COMMANDS */}
+                <div className="relative group max-w-2xl">
+                    <div className="absolute inset-0 bg-secondary/10 blur-3xl group-focus-within:bg-secondary/20 transition-all rounded-full" />
+                    <div className="relative flex items-center bg-white/5 border border-white/10 rounded-[2rem] p-2 backdrop-blur-3xl shadow-2xl focus-within:border-secondary/50 transition-all">
+                        <div className="p-6 text-secondary">
+                            <Search size={28} />
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="SEARCH COMMAND PROTOCOLS (e.g. 'Add Node', 'Audit', 'Registry')..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="bg-transparent border-none outline-none flex-1 text-xl font-black font-serif italic text-white placeholder:text-white/10 uppercase tracking-widest p-4"
+                        />
+                        {searchQuery && (
+                            <button onClick={() => setSearchQuery("")} className="p-6 text-white/20 hover:text-white transition-colors">
+                                <X size={24} />
+                            </button>
+                        )}
+                    </div>
+                </div>
+
                 {/* 🕹️ SOVEREIGN COMMAND CENTER */}
                 <div className="grid lg:grid-cols-3 gap-10 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
-                    <CommandCard
-                        title="Add Node"
-                        desc="Inject new citizens, assets, or infrastructure into the Kido Farms matrix instantly."
-                        icon={<Plus size={48} />}
-                        href="/admin/registry"
-                        color="from-green-500/20 to-transparent"
-                        accent="text-green-400"
-                        glow="shadow-[0_0_50px_-12px_rgba(74,222,128,0.3)]"
-                    />
-                    <CommandCard
-                        title="Assign Mission"
-                        desc="Delegate protocols and tasks to regional staff and node managers across the network."
-                        icon={<Fingerprint size={48} />}
-                        href="/admin/tasks"
-                        color="from-secondary/20 to-transparent"
-                        accent="text-secondary"
-                        glow="shadow-[0_0_50px_-12px_rgba(196,255,1,0.3)]"
-                    />
-                    <CommandCard
-                        title="Edit Matrix"
-                        desc="Modify existing data nodes, overwrite system variables and audit universal records."
-                        icon={<Sliders size={48} />}
-                        href="/admin/registry"
-                        color="from-blue-500/20 to-transparent"
-                        accent="text-blue-400"
-                        glow="shadow-[0_0_50px_-12px_rgba(96,165,250,0.3)]"
-                    />
+                    {filteredActions.length > 0 ? (
+                        filteredActions.map(action => (
+                            <CommandCard
+                                key={action.id}
+                                title={action.title}
+                                desc={action.desc}
+                                icon={action.icon}
+                                href={action.href}
+                                color={action.color}
+                                accent={action.accent}
+                                glow={action.glow}
+                            />
+                        ))
+                    ) : (
+                        <div className="col-span-full py-32 text-center space-y-6">
+                            <div className="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto text-white/10 ring-1 ring-white/10">
+                                <Search size={40} />
+                            </div>
+                            <h3 className="text-2xl font-black font-serif italic uppercase text-white/20 tracking-tighter">No protocol found matching "{searchQuery}"</h3>
+                            <button onClick={() => setSearchQuery("")} className="text-secondary text-xs font-black uppercase tracking-widest underline underline-offset-8">Reset Interface</button>
+                        </div>
+                    )}
                 </div>
 
                 {/* 🚀 QUICK ACTION PROTOCOLS */}
@@ -736,7 +771,7 @@ function CommandCard({ title, desc, icon, href, color, accent, glow }: any) {
 
 function HorizonWidget({ label, value, detail, icon, color }: any) {
     return (
-        <div className="p-6 bg-white/5 rounded-3xl border border-white/5 space-y-3 hover:bg-white/10 transition-all cursor-crosshair group">
+        <div className="p-6 bg-white/5 rounded-sovereign border border-white/5 space-y-3 hover:bg-white/10 transition-all cursor-crosshair group">
             <div className="flex items-center justify-between">
                 <p className="text-[9px] font-black uppercase tracking-widest text-white/20">{label}</p>
                 <div className={`${color} opacity-40 group-hover:opacity-100 transition-opacity`}>{icon}</div>
@@ -749,7 +784,7 @@ function HorizonWidget({ label, value, detail, icon, color }: any) {
 
 function MetricCard({ label, value, icon, color, loading }: any) {
     return (
-        <div className={`p-8 rounded-[2.5rem] shadow-sm flex flex-col justify-between h-40 transition-all border border-white/5 ${color.includes('bg-white') ? color : color + ' shadow-xl shadow-secondary/10 hover:border-secondary/20'}`}>
+        <div className={`p-8 rounded-sovereign shadow-sm flex flex-col justify-between h-40 transition-all border border-white/5 ${color.includes('bg-white') ? color : color + ' shadow-xl shadow-secondary/10 hover:border-secondary/20'}`}>
             <div className="flex items-center justify-between">
                 <span className={`p-2 rounded-lg bg-white/10`}>{icon}</span>
                 <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">{label}</span>
@@ -771,7 +806,7 @@ function SmallMenuLink({ href, label, icon, permission }: any) {
     if (role === 'sub-admin' && permission && !userPermissions.includes(permission)) return null;
 
     return (
-        <Link href={href} className="flex flex-col items-center gap-3 p-6 rounded-3xl border border-white/5 bg-white/5 hover:bg-secondary transition-all group text-white hover:text-primary shadow-xl cursor-pointer">
+        <Link href={href} className="flex flex-col items-center gap-3 p-6 rounded-sovereign border border-white/5 bg-white/5 hover:bg-secondary transition-all group text-white hover:text-primary shadow-xl cursor-pointer">
             <div className="w-10 h-10 rounded-xl bg-[#1a3c34] group-hover:bg-white/20 flex items-center justify-center transition-colors">
                 {icon}
             </div>

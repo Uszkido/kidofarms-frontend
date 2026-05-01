@@ -213,16 +213,16 @@ export default function AdminUsersPage() {
                                 placeholder="Scan Registry for Citizen (Name, ID, Email)..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full md:w-80 bg-white/5 border border-white/10 rounded-[2rem] pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
+                                className="w-full md:w-80 bg-white/5 border border-white/10 rounded-sovereign pl-16 pr-8 py-6 outline-none focus:border-secondary transition-all font-bold text-sm"
                             />
                         </div>
-                        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-[2rem] px-8 py-6 outline-none focus:border-secondary transition-all font-black text-xs uppercase tracking-widest appearance-none cursor-pointer text-white/40">
+                        <select value={roleFilter} onChange={e => setRoleFilter(e.target.value)} className="bg-white/5 border border-white/10 rounded-sovereign px-8 py-6 outline-none focus:border-secondary transition-all font-black text-xs uppercase tracking-widest appearance-none cursor-pointer text-white/40">
                             <option value="">All Roles</option>
                             {allRoles.map((r: any) => <option key={r} value={r}>{r.toUpperCase()}</option>)}
                         </select>
                         <button
                             onClick={fetchUsers}
-                            className="bg-white/5 px-8 rounded-[2rem] border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl hover:bg-secondary hover:text-primary transition-all group/sync"
+                            className="bg-white/5 px-8 rounded-sovereign border border-white/10 backdrop-blur-3xl flex items-center gap-6 shadow-2xl hover:bg-secondary hover:text-primary transition-all group/sync"
                         >
                             <div className={`w-12 h-12 rounded-xl bg-secondary group-hover/sync:bg-primary group-hover/sync:text-secondary flex items-center justify-center text-primary shadow-xl transition-all ${loading ? 'animate-spin' : ''}`}>
                                 <RotateCcw size={24} />
@@ -232,7 +232,7 @@ export default function AdminUsersPage() {
                                 <p className="text-xs font-black uppercase tracking-widest">Synchronize</p>
                             </div>
                         </button>
-                        <Link href="/admin/users/new" className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
+                        <Link href="/admin/users/new" className="bg-secondary text-primary px-10 py-6 rounded-sovereign font-black uppercase tracking-widest text-xs hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center justify-center gap-3">
                             Register Citizen
                         </Link>
                     </div>
@@ -243,7 +243,7 @@ export default function AdminUsersPage() {
 
                     {/* BULK ACTION BAR */}
                     {selectedIds.size > 0 && (
-                        <div className="bg-secondary/10 border border-secondary/20 rounded-[2rem] px-8 py-5 flex items-center gap-6 flex-wrap animate-in slide-in-from-top-4 duration-300">
+                        <div className="bg-secondary/10 border border-secondary/20 rounded-sovereign px-8 py-5 flex items-center gap-6 flex-wrap animate-in slide-in-from-top-4 duration-300">
                             <span className="text-secondary font-black text-xs uppercase tracking-widest">{selectedIds.size} node(s) selected</span>
                             <div className="flex gap-3 ml-auto flex-wrap">
                                 <button disabled={bulkLoading} onClick={() => handleBulkAction("approve")} className="flex items-center gap-2 px-6 py-3 bg-green-500/10 text-green-400 border border-green-500/20 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-green-500/20 transition-all disabled:opacity-50">
@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
                         </div>
                     )}
 
-                    <div className="bg-white/5 rounded-[4rem] border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+                    <div className="bg-white/5 rounded-sovereign border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
                         {loading ? (
                             <div className="p-32 flex flex-col items-center gap-6">
                                 <Loader2 size={64} className="animate-spin text-secondary opacity-20" />

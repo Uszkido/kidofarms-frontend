@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, BookOpen, MessageSquare, Plus, Edit3, Trash2, ShieldCheck, Globe, Zap, Database, ArrowRight, Save, Loader2, Radio, Palette, Layout, Monitor, Cpu } from "lucide-react";
+import { X, BookOpen, MessageSquare, Plus, Edit3, Trash2, ShieldCheck, Globe, Zap, Database, ArrowRight, Save, Loader2, Radio, Palette, Layout, Monitor, Cpu, Activity, TrendingUp, DollarSign, Fingerprint } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useSession } from "next-auth/react";
@@ -21,7 +21,7 @@ interface ContentItem {
 
 export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
     const { data: session } = useSession();
-    const [activeTab, setActiveTab] = useState<"vault" | "exchange" | "content" | "visuals" | "architect">("vault");
+    const [activeTab, setActiveTab] = useState<"vault" | "exchange" | "content" | "visuals" | "architect" | "stats">("vault");
     const [isEditing, setIsEditing] = useState(false);
     const [isCreating, setIsCreating] = useState(false);
     const [items, setItems] = useState<ContentItem[]>([]);
@@ -181,6 +181,9 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                                     <button onClick={() => setActiveTab("architect")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "architect" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
                                         <Layout size={20} /> <span className="text-[11px] font-black uppercase">Layout Architect</span>
                                     </button>
+                                    <button onClick={() => setActiveTab("stats")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "stats" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
+                                        <Activity size={20} /> <span className="text-[11px] font-black uppercase">Logic & Stats</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -198,7 +201,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                             <div className="space-y-2">
                                 <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/40 leading-none">Command Interface</h3>
                                 <h2 className="text-4xl font-black font-serif italic text-primary uppercase tracking-tighter flex items-center gap-4">
-                                    {activeTab === "vault" ? "Knowledge Repository" : activeTab === "exchange" ? "Community Advisories" : activeTab === "content" ? "Sovereign Dashboard CMS" : activeTab === "visuals" ? "Global Visual Registry" : "Template Architect Node"}
+                                    {activeTab === "vault" ? "Knowledge Repository" : activeTab === "exchange" ? "Community Advisories" : activeTab === "content" ? "Sovereign Dashboard CMS" : activeTab === "visuals" ? "Global Visual Registry" : activeTab === "architect" ? "Template Architect Node" : "Ghost Analytics & Simulation"}
                                     {isLoading && <Loader2 size={24} className="animate-spin text-secondary" />}
                                 </h2>
                             </div>
@@ -408,6 +411,54 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                                 </div>
                             </div>
                         )}
+
+                        {/* --- VIEW: LOGIC & STATS --- */}
+                        {activeTab === "stats" && globalSettings && (
+                            <div className="space-y-16 animate-in fade-in slide-in-from-right-10 duration-700">
+                                <div className="p-10 bg-neutral-50 rounded-[4rem] border border-primary/5 space-y-10">
+                                    <div className="flex justify-between items-center">
+                                        <div>
+                                            <h4 className="text-[12px] font-black uppercase tracking-[0.3em] text-primary">Ghost Analytics Protocol</h4>
+                                            <p className="text-[9px] font-bold text-primary/30 uppercase mt-1">Override platform metrics with simulated data layers</p>
+                                        </div>
+                                        <button
+                                            onClick={() => handleSaveSettings({ ...globalSettings, mockStats: { ...globalSettings.mockStats, useMock: !globalSettings.mockStats?.useMock } })}
+                                            className={`px-10 py-5 rounded-2xl font-black uppercase text-[10px] tracking-widest transition-all ${globalSettings.mockStats?.useMock ? 'bg-secondary text-primary shadow-xl' : 'bg-primary/5 text-primary/20 hover:bg-primary/10'}`}
+                                        >
+                                            {globalSettings.mockStats?.useMock ? 'Simulation Active' : 'Real-time Data'}
+                                        </button>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                        <StatField
+                                            label="Simulated Liquidity"
+                                            icon={<DollarSign size={16} />}
+                                            value={globalSettings.mockStats?.revenue}
+                                            onChange={(val: any) => setGlobalSettings({ ...globalSettings, mockStats: { ...globalSettings.mockStats, revenue: Number(val) } })}
+                                        />
+                                        <StatField
+                                            label="Network Population"
+                                            icon={<Fingerprint size={16} />}
+                                            value={globalSettings.mockStats?.users}
+                                            onChange={(val: any) => setGlobalSettings({ ...globalSettings, mockStats: { ...globalSettings.mockStats, users: Number(val) } })}
+                                        />
+                                        <StatField
+                                            label="Transaction Volume"
+                                            icon={<TrendingUp size={16} />}
+                                            value={globalSettings.mockStats?.orders}
+                                            onChange={(val: any) => setGlobalSettings({ ...globalSettings, mockStats: { ...globalSettings.mockStats, orders: Number(val) } })}
+                                        />
+                                    </div>
+
+                                    <button
+                                        onClick={() => handleSaveSettings(globalSettings)}
+                                        className="w-full bg-primary text-secondary py-6 rounded-[2rem] font-black uppercase text-[10px] tracking-[0.4em] shadow-2xl hover:scale-[1.02] transition-all"
+                                    >
+                                        Commit Simulation Parameters
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>
@@ -431,6 +482,23 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                     </motion.div>
                 )}
             </AnimatePresence>
+        </div>
+    );
+}
+
+
+function StatField({ label, icon, value, onChange }: any) {
+    return (
+        <div className="space-y-3 group">
+            <label className="flex items-center gap-3 text-[9px] font-black uppercase tracking-widest text-primary/30 ml-4 group-focus-within:text-primary transition-colors">
+                {icon} {label}
+            </label>
+            <input
+                type="number"
+                value={value || 0}
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full bg-white border border-primary/5 rounded-[1.5rem] px-8 py-5 outline-none focus:border-secondary transition-all font-black text-xl text-primary"
+            />
         </div>
     );
 }
