@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf, ArrowLeft, Loader2, User, ArrowRight } from "lucide-react";
+import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf, ArrowLeft, Loader2, User, ArrowRight, Activity } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import ProductReviews from "@/components/ProductReviews";
 import { ActionStatus } from "@/components/ActionStatus";
 import { GrowthJourney } from "@/components/GrowthJourney";
 import FarmerStoryModal from "@/components/FarmerStoryModal";
+import KidoTraceQR from "@/components/KidoTraceQR";
 
 export function ProductDetailsClient({ product, id }: { product: any, id: string }) {
     const { addToCart } = useCart();
@@ -167,6 +168,21 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                 </button>
                             </div>
 
+                            <div className="pt-8 border-t border-primary/5 flex flex-wrap gap-4">
+                                <KidoTraceQR
+                                    batchId={`NOD-${id.slice(-4).toUpperCase()}`}
+                                    productName={product.name}
+                                    farmSource={product.farmSource}
+                                />
+                                <div className="flex-grow bg-white border border-primary/5 p-6 rounded-2xl flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <p className="text-[8px] font-black uppercase text-primary/30">Stock Availability</p>
+                                        <p className="text-xs font-black text-primary uppercase">Node Limit: 420 Units Remaining</p>
+                                    </div>
+                                    <Activity className="text-secondary animate-pulse" size={18} />
+                                </div>
+                            </div>
+
                             <div className="grid grid-cols-2 gap-8 pt-10 border-t border-primary/5">
                                 <div className="flex gap-3">
                                     <ShieldCheck className="text-secondary" size={24} />
@@ -207,6 +223,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                             { label: "Time in Cold Storage", value: "2 Days" },
                                             { label: "Our Vision", href: "/about" },
                                             { label: "Sovereign Vault", href: "/vault" },
+                                            { label: "Intelligence Exchange", href: "/exchange" },
                                             { label: "Farm Blog", href: "/blog" },
                                             ...(typeof window !== 'undefined' && localStorage.getItem('session') ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
                                         ].map((stat: any, i) => (
