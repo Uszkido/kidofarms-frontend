@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
-import { Leaf, Eye, EyeOff, Loader2, ShieldAlert } from "lucide-react";
+import { Leaf, Eye, EyeOff, Loader2, ShieldAlert, X } from "lucide-react";
 import { getApiUrl } from "@/lib/api";
 
 function LoginForm({ initialRole = "customer" }: { initialRole?: string }) {
