@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     Map,
     MapPin,
@@ -14,20 +14,36 @@ import {
     Scale
 } from "lucide-react";
 
-// Mock data to simulate DB
-const GISMocks = [
-    { id: 1, name: "North Wing Plot", acreage: 12.5, crop: "Cassava", health: 95 },
-    { id: 2, name: "River Bank Zone", acreage: 8.2, crop: "Maize", health: 88 },
-    { id: 3, name: "Sunrise Plateau", acreage: 15.0, crop: "Soybeans", health: 92 },
-];
-
-const PoultryMocks = [
-    { id: 1, batch: "Batch A - Broilers", count: 2500, age: "4 Weeks", mortality: "1.2%", avgWeight: "1.5 kg" },
-    { id: 2, batch: "Batch B - Layers", count: 5000, age: "18 Weeks", mortality: "0.5%", avgWeight: "2.1 kg" },
-];
+import { getApiUrl } from "@/lib/api";
+import { useSession } from "next-auth/react";
 
 export default function PoultryGISDashboard() {
+    const { data: session } = useSession();
     const [activeTab, setActiveTab] = useState<"gis" | "poultry">("gis");
+    const [gisData, setGisData] = useState<any[]>([]);
+    const [poultryData, setPoultryData] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const userId = (session?.user as any)?.id || "demo-farmer-id";
+                const [gisRes, poultryRes] = await Promise.all([
+                    fetch(getApiUrl(`/api/gis?userId=${userId}`)),
+                    fetch(getApiUrl(`/api/poultry?userId=${userId}`))
+                ]);
+
+                if (gisRes.ok) setGisData(await gisRes.json());
+                if (poultryRes.ok) setPoultryData(await poultryRes.json());
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, [session]);
 
     return (
         <div className="min-h-screen p-6 md:p-10 font-sans">
@@ -87,7 +103,8 @@ export default function PoultryGISDashboard() {
                             </div>
 
                             <div className="space-y-4">
-                                {GISMocks.map((plot, i) => (
+                                {loading && <div className="text-center py-10 text-primary italic">Loading telemetry...</div>}
+                                {!loading && gisData.map((plot, i) => (
                                     <motion.div
                                         initial={{ opacity: 0, x: 20 }}
                                         animate={{ opacity: 1, x: 0 }}
@@ -116,7 +133,8 @@ export default function PoultryGISDashboard() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {PoultryMocks.map((batch, i) => (
+                            {loading && <div className="text-center py-10 text-primary italic col-span-2">Loading batch data...</div>}
+                            {!loading && poultryData.map((batch, i) => (
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}

@@ -1,0 +1,26 @@
+config:
+  target: "http://localhost:5000/api"
+  phases:
+    - duration: 30
+      arrivalRate: 10
+      rampTo: 100
+      name: "Ramp up load"
+    - duration: 60
+      arrivalRate: 200
+      name: "Sustained high load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+scenarios:
+  - name: "Read-Heavy User Flow (Cached)"
+    flow:
+      - get:
+          url: "/products"
+      - get: 
+          url: "/categories"
+      - get:
+          url: "/gis?userId=demo-farmer-id"
+      - get:
+          url: "/poultry?userId=demo-farmer-id"
+      - get:
+          url: "/landing"

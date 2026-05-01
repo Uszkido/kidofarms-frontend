@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { ArrowLeft, Loader2, Save, Info, ShoppingBag } from "lucide-react";
 import ImageUpload from "@/components/ImageUpload";
 import { getApiUrl } from "@/lib/api";
@@ -22,8 +23,8 @@ export default function VendorNewProductPage() {
     const [images, setImages] = useState<string[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
 
-    // Mocking merchant ID
-    const userId = "demo-vendor-id";
+    const { data: session } = useSession();
+    const userId = (session?.user as any)?.id || "";
 
     useEffect(() => {
         const fetchCategories = async () => {

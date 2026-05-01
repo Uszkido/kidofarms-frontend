@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Wallet, Loader2, CheckCircle2, AlertCircle, Banknote, Building2, CreditCard } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import { getApiUrl } from "@/lib/api";
 
 export default function VendorCashoutPage() {
@@ -16,10 +17,11 @@ export default function VendorCashoutPage() {
     const [status, setStatus] = useState({ type: "", message: "" });
     const [processing, setProcessing] = useState(false);
 
-    // Mocking user ID for demo - in real app would come from session/JWT
-    const userId = "demo-vendor-id";
+    const { data: session } = useSession();
+    const userId = (session?.user as any)?.id || "";
 
     useEffect(() => {
+        if (!userId) return;
         fetch(getApiUrl(`/api/wallet?userId=${userId}`))
             .then(res => res.json())
             .then(data => {
@@ -27,7 +29,7 @@ export default function VendorCashoutPage() {
                 setLoading(false);
             })
             .catch(err => console.error(err));
-    }, []);
+    }, [userId]);
 
     const handleCashout = async (e: React.FormEvent) => {
         e.preventDefault();
