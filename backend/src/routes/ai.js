@@ -4,8 +4,10 @@ const { db } = require('../db');
 const { users, orders, wallets, walletTransactions, activityLogs } = require('../db/schema');
 const { eq, sql, desc, or } = require('drizzle-orm');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const Groq = require("groq-sdk");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy-key");
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "dummy-key" });
 
 // 1. POST /api/admin/ai/scan-trust - Master Trust Oracle Logic
 router.post('/scan-trust', async (req, res) => {
@@ -98,90 +100,110 @@ router.get('/insights/:userId', async (req, res) => {
     }
 });
 
-// --- AI AGENT TOOLS (FUNCTION DEFINITIONS) ---
+// --- AI AGENT TOOLS (GROQ/OPENAI FORMAT) ---
 const tools = [
     {
-        functionDeclarations: [
-            {
-                name: "search_products",
-                description: "Search for organic produce and products in the Kido Farms marketplace.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {
-                        query: { type: "STRING", description: "The product name or category to search for (e.g., 'onions', 'tomatoes')." }
-                    },
-                    required: ["query"]
-                }
-            },
-            {
-                name: "get_order_status",
-                description: "Retrieve the current status and tracking info for a specific order.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {
-                        orderId: { type: "STRING", description: "The unique order ID." }
-                    },
-                    required: ["orderId"]
-                }
-            },
-            {
-                name: "get_harvest_tracking",
-                description: "Check the growth progress and estimated harvest date for a specific crop cycle.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {
-                        cropName: { type: "STRING", description: "The name of the crop to track." }
-                    },
-                    required: ["cropName"]
-                }
-            },
-            {
-                name: "get_academy_modules",
-                description: "List available agricultural training modules from the Kido Mastery Academy.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {}
-                }
-            },
-            {
-                name: "get_market_stats",
-                description: "Get real-time insights into total market volume and active farmers.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {}
-                }
-            },
-            {
-                name: "analyze_crop_health",
-                description: "Analyze a description of crop symptoms to identify pests or diseases.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {
-                        symptoms: { type: "STRING", description: "Visual description of the crop issues (e.g., 'yellow spots on leaves')." }
-                    },
-                    required: ["symptoms"]
-                }
-            },
-            {
-                name: "get_logistics_clusters",
-                description: "Identify high-volume order clusters for efficient delivery batching.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {}
-                }
-            },
-            {
-                name: "retrieve_farming_knowledge",
-                description: "Search the Kido internal knowledge base for farming guides, soil management, and crop protocols.",
-                parameters: {
-                    type: "OBJECT",
-                    properties: {
-                        query: { type: "STRING", description: "Keywords to search for in the agricultural library." }
-                    },
-                    required: ["query"]
-                }
+        type: "function",
+        function: {
+            name: "search_products",
+            description: "Search for organic produce and products in the Kido Farms marketplace.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: { type: "string", description: "The product name or category to search for (e.g., 'onions', 'tomatoes')." }
+                },
+                required: ["query"]
             }
-        ]
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_order_status",
+            description: "Retrieve the current status and tracking info for a specific order.",
+            parameters: {
+                type: "object",
+                properties: {
+                    orderId: { type: "string", description: "The unique order ID." }
+                },
+                required: ["orderId"]
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_harvest_tracking",
+            description: "Check the growth progress and estimated harvest date for a specific crop cycle.",
+            parameters: {
+                type: "object",
+                properties: {
+                    cropName: { type: "string", description: "The name of the crop to track." }
+                },
+                required: ["cropName"]
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_academy_modules",
+            description: "List available agricultural training modules from the Kido Mastery Academy.",
+            parameters: {
+                type: "object",
+                properties: {}
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_market_stats",
+            description: "Get real-time insights into total market volume and active farmers.",
+            parameters: {
+                type: "object",
+                properties: {}
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "analyze_crop_health",
+            description: "Analyze a description of crop symptoms to identify pests or diseases.",
+            parameters: {
+                type: "object",
+                properties: {
+                    symptoms: { type: "string", description: "Visual description of the crop issues (e.g., 'yellow spots on leaves')." }
+                },
+                required: ["symptoms"]
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "get_logistics_clusters",
+            description: "Identify high-volume order clusters for efficient delivery batching.",
+            parameters: {
+                type: "object",
+                properties: {}
+            }
+        }
+    },
+    {
+        type: "function",
+        function: {
+            name: "retrieve_farming_knowledge",
+            description: "Search the Kido internal knowledge base for farming guides, soil management, and crop protocols.",
+            parameters: {
+                type: "object",
+                properties: {
+                    query: { type: "string", description: "Keywords to search for in the agricultural library." }
+                },
+                required: ["query"]
+            }
+        }
     }
 ];
 
@@ -329,32 +351,28 @@ const toolHandlers = {
     }
 };
 
-const SYSTEM_PROMPT = "You are the Kido Farms Horizon AI, a unified agricultural intelligence. Your goal is to assist users with EVERYTHING from shopping and tracking to deep regional farming research. When a user asks a question about farming, crops, soil, or regional data (like Cocoa, Ginger, Cashew, etc.), IMMEDIATELY use your `retrieve_farming_knowledge` tool to provide an accurate, Kido-verified answer. For general greetings or marketplace tasks, use your other tools. Be professional, slightly Nigerian in flair, and extremely precise.";
+const SYSTEM_PROMPT = "You are the Kido Farms Horizon AI, a unified agricultural intelligence powered by Groq. Your goal is to assist users with EVERYTHING from shopping and tracking to deep regional farming research. When a user asks a question about farming, crops, soil, or regional data (like Cocoa, Ginger, Cashew, etc.), IMMEDIATELY use your `retrieve_farming_knowledge` tool to provide an accurate, Kido-verified answer. For general greetings or marketplace tasks, use your other tools. Be professional, slightly Nigerian in flair, and extremely precise.";
 
-const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
-    systemInstruction: SYSTEM_PROMPT,
-    tools: tools
-});
+// Note: Groq model initialization happens per-request
 
-// 3. POST /api/ai/chat - agentic Gemini Chat Integration
+// 3. POST /api/ai/chat - agentic Groq Chat Integration
 router.post('/chat', async (req, res) => {
     try {
         const { message, history } = req.body;
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.GROQ_API_KEY;
 
-        const isDummy = !apiKey || apiKey === 'your-gemini-api-key' || apiKey.includes('dummy');
+        const isDummy = !apiKey || apiKey.includes('dummy') || apiKey.length < 10;
 
         if (isDummy) {
             const lowerMsg = message.toLowerCase();
-            let replyText = "I'm currently in training mode (AI Node syncing). Please add a valid GEMINI_API_KEY to the backend .env file to activate my neural engine!";
+            let replyText = "I'm currently in training mode (AI Node syncing). Please add a valid GROQ_API_KEY to the backend .env file to activate my neural engine!";
 
             if (lowerMsg.includes('order') || lowerMsg.includes('track')) {
-                replyText = "[Offline Protocol] I can track your harvest nodes once my Gemini API key is active! Please check the Vault tab instead.";
+                replyText = "[Offline Protocol] I can track your harvest nodes once my Groq API key is active! Please check the Vault tab instead.";
             } else if (lowerMsg.includes('price') || lowerMsg.includes('cost')) {
                 replyText = "[Offline Protocol] Please check the Market Oracle for live pricing. My neural analysis module requires an API key.";
             } else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-                replyText = "Greetings from Kido Farms! I'm currently in restricted mock mode. Provide my API key to unlock full conversational intelligence!";
+                replyText = "Greetings from Kido Farms! I'm currently in restricted mock mode. Provide my Groq API key to unlock full conversational intelligence!";
             }
 
             return res.json({
@@ -364,46 +382,60 @@ router.post('/chat', async (req, res) => {
         }
 
         try {
-            const chat = model.startChat({
-                history: history || [],
-                generationConfig: {
-                    maxOutputTokens: 800,
-                },
+            // Convert history to Groq/OpenAI format
+            const messages = [
+                { role: "system", content: SYSTEM_PROMPT },
+                ...(history || []).map(h => ({
+                    role: h.role === 'user' ? 'user' : 'assistant',
+                    content: typeof h.parts === 'string' ? h.parts : h.parts[0].text
+                })),
+                { role: "user", content: message }
+            ];
+
+            let completion = await groq.chat.completions.create({
+                model: "llama-3.3-70b-versatile",
+                messages: messages,
+                tools: tools,
+                tool_choice: "auto",
+                max_tokens: 800,
             });
 
-            let result = await chat.sendMessage(message);
-            let response = await result.response;
-            let calls = response.functionCalls();
+            let responseMessage = completion.choices[0].message;
 
-            // Handle Function Calling Loop
-            if (calls && calls.length > 0) {
-                const toolResponses = [];
-                for (const call of calls) {
-                    const handler = toolHandlers[call.name];
+            // Handle Function Calling
+            if (responseMessage.tool_calls) {
+                messages.push(responseMessage);
+
+                for (const toolCall of responseMessage.tool_calls) {
+                    const functionName = toolCall.function.name;
+                    const functionArgs = JSON.parse(toolCall.function.arguments);
+                    const handler = toolHandlers[functionName];
+
                     if (handler) {
-                        const toolResult = await handler(call.args);
-                        toolResponses.push({
-                            functionResponse: {
-                                name: call.name,
-                                response: { content: toolResult }
-                            }
+                        const toolResult = await handler(functionArgs);
+                        messages.push({
+                            tool_call_id: toolCall.id,
+                            role: "tool",
+                            name: functionName,
+                            content: JSON.stringify(toolResult),
                         });
                     }
                 }
 
-                // Send tool results back to the model for final synthesis
-                result = await chat.sendMessage(toolResponses);
-                response = await result.response;
+                // Get final response after tool execution
+                const finalCompletion = await groq.chat.completions.create({
+                    model: "llama-3.3-70b-versatile",
+                    messages: messages,
+                });
+                res.json({ reply: finalCompletion.choices[0].message.content });
+            } else {
+                res.json({ reply: responseMessage.content });
             }
-
-            const text = response.text();
-            res.json({ reply: text });
         } catch (apiError) {
-            console.error('Gemini Agent Neural Failure, switching to Local Knowledge Nodes:', apiError);
+            console.error('Groq Agent Neural Failure, switching to Local Knowledge Nodes:', apiError);
 
             // Local Knowledge Fallback (The "Sovereign Assistant")
             try {
-                // Better keyword extraction for search
                 const query = message.split(' ').map(w => w.toLowerCase()).filter(w => w.length > 3).slice(0, 3).join(' ');
                 const localInfo = await toolHandlers.retrieve_farming_knowledge({ query: query || message });
 
@@ -423,7 +455,7 @@ router.post('/chat', async (req, res) => {
             });
         }
     } catch (error) {
-        console.error('Gemini Global Agent Error:', error);
+        console.error('Groq Global Agent Error:', error);
         res.status(500).json({ error: 'AI Agent disruption. Our neural nodes are currently re-aligning.' });
     }
 });
@@ -433,7 +465,7 @@ router.post('/describe-product', async (req, res) => {
     try {
         const { productName, category } = req.body;
 
-        if (!process.env.GEMINI_API_KEY) {
+        if (!process.env.GROQ_API_KEY) {
             return res.json({
                 description: `Freshly harvested ${productName} from our verified organic fields.`,
                 freshnessTip: "Keep in a cool, dry place for maximum flavor."
@@ -450,11 +482,13 @@ router.post('/describe-product', async (req, res) => {
         
         Format as JSON: { "description": "...", "freshnessTip": "..." }`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(text);
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
 
+        const data = JSON.parse(completion.choices[0].message.content);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to generate description' });
@@ -466,6 +500,14 @@ router.post('/suggest-recipe', async (req, res) => {
     try {
         const { items } = req.body; // Array of item names
 
+        if (!process.env.GROQ_API_KEY) {
+            return res.json({
+                recipeName: "Kido Special Jollof",
+                instructions: "1. Rinse Kido Organic Rice. 2. Blend Kido Tomatoes and Peppers. 3. Sauté and simmer with your choice of farm-fresh protein.",
+                missingIngredients: ["Kido Thyme", "Smoked Paprika"]
+            });
+        }
+
         const prompt = `I have these ingredients from Kido Farms: ${items.join(', ')}. 
         Suggest 1 traditional or modern Nigerian recipe I can make. 
         Provide:
@@ -475,19 +517,13 @@ router.post('/suggest-recipe', async (req, res) => {
         
         Format as JSON: { "recipeName": "...", "instructions": "...", "missingIngredients": ["...", "..."] }`;
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
-            return res.json({
-                recipeName: "Kido Special Jollof",
-                instructions: "1. Rinse Kido Organic Rice. 2. Blend Kido Tomatoes and Peppers. 3. Sauté and simmer with your choice of farm-fresh protein.",
-                missingIngredients: ["Kido Thyme", "Smoked Paprika"]
-            });
-        }
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(text);
-
+        const data = JSON.parse(completion.choices[0].message.content);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: 'Failed to generate recipe' });
@@ -498,6 +534,14 @@ router.post('/suggest-recipe', async (req, res) => {
 router.post('/yield-shield', async (req, res) => {
     try {
         const { location, crop, month } = req.body;
+
+        if (!process.env.GROQ_API_KEY) {
+            return res.json({
+                score: 15,
+                threat: "Normal weather patterns detected.",
+                mitigation: "Continue standard irrigation protocol."
+            });
+        }
 
         const prompt = `Analyze agricultural risk for:
         Location: ${location}
@@ -511,19 +555,13 @@ router.post('/yield-shield', async (req, res) => {
         
         Format as JSON: { "score": 85, "threat": "...", "mitigation": "..." }`;
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
-            return res.json({
-                score: 15,
-                threat: "Normal weather patterns detected.",
-                mitigation: "Continue standard irrigation protocol."
-            });
-        }
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(text);
-
+        const data = JSON.parse(completion.choices[0].message.content);
         res.json(data);
     } catch (error) {
         res.status(500).json({ error: 'Yield analysis failed' });
@@ -535,21 +573,24 @@ router.post('/mastery-tutor', async (req, res) => {
     try {
         const { question, topic } = req.body;
 
+        if (!process.env.GROQ_API_KEY) {
+            return res.json({
+                answer: "As a Master Agronomist, I recommend observing your soil pH and moisture levels. Our training node is currently syncing for more specific data."
+            });
+        }
+
         const prompt = `You are a Master Agronomist at Kido Farms Academy. 
         Topic: ${topic}
         Question: ${question}
         
         Provide a detailed, practical answer for a Nigerian farmer. Use local context.`;
 
-        if (!process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY === 'your-gemini-api-key') {
-            return res.json({
-                answer: "As a Master Agronomist, I recommend observing your soil pH and moisture levels. Our training node is currently syncing for more specific data."
-            });
-        }
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }]
+        });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        res.json({ answer: response.text() });
+        res.json({ answer: completion.choices[0].message.content });
     } catch (error) {
         res.status(500).json({ error: 'Mastery Tutor unavailable' });
     }
@@ -560,7 +601,7 @@ router.post('/vision-audit', async (req, res) => {
     try {
         const { imageBase64, cropInfo } = req.body; // Expecting base64 image data
 
-        if (!process.env.GEMINI_API_KEY || !imageBase64) {
+        if (!process.env.GROQ_API_KEY || !imageBase64) {
             return res.json({
                 diagnosis: "Field scan node offline. Visual confirmation required.",
                 treatment: "General organic compost and irrigation suggested.",
@@ -577,14 +618,21 @@ router.post('/vision-audit', async (req, res) => {
         
         Format as JSON: { "diagnosis": "...", "treatment": "...", "healthScore": 85 }`;
 
-        const result = await model.generateContent([
-            prompt,
-            { inlineData: { data: imageBase64, mimeType: "image/jpeg" } }
-        ]);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(text);
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.2-11b-vision-preview",
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        { type: "text", text: prompt },
+                        { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
+                    ]
+                }
+            ],
+            response_format: { type: "json_object" }
+        });
 
+        const data = JSON.parse(completion.choices[0].message.content);
         res.json(data);
     } catch (error) {
         console.error('Vision Audit Error:', error);
@@ -627,6 +675,13 @@ router.post('/pricing-oracle', async (req, res) => {
     try {
         const { cropName, currentPrice, region } = req.body;
 
+        if (!process.env.GROQ_API_KEY) {
+            return res.json({
+                suggestedPrice: currentPrice,
+                insight: "Market data synchronization in progress."
+            });
+        }
+
         const prompt = `Analyze market conditions for ${cropName} in ${region}.
         Current price: ${currentPrice}
         
@@ -636,17 +691,13 @@ router.post('/pricing-oracle', async (req, res) => {
         
         Format as JSON: { "suggestedPrice": 0, "insight": "..." }`;
 
-        if (!process.env.GEMINI_API_KEY) {
-            return res.json({
-                suggestedPrice: currentPrice,
-                insight: "Market data synchronization in progress."
-            });
-        }
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        res.json(JSON.parse(text));
+        res.json(JSON.parse(completion.choices[0].message.content));
     } catch (error) {
         res.status(500).json({ error: 'Pricing Oracle disruption.' });
     }
@@ -680,7 +731,7 @@ router.post('/quality-guard', async (req, res) => {
     try {
         const { imageBase64, productName, category } = req.body;
 
-        if (!process.env.GEMINI_API_KEY || !imageBase64) {
+        if (!process.env.GROQ_API_KEY || !imageBase64) {
             return res.json({
                 approved: true,
                 score: 100,
@@ -699,20 +750,28 @@ router.post('/quality-guard', async (req, res) => {
         
         Format as JSON: { "approved": true/false, "score": 0, "rationale": "..." }`;
 
-        const result = await model.generateContent([
-            prompt,
-            { inlineData: { data: imageBase64, mimeType: "image/jpeg" } }
-        ]);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(text);
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.2-11b-vision-preview",
+            messages: [
+                {
+                    role: "user",
+                    content: [
+                        { type: "text", text: prompt },
+                        { type: "image_url", image_url: { url: `data:image/jpeg;base64,${imageBase64}` } }
+                    ]
+                }
+            ],
+            response_format: { type: "json_object" }
+        });
 
+        const data = JSON.parse(completion.choices[0].message.content);
         res.json(data);
     } catch (error) {
         console.error('Quality Guard Error:', error);
         res.status(500).json({ error: 'Quality Guard neural scan parity lost.' });
     }
 });
+
 
 // 13. POST /api/ai/sovereign-audit - Protocol-based Validation (Spark-NLP/Vault-AI pattern)
 router.post('/sovereign-audit', async (req, res) => {
@@ -730,8 +789,8 @@ router.post('/sovereign-audit', async (req, res) => {
             context = files.map(f => fs.readFileSync(path.join(knowledgeDir, f), 'utf8')).join("\n\n");
         }
 
-        // 2. Perform Spark-like synthesis (using Gemini if available, else local rules)
-        if (!process.env.GEMINI_API_KEY) {
+        // 2. Perform Spark-like synthesis (using Groq if available, else local rules)
+        if (!process.env.GROQ_API_KEY) {
             return res.json({
                 status: "LOCAL_VETTING",
                 assessment: "Sensor data appears stable. Cross-referencing with local OBI and OBIA4RTM protocols suggest 85% efficiency.",
@@ -748,9 +807,13 @@ router.post('/sovereign-audit', async (req, res) => {
         
         Format as JSON: { "status": "Optimized/Alert", "assessment": "...", "recommendations": ["...", "..."] }`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        res.json(JSON.parse(response.text().replace(/```json|```/g, '').trim()));
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
+
+        res.json(JSON.parse(completion.choices[0].message.content));
     } catch (error) {
         console.error('Sovereign Audit Error:', error);
         res.status(500).json({ error: 'Audit node failed to sync with Vault.' });
@@ -762,7 +825,7 @@ router.post('/parse-harvest-voice', async (req, res) => {
     try {
         const { transcript } = req.body;
 
-        if (!process.env.GEMINI_API_KEY) {
+        if (!process.env.GROQ_API_KEY) {
             return res.json({
                 name: "Fresh Harvest",
                 quantity: 10,
@@ -788,11 +851,13 @@ router.post('/parse-harvest-voice', async (req, res) => {
         
         Format only as JSON.`;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const text = response.text().replace(/```json|```/g, '').trim();
-        const data = JSON.parse(text);
+        const completion = await groq.chat.completions.create({
+            model: "llama-3.3-70b-versatile",
+            messages: [{ role: "user", content: prompt }],
+            response_format: { type: "json_object" }
+        });
 
+        const data = JSON.parse(completion.choices[0].message.content);
         res.json(data);
     } catch (error) {
         console.error('Voice Parsing Error:', error);
