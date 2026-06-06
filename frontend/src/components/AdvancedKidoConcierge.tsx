@@ -82,10 +82,10 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         initial={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(20px)" }}
                         animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
                         exit={{ opacity: 0, scale: 0.9, y: 40, filter: "blur(20px)" }}
-                        className="absolute bottom-20 md:bottom-24 right-0 w-[calc(100vw-3rem)] sm:w-[400px] md:w-[450px] bg-[#040d0a]/95 backdrop-blur-3xl rounded-[2.5rem] md:rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col overflow-hidden overflow-x-hidden h-[500px] md:h-[650px]"
+                        className="fixed md:absolute bottom-24 right-4 left-4 md:left-auto md:right-0 md:w-[450px] max-h-[calc(100vh-10rem)] md:max-h-[650px] bg-[#040d0a]/95 backdrop-blur-3xl rounded-[2rem] md:rounded-[3.5rem] shadow-[0_50px_100px_rgba(0,0,0,0.8)] border border-white/10 flex flex-col overflow-hidden h-[500px] md:h-[650px] z-[1010]"
                     >
                         {/* Status Bar */}
-                        <div className="bg-secondary/10 p-8 border-b border-white/5 relative overflow-hidden">
+                        <div className="bg-secondary/10 p-4 md:p-8 border-b border-white/5 relative overflow-hidden shrink-0">
                             <motion.div
                                 animate={{ x: ["-100%", "200%"] }}
                                 transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
@@ -93,25 +93,25 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                             />
 
                             <div className="flex items-center justify-between relative z-10">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-14 h-14 bg-secondary rounded-2xl flex items-center justify-center text-primary shadow-[0_10px_30px_rgba(196,255,1,0.3)]">
-                                        <Bot size={28} />
+                                <div className="flex items-center gap-3 md:gap-4">
+                                    <div className="w-10 h-10 md:w-14 md:h-14 bg-secondary rounded-xl md:rounded-2xl flex items-center justify-center text-primary shadow-[0_10px_30px_rgba(196,255,1,0.3)]">
+                                        <Bot size={20} className="md:w-7 md:h-7" />
                                     </div>
                                     <div>
-                                        <h4 className="text-xl font-black font-serif italic tracking-tighter uppercase leading-none text-white">Horizon AI</h4>
-                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary mt-1 flex items-center gap-2">
-                                            <span className="w-1.5 h-1.5 bg-secondary rounded-full animate-pulse" /> Unified Intelligence
+                                        <h4 className="text-lg md:text-xl font-black font-serif italic tracking-tighter uppercase leading-none text-white">Horizon AI</h4>
+                                        <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] text-secondary mt-1 flex items-center gap-2">
+                                            <span className="w-1 md:w-1.5 h-1 md:h-1.5 bg-secondary rounded-full animate-pulse" /> Unified Intelligence
                                         </p>
                                     </div>
                                 </div>
-                                <button onClick={() => setIsOpen(false)} className="p-3 bg-white/5 hover:bg-white/10 rounded-full text-white/30 hover:text-white transition-all">
-                                    <X size={20} />
+                                <button onClick={() => setIsOpen(false)} className="p-2 md:p-3 bg-white/5 hover:bg-white/10 rounded-full text-white/30 hover:text-white transition-all">
+                                    <X className="w-4 h-4 md:w-5 md:h-5" />
                                 </button>
                             </div>
                         </div>
 
                         {/* Quick Protocol Buttons */}
-                        <div className="px-6 py-4 flex flex-wrap gap-2 border-b border-white/5 bg-white/[0.02]">
+                        <div className="px-4 md:px-6 py-3 md:py-4 flex gap-2 border-b border-white/5 bg-white/[0.02] overflow-x-auto no-scrollbar shrink-0">
                             {[
                                 { label: "Harvest Status", icon: "🌾" },
                                 { label: "Track My Order", icon: "📦" },
@@ -122,7 +122,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                                 <button
                                     key={i}
                                     onClick={() => setInput(btn.label)}
-                                    className="px-4 py-2 bg-white/5 border border-white/10 rounded-full text-[9px] font-black uppercase tracking-wider text-white/60 hover:bg-secondary hover:text-primary hover:border-secondary transition-all shadow-sm flex items-center gap-1.5 shrink-0"
+                                    className="px-3 md:px-4 py-1.5 md:py-2 bg-white/5 border border-white/10 rounded-full text-[8px] md:text-[9px] font-black uppercase tracking-wider text-white/60 hover:bg-secondary hover:text-primary hover:border-secondary transition-all shadow-sm flex items-center gap-1.5 shrink-0 whitespace-nowrap"
                                 >
                                     <span>{btn.icon}</span> {btn.label}
                                 </button>
@@ -163,7 +163,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                         </div>
 
                         {/* Input Area */}
-                        <div className="p-8 border-t border-white/5 bg-white/[0.02]">
+                        <div className="p-4 md:p-8 border-t border-white/5 bg-white/[0.02] shrink-0">
                             <div className="relative group">
                                 <input
                                     type="text"
@@ -171,17 +171,17 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                                     onChange={(e) => setInput(e.target.value)}
                                     onKeyPress={(e) => e.key === "Enter" && handleSend()}
                                     placeholder="Consult Horizon AI Master..."
-                                    className="w-full pl-6 pr-16 py-5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/10 focus:outline-none focus:border-secondary transition-all shadow-inner font-medium"
+                                    className="w-full pl-4 md:pl-6 pr-14 md:pr-16 py-3 md:py-5 bg-white/5 border border-white/10 rounded-xl md:rounded-2xl text-white placeholder:text-white/10 focus:outline-none focus:border-secondary transition-all shadow-inner font-medium text-sm"
                                 />
                                 <button
                                     onClick={handleSend}
                                     disabled={!input.trim() || isLoading}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 p-4 bg-secondary text-primary rounded-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-30 shadow-xl"
+                                    className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 p-2.5 md:p-4 bg-secondary text-primary rounded-lg md:rounded-xl hover:scale-110 active:scale-95 transition-all disabled:opacity-30 shadow-xl"
                                 >
-                                    <Send size={20} />
+                                    <Send className="w-5 h-5 md:w-6 md:h-6" />
                                 </button>
                             </div>
-                            <p className="text-center mt-6 text-[8px] font-black uppercase tracking-[0.4em] text-white/10 leading-none">
+                            <p className="text-center mt-4 md:mt-6 text-[8px] font-black uppercase tracking-[0.4em] text-white/10 leading-none">
                                 Federated AI Network • Jos-Jos Node Status: GREEN
                             </p>
                         </div>
