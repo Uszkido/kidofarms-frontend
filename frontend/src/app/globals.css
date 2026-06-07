@@ -29,6 +29,41 @@
   --font-sans: var(--font-family);
 
   --radius-sovereign: var(--border-radius);
+  --spacing-mobile: 1.5rem;
+  --spacing-tablet: 3rem;
+  --spacing-desktop: 6rem;
+}
+
+.container-sovereign {
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--spacing-mobile);
+  padding-right: var(--spacing-mobile);
+}
+
+@media (min-width: 768px) {
+  .container-sovereign {
+    padding-left: var(--spacing-tablet);
+    padding-right: var(--spacing-tablet);
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-sovereign {
+    padding-left: var(--spacing-desktop);
+    padding-right: var(--spacing-desktop);
+    max-width: 1600px;
+  }
+}
+
+.responsive-text-hero {
+  font-size: clamp(2.5rem, 8vw, 10rem);
+  line-height: 0.9;
+}
+
+.responsive-text-title {
+  font-size: clamp(2rem, 5vw, 6rem);
 }
 
 body {

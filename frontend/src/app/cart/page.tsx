@@ -33,14 +33,14 @@ export default function CartPage() {
         return (
             <div className="flex flex-col min-h-screen">
                 <Header />
-                <main className="flex-grow flex items-center justify-center py-32">
-                    <div className="text-center space-y-8">
-                        <div className="w-32 h-32 bg-cream rounded-full flex items-center justify-center mx-auto text-primary/20">
-                            <ShoppingBag size={64} />
+                <main className="flex-grow flex items-center justify-center py-24 md:py-32">
+                    <div className="container-sovereign text-center space-y-8">
+                        <div className="w-24 h-24 md:w-32 md:h-32 bg-cream rounded-full flex items-center justify-center mx-auto text-primary/20">
+                            <ShoppingBag className="w-12 h-12 md:w-16 md:h-16" />
                         </div>
-                        <div className="space-y-2">
-                            <h1 className="text-4xl font-bold font-serif">Your cart is empty</h1>
-                            <p className="text-primary/60">Looks like you haven't added any fresh harvest yet.</p>
+                        <div className="space-y-4">
+                            <h1 className="text-3xl md:text-5xl font-black font-serif text-primary italic uppercase tracking-tight">Your cart is empty</h1>
+                            <p className="text-primary/60 text-sm md:text-base font-medium">Looks like you haven't added any fresh harvest yet.</p>
                         </div>
                         <Link href="/shop" className="inline-block bg-primary text-white px-8 py-4 rounded-full font-bold hover:bg-secondary hover:text-primary transition-all">
                             Go to Shop
@@ -55,9 +55,9 @@ export default function CartPage() {
     return (
         <div className="flex flex-col min-h-screen">
             <Header />
-            <main className="flex-grow py-24 bg-cream/30">
-                <div className="container mx-auto px-6">
-                    <h1 className="text-5xl font-bold font-serif mb-12">Your Shopping Cart</h1>
+            <main className="flex-grow py-12 md:py-24 bg-cream/30">
+                <div className="container-sovereign">
+                    <h1 className="responsive-text-title font-black font-serif italic text-primary uppercase mb-12">Your <span className="text-secondary opacity-60">Cart</span></h1>
 
                     <div className="grid lg:grid-cols-3 gap-16">
                         <div className="lg:col-span-2 space-y-6">

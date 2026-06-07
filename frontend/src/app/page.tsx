@@ -117,7 +117,7 @@ export default async function Home() {
 
         {/* Categories Bar */}
         <section className="bg-primary pt-10 md:pt-16 pb-16 md:pb-24 border-b border-white/5 relative z-10">
-          <div className="container mx-auto px-6">
+          <div className="container-sovereign">
             <CategoryList />
           </div>
         </section>
@@ -125,12 +125,12 @@ export default async function Home() {
         {/* Recommended For You */}
         <FadeInEntry>
           <section className="py-20 md:py-32 bg-primary">
-            <div className="container mx-auto px-6">
+            <div className="container-sovereign">
               <div className="flex flex-col md:flex-row md:items-center gap-4 mb-12 md:mb-20">
-                <div className="w-16 h-1 bg-secondary rounded-full shadow-lg shadow-secondary/20" />
-                <h2 className="text-4xl md:text-7xl font-black font-serif flex flex-wrap items-center gap-4 md:gap-6 uppercase tracking-tighter text-white">
+                <div className="w-10 sm:w-16 h-1 bg-secondary rounded-full shadow-lg shadow-secondary/20" />
+                <h2 className="responsive-text-title font-black font-serif flex flex-wrap items-center gap-3 md:gap-6 uppercase tracking-tighter text-white">
                   {recommended.title} <span className="text-white/20 italic">{recommended.titleItalic}</span>
-                  <span className="bg-secondary text-primary text-[8px] md:text-[10px] px-4 md:px-5 py-1.5 md:py-2 rounded-full font-black shadow-xl shadow-secondary/30">{recommended.badge}</span>
+                  <span className="bg-secondary text-primary text-[6px] sm:text-[8px] md:text-[10px] px-3 sm:px-4 md:px-5 py-1 sm:py-1.5 md:py-2 rounded-full font-black shadow-xl shadow-secondary/30">{recommended.badge}</span>
                 </h2>
               </div>
 
@@ -165,42 +165,42 @@ export default async function Home() {
 
         {/* Market Trends Section */}
         <FadeInEntry>
-          <section className="py-20 md:py-40 bg-neutral-950 text-white overflow-hidden relative rounded-[3rem] md:rounded-[5rem] mx-4 md:mx-12 border border-white/5">
+          <section className="py-16 md:py-40 bg-neutral-950 text-white overflow-hidden relative rounded-[2rem] md:rounded-[5rem] mx-2 md:mx-12 border border-white/5">
             <div className="absolute inset-0 opacity-40">
               <div className="absolute top-0 right-0 w-[50rem] h-[50rem] bg-secondary/10 rounded-full blur-[180px] -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-[40rem] h-[40rem] bg-primary/20 rounded-full blur-[160px] translate-y-1/2 -translate-x-1/2" />
             </div>
 
-            <div className="container mx-auto px-6 md:px-12 relative z-10">
+            <div className="container-sovereign relative z-10">
               <div className="grid lg:grid-cols-2 gap-20 lg:grid-cols-2 lg:gap-32 items-center">
                 <div className="space-y-12 md:space-y-16">
                   <div className="space-y-6 md:space-y-8">
-                    <span className="inline-block text-secondary font-black uppercase tracking-[0.4em] text-[8px] md:text-[10px] bg-white/5 px-4 md:px-6 py-2 md:py-3 rounded-full border border-white/10 shadow-2xl">{trends.label}</span>
-                    <h2 className="text-5xl md:text-9xl font-black font-serif leading-[0.9] md:leading-[0.85] tracking-tighter">
+                    <span className="inline-block text-secondary font-black uppercase tracking-[0.4em] text-[7px] md:text-[10px] bg-white/5 px-3 md:px-6 py-2 md:py-3 rounded-full border border-white/10 shadow-2xl">{trends.label}</span>
+                    <h2 className="responsive-text-hero font-black font-serif leading-none tracking-tighter">
                       {trends.title} <br />
                       <span className="italic text-secondary">{trends.titleItalic}</span>
                     </h2>
                   </div>
-                  <p className="text-white/40 text-2xl leading-relaxed max-w-xl font-medium">
+                  <p className="text-white/40 text-lg md:text-2xl leading-relaxed max-w-xl font-medium">
                     {trends.subtitle}
                   </p>
-                  <div className="grid grid-cols-2 gap-10">
-                    <div className="p-12 rounded-[4rem] bg-white/5 border border-white/10 space-y-8 group hover:bg-white/10 transition-all hover:scale-105 duration-500">
-                      <div className="w-16 h-16 rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
-                        <TrendingUp size={32} />
+                  <div className="grid grid-cols-2 gap-4 md:gap-10">
+                    <div className="p-6 md:p-12 rounded-[2rem] md:rounded-[4rem] bg-white/5 border border-white/10 space-y-6 md:space-y-8 group hover:bg-white/10 transition-all hover:scale-105 duration-500">
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] md:rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+                        <TrendingUp className="w-6 h-6 md:w-8 md:h-8" />
                       </div>
                       <div>
-                        <h4 className="text-5xl font-black font-serif text-white">{trends.stat1Value}</h4>
-                        <p className="text-[11px] uppercase font-black tracking-[0.3em] text-white/20">{trends.stat1Label}</p>
+                        <h4 className="text-2xl md:text-5xl font-black font-serif text-white">{trends.stat1Value}</h4>
+                        <p className="text-[8px] md:text-[11px] uppercase font-black tracking-[0.3em] text-white/20">{trends.stat1Label}</p>
                       </div>
                     </div>
-                    <div className="p-12 rounded-[4rem] bg-white/5 border border-white/10 space-y-8 group hover:bg-white/10 transition-all hover:scale-105 duration-500">
-                      <div className="w-16 h-16 rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
-                        <Clock size={32} />
+                    <div className="p-6 md:p-12 rounded-[2rem] md:rounded-[4rem] bg-white/5 border border-white/10 space-y-6 md:space-y-8 group hover:bg-white/10 transition-all hover:scale-105 duration-500">
+                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-[1rem] md:rounded-[1.5rem] bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+                        <Clock className="w-6 h-6 md:w-8 md:h-8" />
                       </div>
                       <div>
-                        <h4 className="text-5xl font-black font-serif text-white">{trends.stat2Value}</h4>
-                        <p className="text-[11px] uppercase font-black tracking-[0.3em] text-white/20">{trends.stat2Label}</p>
+                        <h4 className="text-2xl md:text-5xl font-black font-serif text-white">{trends.stat2Value}</h4>
+                        <p className="text-[8px] md:text-[11px] uppercase font-black tracking-[0.3em] text-white/20">{trends.stat2Label}</p>
                       </div>
                     </div>
                   </div>
@@ -208,39 +208,39 @@ export default async function Home() {
 
                 <div className="relative h-auto lg:h-[900px] w-full bg-white/5 backdrop-blur-3xl rounded-[3rem] md:rounded-[5rem] border border-white/10 overflow-hidden shadow-2xl">
                   <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 via-transparent to-transparent pointer-events-none" />
-                  <div className="p-8 md:p-16 space-y-12 md:space-y-20">
-                    <div className="flex justify-between items-center border-b border-white/5 pb-12">
-                      <h3 className="text-4xl font-black font-serif uppercase tracking-tight text-white">{trendingList.title}</h3>
-                      <div className="flex gap-3 items-center">
-                        <div className="w-3 h-3 rounded-full bg-secondary animate-pulse shadow-lg shadow-secondary/40" />
-                        <span className="text-[11px] font-black uppercase tracking-widest text-secondary">Broadcasting Live</span>
+                  <div className="p-6 sm:p-10 md:p-16 space-y-8 md:space-y-20">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-8 sm:pb-12">
+                      <h3 className="text-2xl sm:text-4xl font-black font-serif uppercase tracking-tight text-white">{trendingList.title}</h3>
+                      <div className="flex gap-2 sm:gap-3 items-center">
+                        <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-secondary animate-pulse shadow-lg shadow-secondary/40" />
+                        <span className="text-[8px] sm:text-[11px] font-black uppercase tracking-widest text-secondary">Live</span>
                       </div>
                     </div>
 
-                    <div className="space-y-8">
+                    <div className="space-y-4 md:space-y-8">
                       {(trendingList.items || []).map((item: any, i: number) => (
-                        <div key={i} className="flex justify-between items-center group hover:bg-white/5 p-8 rounded-[2.5rem] transition-all cursor-pointer border border-transparent hover:border-white/10">
-                          <div className="flex items-center gap-8">
-                            <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center text-3xl shadow- inner shadow-white/5">
+                        <div key={i} className="flex justify-between items-center group hover:bg-white/5 p-4 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] transition-all cursor-pointer border border-transparent hover:border-white/10">
+                          <div className="flex items-center gap-4 sm:gap-8">
+                            <div className="w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-white/10 flex items-center justify-center text-xl sm:text-3xl shadow-inline shadow-white/5">
                               {i === 0 ? "🌶️" : i === 1 ? "🧅" : i === 2 ? "🐟" : "🍯"}
                             </div>
                             <div>
-                              <p className="text-2xl font-black font-serif text-white group-hover:text-secondary transition-colors">{item.name}</p>
-                              <p className="text-[11px] uppercase font-black tracking-[0.2em] text-white/30">{item.qty} Handled Locally</p>
+                              <p className="text-lg sm:text-2xl font-black font-serif text-white group-hover:text-secondary transition-colors">{item.name}</p>
+                              <p className="text-[7px] sm:text-[11px] uppercase font-black tracking-[0.2em] text-white/30">{item.qty} locally</p>
                             </div>
                           </div>
-                          <div className={`flex items-center gap-3 text-sm font-black px-6 py-2.5 rounded-full ${item.change?.startsWith('+') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                            {item.change?.startsWith('+') ? <TrendingUp size={16} /> : <TrendingUp size={16} className="rotate-180" />}
+                          <div className={`flex items-center gap-2 sm:gap-3 text-xs font-black px-3 sm:px-6 py-1.5 sm:py-2.5 rounded-full ${item.change?.startsWith('+') ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                            {item.change?.startsWith('+') ? <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 rotate-180" />}
                             {item.change}
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    <div className="bg-secondary p-10 rounded-[3rem] flex items-center justify-between group cursor-pointer hover:bg-white transition-all shadow-2xl shadow-secondary/20">
-                      <span className="text-primary font-black uppercase tracking-[0.2em] text-sm">Open Full Market Analysis</span>
-                      <div className="w-14 h-14 rounded-2xl bg-primary text-secondary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
-                        <ArrowRight size={24} strokeWidth={3} />
+                    <div className="bg-secondary p-6 sm:p-10 rounded-[2rem] sm:rounded-[3rem] flex items-center justify-between group cursor-pointer hover:bg-white transition-all shadow-2xl shadow-secondary/20">
+                      <span className="text-primary font-black uppercase tracking-[0.2em] text-[10px] sm:text-sm">Full Analysis</span>
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-primary text-secondary flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl">
+                        <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={3} />
                       </div>
                     </div>
                   </div>
@@ -267,20 +267,20 @@ export default async function Home() {
 
         {/* Farmer & Vendor CTA Section */}
         <FadeInEntry>
-          <section className="py-20 md:py-40 px-4 md:px-12">
+          <section className="py-16 md:py-40 px-2 md:px-12">
             <div className="container mx-auto">
-              <div className="bg-neutral-950 rounded-[3rem] md:rounded-[6rem] p-10 md:p-40 text-white shadow-2xl relative overflow-hidden border border-white/5">
+              <div className="bg-neutral-950 rounded-[2rem] md:rounded-[6rem] p-8 sm:p-12 md:p-40 text-white shadow-2xl relative overflow-hidden border border-white/5">
                 <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
                 <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-secondary/5 to-transparent pointer-events-none" />
 
                 <div className="relative z-10 flex flex-col lg:flex-row justify-between items-center gap-32">
-                  <div className="max-w-3xl space-y-16 text-center lg:text-left">
-                    <div className="space-y-10">
-                      <h2 className="text-7xl md:text-9xl font-black font-serif leading-[0.85] tracking-tighter">
+                  <div className="max-w-3xl space-y-10 md:space-y-16 text-center lg:text-left">
+                    <div className="space-y-6 md:space-y-10">
+                      <h2 className="text-4xl sm:text-6xl md:text-9xl font-black font-serif leading-[1] md:leading-[0.85] tracking-tighter">
                         {farmerCta.title} <br />
                         <span className="text-secondary italic underline decoration-secondary/10 decoration-8 underline-offset-8">{farmerCta.titleItalic}</span>
                       </h2>
-                      <p className="text-2xl text-white/40 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
+                      <p className="text-lg md:text-2xl text-white/40 leading-relaxed font-medium max-w-2xl mx-auto lg:mx-0">
                         {farmerCta.subtitle}
                       </p>
                     </div>
@@ -315,13 +315,13 @@ export default async function Home() {
                   <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] group-hover:scale-150 transition-transform duration-1000" />
                   <div className="relative z-10 space-y-12">
                     <div className="space-y-6">
-                      <span className="inline-block bg-secondary text-primary px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-secondary/20">Become an Affiliate</span>
-                      <h3 className="text-4xl md:text-7xl font-black font-serif leading-[0.9] tracking-tighter uppercase italic">
+                      <span className="inline-block bg-secondary text-primary px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl shadow-secondary/20">Affiliate Network</span>
+                      <h3 className="text-3xl sm:text-5xl md:text-7xl font-black font-serif leading-[1] md:leading-[0.9] tracking-tighter uppercase italic">
                         Spread <br />
                         <span className="text-secondary italic">The Harvest.</span>
                       </h3>
-                      <p className="text-white/40 text-lg leading-relaxed font-medium max-w-md">
-                        Monetize your influence by connecting your community to premium organic food. Highest commission rates in West Africa.
+                      <p className="text-white/40 text-base md:text-lg leading-relaxed font-medium max-w-md">
+                        Monetize your influence by connecting your community to premium organic food.
                       </p>
                     </div>
                     <Link href="/register/affiliate" className="inline-flex items-center gap-4 bg-secondary text-primary px-10 py-6 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 group-hover:scale-105">
@@ -335,13 +335,13 @@ export default async function Home() {
                   <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-[100px] group-hover:scale-150 transition-transform duration-1000" />
                   <div className="relative z-10 space-y-12">
                     <div className="space-y-6">
-                      <span className="inline-block bg-primary text-secondary px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl shadow-primary/20">Join Our Team</span>
-                      <h3 className="text-4xl md:text-7xl font-black font-serif leading-[0.9] tracking-tighter uppercase italic">
+                      <span className="inline-block bg-primary text-secondary px-5 py-2 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl shadow-primary/20">Join Our Team</span>
+                      <h3 className="text-3xl sm:text-5xl md:text-7xl font-black font-serif leading-[1] md:leading-[0.9] tracking-tighter uppercase italic">
                         Cultivate <br />
                         <span className="text-primary italic">Your Career.</span>
                       </h3>
-                      <p className="text-primary/40 text-lg leading-relaxed font-medium max-w-md">
-                        Seeking a job in Kido Farms and Orchard? Apply to join our expert team of farm hands, managers, and logistics specialists.
+                      <p className="text-primary/40 text-base md:text-lg leading-relaxed font-medium max-w-md">
+                        Apply to join our expert team of farm hands, managers, and logistics specialists.
                       </p>
                     </div>
                     <Link href="/register/careers" className="inline-flex items-center gap-4 bg-primary text-white px-10 py-6 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-2xl shadow-primary/20 group-hover:scale-105">

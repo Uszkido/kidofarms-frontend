@@ -28,10 +28,10 @@ export default function ImpactSection() {
 
     return (
         <section className="py-24 bg-primary overflow-hidden">
-            <div className="container mx-auto px-6">
+            <div className="container-sovereign">
                 <div className="flex flex-col mb-16">
                     <span className="text-secondary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Our Footprint</span>
-                    <h2 className="text-5xl md:text-8xl font-black font-serif text-white leading-none uppercase tracking-tighter">
+                    <h2 className="responsive-text-title font-black font-serif text-white leading-none uppercase tracking-tighter">
                         Tangible <span className="text-secondary italic">Impact</span>
                     </h2>
                 </div>
