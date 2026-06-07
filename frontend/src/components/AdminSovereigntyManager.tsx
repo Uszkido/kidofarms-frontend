@@ -117,7 +117,7 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-6 md:p-12">
+        <div className="fixed inset-0 z-[2000] flex items-center justify-center p-0 md:p-12">
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -130,17 +130,17 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                 initial={{ opacity: 0, scale: 0.95, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                className="relative w-full max-w-7xl bg-white rounded-[4rem] shadow-2xl overflow-hidden flex flex-col h-[90vh]"
+                className="relative w-full max-w-7xl bg-white md:rounded-[4rem] shadow-2xl overflow-hidden flex flex-col h-full md:h-[90vh]"
             >
                 {/* HEADER */}
-                <div className="bg-secondary p-10 flex justify-between items-center">
-                    <div className="flex items-center gap-6">
-                        <div className="w-14 h-14 bg-primary text-secondary rounded-2xl flex items-center justify-center shadow-lg">
-                            <ShieldCheck size={32} />
+                <div className="bg-secondary p-6 md:p-10 flex justify-between items-center shrink-0">
+                    <div className="flex items-center gap-4 md:gap-6">
+                        <div className="w-10 h-10 md:w-14 md:h-14 bg-primary text-secondary rounded-xl md:rounded-2xl flex items-center justify-center shadow-lg">
+                            <ShieldCheck className="w-6 h-6 md:w-8 md:h-8" />
                         </div>
                         <div>
-                            <h2 className="text-3xl font-black font-serif italic text-primary uppercase tracking-tighter leading-none">Sovereignty Control</h2>
-                            <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">Prime Command Interface: Contents, Visuals, Data</p>
+                            <h2 className="text-xl md:text-3xl font-black font-serif italic text-primary uppercase tracking-tighter leading-none">Sovereignty</h2>
+                            <p className="text-[7px] md:text-[10px] font-black uppercase tracking-widest opacity-40 mt-1">Command Interface</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-6">
@@ -153,44 +153,40 @@ export default function AdminSovereigntyManager({ isOpen, onClose }: { isOpen: b
                     </div>
                 </div>
 
-                <div className="flex flex-1 overflow-hidden">
-                    {/* SIDEBAR NAVIGATION */}
-                    <div className="w-80 bg-neutral-50 border-r border-primary/5 p-8 flex flex-col justify-between shrink-0">
-                        <div className="space-y-12">
-                            <div className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase opacity-30 tracking-widest pl-4">Intel Management</h4>
-                                <div className="space-y-2">
-                                    <button onClick={() => setActiveTab("vault")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "vault" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
-                                        <BookOpen size={20} /> <span className="text-[11px] font-black uppercase">Sovereign Vault</span>
-                                    </button>
-                                    <button onClick={() => setActiveTab("exchange")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "exchange" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
-                                        <MessageSquare size={20} /> <span className="text-[11px] font-black uppercase">Intel Exchange</span>
-                                    </button>
-                                </div>
+                <div className="flex flex-1 flex-col lg:flex-row overflow-hidden">
+                    {/* SIDEBAR NAVIGATION - BECOMES TOP SCROLL ON MOBILE */}
+                    <div className="w-full lg:w-80 bg-neutral-50 border-r border-primary/5 p-4 md:p-8 flex flex-row lg:flex-col justify-between shrink-0 overflow-x-auto lg:overflow-y-auto scrollbar-hide gap-4">
+                        <div className="flex flex-row lg:flex-col gap-4 lg:space-y-12 shrink-0">
+                            <div className="flex flex-row lg:flex-col gap-2 lg:space-y-4">
+                                <h4 className="hidden lg:block text-[10px] font-black uppercase opacity-30 tracking-widest pl-4">Intel</h4>
+                                <button onClick={() => setActiveTab("vault")} className={`whitespace-nowrap flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all ${activeTab === "vault" ? "bg-primary text-secondary" : "bg-white lg:bg-transparent hover:bg-cream text-primary/40"}`}>
+                                    <BookOpen size={18} /> <span className="text-[9px] md:text-[11px] font-black uppercase">Vault</span>
+                                </button>
+                                <button onClick={() => setActiveTab("exchange")} className={`whitespace-nowrap flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all ${activeTab === "exchange" ? "bg-primary text-secondary" : "bg-white lg:bg-transparent hover:bg-cream text-primary/40"}`}>
+                                    <MessageSquare size={18} /> <span className="text-[9px] md:text-[11px] font-black uppercase">Exchange</span>
+                                </button>
                             </div>
 
-                            <div className="space-y-4">
-                                <h4 className="text-[10px] font-black uppercase opacity-30 tracking-widest pl-4">Admin Sovereignty</h4>
-                                <div className="space-y-2">
-                                    <button onClick={() => setActiveTab("content")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "content" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
-                                        <Edit3 size={20} /> <span className="text-[11px] font-black uppercase">Dashboard Content</span>
-                                    </button>
-                                    <button onClick={() => setActiveTab("visuals")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "visuals" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
-                                        <Palette size={20} /> <span className="text-[11px] font-black uppercase">Visual Aesthetic</span>
-                                    </button>
-                                    <button onClick={() => setActiveTab("architect")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "architect" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
-                                        <Layout size={20} /> <span className="text-[11px] font-black uppercase">Layout Architect</span>
-                                    </button>
-                                    <button onClick={() => setActiveTab("stats")} className={`w-full flex items-center gap-4 p-5 rounded-2xl transition-all ${activeTab === "stats" ? "bg-primary text-secondary" : "hover:bg-cream text-primary/40"}`}>
-                                        <Activity size={20} /> <span className="text-[11px] font-black uppercase">Logic & Stats</span>
-                                    </button>
-                                </div>
+                            <div className="flex flex-row lg:flex-col gap-2 lg:space-y-4">
+                                <h4 className="hidden lg:block text-[10px] font-black uppercase opacity-30 tracking-widest pl-4">Admin</h4>
+                                <button onClick={() => setActiveTab("content")} className={`whitespace-nowrap flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all ${activeTab === "content" ? "bg-primary text-secondary" : "bg-white lg:bg-transparent hover:bg-cream text-primary/40"}`}>
+                                    <Edit3 size={18} /> <span className="text-[9px] md:text-[11px] font-black uppercase">CMS</span>
+                                </button>
+                                <button onClick={() => setActiveTab("visuals")} className={`whitespace-nowrap flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all ${activeTab === "visuals" ? "bg-primary text-secondary" : "bg-white lg:bg-transparent hover:bg-cream text-primary/40"}`}>
+                                    <Palette size={18} /> <span className="text-[9px] md:text-[11px] font-black uppercase">Visuals</span>
+                                </button>
+                                <button onClick={() => setActiveTab("architect")} className={`whitespace-nowrap flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all ${activeTab === "architect" ? "bg-primary text-secondary" : "bg-white lg:bg-transparent hover:bg-cream text-primary/40"}`}>
+                                    <Layout size={18} /> <span className="text-[9px] md:text-[11px] font-black uppercase">Layout</span>
+                                </button>
+                                <button onClick={() => setActiveTab("stats")} className={`whitespace-nowrap flex items-center gap-3 md:gap-4 p-3 md:p-5 rounded-xl md:rounded-2xl transition-all ${activeTab === "stats" ? "bg-primary text-secondary" : "bg-white lg:bg-transparent hover:bg-cream text-primary/40"}`}>
+                                    <Activity size={18} /> <span className="text-[9px] md:text-[11px] font-black uppercase">Logic</span>
+                                </button>
                             </div>
                         </div>
 
                         {(activeTab === "vault" || activeTab === "exchange") && (
-                            <button onClick={() => { setSelectedItem({ section: activeTab, type: "Technical", status: "draft" }); setIsCreating(true); setIsEditing(true); }} className="w-full bg-secondary text-primary p-5 rounded-2xl font-black uppercase text-[10px] tracking-widest flex items-center justify-center gap-3 shadow-xl hover:scale-105 transition-all">
-                                <Plus size={18} /> New Protocol Node
+                            <button onClick={() => { setSelectedItem({ section: activeTab, type: "Technical", status: "draft" }); setIsCreating(true); setIsEditing(true); }} className="whitespace-nowrap bg-secondary text-primary p-3 md:p-5 rounded-xl md:rounded-2xl font-black uppercase text-[9px] md:text-[10px] tracking-widest flex items-center justify-center gap-2 md:gap-3 shadow-xl hover:scale-105 transition-all">
+                                <Plus size={16} /> <span className="hidden md:inline">Protocol</span>
                             </button>
                         )}
                     </div>

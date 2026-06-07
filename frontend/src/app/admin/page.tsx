@@ -81,8 +81,8 @@ function HubSyncTicker() {
     }, []);
 
     return (
-        <div className="bg-white/5 border-y border-white/5 py-4 overflow-hidden -mx-10 mt-10 backdrop-blur-3xl px-10">
-            <div className="flex items-center gap-10 whitespace-nowrap animate-marquee">
+        <div className="bg-white/5 border-y border-white/5 py-3 md:py-4 overflow-hidden mt-6 md:mt-10 backdrop-blur-3xl px-4 md:px-10 -mx-4 md:-mx-10 lg:-mx-12">
+            <div className="flex items-center gap-6 md:gap-10 whitespace-nowrap animate-marquee">
                 <AnimatePresence mode="popLayout">
                     {events.map((ev, i) => (
                         <motion.div
@@ -193,16 +193,16 @@ export default function AdminDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-primary text-[#E6EDF3] p-10 font-sans selection:bg-secondary selection:text-primary transition-colors duration-1000">
-            <div className="max-w-[1600px] mx-auto space-y-20">
+        <div className="min-h-screen bg-primary text-[#E6EDF3] py-10 font-sans selection:bg-secondary selection:text-primary transition-colors duration-1000">
+            <div className="container-sovereign space-y-12 md:space-y-20">
                 {/* 🌌 COMMAND HEADER */}
-                <header className="flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
+                <header className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-10">
                     <div className="space-y-6">
                         <div className="flex items-center gap-4">
                             <span className="w-16 h-1.5 bg-secondary rounded-full" />
                             <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">{dashboardContent?.subtitle || "Sovereign Control Node"}</h2>
                         </div>
-                        <h1 className="text-7xl lg:text-[10rem] font-black font-serif italic uppercase leading-[0.85] tracking-tighter text-white">
+                        <h1 className="responsive-text-hero font-black font-serif italic uppercase tracking-tighter text-white">
                             Hello, <br />
                             <span className="text-secondary block">
                                 {session?.user?.name ?
@@ -210,15 +210,15 @@ export default function AdminDashboard() {
                                     : "ADMIN"}
                             </span>
                         </h1>
-                        <p className="text-white/30 text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
-                            <Activity size={14} className="text-secondary animate-pulse" /> Live Regional Infrastructure Access: JOS-01-NG
+                        <p className="text-white/30 text-[10px] md:text-xs font-black uppercase tracking-[0.3em] flex items-center gap-3">
+                            <Activity size={14} className="text-secondary animate-pulse" /> Live Regional Infrastructure Access: JOS-NG
                         </p>
                     </div>
 
-                    <div className="flex flex-col md:flex-row gap-6 w-full md:w-auto">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6 w-full lg:w-auto">
                         <NotificationBell />
                         <Link href="/admin/settings" className="bg-white/5 p-6 rounded-sovereign border border-secondary/30 hover:bg-secondary hover:text-primary backdrop-blur-3xl flex items-center gap-5 shadow-2xl transition-all group">
-                            <div className="w-14 h-14 rounded-2xl bg-secondary/10 group-hover:bg-white/20 flex items-center justify-center text-secondary shadow-xl transition-colors">
+                            <div className="w-14 h-14 rounded-2xl bg-secondary/10 group-hover:bg-white/20 flex items-center justify-center text-secondary shadow-xl transition-colors shrink-0">
                                 <Palette size={28} />
                             </div>
                             <div>
@@ -227,21 +227,12 @@ export default function AdminDashboard() {
                             </div>
                         </Link>
                         <div className="bg-white/5 p-6 rounded-sovereign border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
-                            <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-xl">
+                            <div className="w-14 h-14 rounded-2xl bg-secondary flex items-center justify-center text-primary shadow-xl shrink-0">
                                 <Users size={28} />
                             </div>
                             <div>
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20">Citizen Volume</h4>
                                 <p className="text-2xl font-black font-serif italic text-white">{stats?.users || 0}</p>
-                            </div>
-                        </div>
-                        <div className="bg-white/5 p-6 rounded-sovereign border border-white/10 backdrop-blur-3xl flex items-center gap-5 shadow-2xl">
-                            <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center text-secondary shadow-xl">
-                                <Activity size={28} />
-                            </div>
-                            <div>
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-white/20">Network Growth</h4>
-                                <p className="text-2xl font-black font-serif italic text-secondary">{stats?.lastMonthGrowth || '+0%'}</p>
                             </div>
                         </div>
                     </div>
@@ -272,7 +263,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* 🕹️ SOVEREIGN COMMAND CENTER */}
-                <div className="grid lg:grid-cols-3 gap-10 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 mb-20 animate-in fade-in slide-in-from-bottom-10 duration-1000">
                     {filteredActions.length > 0 ? (
                         filteredActions.map(action => (
                             <CommandCard
@@ -299,7 +290,7 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* 🚀 QUICK ACTION PROTOCOLS */}
-                <div className="bg-white/5 rounded-[4rem] p-10 lg:p-12 border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden">
+                <div className="bg-white/5 rounded-[2.5rem] md:rounded-[4rem] p-6 lg:p-12 border border-white/10 backdrop-blur-3xl shadow-2xl relative overflow-hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <MetricCard
                         label="Platform Liquidity"
                         value={`₦${(stats?.revenue || 0).toLocaleString()}`}
@@ -771,14 +762,14 @@ function CommandCard({ title, desc, icon, href, onClick, color, accent, glow }: 
 
     if (onClick) {
         return (
-            <button onClick={onClick} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 text-left w-full h-full ${glow}`}>
+            <button onClick={onClick} className={`relative group p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 text-left w-full h-full ${glow}`}>
                 {content}
             </button>
         );
     }
 
     return (
-        <Link href={href || "#"} className={`relative group p-10 rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 ${glow}`}>
+        <Link href={href || "#"} className={`relative group p-6 md:p-10 rounded-[2.5rem] md:rounded-[4rem] bg-white/5 border border-white/10 backdrop-blur-3xl overflow-hidden transition-all hover:scale-[1.03] hover:border-white/20 ${glow}`}>
             {content}
         </Link>
     );

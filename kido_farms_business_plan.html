@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kido Farms | Sovereign Food Operating System Business Plan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2D5A27;
+            --primary-light: #4A903F;
+            --accent: #D4AF37;
+            --dark: #0D0F0C;
+            --light: #F4F7F2;
+            --glass: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .background-blob {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+            filter: blur(80px);
+            opacity: 0.2;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .blob-1 { top: -100px; right: -100px; }
+        .blob-2 { bottom: -100px; left: -100px; }
+
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(to bottom, rgba(13, 15, 12, 0.8), var(--dark)), url('https://images.unsplash.com/photo-1500382017468-9049fed747ef?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+            padding: 2rem;
+        }
+
+        .hero-badge {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+        }
+
+        h1 span {
+            color: var(--primary-light);
+        }
+
+        .hero-sub {
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        section {
+            margin-bottom: 6rem;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h2::after {
+            content: '';
+            height: 2px;
+            flex-grow: 1;
+            background: linear-gradient(to right, var(--primary), transparent);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 2rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-light);
+        }
+
+        .card h3 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .card p {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+
+        .layer-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 0.2rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .mission-box {
+            background: linear-gradient(135deg, var(--primary), #1a3a14);
+            padding: 4rem;
+            border-radius: 30px;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .mission-box h2 {
+            justify-content: center;
+        }
+
+        .mission-box h2::after { display: none; }
+
+        .mission-box p {
+            font-size: 1.5rem;
+            font-weight: 300;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .roadmap {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .roadmap::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--glass-border);
+        }
+
+        .roadmap-item {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+
+        .roadmap-item::before {
+            content: '';
+            position: absolute;
+            left: -2.4rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--accent);
+        }
+
+        .roadmap-item h4 {
+            font-size: 1.25rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .tech-list {
+            list-style: none;
+        }
+
+        .tech-list li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tech-list li::before {
+            content: '→';
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 4rem 2rem;
+            border-top: 1px solid var(--glass-border);
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            .mission-box { padding: 2rem; }
+            .mission-box p { font-size: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+
+    <header>
+        <div class="hero-badge">Orbit 5.0 Synced</div>
+        <h1>KIDO <span>FARMS</span></h1>
+        <p class="hero-sub">The Sovereign Food Operating System. A Bio-Digital Neural Network redefining agriculture in West Africa.</p>
+        <div style="display: flex; gap: 1rem;">
+            <a href="#mission" style="text-decoration: none; color: var(--dark); background: var(--accent); padding: 1rem 2rem; border-radius: 50px; font-weight: 600;">Core Mission</a>
+            <a href="#tech" style="text-decoration: none; color: var(--light); border: 1px solid var(--glass-border); padding: 1rem 2rem; border-radius: 50px; backdrop-filter: blur(10px);">Architecture</a>
+        </div>
+    </header>
+
+    <main class="container">
+        
+        <!-- Mission Section -->
+        <section id="mission" class="mission-box">
+            <h2>Our Mission</h2>
+            <p>"To dismantle middleman exploitation and establish a <strong>Seed-to-Sovereignty</strong> digital pipeline where farmers own their data, their energy, and their market access."</p>
+        </section>
+
+        <!-- Product Layers -->
+        <section>
+            <h2>The Infrastructure Layers</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="layer-badge">Layer 1.0 & 2.0</span>
+                    <h3>The Market Grid</h3>
+                    <p>A B2C marketplace with Heritage Passports. Every product is tracked from the soil to the shelf with a unique ID.</p>
+                </div>
+                <div class="card">
+                    <span class="layer-badge">Layer 3.0</span>
+                    <h3>Mastery Academy</h3>
+                    <p>Gamified career pathways for farmers. Level up from Apprentice to Master Orchardist via verified field audits.</p>
+                </div>
+                <div class="card">
+                    <span class="layer-badge">Layer 4.0</span>
+                    <h3>Yield-Shield</h3>
+                    <p>Parametric micro-insurance using smart weather sensors. Automated payouts for droughts or floods via smart contracts.</p>
+                </div>
+                <div class="card">
+                    <span class="layer-badge">Layer 5.0</span>
+                    <h3>Sovereign Energy</h3>
+                    <p>The Waste-to-Wealth marketplace. Converting farm biomass into tradeable carbon credits and Energy Tokens.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Neural Nodes -->
+        <section id="tech">
+            <h2>Neural Nodes (AI Core)</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Kido Vision</h3>
+                    <p>Multi-modal AI analyzing field data to diagnose crop diseases and suggest organic mitigation strategies in real-time.</p>
+                </div>
+                <div class="card">
+                    <h3>Pricing Oracle</h3>
+                    <p>Analyzing global demand and local supply to ensure farmers get a fair-trade price for every harvest.</p>
+                </div>
+                <div class="card">
+                    <h3>Logistics Batcher</h3>
+                    <p>Autonomous dispatcher clustering orders by geography to optimize carrier routes and minimize carbon footprint.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Financial Model -->
+        <section>
+            <h2>The Economic Model</h2>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card">
+                    <h3>Revenue Streams</h3>
+                    <ul class="tech-list">
+                        <li><strong>Marketplace Fee:</strong> 10% commission on direct-to-consumer sales.</li>
+                        <li><strong>Basket Nodes:</strong> Recurring subscription revenue from hotels and institutions.</li>
+                        <li><strong>Energy Credits:</strong> Revenue from biomass conversion certification.</li>
+                        <li><strong>Insurance Premiums:</strong> Yield-Shield micro-insurance service fees.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3>Target Market</h3>
+                    <ul class="tech-list">
+                        <li><strong>Urban Prosumers:</strong> Health-conscious city dwellers in Lagos, Abuja, and Port Harcourt.</li>
+                        <li><strong>Production Nodes:</strong> Over 10 million smallholder farmers in the West African sub-region.</li>
+                        <li><strong>Export Gate:</strong> International buyers seeking traceable organic produce.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Roadmap -->
+        <section>
+            <h2>Strategic Roadmap</h2>
+            <div class="roadmap">
+                <div class="roadmap-item">
+                    <h4>Orbit 5.0 (Domestic Launch)</h4>
+                    <p>Establishing regional hubs, launching the Sovereign Energy Marketplace, and finalizing the Mastery Academy core modules.</p>
+                </div>
+                <div class="roadmap-item">
+                    <h4>Orbit 5.5 (Global Bridge)</h4>
+                    <p>Integration of ISO-certified export protocols and the launch of the Global Data Command for international buyers.</p>
+                </div>
+                <div class="roadmap-item">
+                    <h4>Orbit 6.0 (Total Sovereignty)</h4>
+                    <p>Full P2P internal economy using Kido Credits. Decentralized governance for farmer-led cooperatives.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Kido Farms. Built on the Always Bloom Logic Architecture.</p>
+        <p><em>Sovereign Food Operating System (Orbit 5.0 Production Ready)</em></p>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>

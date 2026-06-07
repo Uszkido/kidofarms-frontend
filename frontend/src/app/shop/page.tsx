@@ -136,12 +136,12 @@ function ShopContent() {
                 message={actionState.message}
                 status={actionState.status}
             />
-            <main className="flex-grow py-24 bg-cream/30">
-                <div className="container mx-auto px-6">
-                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-6">
-                        <div className="space-y-2">
-                            <h1 className="text-5xl font-bold font-serif">The Shop</h1>
-                            <p className="text-primary/60">Browse our seasonal harvest and artisanal products.</p>
+            <main className="flex-grow py-12 md:py-24 bg-cream/30">
+                <div className="container-sovereign">
+                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-10">
+                        <div className="space-y-4">
+                            <h1 className="responsive-text-title font-black font-serif italic text-primary uppercase">The <span className="text-secondary opacity-60">Shop</span></h1>
+                            <p className="text-primary/60 text-sm md:text-base font-medium max-w-md">Browse our seasonal harvest and artisanal products, directly from verified sovereign nodes.</p>
                         </div>
 
                         <div className="flex flex-wrap gap-4 w-full md:w-auto">

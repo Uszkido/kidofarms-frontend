@@ -48,13 +48,13 @@ export default function AboutPage() {
     );
 
     return (
-        <div className="flex flex-col min-h-screen bg-white selection:bg-secondary selection:text-white">
+        <div className="flex flex-col min-h-screen bg-white">
             <Header />
-            <main className="flex-grow pt-32 pb-24">
-                <section className="py-24">
-                    <div className="container mx-auto px-6">
-                        <div className="grid md:grid-cols-2 gap-20 items-center">
-                            <div className="relative h-[600px] rounded-[3rem] overflow-hidden shadow-2xl group">
+            <main className="flex-grow pt-24 md:pt-32 pb-24">
+                <section className="py-12 md:py-24">
+                    <div className="container-sovereign">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                            <div className="relative h-[400px] md:h-[600px] rounded-[2rem] md:rounded-[3rem] overflow-hidden shadow-2xl group">
                                 <Image
                                     src={content.image?.startsWith('http') ? content.image : getApiUrl(content.image)}
                                     alt="Farmer in the field"
@@ -63,25 +63,25 @@ export default function AboutPage() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent" />
                             </div>
-                            <div className="space-y-10">
+                            <div className="space-y-8 md:space-y-10">
                                 <div className="space-y-6">
                                     <div className="flex items-center gap-4">
                                         <span className="w-12 h-1 bg-secondary rounded-full" />
                                         <span className="text-secondary font-black uppercase tracking-[0.3em] text-xs">Founded {content.founded}</span>
                                     </div>
-                                    <h1 className="text-6xl lg:text-8xl font-black font-serif italic leading-[0.85] tracking-tighter text-primary">{content.title}</h1>
+                                    <h1 className="responsive-text-title font-black font-serif italic leading-[0.85] tracking-tighter text-primary">{content.title}</h1>
                                 </div>
-                                <p className="text-xl text-primary/70 leading-relaxed font-medium">
+                                <p className="text-lg md:text-xl text-primary/70 leading-relaxed font-medium">
                                     {content.description}
                                 </p>
-                                <div className="grid grid-cols-2 gap-12 pt-8 border-t border-primary/5">
+                                <div className="grid grid-cols-2 gap-8 md:gap-12 pt-8 border-t border-primary/5">
                                     <div className="space-y-3">
-                                        <h3 className="text-4xl font-black font-serif text-secondary italic">100%</h3>
-                                        <p className="text-[10px] font-black uppercase text-primary/40 tracking-[0.4em]">Organic Grown</p>
+                                        <h3 className="text-3xl md:text-4xl font-black font-serif text-secondary italic">100%</h3>
+                                        <p className="text-[9px] md:text-[10px] font-black uppercase text-primary/40 tracking-[0.3em] md:tracking-[0.4em]">Organic Grown</p>
                                     </div>
                                     <div className="space-y-3">
-                                        <h3 className="text-4xl font-black font-serif text-secondary italic">Since '{content.founded.substring(2)}</h3>
-                                        <p className="text-[10px] font-black uppercase text-primary/40 tracking-[0.4em]">Built in Nigeria</p>
+                                        <h3 className="text-3xl md:text-4xl font-black font-serif text-secondary italic">Since '{content.founded.substring(2)}</h3>
+                                        <p className="text-[9px] md:text-[10px] font-black uppercase text-primary/40 tracking-[0.3em] md:tracking-[0.4em]">Built in Nigeria</p>
                                     </div>
                                 </div>
                             </div>
@@ -89,20 +89,20 @@ export default function AboutPage() {
                     </div>
                 </section>
 
-                <section className="py-24 bg-primary rounded-[4rem] mx-6 my-12 overflow-hidden relative group">
+                <section className="py-12 md:py-24 bg-primary rounded-[2rem] md:rounded-[4rem] mx-4 md:mx-6 my-6 md:my-12 overflow-hidden relative group">
                     <div className="absolute top-0 right-0 w-[40rem] h-[40rem] bg-secondary/10 rounded-full blur-[150px] group-hover:bg-secondary/20 transition-all duration-[2000ms]" />
-                    <div className="container mx-auto px-6 text-center space-y-20 relative z-10">
+                    <div className="container-sovereign text-center space-y-12 md:space-y-20 relative z-10">
                         <div className="max-w-3xl mx-auto space-y-6">
-                            <h2 className="text-5xl md:text-7xl font-black font-serif italic text-white leading-none tracking-tighter uppercase">{content.missionTitle}</h2>
-                            <p className="text-white/60 text-lg font-medium max-w-2xl mx-auto italic">"{content.missionSubtitle}"</p>
+                            <h2 className="responsive-text-title font-black font-serif italic text-white leading-none tracking-tighter uppercase">{content.missionTitle}</h2>
+                            <p className="text-white/60 text-base md:text-lg font-medium max-w-2xl mx-auto italic">"{content.missionSubtitle}"</p>
                         </div>
 
-                        <div className="grid md:grid-cols-3 gap-8 text-left">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 text-left">
                             {(content.pillars || []).map((item: any, i: number) => (
-                                <div key={i} className="bg-white/5 backdrop-blur-xl p-12 rounded-[3.5rem] border border-white/10 hover:border-secondary transition-all group/card">
+                                <div key={i} className="bg-white/5 backdrop-blur-xl p-8 md:p-12 rounded-[2rem] md:rounded-[3.5rem] border border-white/10 hover:border-secondary transition-all group/card">
                                     <div className="w-12 h-1 bg-secondary mb-8 group-hover/card:w-20 transition-all" />
-                                    <h3 className="text-2xl font-black font-serif italic text-white mb-6 uppercase tracking-tight">{item.title}</h3>
-                                    <p className="text-white/50 leading-relaxed text-sm font-medium">{item.desc}</p>
+                                    <h3 className="text-xl md:text-2xl font-black font-serif italic text-white mb-4 md:mb-6 uppercase tracking-tight">{item.title}</h3>
+                                    <p className="text-white/50 leading-relaxed text-xs md:text-sm font-medium">{item.desc}</p>
                                 </div>
                             ))}
                         </div>

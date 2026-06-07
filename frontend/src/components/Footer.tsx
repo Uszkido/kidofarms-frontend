@@ -3,7 +3,7 @@ import Link from "next/link";
 export function Footer() {
     return (
         <footer className="bg-primary text-white pt-20 pb-10">
-            <div className="container mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+            <div className="container-sovereign grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div className="space-y-6">
                     <h3 className="text-2xl font-bold font-serif text-secondary">Kido Farms</h3>
                     <p className="text-cream/70 text-sm leading-relaxed">
@@ -47,7 +47,7 @@ export function Footer() {
                 </div>
             </div>
 
-            <div className="container mx-auto px-6 mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[12px] text-cream/40 gap-8">
+            <div className="container-sovereign mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-[12px] text-cream/40 gap-8">
                 <div className="flex flex-col md:flex-row items-center gap-8">
                     <p>© 2026 Kido Farms & Orchard. Founded 2020. All rights reserved.</p>
                     <div className="flex gap-8">

@@ -43,21 +43,21 @@ export default function PremiumHero({ data }: { data: HeroData }) {
     };
 
     return (
-        <section ref={containerRef} className="relative h-[100vh] flex items-center overflow-hidden bg-primary px-6 lg:px-12">
+        <section ref={containerRef} className="relative min-h-[100svh] md:h-[100vh] flex items-center overflow-hidden bg-primary px-4 md:px-12 py-20 md:py-0">
             {/* Background Image with Dark Overlay */}
             <div className="absolute inset-0 z-0">
                 <Image
                     src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?q=80&w=2600&auto=format&fit=crop"
                     alt="Farm Background"
                     fill
-                    className="object-cover opacity-40 blur-[10px] scale-110"
+                    className="object-cover opacity-30 md:opacity-40 blur-[5px] md:blur-[10px] scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/60 to-primary" />
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/90 via-primary/70 to-primary" />
             </div>
 
             {/* Background Decorative Elements */}
-            <motion.div style={{ y: y1, opacity }} className="absolute top-20 right-20 w-96 h-96 bg-secondary/10 rounded-full blur-[120px] z-0" />
-            <motion.div style={{ y: y2, opacity }} className="absolute bottom-20 left-20 w-[30rem] h-[30rem] bg-white/5 rounded-full blur-[140px] z-0" />
+            <motion.div style={{ y: y1, opacity }} className="absolute top-10 md:top-20 right-10 md:right-20 w-48 h-48 md:w-96 md:h-96 bg-secondary/10 rounded-full blur-[60px] md:blur-[120px] z-0" />
+            <motion.div style={{ y: y2, opacity }} className="absolute bottom-10 md:bottom-20 left-10 md:left-20 w-64 h-64 md:w-[30rem] md:h-[30rem] bg-white/5 rounded-full blur-[80px] md:blur-[140px] z-0" />
 
             {/* Floating Organic Assets (Parallax) */}
             <motion.div
@@ -78,35 +78,35 @@ export default function PremiumHero({ data }: { data: HeroData }) {
                 </div>
             </motion.div>
 
-            <div className="container mx-auto relative z-10">
-                <div className="max-w-4xl space-y-12">
+            <div className="container mx-auto relative z-10 px-4">
+                <div className="max-w-4xl space-y-8 md:space-y-12">
                     {/* Badge */}
                     <motion.div
                         initial="hidden" animate="visible" custom={0} variants={fadeInUp}
-                        className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm border border-white/10"
+                        className="inline-flex items-center gap-3 bg-white/5 backdrop-blur-md px-4 md:px-5 py-2 md:py-2.5 rounded-full shadow-sm border border-white/10"
                     >
-                        <div className="flex -space-x-2">
+                        <div className="flex -space-x-1 md:-space-x-2">
                             {[1, 2, 3].map(i => (
-                                <div key={i} className="w-6 h-6 rounded-full border-2 border-primary bg-secondary/20 flex items-center justify-center overflow-hidden">
-                                    <Star size={10} className="text-secondary fill-secondary" />
+                                <div key={i} className="w-4 h-4 md:w-6 md:h-6 rounded-full border border-primary bg-secondary/20 flex items-center justify-center overflow-hidden">
+                                    <Star className="w-2 h-2 md:w-2.5 md:h-2.5 text-secondary fill-secondary" />
                                 </div>
                             ))}
                         </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/60">{data.badge}</span>
+                        <span className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-white/60">{data.badge}</span>
                     </motion.div>
 
                     {/* Title */}
-                    <div className="space-y-4">
+                    <div className="space-y-4 md:space-y-6">
                         <motion.h1
                             initial="hidden" animate="visible" custom={1} variants={fadeInUp}
-                            className="text-5xl md:text-9xl font-black font-serif leading-[0.9] md:leading-[0.85] tracking-tighter text-white"
+                            className="responsive-text-hero font-black font-serif tracking-tighter text-white"
                         >
                             {data.title}<br />
                             <span className="text-secondary italic">{data.titleItalic}</span>
                         </motion.h1>
                         <motion.p
                             initial="hidden" animate="visible" custom={2} variants={fadeInUp}
-                            className="text-lg md:text-2xl text-white/40 max-w-2xl font-medium leading-relaxed"
+                            className="text-base md:text-2xl text-white/40 max-w-2xl font-medium leading-relaxed"
                         >
                             {data.subtitle}
                         </motion.p>
@@ -115,12 +115,12 @@ export default function PremiumHero({ data }: { data: HeroData }) {
                     {/* CTAs */}
                     <motion.div
                         initial="hidden" animate="visible" custom={3} variants={fadeInUp}
-                        className="flex flex-wrap gap-6"
+                        className="flex flex-col sm:flex-row gap-4 md:gap-6"
                     >
-                        <Link href={data.btn1Link} className="bg-secondary text-primary px-10 py-6 rounded-[2rem] font-black text-lg uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 flex items-center gap-3">
-                            {data.btn1Text} <ArrowRight size={22} strokeWidth={3} />
+                        <Link href={data.btn1Link} className="bg-secondary text-primary px-8 md:px-10 py-5 md:py-6 rounded-2xl md:rounded-[2rem] font-black text-sm md:text-lg uppercase tracking-widest hover:bg-white transition-all shadow-2xl shadow-secondary/20 flex items-center justify-center gap-3">
+                            {data.btn1Text} <ArrowRight className="w-5 h-5 md:w-6 md:h-6" strokeWidth={3} />
                         </Link>
-                        <Link href={data.btn2Link} className="bg-white/5 backdrop-blur-md border-2 border-white/10 text-white px-10 py-6 rounded-[2rem] font-black text-lg uppercase tracking-widest hover:bg-white/10 transition-all flex items-center gap-3">
+                        <Link href={data.btn2Link} className="bg-white/5 backdrop-blur-md border border-white/10 text-white px-8 md:px-10 py-5 md:py-6 rounded-2xl md:rounded-[2rem] font-black text-sm md:text-lg uppercase tracking-widest hover:bg-white/10 transition-all flex items-center justify-center gap-3">
                             {data.btn2Text}
                         </Link>
                     </motion.div>
@@ -128,18 +128,18 @@ export default function PremiumHero({ data }: { data: HeroData }) {
                     {/* Value Props */}
                     <motion.div
                         initial="hidden" animate="visible" custom={4} variants={fadeInUp}
-                        className="flex flex-wrap gap-12 pt-8 border-t border-white/5"
+                        className="flex flex-wrap gap-6 md:gap-12 pt-8 border-t border-white/5"
                     >
                         {[
-                            { icon: ShieldCheck, label: "100% Verified Source" },
+                            { icon: ShieldCheck, label: "100% Verified" },
                             { icon: Truck, label: "24h Farm-to-Table" },
-                            { icon: Leaf, label: "Direct Trade Only" }
+                            { icon: Leaf, label: "Direct Trade" }
                         ].map((item, i) => (
                             <div key={i} className="flex items-center gap-3 group text-white/40">
-                                <div className="p-2 rounded-xl bg-white/5 text-secondary group-hover:bg-secondary group-hover:text-primary transition-colors">
-                                    <item.icon size={18} />
+                                <div className="p-2 rounded-lg md:rounded-xl bg-white/5 text-secondary group-hover:bg-secondary group-hover:text-primary transition-colors">
+                                    <item.icon className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-widest group-hover:text-white transition-colors">{item.label}</span>
+                                <span className="text-[8px] md:text-[10px] font-black uppercase tracking-widest group-hover:text-white transition-colors">{item.label}</span>
                             </div>
                         ))}
                     </motion.div>

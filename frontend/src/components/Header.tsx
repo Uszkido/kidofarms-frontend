@@ -102,7 +102,7 @@ export const Header = () => {
 
     return (
         <header className="bg-primary/95 backdrop-blur-xl text-white py-4 sticky top-0 z-[60] shadow-2xl border-b border-white/10">
-            <div className="container mx-auto px-6 flex justify-between items-center">
+            <div className="container-sovereign flex justify-between items-center">
                 <Link href="/" className="flex items-center gap-4 group">
                     <motion.div
                         whileHover={{ scale: 1.05 }}

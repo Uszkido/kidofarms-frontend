@@ -169,7 +169,7 @@ export default function AdminLogisticsHub() {
     };
 
     return (
-        <div className="min-h-screen bg-[#040d0a] text-white p-8 md:p-12 font-sans selection:bg-secondary selection:text-primary">
+        <div className="min-h-screen bg-[#040d0a] text-white p-4 sm:p-8 md:p-12 font-sans selection:bg-secondary selection:text-primary">
             <div className="max-w-[1600px] mx-auto space-y-12">
 
                 {/* 🛰️ LOGISTICS HEADER */}
@@ -182,7 +182,7 @@ export default function AdminLogisticsHub() {
                             <span className="w-16 h-1.5 bg-secondary rounded-full" />
                             <h2 className="text-[11px] font-black uppercase tracking-[0.6em] text-secondary/60">Logistics Node v5.2</h2>
                         </div>
-                        <h1 className="text-7xl lg:text-9xl font-black font-serif italic uppercase leading-[0.85] tracking-tighter">
+                        <h1 className="text-4xl sm:text-7xl lg:text-9xl font-black font-serif italic uppercase leading-[1] md:leading-[0.85] tracking-tighter">
                             Fleet <span className="text-secondary block">Dynamics</span>
                         </h1>
                     </div>
@@ -258,14 +258,14 @@ export default function AdminLogisticsHub() {
                         >
                             {/* Summary & Registration */}
                             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                                <div className="flex items-center gap-8">
-                                    <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">Total Active Units</p>
-                                        <p className="text-4xl font-black font-serif italic text-white">{drivers.length}</p>
+                                <div className="flex flex-wrap items-center gap-4 sm:gap-8">
+                                    <div className="bg-white/5 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5">
+                                        <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">Total Active</p>
+                                        <p className="text-2xl sm:text-4xl font-black font-serif italic text-white">{drivers.length}</p>
                                     </div>
-                                    <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/5">
-                                        <p className="text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">Fleet Availability</p>
-                                        <p className="text-4xl font-black font-serif italic text-secondary">
+                                    <div className="bg-white/5 p-6 sm:p-8 rounded-[1.5rem] sm:rounded-[2.5rem] border border-white/5">
+                                        <p className="text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-white/20 mb-1">Availability</p>
+                                        <p className="text-2xl sm:text-4xl font-black font-serif italic text-secondary">
                                             {drivers.filter(d => d.status === 'idle').length}/{drivers.length}
                                         </p>
                                     </div>
@@ -279,9 +279,9 @@ export default function AdminLogisticsHub() {
                             </div>
 
                             {/* Drivers List */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                                 {drivers.map(driver => (
-                                    <div key={driver.id} className="bg-white/5 p-10 rounded-[3.5rem] border border-white/10 hover:bg-white/[0.08] transition-all group relative overflow-hidden">
+                                    <div key={driver.id} className="bg-white/5 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 hover:bg-white/[0.08] transition-all group relative overflow-hidden">
                                         <div className="absolute top-0 right-0 p-8 scale-150 opacity-10 group-hover:scale-[2] transition-transform">
                                             {driver.vehicleType?.includes('Bike') ? <Bike size={48} /> :
                                                 driver.vehicleType?.includes('Car') ? <Car size={48} /> : <Truck size={48} />}
@@ -348,9 +348,9 @@ export default function AdminLogisticsHub() {
                                 </div>
                             </div>
 
-                            <div className="space-y-6">
+                            <div className="space-y-4 md:space-y-6">
                                 {orders.filter(o => o.orderStatus === 'processing').map(order => (
-                                    <div key={order.id} className="bg-white/5 p-10 rounded-[3.5rem] border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-10 hover:bg-white/[0.08] transition-all relative overflow-hidden">
+                                    <div key={order.id} className="bg-white/5 p-6 sm:p-10 rounded-[2rem] sm:rounded-[3.5rem] border border-white/10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 md:gap-10 hover:bg-white/[0.08] transition-all relative overflow-hidden">
                                         {recommendations[order.id] && (
                                             <div className="absolute top-0 right-0 py-2 px-8 bg-secondary/10 border-b border-l border-secondary/20 text-secondary text-[8px] font-black uppercase tracking-widest rounded-bl-3xl">
                                                 AI Optimized Protocol Available
@@ -368,8 +368,8 @@ export default function AdminLogisticsHub() {
                                             </div>
                                         </div>
 
-                                        <div className="flex flex-col md:flex-row items-center gap-8">
-                                            <div className="bg-black/40 p-6 rounded-[2rem] border border-white/5 min-w-[320px]">
+                                        <div className="flex flex-col sm:flex-row items-center gap-6 md:gap-8">
+                                            <div className="bg-black/40 p-4 sm:p-6 rounded-[1.5rem] sm:rounded-[2rem] border border-white/5 w-full sm:min-w-[320px]">
                                                 <div className="flex items-center justify-between mb-4">
                                                     <span className="text-[9px] font-black uppercase tracking-widest text-white/20">Assign Carrier Node</span>
                                                     {recommendations[order.id] && (
@@ -522,7 +522,7 @@ export default function AdminLogisticsHub() {
                             initial={{ scale: 0.9, opacity: 0, y: 20 }}
                             animate={{ scale: 1, opacity: 1, y: 0 }}
                             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                            className="bg-neutral-900 w-full max-w-2xl rounded-[4rem] border-2 border-white/5 p-12 relative z-10 shadow-2xl overflow-hidden"
+                            className="bg-neutral-900 w-full max-w-2xl rounded-[2.5rem] sm:rounded-[4rem] border-2 border-white/5 p-6 sm:p-12 relative z-10 shadow-2xl overflow-y-auto max-h-[90vh]"
                         >
                             <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/10 blur-[100px] -mr-32 -mt-32" />
 
