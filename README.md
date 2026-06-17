@@ -1,103 +1,163 @@
-# Kido Farms – Local Development Guide
+# 🍕 Smooth Pizza Counter
+### Real-Time Pizza Detection System — Vexel Innovations
 
-A full-stack e-commerce platform for fresh Nigerian farm produce.
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary-red.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-blue)](https://python.org)
+[![OpenCV](https://img.shields.io/badge/OpenCV-4.x-green)](https://opencv.org)
+[![Status](https://img.shields.io/badge/Status-Active-brightgreen)]()
+
+---
+
+## Overview
+
+**Smooth Pizza Counter** is a computer-vision system that detects, tracks, and counts pizzas on a production line in real time. Built for Vexel Innovations, it eliminates manual counting errors, provides live throughput data, and integrates with existing factory dashboards through a simple web interface.
+
+---
+
+## Demo
+
+▶️ [Watch the live detection demo](docs/images/pizza.mp4)
+
+---
+
+## Screenshots
+
+| Login | Live Detection |
+|-------|----------------|
+| ![Login Page](docs/images/login.png) | ![Live Detection](docs/images/live_detection.png) |
+
+| Detection Detail | System Overview |
+|-----------------|-----------------|
+| ![Detection Detail](docs/images/detection_detail.png) | ![System Overview](docs/images/sys.png) |
+
+---
+
+## Features
+
+- Real-time pizza detection using a trained YOLO model
+- Automatic counter increments per detected unit
+- Web-based dashboard (login-protected)
+- Session logging with timestamps
+- Configurable confidence threshold and ROI zone
+- Supports USB cameras and RTSP streams
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Detection | YOLOv8 / OpenCV |
+| Backend | Python 3.8+, Flask |
+| Frontend | HTML5, CSS3, JavaScript |
+| Auth | Flask-Login + bcrypt |
+| Logging | CSV / SQLite |
+| Deployment | Windows (BAT launchers), Linux-compatible |
+
+---
+
+## Repo Structure
 
 ```
-kido-farms-ecommerce/
-├── frontend/    → Next.js 16 (React, Tailwind CSS, NextAuth)
-├── backend/     → Express.js (Node.js, Drizzle ORM, PostgreSQL/Neon)
-├── package.json → Root workspace orchestrator (concurrently)
+Smooth-Pizza-Counter/
+├── app/
+│   ├── main.py               # Flask app entry point
+│   ├── detector.py           # YOLO inference + counting logic
+│   ├── auth.py               # Login / session handling
+│   ├── config.py             # Central config (camera, threshold, etc.)
+│   └── templates/
+│       ├── login.html
+│       └── dashboard.html
+├── models/
+│   └── pizza_yolo.pt         # Trained YOLOv8 weights
+├── scripts/
+│   ├── BUILD_DEV.bat
+│   ├── BUILD_PROD.bat
+│   ├── BUILD_TEST.bat
+│   ├── BUILD_INSTALL.bat
+│   └── BUILD_CLEAN.bat
+├── docs/
+│   └── images/               # Screenshots used in this README
+├── tests/
+│   └── test_detector.py
+├── requirements.txt
+├── .env.example
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── SECURITY.md
+├── TERMS.md
+├── LICENSE
 └── README.md
 ```
 
 ---
 
-### 1. Project Status (Orbit 5.0 Synced)
-*   **Sovereign Food Operating System (Orbit 5.0)**: [FULLY IMPLEMENTED] 🚀
-*   **Neural Nodes (AI Agentic Layers)**: [ACTIVE] Gemini 1.5 Flash integrated with live tool-use.
-*   **Universal Registry Console**: [ACTIVE] Real-time management (Users, Harvests, Logistics, Energy).
-*   **Mastery Academy**: [ACTIVE] Gamified career pathways and soil health certification.
-*   **Sovereign Energy Marketplace**: [ACTIVE] Biomass-to-Credit carbon economy.
-*   **Global Bridge**: [ACTIVE] Export certification automation (ISO/Organic standards).
+## Setup
 
-### 1. Install all dependencies
+### 1. Clone
+
 ```bash
-npm run install:all
+git clone https://github.com/Uszkido/Smooth-Pizza-Counter.git
+cd Smooth-Pizza-Counter
 ```
 
-### 2. Configure Environment Variables
+### 2. Install dependencies
 
-**`backend/.env`**
-```env
-DATABASE_URL="postgresql://..."
-NEXTAUTH_SECRET="kido-farms-super-secret-12345"
-PORT=5000
-```
-
-**`frontend/.env`**
-```env
-DATABASE_URL="postgresql://..."
-NEXT_AUTH_SECRET="kido-farms-super-secret-12345"
-NEXTAUTH_URL="http://localhost:3000"
-NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your_cloud_name
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your_preset
-```
-
-### 3. Run both servers together
 ```bash
-npm run dev
+pip install -r requirements.txt
 ```
 
-This starts:
-- 🟢 **Backend** → http://localhost:5000
-- 🟦 **Frontend** → http://localhost:3000
+### 3. Configure
+
+Copy `.env.example` to `.env` and fill in your values:
+
+```env
+CAMERA_INDEX=0          # 0 = default USB cam; or rtsp://... for IP cam
+CONFIDENCE=0.55         # Detection confidence threshold (0.0 – 1.0)
+SECRET_KEY=changeme     # Flask session secret
+ADMIN_PASSWORD=changeme # Dashboard login password
+```
+
+### 4. Run
+
+```bash
+python app/main.py
+```
+
+Then open `http://localhost:5000` in your browser.
 
 ---
 
-## 🔧 Individual Commands
+## BAT Launchers (Windows)
 
-| Task | Command | Directory |
-|------|---------|-----------|
-| Start backend only | `npm start` | `backend/` |
-| Start frontend only | `npm run dev` | `frontend/` |
-| Push DB schema | `npm run db:push` | `frontend/` |
-| DB Studio (GUI) | `npm run db:studio` | `frontend/` |
-| Build frontend | `npm run build` | root |
+All scripts live in `scripts/`. Run from the **project root**:
 
----
-
-## 🌐 API Endpoints (Backend – port 5000)
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | `/api/health` | Health check |
-| POST | `/api/auth/login` | User login |
-| POST | `/api/auth/signup` | User registration |
-| GET/POST | `/api/products` | Product listing & creation |
-| GET/POST | `/api/categories` | Categories |
-| GET/POST | `/api/blog` | Blog posts |
-| GET/POST | `/api/subscribers` | Newsletter subscribers |
-| GET | `/api/orders` | Orders |
-| GET | `/api/users` | Users (admin) |
+| Script | Purpose |
+|--------|---------|
+| `BUILD_DEV.bat` | Launch in development mode (debug on) |
+| `BUILD_PROD.bat` | Launch in production mode |
+| `BUILD_TEST.bat` | Run test suite |
+| `BUILD_INSTALL.bat` | Install / update dependencies |
+| `BUILD_CLEAN.bat` | Remove cache, logs, temp files |
 
 ---
 
-## 🛡️ Admin Access
+## Contributing
 
-Default admin seed script: `frontend/src/db/seed-admin.ts`  
-Run with: `npx tsx src/db/seed-admin.ts` from the `frontend/` directory.
+See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Security
+
+To report a vulnerability, see [SECURITY.md](SECURITY.md).
+
+## Code of Conduct
+
+See [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+
+## Terms
+
+See [TERMS.md](TERMS.md).
 
 ---
 
-## 🏗️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Frontend | Next.js 16, React 19, Tailwind CSS 4 |
-| Auth | NextAuth v4 (JWT strategy) |
-| Backend | Express.js 4, Node.js |
-| Database | Neon PostgreSQL (serverless) |
-| ORM | Drizzle ORM |
-| Images | Cloudinary |
-| Deployment | Vercel (frontend) + Vercel serverless (backend) |
+*© 2026 Vexel Innovations. All rights reserved. See [LICENSE](LICENSE) for terms.*
