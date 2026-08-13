@@ -14,6 +14,13 @@
 
 ---
 
+## Live Demo
+
+Visit [kidofarms.vercel.app](https://kidofarms.vercel.app/) to explore the
+public product experience.
+
+---
+
 ## Screenshots
 
 | Landing | Marketplace |
