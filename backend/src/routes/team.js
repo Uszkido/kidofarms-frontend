@@ -18,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 // Admin: Create/Edit/Delete
-router.post('/', authorizeRoles('admin', 'sub-admin', 'team_member'), async (req, res) => {
+router.post('/', authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [member] = await db.insert(teamMembers).values(req.body).returning();
         res.status(201).json(member);
@@ -27,7 +27,7 @@ router.post('/', authorizeRoles('admin', 'sub-admin', 'team_member'), async (req
     }
 });
 
-router.patch('/:id', authorizeRoles('admin', 'sub-admin', 'team_member'), async (req, res) => {
+router.patch('/:id', authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [member] = await db.update(teamMembers)
             .set(req.body)
@@ -52,7 +52,7 @@ router.delete('/:id', authorizeRoles('admin', 'sub-admin'), async (req, res) => 
 router.get('/tasks/all', async (req, res) => {
     try {
         const { userId } = req.query;
-        const canManageTasks = ['admin', 'sub-admin', 'team_member'].includes(req.user.role);
+        const canManageTasks = ['admin', 'sub-admin'].includes(req.user.role);
         if (userId && !canManageTasks && userId !== req.user.id) {
             return res.status(403).json({ error: 'You can only view your own tasks' });
         }
@@ -70,7 +70,7 @@ router.get('/tasks/all', async (req, res) => {
     }
 });
 
-router.post('/tasks', authorizeRoles('admin', 'sub-admin', 'team_member'), async (req, res) => {
+router.post('/tasks', authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const { assignedToId, title, description, priority, dueDate } = req.body;
         if (!assignedToId || !title?.trim()) return res.status(400).json({ error: 'Assignee and title are required' });
@@ -93,7 +93,7 @@ router.patch('/tasks/:id', async (req, res) => {
     try {
         const [existing] = await db.select().from(tasks).where(eq(tasks.id, req.params.id)).limit(1);
         if (!existing) return res.status(404).json({ error: 'Task not found' });
-        const canManageTasks = ['admin', 'sub-admin', 'team_member'].includes(req.user.role);
+        const canManageTasks = ['admin', 'sub-admin'].includes(req.user.role);
         if (!canManageTasks && existing.assignedToId !== req.user.id) {
             return res.status(403).json({ error: 'You can only update your own tasks' });
         }
