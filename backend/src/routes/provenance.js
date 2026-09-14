@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const { db } = require('../db');
 const { cropLedger, products } = require('../db/schema');
 const { eq, desc } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -23,13 +24,19 @@ router.get('/:productId', async (req, res) => {
 });
 
 // POST a new state transition for a product (admin/system/farmer only in real app)
-router.post('/:productId', async (req, res) => {
+router.post('/:productId', authenticateToken, authorizeRoles('admin', 'sub-admin', 'vendor', 'farmer'), async (req, res) => {
     try {
         const { productId } = req.params;
         const { signatureDetails } = req.body;
 
-        if (!signatureDetails) {
+        if (typeof signatureDetails !== 'string' || !signatureDetails.trim() || signatureDetails.length > 1000) {
             return res.status(400).json({ error: "signatureDetails is required." });
+        }
+
+        const [product] = await db.select({ ownerId: products.ownerId }).from(products).where(eq(products.id, productId)).limit(1);
+        if (!product) return res.status(404).json({ error: 'Product not found.' });
+        if (!['admin', 'sub-admin'].includes(req.user.role) && product.ownerId !== req.user.id) {
+            return res.status(403).json({ error: 'You can only update provenance for products you own.' });
         }
 
         // Get the previous hash to form the chain
@@ -42,13 +49,13 @@ router.post('/:productId', async (req, res) => {
         const previousHash = previousEntries.length > 0 ? previousEntries[0].hash : "0000000000000000000000000000000000000000000000000000000000000000";
 
         const timestamp = new Date().toISOString();
-        const dataToHash = `${productId}|${signatureDetails}|${timestamp}|${previousHash}`;
+        const dataToHash = `${productId}|${signatureDetails.trim()}|${timestamp}|${previousHash}`;
 
         const newHash = crypto.createHash('sha256').update(dataToHash).digest('hex');
 
         const result = await db.insert(cropLedger).values({
             productId,
-            signatureDetails,
+            signatureDetails: signatureDetails.trim(),
             hash: newHash
         }).returning();
 
