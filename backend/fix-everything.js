@@ -3,6 +3,10 @@ const dotenv = require("dotenv");
 const path = require("path");
 dotenv.config({ path: path.join(__dirname, ".env") });
 
+if (process.env.ALLOW_DESTRUCTIVE_MIGRATION !== 'true') {
+    throw new Error('This legacy destructive script is disabled. Use Drizzle migrations instead.');
+}
+
 if (!process.env.DATABASE_URL) {
     console.error("DATABASE_URL is not set");
     process.exit(1);

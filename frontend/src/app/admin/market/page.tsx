@@ -14,7 +14,7 @@ import {
     Package
 } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function MarketBuyersPage() {
     const [users, setUsers] = useState<any[]>([]);
@@ -24,7 +24,7 @@ export default function MarketBuyersPage() {
 
     const fetchUsers = async () => {
         try {
-            const res = await fetch(getApiUrl("/api/users"));
+            const res = await authenticatedFetch("/api/users");
             const data = await res.json();
             if (res.ok) {
                 // Filter for market-specific roles

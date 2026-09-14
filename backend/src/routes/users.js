@@ -2,7 +2,14 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
 const { users } = require('../db/schema');
-const { desc } = require('drizzle-orm');
+const { desc, eq } = require('drizzle-orm');
+const bcrypt = require('bcryptjs');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+
+// User management belongs to the protected admin CMS. Public registration is
+// handled by /api/auth/signup and its role-specific application routes.
+router.use(authenticateToken);
+router.use(authorizeRoles('admin', 'sub-admin'));
 
 router.get('/', async (req, res) => {
     try {
@@ -17,8 +24,18 @@ router.get('/', async (req, res) => {
 // POST /api/users
 router.post('/', async (req, res) => {
     try {
-        const [user] = await db.insert(users).values(req.body).returning();
-        const { password, ...safe } = user;
+        const { name, email, password: requestedPassword, role: requestedRole, phone, permissions } = req.body;
+        if (!name || !email || !requestedPassword) return res.status(400).json({ error: 'Name, email, and password are required' });
+        if (requestedRole && req.user.role !== 'admin') return res.status(403).json({ error: 'Only admins can assign roles' });
+        const [user] = await db.insert(users).values({
+            name: String(name).trim(),
+            email: String(email).trim().toLowerCase(),
+            password: await bcrypt.hash(String(requestedPassword), 12),
+            role: requestedRole || 'customer',
+            phone: phone || null,
+            permissions: Array.isArray(permissions) ? permissions : [],
+        }).returning();
+        const { password: _password, ...safe } = user;
         res.status(201).json(safe);
     } catch (error) {
         res.status(400).json({ error: 'Failed' });
@@ -28,12 +45,19 @@ router.post('/', async (req, res) => {
 // PATCH /api/users/:id
 router.patch('/:id', async (req, res) => {
     try {
-        const { eq } = require('drizzle-orm');
+        const { password, role, permissions, ...updates } = req.body;
+        if (role && req.user.role !== 'admin') return res.status(403).json({ error: 'Only admins can change roles' });
+        const safeUpdates = {
+            ...updates,
+            ...(role ? { role } : {}),
+            ...(Array.isArray(permissions) && req.user.role === 'admin' ? { permissions } : {}),
+            ...(password ? { password: await bcrypt.hash(String(password), 12) } : {}),
+        };
         const [user] = await db.update(users)
-            .set(req.body)
+            .set(safeUpdates)
             .where(eq(users.id, req.params.id))
             .returning();
-        const { password, ...safe } = user;
+        const { password: _password, ...safe } = user;
         res.json(safe);
     } catch (error) {
         res.status(400).json({ error: 'Failed' });
@@ -43,37 +67,10 @@ router.patch('/:id', async (req, res) => {
 // DELETE /api/users/:id
 router.delete('/:id', async (req, res) => {
     try {
-        const { eq } = require('drizzle-orm');
         await db.delete(users).where(eq(users.id, req.params.id));
         res.status(204).end();
     } catch (error) {
         res.status(500).json({ error: 'Failed' });
-    }
-});
-
-// Initialization route for demo accounts
-router.post('/init', async (req, res) => {
-    try {
-        const bcrypt = require('bcryptjs');
-        const demoUsers = [
-            { name: 'Kido Admin', email: 'admin@kido.com', password: 'kido-admin-2026', role: 'admin' },
-            { name: 'Kano Valley Farmer', email: 'vendor@kido.com', password: 'kido-vendor-2026', role: 'farmer' },
-            { name: 'Elite Subscriber', email: 'subscriber@kido.com', password: 'kido-sub-2026', role: 'subscriber' },
-            { name: 'Happy Shopper', email: 'shopper@kido.com', password: 'kido-shop-2026', role: 'customer' }
-        ];
-
-        for (const user of demoUsers) {
-            const hashedPassword = await bcrypt.hash(user.password, 10);
-            await db.insert(users).values({
-                ...user,
-                password: hashedPassword
-            }).onConflictDoNothing({ target: users.email });
-        }
-
-        res.json({ message: 'Demo accounts initialized successfully' });
-    } catch (error) {
-        console.error('User Init Error:', error);
-        res.status(500).json({ error: 'Failed to initialize demo accounts' });
     }
 });
 

@@ -17,7 +17,7 @@ import {
     X
 } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function AdminTasksPage() {
     const [tasks, setTasks] = useState<any[]>([]);
@@ -27,7 +27,6 @@ export default function AdminTasksPage() {
 
     const [formData, setFormData] = useState({
         assignedToId: "",
-        assignedById: "602d1f40-4f51-4d3e-9c7a-369b768e7ec9", // Fallback system admin
         title: "",
         description: "",
         priority: "medium",
@@ -41,9 +40,9 @@ export default function AdminTasksPage() {
     const fetchData = async () => {
         try {
             const [tasksRes, teamRes] = await Promise.all([
-                fetch(getApiUrl("/api/team/tasks/all")),
+                authenticatedFetch("/api/team/tasks/all"),
                 // For simplified POC, we just list users with 'team_member' or 'admin' roles
-                fetch(getApiUrl("/api/users"))
+                authenticatedFetch("/api/users")
             ]);
 
             if (tasksRes.ok) setTasks(await tasksRes.json());
@@ -61,7 +60,7 @@ export default function AdminTasksPage() {
     const handleCreateTask = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await fetch(getApiUrl("/api/team/tasks"), {
+            const res = await authenticatedFetch("/api/team/tasks", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData)

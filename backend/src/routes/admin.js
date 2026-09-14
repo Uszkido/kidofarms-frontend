@@ -13,7 +13,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const os = require('os');
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
+const JWT_SECRET = process.env.NEXTAUTH_SECRET;
+if (!JWT_SECRET) throw new Error('NEXTAUTH_SECRET must be configured before starting the admin service.');
 
 // 1. GET /api/admin/stats - Super Admin Dashboard Statistics
 router.get('/stats', async (req, res) => {

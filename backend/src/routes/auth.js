@@ -9,7 +9,8 @@ const { sendOtpEmail } = require('../lib/email');
 const { sendWelcomeAlert, sendVendorAlert } = require('../lib/bot');
 
 
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
+const JWT_SECRET = process.env.NEXTAUTH_SECRET;
+if (!JWT_SECRET) throw new Error('NEXTAUTH_SECRET must be configured before starting the authentication service.');
 
 router.post('/login', async (req, res) => {
     try {

@@ -4,8 +4,9 @@ import GoogleProvider from "next-auth/providers/google";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001";
-const JWT_SECRET = process.env.NEXTAUTH_SECRET || 'kido-farms-super-secret-12345';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const JWT_SECRET = process.env.NEXTAUTH_SECRET;
+if (!JWT_SECRET) throw new Error("NEXTAUTH_SECRET must be configured before starting Kido Farms.");
 
 export const authOptions: NextAuthOptions = {
     providers: [
