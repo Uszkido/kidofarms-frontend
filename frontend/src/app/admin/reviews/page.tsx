@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Star, Loader2, CheckCircle2, XCircle, Trash2, Search, ThumbsUp, Eye, RefreshCcw, MessageSquare, Filter } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 import StarRating from "@/components/StarRating";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,7 +19,7 @@ export default function AdminReviewsPage() {
     const fetchReviews = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/reviews/admin/all"));
+            const res = await authenticatedFetch("/api/reviews/admin/all");
             if (res.ok) setReviews(await res.json());
         } catch (err) {
             console.error(err);
@@ -33,7 +33,7 @@ export default function AdminReviewsPage() {
     const updateReview = async (id: string, patch: object) => {
         setSaving(true);
         try {
-            const res = await fetch(getApiUrl(`/api/reviews/${id}`), {
+            const res = await authenticatedFetch(`/api/reviews/${id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(patch),
@@ -47,7 +47,7 @@ export default function AdminReviewsPage() {
 
     const deleteReview = async (id: string) => {
         if (!confirm("Delete this review permanently?")) return;
-        await fetch(getApiUrl(`/api/reviews/${id}`), { method: "DELETE" });
+        await authenticatedFetch(`/api/reviews/${id}`, { method: "DELETE" });
         fetchReviews();
         setSelected(null);
     };

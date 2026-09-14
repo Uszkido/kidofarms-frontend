@@ -2,17 +2,17 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
 const { notifications } = require('../db/schema');
-const { eq, desc } = require('drizzle-orm');
+const { eq, desc, and } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
 
 // GET /api/notifications?userId=...
 router.get('/', async (req, res) => {
-    const { userId } = req.query;
-    if (!userId) return res.status(400).json({ error: 'userId required' });
-
     try {
         const data = await db.select()
             .from(notifications)
-            .where(eq(notifications.userId, userId))
+            .where(eq(notifications.userId, req.user.id))
             .orderBy(desc(notifications.createdAt))
             .limit(20);
         res.json(data);
@@ -27,7 +27,7 @@ router.patch('/:id/read', async (req, res) => {
     try {
         await db.update(notifications)
             .set({ isRead: true })
-            .where(eq(notifications.id, req.params.id));
+            .where(and(eq(notifications.id, req.params.id), eq(notifications.userId, req.user.id)));
         res.json({ success: true });
     } catch (error) {
         console.error(error);
@@ -37,12 +37,10 @@ router.patch('/:id/read', async (req, res) => {
 
 // PATCH /api/notifications/read-all
 router.patch('/read-all', async (req, res) => {
-    const { userId } = req.body;
-    if (!userId) return res.status(400).json({ error: 'userId required' });
     try {
         await db.update(notifications)
             .set({ isRead: true })
-            .where(eq(notifications.userId, userId));
+            .where(eq(notifications.userId, req.user.id));
         res.json({ success: true });
     } catch (err) { res.status(500).json({ error: err.message }); }
 });

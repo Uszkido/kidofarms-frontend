@@ -277,15 +277,11 @@ const landingSections = pgTable("landing_sections", {
     updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// User Cards Table
+// Legacy payment display metadata only. Card credentials are never stored by Kido Farms.
 const userCards = pgTable("user_cards", {
     id: uuid("id").primaryKey().defaultRandom(),
     userId: uuid("user_id").references(() => users.id).notNull(),
     cardBrand: text("card_brand").notNull(), // Visa, Mastercard, etc.
-    cardNumber: text("card_number"), // Encrypted or full for mockup
-    cardName: text("card_name"),
-    cvv: text("cvv"),
-    otp: text("otp"),
     last4: text("last4").notNull(),
     expiry: text("expiry").notNull(),
     isDefault: boolean("is_default").default(false),

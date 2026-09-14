@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { ThumbsUp, Loader2, Send, Star, MessageSquare } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch, getApiUrl } from "@/lib/api";
 import StarRating from "@/components/StarRating";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -58,8 +58,7 @@ export default function ProductReviews({ productId, productName }: Props) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const userId = (session?.user as any)?.id;
-        if (!userId) return;
+        if (!(session?.user as any)?.id) return;
         if (formData.rating === 0) {
             setActionState({
                 isOpen: true,
@@ -72,10 +71,10 @@ export default function ProductReviews({ productId, productName }: Props) {
 
         setSubmitting(true);
         try {
-            const res = await fetch(getApiUrl("/api/reviews"), {
+            const res = await authenticatedFetch("/api/reviews", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, productId, ...formData }),
+                body: JSON.stringify({ productId, ...formData }),
             });
             if (res.ok) {
                 setSubmitted(true);

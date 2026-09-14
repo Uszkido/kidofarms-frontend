@@ -406,28 +406,6 @@ router.post('/verify-otp', async (req, res) => {
     }
 });
 
-// Admin ONLY: get active OTPs
-router.get('/otps', async (req, res) => {
-    try {
-        const activeOtps = await db.select({
-            id: otps.id,
-            code: otps.code,
-            expiresAt: otps.expiresAt,
-            isUsed: otps.isUsed,
-            userName: users.name,
-            userEmail: users.email
-        })
-            .from(otps)
-            .leftJoin(users, eq(otps.userId, users.id))
-            .where(eq(otps.isUsed, false)); // Can filter by active if needed
-
-        res.json(activeOtps);
-    } catch (error) {
-        console.error('Fetch OTPs Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
-    }
-});
-
 // Forgot Password -> Generates OTP for new accounts, bypassing for legacy
 router.post('/forgot-password', async (req, res) => {
     try {

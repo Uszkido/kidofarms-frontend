@@ -4,6 +4,7 @@ const { db } = require('../db');
 const { reviews, users, products } = require('../db/schema');
 const { desc, eq, sql } = require('drizzle-orm');
 const { sendReviewAlert } = require('../lib/bot');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // 1. GET /api/reviews/product/:productId - Public: get approved reviews for a product
 router.get('/product/:productId', async (req, res) => {
@@ -22,7 +23,7 @@ router.get('/product/:productId', async (req, res) => {
             .where(eq(reviews.productId, req.params.productId))
             .orderBy(desc(reviews.createdAt));
 
-        const approved = data.filter(r => r.status === 'approved' || r.status === 'pending');
+        const approved = data.filter(r => r.status === 'approved');
         const avgRating = approved.length > 0
             ? approved.reduce((sum, r) => sum + r.rating, 0) / approved.length
             : 0;
@@ -35,10 +36,10 @@ router.get('/product/:productId', async (req, res) => {
 });
 
 // 2. POST /api/reviews - User: submit a review
-router.post('/', async (req, res) => {
-    const { userId, productId, rating, comment } = req.body;
-    if (!userId || !productId || !rating) {
-        return res.status(400).json({ error: 'userId, productId, and rating are required' });
+router.post('/', authenticateToken, async (req, res) => {
+    const { productId, rating, comment } = req.body;
+    if (!productId || !rating) {
+        return res.status(400).json({ error: 'productId and rating are required' });
     }
     if (rating < 1 || rating > 5) {
         return res.status(400).json({ error: 'Rating must be between 1 and 5' });
@@ -49,7 +50,7 @@ router.post('/', async (req, res) => {
         });
 
         const [review] = await db.insert(reviews).values({
-            userId,
+            userId: req.user.id,
             productId,
             rating: parseInt(rating),
             comment: comment || null,
@@ -67,7 +68,7 @@ router.post('/', async (req, res) => {
 });
 
 // 3. GET /api/reviews/admin/all - Admin: get all reviews with user + product info
-router.get('/admin/all', async (req, res) => {
+router.get('/admin/all', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const data = await db.select({
             id: reviews.id,
@@ -94,7 +95,7 @@ router.get('/admin/all', async (req, res) => {
 });
 
 // 4. PATCH /api/reviews/:id - Admin: approve, reject, or add note
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     const { status, adminNote } = req.body;
     try {
         const [updated] = await db.update(reviews)
@@ -112,7 +113,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // 5. DELETE /api/reviews/:id - Admin: delete a review
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         await db.delete(reviews).where(eq(reviews.id, req.params.id));
         res.json({ message: 'Review deleted' });

@@ -17,7 +17,7 @@ import {
     ShieldAlert,
     Database
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function AdminTicketsPage() {
     const [tickets, setTickets] = useState<any[]>([]);
@@ -27,7 +27,7 @@ export default function AdminTicketsPage() {
     const fetchTickets = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/tickets/admin/all"));
+            const res = await authenticatedFetch("/api/tickets/admin/all");
             const data = await res.json();
             setTickets(Array.isArray(data) ? data : []);
         } catch (error) {

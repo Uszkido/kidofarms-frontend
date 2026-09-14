@@ -165,7 +165,10 @@ export default function BuyerDashboard() {
 
     const fetchCards = async () => {
         try {
-            const res = await fetch(getApiUrl(`/api/cards?userId=${(session?.user as any)?.id}`));
+            const token = (session?.user as any)?.accessToken || (session as any)?.token;
+            const res = await fetch(getApiUrl('/api/cards'), {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
             const data = await res.json();
             if (Array.isArray(data)) setCards(data);
         } catch (err) {

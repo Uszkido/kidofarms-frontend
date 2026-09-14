@@ -14,7 +14,7 @@ import {
     Send,
     LifeBuoy
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 import { useSession } from "next-auth/react";
 
 export default function UserSupportHistory() {
@@ -27,7 +27,7 @@ export default function UserSupportHistory() {
         if (!userId) return;
 
         try {
-            const res = await fetch(getApiUrl(`/api/tickets/user/${userId}`));
+            const res = await authenticatedFetch(`/api/tickets/user/${userId}`);
             const data = await res.json();
             setTickets(Array.isArray(data) ? data : []);
         } catch (error) {

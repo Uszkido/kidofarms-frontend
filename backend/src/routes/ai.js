@@ -399,6 +399,16 @@ async function getAssistantConfiguration() {
     }
 }
 
+function getCompletionText(completion) {
+    const content = completion?.choices?.[0]?.message?.content;
+    if (typeof content === 'string' && content.trim()) return content.trim();
+    if (Array.isArray(content)) {
+        const text = content.map(part => typeof part?.text === 'string' ? part.text : '').join('').trim();
+        if (text) return text;
+    }
+    return null;
+}
+
 // Note: Groq model initialization happens per-request
 
 // 3. POST /api/ai/chat - agentic Groq Chat Integration
@@ -445,7 +455,8 @@ router.post('/chat', async (req, res) => {
                 max_tokens: assistantConfig.maxTokens,
             });
 
-            let responseMessage = completion.choices[0].message;
+            let responseMessage = completion?.choices?.[0]?.message;
+            if (!responseMessage) throw new Error('Groq returned no completion choices');
 
             // Handle Function Calling
             if (responseMessage.tool_calls) {
@@ -453,7 +464,12 @@ router.post('/chat', async (req, res) => {
 
                 for (const toolCall of responseMessage.tool_calls) {
                     const functionName = toolCall.function.name;
-                    const functionArgs = JSON.parse(toolCall.function.arguments);
+                    let functionArgs = {};
+                    try {
+                        functionArgs = JSON.parse(toolCall.function.arguments || '{}');
+                    } catch {
+                        continue;
+                    }
                     const handler = toolHandlers[functionName];
 
                     if (handler) {
@@ -471,10 +487,16 @@ router.post('/chat', async (req, res) => {
                 const finalCompletion = await groq.chat.completions.create({
                     model: CHAT_MODEL,
                     messages: messages,
+                    temperature: assistantConfig.temperature,
+                    max_tokens: assistantConfig.maxTokens,
                 });
-                res.json({ reply: finalCompletion.choices[0].message.content });
+                const reply = getCompletionText(finalCompletion);
+                if (!reply) throw new Error('Groq returned an empty final response');
+                res.json({ reply });
             } else {
-                res.json({ reply: responseMessage.content });
+                const reply = getCompletionText(completion);
+                if (!reply) throw new Error('Groq returned an empty response');
+                res.json({ reply });
             }
         } catch (apiError) {
             console.error('Groq Agent Neural Failure, switching to Local Knowledge Nodes:', apiError);

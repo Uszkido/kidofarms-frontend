@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { KeyRound, Loader2, RefreshCcw, UserCircle, Mail, ShieldCheck, CheckCircle2, ArrowLeft, Ghost, Database } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function AdminOtpsPage() {
     const [otps, setOtps] = useState<any[]>([]);
@@ -12,7 +12,7 @@ export default function AdminOtpsPage() {
     const fetchOtps = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/admin/otps"));
+            const res = await authenticatedFetch("/api/admin/otps");
             const data = await res.json();
             setOtps(Array.isArray(data) ? data : []);
         } catch (err) {
@@ -71,7 +71,7 @@ export default function AdminOtpsPage() {
                                 <thead>
                                     <tr className="border-b border-white/10 bg-white/[0.02]">
                                         <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30">Target Identity</th>
-                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-center">Protocol Code</th>
+                                        <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-center">Verification Status</th>
                                         <th className="px-12 py-10 text-[10px] font-black uppercase tracking-[0.3em] text-white/30 text-right">Expiration Aura</th>
                                     </tr>
                                 </thead>
@@ -93,8 +93,8 @@ export default function AdminOtpsPage() {
                                             </td>
                                             <td className="px-12 py-10">
                                                 <div className="flex justify-center">
-                                                    <div className="bg-secondary/10 border border-secondary/20 px-8 py-4 rounded-[2rem] font-mono text-3xl font-black text-secondary tracking-[0.4em] shadow-[inset_0_0_20px_rgba(197,160,89,0.1)] flex items-center gap-4 group-hover:scale-110 transition-transform">
-                                                        {otp.code}
+                                                    <div className="bg-secondary/10 border border-secondary/20 px-8 py-4 rounded-[2rem] text-[10px] font-black uppercase text-secondary tracking-[0.2em] shadow-[inset_0_0_20px_rgba(197,160,89,0.1)] flex items-center gap-4 group-hover:scale-110 transition-transform">
+                                                        {otp.isUsed ? 'Verified' : 'Pending'}
                                                         <CheckCircle2 size={16} className="text-secondary animate-pulse" />
                                                     </div>
                                                 </div>
@@ -124,7 +124,7 @@ export default function AdminOtpsPage() {
                         <div className="space-y-4 text-center md:text-left">
                             <h3 className="text-3xl font-black font-serif italic text-white uppercase tracking-tight">Security <span className="text-secondary">Directives</span></h3>
                             <p className="max-w-2xl text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] leading-relaxed italic">
-                                Intercepted security keys are provided for emergency administration only. Use these codes to assist citizens who have lost access to their biometric or neural credentials. Shared keys bypass standard automation.
+                                Verification codes are never displayed or shared. Help customers restart verification through the normal account-recovery process instead.
                             </p>
                         </div>
                         <div className="flex gap-4">

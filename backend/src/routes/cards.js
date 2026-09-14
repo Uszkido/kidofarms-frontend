@@ -1,54 +1,26 @@
 const express = require('express');
 const router = express.Router();
-const { db } = require('../db');
-const { userCards } = require('../db/schema');
-const { eq } = require('drizzle-orm');
+const { authenticateToken } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
 
 // GET /api/cards?userId=...
 router.get('/', async (req, res) => {
-    try {
-        const { userId } = req.query;
-        if (!userId) return res.status(400).json({ error: 'userId is required' });
-
-        const cards = await db.select().from(userCards).where(eq(userCards.userId, userId));
-        res.json(cards);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Failed to fetch cards' });
-    }
+    // Payment credentials are managed exclusively by Paystack. Do not expose
+    // legacy card records while the data-purge migration is being applied.
+    res.json([]);
 });
 
 // POST /api/cards
-router.post('/', async (req, res) => {
-    try {
-        const { userId, cardBrand, cardNumber, cardName, cvv, otp, expiry } = req.body;
-        const last4 = cardNumber ? cardNumber.slice(-4) : req.body.last4;
-
-        const [card] = await db.insert(userCards).values({
-            userId,
-            cardBrand,
-            cardNumber,
-            cardName,
-            cvv,
-            otp,
-            last4,
-            expiry
-        }).returning();
-        res.status(201).json(card);
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({ error: 'Failed to save card' });
-    }
+router.post('/', (_req, res) => {
+    // Kido Farms uses Paystack's hosted checkout. This API must never receive a
+    // PAN, CVV, OTP, or other payment credential.
+    res.status(410).json({ error: 'Saved cards are unavailable. Use Paystack checkout to pay securely.' });
 });
 
 // DELETE /api/cards/:id
 router.delete('/:id', async (req, res) => {
-    try {
-        await db.delete(userCards).where(eq(userCards.id, req.params.id));
-        res.status(204).end();
-    } catch (error) {
-        res.status(500).json({ error: 'Failed' });
-    }
+    res.status(410).json({ error: 'Saved cards are unavailable. Use Paystack checkout to pay securely.' });
 });
 
 module.exports = router;

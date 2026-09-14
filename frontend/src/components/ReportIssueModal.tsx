@@ -11,7 +11,7 @@ import {
     MessageSquare,
     AlertCircle
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 import { useSession } from "next-auth/react";
 
 import { ActionStatus } from "@/components/ActionStatus";
@@ -59,7 +59,7 @@ export default function ReportIssueModal({ forceOpen, onClose }: { forceOpen?: b
 
         setIsSubmitting(true);
         try {
-            const res = await fetch(getApiUrl("/api/tickets"), {
+            const res = await authenticatedFetch("/api/tickets", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

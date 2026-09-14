@@ -17,7 +17,7 @@ import {
     Ghost,
     Trash2
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 import { useSession } from "next-auth/react";
 
 export function AdminTicketDetailClient() {
@@ -33,7 +33,7 @@ export function AdminTicketDetailClient() {
     const fetchTicket = async () => {
         if (!id) return;
         try {
-            const res = await fetch(getApiUrl(`/api/tickets/${id}`));
+            const res = await authenticatedFetch(`/api/tickets/${id}`);
             if (res.ok) {
                 const data = await res.json();
                 setTicket(data);
@@ -47,7 +47,7 @@ export function AdminTicketDetailClient() {
 
     useEffect(() => {
         fetchTicket();
-    }, [id]);
+    }, [id, session]);
 
     useEffect(() => {
         if (scrollRef.current) {
@@ -62,13 +62,10 @@ export function AdminTicketDetailClient() {
 
         setSending(true);
         try {
-            const res = await fetch(getApiUrl(`/api/tickets/${id}/reply`), {
+            const res = await authenticatedFetch(`/api/tickets/${id}/reply`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    senderId: userId,
-                    message: newMessage
-                })
+                body: JSON.stringify({ message: newMessage })
             });
             if (res.ok) {
                 setNewMessage("");
@@ -83,7 +80,7 @@ export function AdminTicketDetailClient() {
 
     const updateStatus = async (status: string) => {
         try {
-            const res = await fetch(getApiUrl(`/api/tickets/${id}/status`), {
+            const res = await authenticatedFetch(`/api/tickets/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status })

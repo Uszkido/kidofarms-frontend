@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { X, Star, Loader2, Send, MessageSquare } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 import StarRating from "./StarRating";
 
 import { ActionStatus } from "@/components/ActionStatus";
@@ -47,10 +47,10 @@ export default function AddReviewModal({ productId, productName, userId, isOpen,
 
         setSubmitting(true);
         try {
-            const res = await fetch(getApiUrl("/api/reviews"), {
+            const res = await authenticatedFetch("/api/reviews", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId, productId, rating, comment }),
+                body: JSON.stringify({ productId, rating, comment }),
             });
             if (res.ok) {
                 if (onSuccess) onSuccess();

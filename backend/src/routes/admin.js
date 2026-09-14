@@ -124,12 +124,11 @@ router.get('/logs', async (req, res) => {
     }
 });
 
-// 2. GET /api/admin/otps - View all active OTPs (OTP Recall)
+// 2. GET /api/admin/otps - View verification activity without exposing codes.
 router.get('/otps', async (req, res) => {
     try {
         const data = await db.select({
             id: otps.id,
-            code: otps.code,
             expiresAt: otps.expiresAt,
             isUsed: otps.isUsed,
             createdAt: otps.createdAt,
