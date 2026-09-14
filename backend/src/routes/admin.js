@@ -7,7 +7,9 @@ const { authenticateToken, authorizeRoles, authorizePermissions } = require('../
 const { sendBroadcastEmail } = require('../lib/email');
 
 router.use(authenticateToken);
-router.use(authorizeRoles('admin', 'sub-admin', 'team_member'));
+// The admin namespace can change platform-wide records and financial state.
+// Staff use the scoped /api/team and /api/tickets routes instead.
+router.use(authorizeRoles('admin', 'sub-admin'));
 
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');

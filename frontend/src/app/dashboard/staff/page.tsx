@@ -71,13 +71,13 @@ export default function StaffDashboard() {
             const headers: Record<string, string> = token ? { 'Authorization': `Bearer ${token}` } : {};
 
             const [tRes, sRes, uRes] = await Promise.all([
-                fetch(getApiUrl(`/api/admin/tasks/user/${(session?.user as any)?.id}`), { headers }),
-                fetch(getApiUrl(`/api/tickets/all`)),
-                fetch(getApiUrl(`/api/admin/users?limit=10`), { headers })
+                fetch(getApiUrl(`/api/team/tasks/all?userId=${(session?.user as any)?.id}`), { headers }),
+                fetch(getApiUrl(`/api/tickets/admin/all`), { headers }),
+                fetch(getApiUrl(`/api/team`), { headers })
             ]);
             if (tRes.ok) setTasks(await tRes.json());
             if (sRes.ok) setTickets(await sRes.json());
-            if (uRes.ok) setUserRegistry((await uRes.json()).users || []);
+            if (uRes.ok) setUserRegistry(await uRes.json());
         } catch (err) {
             console.error(err);
         } finally {

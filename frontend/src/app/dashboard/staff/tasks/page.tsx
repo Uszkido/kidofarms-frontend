@@ -31,7 +31,10 @@ export default function StaffMyTasksPage() {
         setLoading(true);
         try {
             const userId = (session.user as any).id;
-            const res = await fetch(getApiUrl(`/api/admin/tasks/user/${userId}`));
+            const token = (session.user as any)?.accessToken || (session as any)?.token;
+            const res = await fetch(getApiUrl(`/api/team/tasks/all?userId=${userId}`), {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
             if (res.ok) {
                 setTasks(await res.json());
             }
@@ -48,9 +51,10 @@ export default function StaffMyTasksPage() {
 
     const handleUpdateStatus = async (taskId: string, newStatus: string) => {
         try {
-            const res = await fetch(getApiUrl(`/api/admin/tasks/${taskId}/status`), {
+            const token = (session?.user as any)?.accessToken || (session as any)?.token;
+            const res = await fetch(getApiUrl(`/api/team/tasks/${taskId}`), {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
                 body: JSON.stringify({ status: newStatus })
             });
             if (res.ok) {
