@@ -25,7 +25,7 @@ import {
     Globe,
     Leaf
 } from "lucide-react";
-import { authenticatedFetch } from "@/lib/api";
+import { authenticatedFetch, getApiUrl } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 import nextDynamic from "next/dynamic";

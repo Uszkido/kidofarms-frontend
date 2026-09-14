@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import nextDynamic from "next/dynamic";
-import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermometer, Search, CheckCircle2 } from "lucide-react";
+import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermometer, Search, CheckCircle2, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const AdvancedMap = nextDynamic(() => import("@/components/AdvancedTrackingMap"), {
@@ -158,7 +158,7 @@ export default function TrackOrderPage() {
                                     <h2 className="mt-2 text-2xl font-black font-serif italic text-white">Find an order without signing in</h2>
                                     <p className="mt-2 text-sm text-white/45">Use the order reference from your confirmation and the email used at checkout.</p>
                                 </div>
-                                {lookupResult && <div className="rounded-2xl border border-green-400/20 bg-green-400/10 px-5 py-4 text-sm text-green-100"><div className="flex gap-2 items-center font-bold"><CheckCircle2 size={16} /> {lookupResult.orderStatus}</div><p className="mt-1 text-xs text-green-100/70">{lookupResult.trackingId ? `Tracking: ${lookupResult.trackingId}` : 'Tracking is assigned when dispatch begins.'}</p></div>}
+                                {lookupResult && <div className="rounded-2xl border border-green-400/20 bg-green-400/10 px-5 py-4 text-sm text-green-100"><div className="flex gap-2 items-center font-bold"><CheckCircle2 size={16} /> {lookupResult.orderStatus}</div><p className="mt-1 text-xs text-green-100/70">{lookupResult.trackingId ? `Tracking: ${lookupResult.trackingId}` : 'Tracking is assigned when dispatch begins.'}</p><a href={`${getApiUrl(`/api/invoices/orders/${lookupResult.orderId}/pdf?email=${encodeURIComponent(lookup.email)}`)}`} className="mt-3 inline-flex items-center gap-2 text-xs font-black text-secondary hover:text-white"><Download size={14} /> Download invoice PDF</a></div>}
                             </div>
                             <form onSubmit={handleLookup} className="mt-6 grid md:grid-cols-[1.1fr_1.3fr_auto] gap-3">
                                 <input value={lookup.reference} onChange={(event) => setLookup({ ...lookup, reference: event.target.value })} placeholder="Order or tracking reference" required className="min-w-0 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-secondary" />
