@@ -16,7 +16,7 @@ import {
     Loader2,
     ShieldCheck
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export function OrderDetailsClient({ params }: any) {
     const { id } = use(params) as any;
@@ -27,7 +27,7 @@ export function OrderDetailsClient({ params }: any) {
         const fetchOrder = async () => {
             if (!id) return;
             try {
-                const res = await fetch(getApiUrl(`/api/orders/${id}`));
+                const res = await authenticatedFetch(`/api/orders/${id}`);
                 if (res.ok) {
                     const data = await res.json();
                     setOrder(data);

@@ -4,6 +4,7 @@ const { db } = require('../db');
 const { eq } = require('drizzle-orm');
 
 const { withCache, cacheDel } = require('../lib/cache');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Get all landing sections
 router.get('/', async (req, res) => {
@@ -26,7 +27,7 @@ router.get('/', async (req, res) => {
 });
 
 // Update a specific section
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     const { id } = req.params;
     const { content } = req.body;
 
@@ -51,7 +52,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Initialization route
-router.post('/init', async (req, res) => {
+router.post('/init', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         const defaultContent = [
             { id: 'hero', content: { badge: "Harvest 2026", title: "Pure Organic", titleItalic: "Direct From Source", subtitle: "Connecting premium Nigerian farms with quality-focused homes.", btn1Text: "Shop Harvest", btn1Link: "/shop", btn2Text: "Join Network", btn2Link: "/register" } },

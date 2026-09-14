@@ -20,6 +20,23 @@ import { NIGERIAN_STATES } from "@/lib/constants";
 import { GeoapifyAutocomplete } from "@/components/GeoapifyAutocomplete";
 import Script from "next/script";
 
+type PaystackResponse = { reference: string };
+
+declare global {
+    interface Window {
+        PaystackPop?: {
+            setup: (config: {
+                reference: string;
+                email: string;
+                amount: number;
+                publicKey: string;
+                onClose: () => void;
+                callback: (response: PaystackResponse) => void;
+            }) => { openIframe: () => void };
+        };
+    }
+}
+
 export default function CheckoutPage() {
     const { data: session } = useSession();
     const router = useRouter();
@@ -51,14 +68,7 @@ export default function CheckoutPage() {
     const shippingFee = getShippingFee(form.state);
     const totalWithShipping = cartTotal + (cart.length > 0 ? shippingFee : 0);
 
-    const config = {
-        reference: (new Date()).getTime().toString(),
-        email: form.email || "guest@kidofarms.com",
-        amount: Math.round(totalWithShipping * 100), // Paystack works in Kobo
-        publicKey: 'pk_live_b5974af483a0af6838df8dcad9f24b07bdd09365',
-    };
-
-    const handlePaystackSuccessAction = async (reference: any, orderId: string) => {
+    const handlePaystackSuccessAction = async (reference: PaystackResponse, orderId: string) => {
         setVerifying(true);
         try {
             const res = await fetch(getApiUrl("/api/orders/verify-payment"), {
@@ -67,8 +77,6 @@ export default function CheckoutPage() {
                 body: JSON.stringify({
                     reference: reference.reference,
                     orderId,
-                    items: cart,
-                    totalAmount: totalWithShipping,
                 })
             });
 
@@ -82,6 +90,7 @@ export default function CheckoutPage() {
             setError("Critical verification error.");
         } finally {
             setVerifying(false);
+            setLoading(false);
         }
     };
 
@@ -89,14 +98,22 @@ export default function CheckoutPage() {
         setLoading(false);
     };
 
-    const initializePaystack = (orderId: string) => {
-        // @ts-ignore
-        if (typeof window.PaystackPop !== 'undefined') {
-            // @ts-ignore
+    const initializePaystack = (order: { id: string; totalAmount: string; paystackReference: string }) => {
+        const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY;
+        if (!publicKey) {
+            setError("Payments are not configured yet. Please contact support.");
+            setLoading(false);
+            return;
+        }
+
+        if (window.PaystackPop) {
             const handler = window.PaystackPop.setup({
-                ...config,
+                reference: order.paystackReference,
+                email: form.email,
+                amount: Math.round(Number(order.totalAmount) * 100),
+                publicKey,
                 onClose: handlePaystackCloseAction,
-                callback: (response: any) => handlePaystackSuccessAction(response, orderId),
+                callback: (response) => handlePaystackSuccessAction(response, order.id),
             });
             handler.openIframe();
         } else {
@@ -127,13 +144,11 @@ export default function CheckoutPage() {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     items: cart,
-                    totalAmount: cartTotal,
                     street: form.street,
                     city: form.city,
                     state: form.state,
                     zip: "00000",
                     paymentMethod: "card", // card/transfer are both handled by Paystack Popup
-                    userId: (session?.user as any)?.id || null, // Optional for Guest
                     guestName: `${form.firstName} ${form.lastName}`,
                     guestEmail: form.email,
                     guestPhone: form.phone
@@ -142,7 +157,7 @@ export default function CheckoutPage() {
 
             const order = await res.json();
             if (res.ok) {
-                initializePaystack(order.id);
+                initializePaystack(order);
             } else {
                 setError(order.error || "Order creation failed.");
                 setLoading(false);

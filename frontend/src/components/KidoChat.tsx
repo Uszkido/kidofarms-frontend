@@ -81,12 +81,16 @@ export default function KidoChat() {
             });
 
             const data = await res.json();
+            if (!res.ok || !data.reply) {
+                throw new Error(data.error || "The assistant could not complete that request.");
+            }
             setMessages(prev => [...prev, {
                 role: data.isLocal ? "model-local" : "model",
                 content: data.reply
             }]);
         } catch (err) {
-            setMessages(prev => [...prev, { role: "model", content: "Neural sync interrupted. Please verify your connection to the Kido Grid." }]);
+            const message = err instanceof Error ? err.message : "The assistant could not complete that request.";
+            setMessages(prev => [...prev, { role: "model", content: `${message} Please try again in a moment.` }]);
         } finally {
             setLoading(false);
         }

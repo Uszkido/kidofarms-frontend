@@ -29,8 +29,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     // Load cart from localStorage
     useEffect(() => {
         const savedCart = localStorage.getItem('kido-cart');
-        if (savedCart) {
-            setCart(JSON.parse(savedCart));
+        if (!savedCart) return;
+        try {
+            const parsedCart = JSON.parse(savedCart);
+            if (Array.isArray(parsedCart)) {
+                const loadCart = window.setTimeout(() => setCart(parsedCart), 0);
+                return () => window.clearTimeout(loadCart);
+            }
+        } catch {
+            localStorage.removeItem('kido-cart');
         }
     }, []);
 

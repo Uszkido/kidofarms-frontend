@@ -306,7 +306,10 @@ router.get('/ai-config', async (req, res) => {
             vendorAutoApproveThreshold: 75,
             documentCheckRequired: true,
             flagBelowConfidence: 40,
-            reviewQueueEnabled: true
+            reviewQueueEnabled: true,
+            assistantInstructions: '',
+            assistantTemperature: 0.2,
+            assistantMaxTokens: 800,
         });
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch AI config' });
@@ -317,7 +320,24 @@ router.get('/ai-config', async (req, res) => {
 router.patch('/ai-config', async (req, res) => {
     try {
         const existing = await db.query.settings.findFirst({ where: eq(settings.id, 'site_config') });
-        const aiVerificationConfig = { ...(existing?.themeConfig?.aiVerificationConfig || {}), ...req.body };
+        const allowedFields = [
+            'farmerAutoApproveThreshold', 'vendorAutoApproveThreshold', 'documentCheckRequired',
+            'flagBelowConfidence', 'reviewQueueEnabled', 'assistantInstructions',
+            'assistantTemperature', 'assistantMaxTokens'
+        ];
+        const requestedConfig = Object.fromEntries(
+            allowedFields.filter((field) => req.body[field] !== undefined).map((field) => [field, req.body[field]])
+        );
+        if (requestedConfig.assistantInstructions !== undefined) {
+            requestedConfig.assistantInstructions = String(requestedConfig.assistantInstructions).slice(0, 3000);
+        }
+        if (requestedConfig.assistantTemperature !== undefined) {
+            requestedConfig.assistantTemperature = Math.max(0, Math.min(1, Number(requestedConfig.assistantTemperature) || 0.2));
+        }
+        if (requestedConfig.assistantMaxTokens !== undefined) {
+            requestedConfig.assistantMaxTokens = Math.max(200, Math.min(1200, Math.round(Number(requestedConfig.assistantMaxTokens) || 800)));
+        }
+        const aiVerificationConfig = { ...(existing?.themeConfig?.aiVerificationConfig || {}), ...requestedConfig };
         await db.update(settings)
             .set({ themeConfig: { ...(existing?.themeConfig || {}), aiVerificationConfig }, updatedAt: new Date() })
             .where(eq(settings.id, 'site_config'));

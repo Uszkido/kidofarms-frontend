@@ -16,7 +16,7 @@ import {
     Database,
     ShieldCheck
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function AdminOrdersPage() {
     const [orders, setOrders] = useState<any[]>([]);
@@ -26,7 +26,7 @@ export default function AdminOrdersPage() {
     const fetchOrders = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/orders"));
+            const res = await authenticatedFetch("/api/orders");
             const data = await res.json();
             setOrders(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -42,9 +42,8 @@ export default function AdminOrdersPage() {
 
     const updateStatus = async (orderId: string, status: string) => {
         try {
-            const res = await fetch(getApiUrl(`/api/orders/${orderId}`), {
+            const res = await authenticatedFetch(`/api/orders/${orderId}`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ orderStatus: status })
             });
             if (res.ok) {

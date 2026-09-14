@@ -25,7 +25,7 @@ import {
     Globe,
     Leaf
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
 
 import nextDynamic from "next/dynamic";
@@ -102,9 +102,9 @@ export default function AdminLogisticsHub() {
         setIsLoading(true);
         try {
             const [driversRes, ordersRes, usersRes] = await Promise.all([
-                fetch(getApiUrl("/api/drivers")),
-                fetch(getApiUrl("/api/orders")),
-                fetch(getApiUrl("/api/users"))
+                authenticatedFetch("/api/drivers"),
+                authenticatedFetch("/api/orders"),
+                authenticatedFetch("/api/users")
             ]);
 
             const driversData = await driversRes.json();

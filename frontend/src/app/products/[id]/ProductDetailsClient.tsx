@@ -150,7 +150,8 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                     </button>
                                     <span className="font-bold text-lg w-4 text-center">{quantity}</span>
                                     <button
-                                        onClick={() => setQuantity(quantity + 1)}
+                                        onClick={() => setQuantity(Math.min(Number(product.stock) || 1, quantity + 1))}
+                                        disabled={quantity >= Number(product.stock)}
                                         className="text-xl font-bold text-primary/40 hover:text-primary transition-colors"
                                     >
                                         +
@@ -158,6 +159,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                 </div>
                                 <button
                                     onClick={handleAddToCart}
+                                    disabled={Number(product.stock) < 1}
                                     className="flex-grow bg-primary text-white rounded-full font-bold px-8 hover:bg-secondary hover:text-primary transition-all flex items-center justify-center gap-3 shadow-xl shadow-primary/10 active:scale-95"
                                 >
                                     <ShoppingCart size={20} />
@@ -177,7 +179,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                 <div className="flex-grow bg-white border border-primary/5 p-6 rounded-2xl flex items-center justify-between">
                                     <div className="space-y-1">
                                         <p className="text-[8px] font-black uppercase text-primary/30">Stock Availability</p>
-                                        <p className="text-xs font-black text-primary uppercase">Node Limit: 420 Units Remaining</p>
+                                        <p className="text-xs font-black text-primary uppercase">{Number(product.stock) > 0 ? `${product.stock} units remaining` : "Currently out of stock"}</p>
                                     </div>
                                     <Activity className="text-secondary animate-pulse" size={18} />
                                 </div>

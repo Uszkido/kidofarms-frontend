@@ -14,8 +14,8 @@
   --accent-color: #4a7c59;
   --border-radius: 2.5rem;
   --glass-intensity: 10%;
-  --font-family: "Outfit", sans-serif;
-  --font-serif-family: "Playfair Display", serif;
+  --font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif-family: Georgia, "Times New Roman", serif;
 }
 
 @theme inline {
@@ -107,4 +107,25 @@ body {
 
 .skiptranslate iframe {
   display: none;
+}
+
+html {
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--secondary-color);
+  outline-offset: 3px;
 }

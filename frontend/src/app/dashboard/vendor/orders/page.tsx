@@ -17,7 +17,7 @@ import {
     User
 } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function VendorOrdersPage() {
     const { data: session } = useSession();
@@ -33,7 +33,7 @@ export default function VendorOrdersPage() {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch(getApiUrl(`/api/orders/vendor/${(session?.user as any)?.id}`));
+            const res = await authenticatedFetch(`/api/orders/vendor/${(session?.user as any)?.id}`);
             if (res.ok) setOrders(await res.json());
         } catch (err) {
             console.error("Failed to fetch vendor orders", err);

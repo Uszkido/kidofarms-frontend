@@ -5,12 +5,13 @@ const { users, orders, wallets, walletTransactions, activityLogs } = require('..
 const { eq, sql, desc, or } = require('drizzle-orm');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const Groq = require("groq-sdk");
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy-key");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "dummy-key" });
 
 // 1. POST /api/admin/ai/scan-trust - Master Trust Oracle Logic
-router.post('/scan-trust', async (req, res) => {
+router.post('/scan-trust', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const allWallets = await db.select().from(wallets);
         const results = [];
@@ -72,7 +73,7 @@ router.post('/scan-trust', async (req, res) => {
 });
 
 // 2. GET /api/admin/ai/insights/:userId - Get specific AI insights for a user
-router.get('/insights/:userId', async (req, res) => {
+router.get('/insights/:userId', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     const { userId } = req.params;
     try {
         const wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, userId) });
@@ -305,25 +306,30 @@ const toolHandlers = {
 
             const files = fs.readdirSync(knowledgeDir).filter(f => f.endsWith('.md'));
             const results = [];
+            const ignoredTerms = new Set(['about', 'after', 'could', 'from', 'have', 'into', 'please', 'that', 'their', 'there', 'these', 'this', 'what', 'when', 'where', 'which', 'with', 'would', 'your']);
+            const terms = [...new Set(query.toLowerCase().match(/[a-z0-9]{3,}/g) || [])]
+                .filter(term => !ignoredTerms.has(term));
 
             for (const file of files) {
                 const content = fs.readFileSync(path.join(knowledgeDir, file), 'utf8');
                 const lowerContent = content.toLowerCase();
                 const lowerQuery = query.toLowerCase();
 
-                // Basic Ranking Score
+                // Rank exact phrases, headings, and recurring terms above incidental matches.
                 let score = 0;
-                const terms = lowerQuery.split(/\s+/);
                 terms.forEach(term => {
-                    if (term.length > 2 && lowerContent.includes(term)) score += 10;
+                    const occurrences = lowerContent.split(term).length - 1;
+                    score += Math.min(occurrences, 5) * 8;
                 });
 
-                if (lowerContent.includes(lowerQuery)) score += 50;
+                const heading = content.match(/^#.*$/m)?.[0]?.toLowerCase() || '';
+                if (terms.some(term => heading.includes(term))) score += 30;
+                if (lowerContent.includes(lowerQuery)) score += 60;
 
                 if (score > 0) {
-                    // Extract a relevant snippet (Window around the first match)
-                    const index = lowerContent.indexOf(terms[0]) || 0;
-                    const snippet = content.substring(Math.max(0, index - 100), Math.min(content.length, index + 300));
+                    const matchIndexes = terms.map(term => lowerContent.indexOf(term)).filter(index => index >= 0);
+                    const index = matchIndexes.length ? Math.min(...matchIndexes) : 0;
+                    const snippet = content.substring(Math.max(0, index - 180), Math.min(content.length, index + 620));
 
                     results.push({
                         file: file.replace('.md', '').split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
@@ -338,9 +344,9 @@ const toolHandlers = {
             // Sort by score and take top 3
             const topResults = results.sort((a, b) => b.score - a.score).slice(0, 3);
 
-            let output = "SOVEREIGN DATA RETRIEVED:\n\n";
+            let output = "KIDO KNOWLEDGE BASE CONTEXT:\n\n";
             topResults.forEach(r => {
-                output += `PROTOCOL: ${r.file} (Confidence: ${r.score}%)\n${r.snippet}\n\n`;
+                output += `SOURCE: ${r.file}\n${r.snippet}\n\n`;
             });
 
             return output;
@@ -351,7 +357,28 @@ const toolHandlers = {
     }
 };
 
-const SYSTEM_PROMPT = "You are the Kido Farms Horizon AI, the Unified Sovereign Intelligence for the entire Kido ecosystem. Your knowledge covers EVERYTHING concerning Kido Farms: from mission and architectural layers (Orbit 5.0) to crop-specific agricultural datasets, farmer education in the Mastery Academy, and marketplace logistics. When a user asks about Kido Farms, its technology, its philosophy, or its operations, IMMEDIATELY use your `retrieve_farming_knowledge` tool to query the core knowledge base and FAQ. You are authoritative, professional, and possess a slight Nigerian flair. You empower Citizens with precise, Kido-verified data. Never refer to external entities; Kido Farms is the ultimate source of truth.";
+const SYSTEM_PROMPT = `You are Kido Farms Horizon, a careful customer and farm-support assistant.
+Rules:
+- Answer only from tool results, supplied Kido knowledge-base context, or clearly label general agricultural guidance as general guidance.
+- For Kido-specific facts, product availability, prices, tracking, learning modules, harvests, or logistics, use the relevant tool before answering. Never invent records, prices, policy, dates, or metrics.
+- If a result is missing, say so plainly and give the next practical step.
+- Keep answers concise, helpful, and easy to scan. Mention the knowledge-base source name when context was used.
+- Do not expose private customer information. Order lookups may report only status, tracking ID, and delivery timing.`;
+
+async function getAssistantConfiguration() {
+    try {
+        const { settings } = require('../db/schema');
+        const setting = await db.query.settings.findFirst({ where: eq(settings.id, 'site_config') });
+        const config = setting?.themeConfig?.aiVerificationConfig || {};
+        return {
+            instructions: typeof config.assistantInstructions === 'string' ? config.assistantInstructions : '',
+            temperature: Math.max(0, Math.min(1, Number(config.assistantTemperature) || 0.2)),
+            maxTokens: Math.max(200, Math.min(1200, Math.round(Number(config.assistantMaxTokens) || 800))),
+        };
+    } catch {
+        return { instructions: '', temperature: 0.2, maxTokens: 800 };
+    }
+}
 
 // Note: Groq model initialization happens per-request
 
@@ -359,6 +386,9 @@ const SYSTEM_PROMPT = "You are the Kido Farms Horizon AI, the Unified Sovereign 
 router.post('/chat', async (req, res) => {
     try {
         const { message, history } = req.body;
+        if (typeof message !== 'string' || !message.trim() || message.length > 2000) {
+            return res.status(400).json({ error: 'Please send a question of up to 2,000 characters.' });
+        }
         const apiKey = process.env.GROQ_API_KEY;
 
         const isDummy = !apiKey || apiKey.includes('dummy') || apiKey.length < 10;
@@ -382,13 +412,19 @@ router.post('/chat', async (req, res) => {
         }
 
         try {
-            // Convert history to Groq/OpenAI format
+            const knowledgeContext = await toolHandlers.retrieve_farming_knowledge({ query: message });
+            const assistantConfig = await getAssistantConfiguration();
+            const safeHistory = Array.isArray(history) ? history.slice(-8).flatMap(h => {
+                const content = typeof h?.parts === 'string' ? h.parts : h?.parts?.[0]?.text;
+                return typeof content === 'string' && content.length <= 2000
+                    ? [{ role: h.role === 'user' ? 'user' : 'assistant', content }]
+                    : [];
+            }) : [];
+
+            // Convert history to Groq/OpenAI format and ground every answer in local context when available.
             const messages = [
-                { role: "system", content: SYSTEM_PROMPT },
-                ...(history || []).map(h => ({
-                    role: h.role === 'user' ? 'user' : 'assistant',
-                    content: typeof h.parts === 'string' ? h.parts : h.parts[0].text
-                })),
+                { role: "system", content: `${SYSTEM_PROMPT}${assistantConfig.instructions ? `\n\nADMIN OPERATING INSTRUCTIONS:\n${assistantConfig.instructions}` : ''}\n\n${knowledgeContext}` },
+                ...safeHistory,
                 { role: "user", content: message }
             ];
 
@@ -397,7 +433,8 @@ router.post('/chat', async (req, res) => {
                 messages: messages,
                 tools: tools,
                 tool_choice: "auto",
-                max_tokens: 800,
+                temperature: assistantConfig.temperature,
+                max_tokens: assistantConfig.maxTokens,
             });
 
             let responseMessage = completion.choices[0].message;

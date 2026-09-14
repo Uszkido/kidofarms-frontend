@@ -30,6 +30,21 @@ const authenticateToken = async (req, res, next) => {
     }
 };
 
+const authenticateTokenOptional = async (req, res, next) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(' ')[1];
+    if (!token) return next();
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await db.query.users.findFirst({ where: eq(users.id, decoded.id) });
+        if (user) req.user = user;
+    } catch {
+        // Guest checkout remains available. Protected routes use authenticateToken instead.
+    }
+    next();
+};
+
 const authorizeRoles = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
@@ -55,6 +70,7 @@ const authorizePermissions = (...requiredPermissions) => {
 
 module.exports = {
     authenticateToken,
+    authenticateTokenOptional,
     authorizeRoles,
     authorizePermissions
 };

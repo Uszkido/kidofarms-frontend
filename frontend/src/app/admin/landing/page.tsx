@@ -8,7 +8,7 @@ import {
     Plus, Trash2, Globe, MapPin
 } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch, getApiUrl } from "@/lib/api";
 
 export default function AdminLandingPage() {
     const [activeTab, setActiveTab] = useState("hero");
@@ -20,6 +20,7 @@ export default function AdminLandingPage() {
     }, []);
 
     const [data, setData] = useState<any>({});
+    const [rawSections, setRawSections] = useState<Record<string, string>>({});
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -36,6 +37,7 @@ export default function AdminLandingPage() {
             if (!res.ok) throw new Error("Connection to CMS lost. Please check backend status.");
             const landingData = await res.json();
             setData(landingData || {});
+            setRawSections(Object.fromEntries(Object.entries(landingData || {}).map(([id, content]) => [id, JSON.stringify(content, null, 2)])));
         } catch (err: any) {
             console.error(err);
             setError(err.message || "Failed to sync with content origin.");
@@ -48,9 +50,8 @@ export default function AdminLandingPage() {
         setSaving(true);
         try {
             const content = data[sectionId] || {};
-            const res = await fetch(getApiUrl(`/api/landing/${sectionId}`), {
+            const res = await authenticatedFetch(`/api/landing/${sectionId}`, {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ content })
             });
             if (res.ok) alert(`Section ${sectionId.toUpperCase()} synchronized!`);
@@ -63,15 +64,32 @@ export default function AdminLandingPage() {
         }
     };
 
+    const handleRawSave = async (sectionId: string) => {
+        try {
+            const content = JSON.parse(rawSections[sectionId]);
+            setData((current: any) => ({ ...current, [sectionId]: content }));
+            setSaving(true);
+            const res = await authenticatedFetch(`/api/landing/${sectionId}`, {
+                method: "PATCH",
+                body: JSON.stringify({ content })
+            });
+            if (!res.ok) throw new Error("Content update failed.");
+            alert(`${sectionId.replace(/_/g, " ")} synchronized.`);
+        } catch (err) {
+            alert(err instanceof SyntaxError ? "This section contains invalid JSON. Fix it before saving." : "Failed to synchronize section.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const updateField = (section: string, field: string, value: any) => {
         const sectionData = data[section] || {};
+        const nextSectionData = { ...sectionData, [field]: value };
         setData({
             ...data,
-            [section]: {
-                ...sectionData,
-                [field]: value
-            }
+            [section]: nextSectionData
         });
+        setRawSections((current) => ({ ...current, [section]: JSON.stringify(nextSectionData, null, 2) }));
     };
 
     const updateListItem = (section: string, listField: string, index: number, field: string, value: any) => {
@@ -131,7 +149,7 @@ export default function AdminLandingPage() {
     return (
         <div className="min-h-screen bg-cream/30 p-6 lg:p-12">
             <div className="max-w-[1200px] mx-auto space-y-8">
-                <header className="flex items-center justify-between">
+                <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
                     <div className="flex items-center gap-4">
                         <Link href="/admin" className="p-3 bg-white rounded-xl border border-primary/5 hover:bg-neutral-50 transition-all">
                             <ArrowLeft size={20} />
@@ -163,7 +181,7 @@ export default function AdminLandingPage() {
                 )}
 
                 {/* Section Tabs */}
-                <div className="flex gap-2 p-1 bg-white rounded-2xl border border-primary/5 w-fit overflow-x-auto">
+                <div className="flex gap-2 p-1 bg-white rounded-2xl border border-primary/5 max-w-full overflow-x-auto">
                     {[
                         { id: 'hero', icon: Zap, label: 'Hero' },
                         { id: 'harvesting', icon: MapPin, label: 'Harvesting' },
@@ -172,6 +190,8 @@ export default function AdminLandingPage() {
                         { id: 'trends', icon: TrendingUp, label: 'Market Trends' },
                         { id: 'advantage', icon: ShieldCheck, label: 'Advantage' },
                         { id: 'farmer_cta', icon: Users, label: 'Farmer CTA' },
+                        { id: 'admin_dashboard', icon: Layout, label: 'Admin Hub' },
+                        { id: 'advanced', icon: Globe, label: 'All Content' },
                     ].map(tab => (
                         <button
                             key={tab.id}
@@ -184,7 +204,7 @@ export default function AdminLandingPage() {
                     ))}
                 </div>
 
-                <div className="bg-white rounded-[3rem] border border-primary/5 shadow-xl p-10 min-h-[400px]">
+                <div className="bg-white rounded-[2rem] sm:rounded-[3rem] border border-primary/5 shadow-xl p-5 sm:p-10 min-h-[400px]">
                     {activeTab === 'hero' && (
                         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
                             <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Hero Section Configuration</h2>
@@ -414,6 +434,44 @@ export default function AdminLandingPage() {
                                 <FormItem label="App Button text" value={farmer_cta.btn2Text} onChange={(v) => updateField('farmer_cta', 'btn2Text', v)} />
                             </div>
                             <SaveButton onClick={() => handleSave('farmer_cta')} saving={saving} />
+                        </div>
+                    )}
+
+                    {activeTab === 'admin_dashboard' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                            <h2 className="text-xl font-bold font-serif mb-6 border-b pb-4">Admin Dashboard Content</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {Object.entries(data.admin_dashboard || {}).filter(([, value]) => typeof value === 'string').map(([key, value]) => (
+                                    <FormItem key={key} label={key.replace(/([A-Z])/g, ' $1')} value={String(value)} onChange={(v) => updateField('admin_dashboard', key, v)} />
+                                ))}
+                            </div>
+                            <SaveButton onClick={() => handleSave('admin_dashboard')} saving={saving} />
+                        </div>
+                    )}
+
+                    {activeTab === 'advanced' && (
+                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4">
+                            <div className="space-y-2">
+                                <h2 className="text-xl font-bold font-serif">All Content Sections</h2>
+                                <p className="text-sm text-primary/50 leading-relaxed">Use this editor for any landing section, including new or nested structures not covered by the guided tabs. Changes are validated before saving.</p>
+                            </div>
+                            <div className="space-y-6">
+                                {Object.keys(data).sort().map((sectionId) => (
+                                    <section key={sectionId} className="rounded-2xl border border-primary/10 bg-neutral-50 p-4 sm:p-6 space-y-4">
+                                        <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+                                            <h3 className="font-bold text-primary capitalize">{sectionId.replace(/_/g, ' ')}</h3>
+                                            <button onClick={() => handleRawSave(sectionId)} disabled={saving} className="bg-primary text-white px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest disabled:opacity-50">Save section</button>
+                                        </div>
+                                        <textarea
+                                            value={rawSections[sectionId] ?? ''}
+                                            onChange={(event) => setRawSections((current) => ({ ...current, [sectionId]: event.target.value }))}
+                                            spellCheck={false}
+                                            className="min-h-56 w-full rounded-xl border border-primary/10 bg-white p-4 font-mono text-xs leading-6 text-primary outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/10"
+                                            aria-label={`${sectionId} JSON content`}
+                                        />
+                                    </section>
+                                ))}
+                            </div>
                         </div>
                     )}
                 </div>

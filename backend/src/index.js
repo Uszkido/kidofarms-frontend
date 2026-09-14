@@ -77,6 +77,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // 4. Global rate limiter — 500 req/min per IP across all routes
 app.use('/api', globalLimiter);
+app.use('/api', writeLimiter);
 
 
 // Basic health check

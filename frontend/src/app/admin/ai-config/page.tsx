@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { ArrowLeft, Brain, Save, Loader2, ShieldCheck, AlertTriangle, Sliders, ToggleRight, ToggleLeft, RefreshCw, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 const DEFAULT_CONFIG = {
     farmerAutoApproveThreshold: 80,
@@ -11,9 +11,12 @@ const DEFAULT_CONFIG = {
     documentCheckRequired: true,
     flagBelowConfidence: 40,
     reviewQueueEnabled: true,
+    assistantInstructions: "",
+    assistantTemperature: 0.2,
+    assistantMaxTokens: 800,
 };
 
-function SliderField({ label, description, value, min, max, onChange }: any) {
+function SliderField({ label, description, value, min, max, onChange, suffix = "%" }: any) {
     return (
         <div className="space-y-4 bg-white/[0.03] border border-white/5 rounded-3xl p-8">
             <div className="flex justify-between items-start">
@@ -21,7 +24,7 @@ function SliderField({ label, description, value, min, max, onChange }: any) {
                     <p className="font-black text-sm text-white uppercase tracking-wide">{label}</p>
                     <p className="text-[11px] text-white/30 mt-1 font-mono">{description}</p>
                 </div>
-                <span className="text-4xl font-black font-serif text-secondary tabular-nums">{value}<span className="text-xl text-white/20">%</span></span>
+                <span className="text-4xl font-black font-serif text-secondary tabular-nums">{value}<span className="text-xl text-white/20">{suffix}</span></span>
             </div>
             <div className="relative">
                 <input
@@ -31,8 +34,8 @@ function SliderField({ label, description, value, min, max, onChange }: any) {
                     style={{ background: `linear-gradient(to right, #C5A059 ${(value - min) / (max - min) * 100}%, rgba(255,255,255,0.1) 0%)` }}
                 />
                 <div className="flex justify-between mt-2">
-                    <span className="text-[9px] font-mono text-white/20">{min}% (Lenient)</span>
-                    <span className="text-[9px] font-mono text-white/20">{max}% (Strict)</span>
+                    <span className="text-[9px] font-mono text-white/20">{min}{suffix} (Lenient)</span>
+                    <span className="text-[9px] font-mono text-white/20">{max}{suffix} (Strict)</span>
                 </div>
             </div>
         </div>
@@ -64,7 +67,7 @@ export default function AIConfigPage() {
     const [saved, setSaved] = useState(false);
 
     useEffect(() => {
-        fetch(getApiUrl("/api/admin/ai-config"))
+        authenticatedFetch("/api/admin/ai-config")
             .then(r => r.json())
             .then(d => { setConfig({ ...DEFAULT_CONFIG, ...d }); })
             .catch(console.error)
@@ -74,9 +77,8 @@ export default function AIConfigPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const res = await fetch(getApiUrl("/api/admin/ai-config"), {
+            const res = await authenticatedFetch("/api/admin/ai-config", {
                 method: "PATCH",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(config)
             });
             if (res.ok) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
@@ -142,6 +144,20 @@ export default function AIConfigPage() {
                                 min={10} max={70}
                                 onChange={(v: number) => set("flagBelowConfidence", v)}
                             />
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 mb-6">
+                                <Brain size={16} className="text-secondary" />
+                                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] text-secondary/60">Customer Assistant Quality</h3>
+                            </div>
+                            <div className="space-y-3 bg-white/[0.03] border border-white/5 rounded-3xl p-8">
+                                <label className="block font-black text-sm text-white uppercase tracking-wide">Operating Instructions</label>
+                                <p className="text-[11px] text-white/30 font-mono">Applied after Kido safety and accuracy rules. Use this for approved brand tone, service hours, delivery policy, or escalation wording.</p>
+                                <textarea value={config.assistantInstructions} maxLength={3000} onChange={(event) => set("assistantInstructions", event.target.value)} className="min-h-32 w-full rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white outline-none focus:border-secondary" placeholder="Example: For delivery questions, explain that a support agent will confirm the delivery window after payment." />
+                            </div>
+                            <SliderField label="Response Precision" description="Lower values keep answers focused and less speculative." value={Math.round(config.assistantTemperature * 100)} min={0} max={100} onChange={(value: number) => set("assistantTemperature", value / 100)} />
+                            <SliderField label="Response Length" description="Sets the maximum length of each assistant reply." value={config.assistantMaxTokens} min={200} max={1200} suffix=" tokens" onChange={(value: number) => set("assistantMaxTokens", value)} />
                         </div>
 
                         {/* TOGGLES */}

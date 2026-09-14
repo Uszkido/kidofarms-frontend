@@ -1,15 +1,4 @@
-import { Playfair_Display, Outfit } from 'next/font/google';
-
-export const playfair = Playfair_Display({
-    subsets: ['latin'],
-    variable: '--font-serif',
-    display: 'swap',
-    preload: false,
-});
-
-export const outfit = Outfit({
-    subsets: ['latin'],
-    variable: '--font-sans',
-    display: 'swap',
-    preload: false,
-});
+// Keep the visual hierarchy without making production builds depend on Google
+// Fonts being reachable. The CSS stack uses broadly available system fallbacks.
+export const playfair = { variable: '' };
+export const outfit = { variable: '' };

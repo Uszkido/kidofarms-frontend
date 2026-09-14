@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
     id: string;
@@ -28,6 +29,19 @@ export default function ProductCard({
     rating,
     trackingId
 }: ProductCardProps) {
+    const { addToCart } = useCart();
+
+    const handleAddToCart = () => {
+        addToCart({
+            id,
+            name,
+            price,
+            image: image || "",
+            quantity: 1,
+            category: category || "Produce",
+        });
+    };
+
     return (
         <div className="bg-white rounded-[2.5rem] overflow-hidden border border-primary/5 hover:shadow-2xl transition-all group h-full flex flex-col">
             <div className="relative h-48">
@@ -61,7 +75,12 @@ export default function ProductCard({
                         <span className="text-xl font-bold text-primary">₦{price.toLocaleString()}</span>
                         <span className="text-[10px] text-primary/30 font-bold uppercase">Source Verified</span>
                     </div>
-                    <button className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-lg">
+                    <button
+                        type="button"
+                        onClick={handleAddToCart}
+                        aria-label={`Add ${name} to cart`}
+                        className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-lg"
+                    >
                         <ShoppingCart size={20} />
                     </button>
                 </div>

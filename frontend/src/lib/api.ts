@@ -1,7 +1,7 @@
 import { getSession } from "next-auth/react";
 
 export const getApiUrl = (path: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001';
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
     // Ensure path starts with /
     const cleanPath = path.startsWith('/') ? path : `/${path}`;
 
@@ -32,11 +32,9 @@ export const authenticatedFetch = async (path: string, options: RequestInit = {}
     // In next-auth, the token is often in session.accessToken if you added it in the callback
     const token = (session?.user as any)?.accessToken || (session as any)?.token;
 
-    const headers: HeadersInit = {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-    };
+    const headers = new Headers(options.headers);
+    if (token) headers.set('Authorization', `Bearer ${token}`);
+    if (!headers.has('Content-Type') && options.body) headers.set('Content-Type', 'application/json');
 
     return fetch(getApiUrl(path), { ...options, headers });
 };
