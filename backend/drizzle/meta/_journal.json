@@ -15,6 +15,13 @@
       "when": 1789386600000,
       "tag": "0001_remove_sensitive_card_data",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1789388400000,
+      "tag": "0002_add_order_coupon_code",
+      "breakpoints": true
     }
   ]
 }

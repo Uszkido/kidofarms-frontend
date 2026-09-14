@@ -44,6 +44,7 @@ export default function CheckoutPage() {
     const [loading, setLoading] = useState(false);
     const [verifying, setVerifying] = useState(false);
     const [error, setError] = useState("");
+    const [couponCode, setCouponCode] = useState("");
     const [form, setForm] = useState({
         firstName: "",
         lastName: "",
@@ -165,6 +166,7 @@ export default function CheckoutPage() {
                     state: form.state,
                     zip: "00000",
                     paymentMethod: "card", // card/transfer are both handled by Paystack Popup
+                    couponCode: couponCode.trim() || undefined,
                     guestName: `${form.firstName} ${form.lastName}`,
                     guestEmail: form.email,
                     guestPhone: form.phone
@@ -315,6 +317,12 @@ export default function CheckoutPage() {
                                         <span>Grand Total</span>
                                         <span className="text-secondary font-serif">₦{totalWithShipping.toLocaleString()}</span>
                                     </div>
+                                </div>
+
+                                <div className="rounded-2xl border border-primary/10 bg-white/50 p-4 space-y-2">
+                                    <label htmlFor="coupon-code" className="text-[10px] font-bold uppercase tracking-widest text-primary/50">Promo code</label>
+                                    <input id="coupon-code" value={couponCode} onChange={(event) => setCouponCode(event.target.value.toUpperCase())} placeholder="Optional promo code" maxLength={40} className="w-full rounded-xl border border-primary/10 bg-white px-4 py-3 text-sm font-bold uppercase tracking-wider outline-none focus:border-secondary" />
+                                    <p className="text-[10px] text-primary/40">Eligible discounts are validated securely before payment.</p>
                                 </div>
 
                                 <button

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { orders, orderItems, affiliates, commissions, products, settings } = require('../db/schema');
-const { desc, eq, inArray, and, or } = require('drizzle-orm');
+const { orders, orderItems, affiliates, commissions, products, settings, coupons } = require('../db/schema');
+const { desc, eq, inArray, and, or, sql } = require('drizzle-orm');
 const { sendOrderToBot, sendTelegramAlert } = require('../lib/bot');
 const { sendOrderConfirmation } = require('../lib/email');
 const axios = require('axios');
@@ -69,8 +69,26 @@ async function priceOrderItems(items, state) {
     };
 }
 
+async function applyCoupon(pricedOrder, couponCode) {
+    const code = typeof couponCode === 'string' ? couponCode.trim().toUpperCase() : '';
+    if (!code) return { ...pricedOrder, discount: 0, couponCode: null };
+    const coupon = await db.query.coupons.findFirst({ where: eq(coupons.code, code) });
+    const now = new Date();
+    const expired = (coupon?.expiresAt && coupon.expiresAt <= now) || (coupon?.endsAt && coupon.endsAt <= now);
+    const exhausted = coupon?.usageLimit && Number(coupon.usedCount || 0) >= coupon.usageLimit;
+    if (!coupon || !coupon.isActive || expired || exhausted) throw new Error('This promo code is unavailable or has expired.');
+    if (pricedOrder.subtotal < Number(coupon.minOrderAmount || 0)) {
+        throw new Error(`This promo code requires a minimum cart subtotal of ₦${Number(coupon.minOrderAmount).toLocaleString()}.`);
+    }
+    const rawDiscount = coupon.discountType === 'percentage'
+        ? pricedOrder.subtotal * (Number(coupon.discountValue) / 100)
+        : Number(coupon.discountValue);
+    const discount = Number(Math.min(pricedOrder.subtotal, Math.max(0, rawDiscount)).toFixed(2));
+    return { ...pricedOrder, discount, couponCode: code, totalAmount: Number((pricedOrder.totalAmount - discount).toFixed(2)) };
+}
+
 // Helper to handle order completion tasks (stock, commission, notifications)
-async function completeOrderProcessing(orderId, items, totalAmount, referralCode) {
+async function completeOrderProcessing(orderId, items, totalAmount, referralCode, couponCode) {
     // 1. Handle Commissions
     if (referralCode) {
         const affiliateResult = await db.select().from(affiliates).where(eq(affiliates.referralCode, referralCode)).limit(1);
@@ -149,16 +167,22 @@ router.get('/delivery-quote', async (req, res) => {
         console.error('Delivery quote error:', error);
         res.status(503).json({ error: 'Delivery estimates are temporarily unavailable.' });
     }
+
+    if (couponCode) {
+        await db.update(coupons)
+            .set({ usedCount: sql`${coupons.usedCount} + 1` })
+            .where(eq(coupons.code, couponCode));
+    }
 });
 
 router.post('/', authenticateTokenOptional, async (req, res) => {
     try {
-        const { items, street, city, state, zip, paymentMethod, referralCode, guestName, guestEmail, guestPhone } = req.body;
+        const { items, street, city, state, zip, paymentMethod, referralCode, couponCode, guestName, guestEmail, guestPhone } = req.body;
         if (!street || !city || !state || !guestName || !guestEmail || !guestPhone) {
             return res.status(400).json({ error: 'Please complete all delivery details.' });
         }
 
-        const pricedOrder = await priceOrderItems(items, state);
+        const pricedOrder = await applyCoupon(await priceOrderItems(items, state), couponCode);
         const paystackReference = `KIDO-${Date.now()}-${crypto.randomBytes(6).toString('hex')}`;
 
         const [order] = await db.insert(orders).values({
@@ -175,6 +199,7 @@ router.post('/', authenticateTokenOptional, async (req, res) => {
             zip,
             paymentMethod,
             referralCode,
+            couponCode: pricedOrder.couponCode,
             paystackReference
         }).returning();
 
@@ -186,13 +211,14 @@ router.post('/', authenticateTokenOptional, async (req, res) => {
         })));
 
         if (paymentMethod !== 'card') {
-            await completeOrderProcessing(order.id, pricedOrder.items, pricedOrder.totalAmount, referralCode);
+            await completeOrderProcessing(order.id, pricedOrder.items, pricedOrder.totalAmount, referralCode, pricedOrder.couponCode);
         }
 
         res.status(201).json({
             ...order,
             subtotal: pricedOrder.subtotal,
             shippingFee: pricedOrder.delivery.fee,
+            discount: pricedOrder.discount,
             deliveryWindow: pricedOrder.delivery.estimate,
         });
     } catch (error) {
@@ -238,7 +264,7 @@ router.post('/verify-payment', async (req, res) => {
             }
 
             const orderItemsForProcessing = await db.query.orderItems.findMany({ where: eq(orderItems.orderId, orderId) });
-            await completeOrderProcessing(orderId, orderItemsForProcessing, Number(order.totalAmount), order.referralCode);
+            await completeOrderProcessing(orderId, orderItemsForProcessing, Number(order.totalAmount), order.referralCode, order.couponCode);
 
             return res.json({ status: true, message: "Payment Verified" });
         } else {

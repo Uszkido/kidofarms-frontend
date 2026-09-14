@@ -129,6 +129,7 @@ const orders = pgTable("orders", {
     escrowStatus: text("escrow_status").default("held"), // held, released, disputed
     trackingId: text("tracking_id").unique(),
     referralCode: text("referral_code"),
+    couponCode: text("coupon_code"),
     paystackReference: text("paystack_reference"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
