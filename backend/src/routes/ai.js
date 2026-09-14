@@ -365,6 +365,24 @@ Rules:
 - Keep answers concise, helpful, and easy to scan. Mention the knowledge-base source name when context was used.
 - Do not expose private customer information. Order lookups may report only status, tracking ID, and delivery timing.`;
 
+function makeLocalKnowledgeReply(knowledge) {
+    const match = knowledge.match(/SOURCE:\s*([^\n]+)\n([\s\S]*?)(?=\n\nSOURCE:|$)/);
+    if (!match) return null;
+
+    const source = match[1].trim();
+    const excerpt = match[2]
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/#{1,6}\s*/g, '')
+        .replace(/[*_`]/g, '')
+        .replace(/\s+/g, ' ')
+        .replace(/^\.\.\.|\.\.\.$/g, '')
+        .trim()
+        .slice(0, 550);
+
+    if (!excerpt) return null;
+    return `Here’s the most relevant guidance from our ${source} guide:\n\n${excerpt}${excerpt.length === 550 ? '…' : ''}\n\nWould you like a practical next step or more detail?`;
+}
+
 async function getAssistantConfiguration() {
     try {
         const { settings } = require('../db/schema');
@@ -394,19 +412,8 @@ router.post('/chat', async (req, res) => {
         const isDummy = !apiKey || apiKey.includes('dummy') || apiKey.length < 10;
 
         if (isDummy) {
-            const lowerMsg = message.toLowerCase();
-            let replyText = "I'm currently in training mode (AI Node syncing). Please add a valid GROQ_API_KEY to the backend .env file to activate my neural engine!";
-
-            if (lowerMsg.includes('order') || lowerMsg.includes('track')) {
-                replyText = "[Offline Protocol] I can track your harvest nodes once my Groq API key is active! Please check the Vault tab instead.";
-            } else if (lowerMsg.includes('price') || lowerMsg.includes('cost')) {
-                replyText = "[Offline Protocol] Please check the Market Oracle for live pricing. My neural analysis module requires an API key.";
-            } else if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
-                replyText = "Greetings from Kido Farms! I'm currently in restricted mock mode. Provide my Groq API key to unlock full conversational intelligence!";
-            }
-
             return res.json({
-                reply: replyText,
+                reply: "The AI service is not configured yet. An administrator needs to add a valid GROQ_API_KEY to the backend or Vercel environment variables. I can still help with product, order, and support links on the site.",
                 isMock: true
             });
         }
@@ -476,9 +483,10 @@ router.post('/chat', async (req, res) => {
                 const query = message.split(' ').map(w => w.toLowerCase()).filter(w => w.length > 3).slice(0, 3).join(' ');
                 const localInfo = await toolHandlers.retrieve_farming_knowledge({ query: query || message });
 
-                if (localInfo && !localInfo.includes("No specific Kido protocols found") && !localInfo.includes("Knowledge base directory not found")) {
+                const localReply = makeLocalKnowledgeReply(localInfo);
+                if (localReply) {
                     return res.json({
-                        reply: "I have successfully retrieved the following Sovereign protocols from the Kido Internal Library to assist with your request:\n\n" + localInfo,
+                        reply: localReply,
                         isLocal: true
                     });
                 }
