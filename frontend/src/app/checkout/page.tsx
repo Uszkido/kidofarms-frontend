@@ -14,7 +14,7 @@ import {
     Truck,
     Loader2,
 } from "lucide-react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch, getApiUrl } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
 import { NIGERIAN_STATES } from "@/lib/constants";
 import { GeoapifyAutocomplete } from "@/components/GeoapifyAutocomplete";
@@ -58,6 +58,11 @@ export default function CheckoutPage() {
 
     const [deliveryQuote, setDeliveryQuote] = useState<{ fee: number; estimate: string } | null>(null);
     const [loadingQuote, setLoadingQuote] = useState(true);
+    const [deliverySlots, setDeliverySlots] = useState<string[]>([]);
+    const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+    const [selectedAddressId, setSelectedAddressId] = useState("");
+    const [saveAddress, setSaveAddress] = useState(false);
+    const [deliverySlot, setDeliverySlot] = useState("");
 
     useEffect(() => {
         if (session?.user?.email) setForm((current) => current.email ? current : { ...current, email: session.user?.email || '' });
@@ -82,6 +87,23 @@ export default function CheckoutPage() {
             });
         return () => { cancelled = true; };
     }, [form.state]);
+
+    useEffect(() => {
+        fetch(getApiUrl('/api/orders/delivery-slots')).then((response) => response.json()).then((data) => {
+            const slots = Array.isArray(data.slots) ? data.slots : [];
+            setDeliverySlots(slots); setDeliverySlot((current) => current || slots[0] || '');
+        }).catch(() => undefined);
+    }, []);
+
+    useEffect(() => {
+        if (!session?.user) return;
+        void authenticatedFetch('/api/customers/addresses').then(async (response) => {
+            if (!response.ok) return;
+            const addresses = await response.json(); setSavedAddresses(addresses);
+            const preferred = addresses.find((address: any) => address.isDefault) || addresses[0];
+            if (preferred) { setSelectedAddressId(preferred.id); applyAddress(preferred); }
+        }).catch(() => undefined);
+    }, [session?.user]);
 
     const shippingFee = deliveryQuote?.fee ?? 0;
     const totalWithShipping = cartTotal + (cart.length > 0 ? shippingFee : 0);
@@ -152,6 +174,8 @@ export default function CheckoutPage() {
         }));
     };
 
+    const applyAddress = (address: any) => setForm((current) => ({ ...current, firstName: address.recipientName?.split(' ')[0] || current.firstName, lastName: address.recipientName?.split(' ').slice(1).join(' ') || current.lastName, phone: address.phone || current.phone, street: address.street || current.street, city: address.city || current.city, state: address.state || current.state }));
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (cart.length === 0) return;
@@ -161,6 +185,9 @@ export default function CheckoutPage() {
         if (couponCode.trim()) trackConversion("coupon_entered");
 
         try {
+            if (session?.user && saveAddress) {
+                await authenticatedFetch('/api/customers/addresses', { method: 'POST', body: JSON.stringify({ label: 'Delivery address', recipientName: `${form.firstName} ${form.lastName}`.trim(), phone: form.phone, street: form.street, city: form.city, state: form.state, isDefault: savedAddresses.length === 0 }) });
+            }
             // First create the order shell (Support Guest Fields)
             const res = await fetch(getApiUrl("/api/orders"), {
                 method: "POST",
@@ -175,7 +202,8 @@ export default function CheckoutPage() {
                     couponCode: couponCode.trim() || undefined,
                     guestName: `${form.firstName} ${form.lastName}`,
                     guestEmail: form.email,
-                    guestPhone: form.phone
+                    guestPhone: form.phone,
+                    deliverySlot,
                 })
             });
 
@@ -216,6 +244,7 @@ export default function CheckoutPage() {
                                 </div>
 
                                 <form id="checkout-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {savedAddresses.length > 0 && <div className="md:col-span-2 space-y-2"><label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">Saved delivery address</label><select value={selectedAddressId} onChange={(event) => { setSelectedAddressId(event.target.value); const address = savedAddresses.find((item) => item.id === event.target.value); if (address) applyAddress(address); }} className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium"><option value="">Use a new address</option>{savedAddresses.map((address) => <option key={address.id} value={address.id}>{address.label} - {address.street}, {address.city}</option>)}</select></div>}
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">First Name</label>
                                         <input
@@ -318,6 +347,8 @@ export default function CheckoutPage() {
                                         <span>Logistics ({form.state})</span>
                                         <span>{loadingQuote ? "Calculating…" : `₦${shippingFee.toLocaleString()}`}</span>
                                     </div>
+                                    {session?.user && <label className="md:col-span-2 flex items-center gap-3 rounded-2xl bg-white/60 px-5 py-4 text-sm font-medium text-primary/70"><input type="checkbox" checked={saveAddress} onChange={(event) => setSaveAddress(event.target.checked)} className="accent-secondary" /> Save this address for faster checkout next time</label>}
+                                    <div className="md:col-span-2 space-y-2"><label className="text-[10px] font-bold uppercase tracking-widest text-primary/40 px-2">Preferred delivery window</label><select required value={deliverySlot} onChange={(event) => setDeliverySlot(event.target.value)} className="w-full px-6 py-4 rounded-2xl bg-white border-none focus:ring-1 focus:ring-secondary outline-none shadow-sm font-medium">{deliverySlots.map((slot) => <option key={slot} value={slot}>{slot}</option>)}</select><p className="px-2 text-[11px] text-primary/45">Your selected window is confirmed after payment and stock verification.</p></div>
                                     <p className="text-[11px] text-primary/40 flex items-center gap-2"><Truck size={13} className="text-secondary" /> {loadingQuote ? "Checking delivery availability" : `Estimated delivery: ${deliveryQuote?.estimate || 'confirmed after payment'}`}</p>
                                     <div className="flex justify-between font-bold text-2xl pt-4 border-t border-primary/5">
                                         <span>Grand Total</span>

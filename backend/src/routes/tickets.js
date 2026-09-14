@@ -12,7 +12,7 @@ const canSupport = (user) => supportRoles.includes(user?.role);
 // 1. Create a Ticket
 router.post('/', authenticateTokenOptional, async (req, res) => {
     try {
-        const { subject, message, guestName, guestEmail, priority } = req.body;
+        const { subject, message, guestName, guestEmail, priority, category, orderId, attachmentUrl } = req.body;
         const userId = req.user?.id || null;
         if (!subject?.trim() || !message?.trim()) {
             return res.status(400).json({ error: 'Subject and message are required' });
@@ -26,13 +26,16 @@ router.post('/', authenticateTokenOptional, async (req, res) => {
             guestEmail: userId ? null : guestEmail.trim().toLowerCase().slice(0, 254),
             subject: subject.trim().slice(0, 200),
             priority: ['low', 'medium', 'high'].includes(priority) ? priority : 'medium',
+            category: ['support', 'delivery_issue', 'return_request'].includes(category) ? category : 'support',
+            orderId: typeof orderId === 'string' ? orderId : null,
             status: 'open',
         }).returning();
 
         await db.insert(ticketMessages).values({
             ticketId: newTicket.id,
             senderId: userId,
-            message: message.trim().slice(0, 5000)
+            message: message.trim().slice(0, 5000),
+            attachmentUrl: typeof attachmentUrl === 'string' ? attachmentUrl.slice(0, 1000) : null,
         });
 
         const user = await db.query.users.findFirst({

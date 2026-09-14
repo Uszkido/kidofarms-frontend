@@ -6,6 +6,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Kido Farms Network | Farm Fresh. Delivered.",
   description: "Nigeria's most trusted digital farm marketplace. 100% organic produce from verified farmers delivered to your table. Founded 2020, Jos, Plateau State.",
+  manifest: '/manifest.webmanifest',
+  alternates: { canonical: 'https://kidofarms.vercel.app' },
   icons: {
     icon: "/logo.svg",
     shortcut: "/logo.svg",
@@ -20,6 +22,7 @@ import ThemeHub from "@/components/ThemeHub";
 import { FloatingSupport } from "@/components/FloatingSupport";
 import { Suspense } from "react";
 import Script from "next/script";
+import { ServiceWorker } from "@/components/ServiceWorker";
 
 export default function RootLayout({
   children,
@@ -55,6 +58,7 @@ export default function RootLayout({
       <body className="antialiased flex flex-col min-h-screen relative">
         <div id="google_translate_element" className="hidden opacity-0 pointer-events-none absolute -top-96"></div>
         <Providers>
+          <ServiceWorker />
           <ThemeHub>
             <Suspense fallback={null}>
               <ReferralTracker />

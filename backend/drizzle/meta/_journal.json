@@ -36,6 +36,13 @@
       "when": 1789461000000,
       "tag": "0004_add_wholesale_requests",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789462000000,
+      "tag": "0005_add_commerce_operations",
+      "breakpoints": true
     }
   ]
 }

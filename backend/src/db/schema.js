@@ -152,6 +152,40 @@ const orders = pgTable("orders", {
     referralCode: text("referral_code"),
     couponCode: text("coupon_code"),
     paystackReference: text("paystack_reference"),
+    deliverySlot: text("delivery_slot"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+const savedAddresses = pgTable("saved_addresses", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    label: text("label").notNull(),
+    recipientName: text("recipient_name").notNull(),
+    phone: text("phone").notNull(),
+    street: text("street").notNull(),
+    city: text("city").notNull(),
+    state: text("state").notNull(),
+    isDefault: boolean("is_default").default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+const productReservations = pgTable("product_reservations", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id").references(() => orders.id).notNull(),
+    productId: uuid("product_id").references(() => products.id).notNull(),
+    quantity: integer("quantity").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+const productBundles = pgTable("product_bundles", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    image: text("image"),
+    price: numeric("price", { precision: 12, scale: 2 }).notNull(),
+    items: jsonb("items").default([]),
+    isActive: boolean("is_active").default(true),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -488,6 +522,8 @@ const tickets = pgTable("tickets", {
     subject: text("subject").notNull(),
     status: text("status").default("open"),
     priority: text("priority").default("medium"),
+    category: text("category").default("support"),
+    orderId: uuid("order_id").references(() => orders.id),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -696,6 +732,9 @@ module.exports = {
     wholesaleRequests,
     products,
     orders,
+    savedAddresses,
+    productReservations,
+    productBundles,
     orderItems,
     reviews,
     vendors,

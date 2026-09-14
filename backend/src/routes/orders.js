@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { orders, orderItems, affiliates, commissions, products, settings, coupons } = require('../db/schema');
-const { desc, eq, inArray, and, or, sql } = require('drizzle-orm');
+const { orders, orderItems, affiliates, commissions, products, settings, coupons, productReservations, activityLogs } = require('../db/schema');
+const { desc, eq, inArray, and, or, sql, gt } = require('drizzle-orm');
 const { sendOrderToBot, sendTelegramAlert } = require('../lib/bot');
 const { sendOrderConfirmation } = require('../lib/email');
 const axios = require('axios');
 const crypto = require('crypto');
 const { authenticateToken, authenticateTokenOptional, authorizeRoles } = require('../middleware/authMiddleware');
+const { sendWhatsAppUpdate } = require('../lib/whatsapp');
 
 const DEFAULT_DELIVERY_ZONES = [
     { state: 'Plateau', fee: 1500, estimate: '1–2 business days' },
@@ -16,6 +17,7 @@ const DEFAULT_DELIVERY_ZONES = [
     { state: 'Kano', fee: 4000, estimate: '2–4 business days' },
     { state: 'Rivers', fee: 4500, estimate: '3–5 business days' },
 ];
+const DELIVERY_SLOTS = ['8:00 AM - 12:00 PM', '12:00 PM - 4:00 PM', '4:00 PM - 7:00 PM'];
 
 async function getDeliveryQuote(state) {
     const [siteSettings] = await db.select().from(settings).where(eq(settings.id, 'site_config')).limit(1);
@@ -52,9 +54,16 @@ async function priceOrderItems(items, state) {
         throw new Error('A product in your cart is no longer available.');
     }
 
+    const activeReservations = await db.select({ productId: productReservations.productId, quantity: productReservations.quantity })
+        .from(productReservations).where(and(inArray(productReservations.productId, productIds), gt(productReservations.expiresAt, new Date())));
+    const reservedByProduct = activeReservations.reduce((totals, reservation) => {
+        totals.set(reservation.productId, (totals.get(reservation.productId) || 0) + reservation.quantity);
+        return totals;
+    }, new Map());
     const pricedItems = catalogProducts.map((product) => {
         const quantity = quantities.get(product.id);
-        if (product.stock < quantity) {
+        const available = product.stock - (reservedByProduct.get(product.id) || 0);
+        if (available < quantity) {
             throw new Error(`${product.name} does not have enough stock available.`);
         }
         return { id: product.id, quantity, price: Number(product.price) };
@@ -89,6 +98,13 @@ async function applyCoupon(pricedOrder, couponCode) {
 
 // Helper to handle order completion tasks (stock, commission, notifications)
 async function completeOrderProcessing(orderId, items, totalAmount, referralCode, couponCode) {
+    // Redeem a promotion only once payment (or an approved offline order) has completed.
+    if (couponCode) {
+        await db.update(coupons)
+            .set({ usedCount: sql`${coupons.usedCount} + 1` })
+            .where(eq(coupons.code, couponCode));
+    }
+
     // 1. Handle Commissions
     if (referralCode) {
         const affiliateResult = await db.select().from(affiliates).where(eq(affiliates.referralCode, referralCode)).limit(1);
@@ -138,6 +154,7 @@ async function completeOrderProcessing(orderId, items, totalAmount, referralCode
         await sendOrderToBot(orderData, enrichedItems);
         // 4. Email Confirmation
         await sendOrderConfirmation(orderData, enrichedItems);
+        await sendWhatsAppUpdate(orderData.guestPhone, `Kido Farms: payment received for your order ${orderData.id.slice(0, 8)}. We will update you when it is dispatched.`);
     } catch (err) {
         console.error("Bot/Email update failed:", err);
     }
@@ -167,20 +184,19 @@ router.get('/delivery-quote', async (req, res) => {
         console.error('Delivery quote error:', error);
         res.status(503).json({ error: 'Delivery estimates are temporarily unavailable.' });
     }
+});
 
-    if (couponCode) {
-        await db.update(coupons)
-            .set({ usedCount: sql`${coupons.usedCount} + 1` })
-            .where(eq(coupons.code, couponCode));
-    }
+router.get('/delivery-slots', async (_req, res) => {
+    res.json({ slots: DELIVERY_SLOTS });
 });
 
 router.post('/', authenticateTokenOptional, async (req, res) => {
     try {
-        const { items, street, city, state, zip, paymentMethod, referralCode, couponCode, guestName, guestEmail, guestPhone } = req.body;
+        const { items, street, city, state, zip, paymentMethod, referralCode, couponCode, guestName, guestEmail, guestPhone, deliverySlot } = req.body;
         if (!street || !city || !state || !guestName || !guestEmail || !guestPhone) {
             return res.status(400).json({ error: 'Please complete all delivery details.' });
         }
+        if (!DELIVERY_SLOTS.includes(deliverySlot)) return res.status(400).json({ error: 'Please select an available delivery time.' });
 
         const pricedOrder = await applyCoupon(await priceOrderItems(items, state), couponCode);
         const paystackReference = `KIDO-${Date.now()}-${crypto.randomBytes(6).toString('hex')}`;
@@ -200,7 +216,8 @@ router.post('/', authenticateTokenOptional, async (req, res) => {
             paymentMethod,
             referralCode,
             couponCode: pricedOrder.couponCode,
-            paystackReference
+            paystackReference,
+            deliverySlot,
         }).returning();
 
         await db.insert(orderItems).values(pricedOrder.items.map((item) => ({
@@ -209,9 +226,14 @@ router.post('/', authenticateTokenOptional, async (req, res) => {
             quantity: item.quantity,
             price: item.price.toFixed(2),
         })));
+        await db.insert(productReservations).values(pricedOrder.items.map((item) => ({
+            orderId: order.id, productId: item.id, quantity: item.quantity,
+            expiresAt: new Date(Date.now() + 20 * 60 * 1000),
+        })));
 
         if (paymentMethod !== 'card') {
             await completeOrderProcessing(order.id, pricedOrder.items, pricedOrder.totalAmount, referralCode, pricedOrder.couponCode);
+            await db.delete(productReservations).where(eq(productReservations.orderId, order.id));
         }
 
         res.status(201).json({
@@ -265,6 +287,7 @@ router.post('/verify-payment', async (req, res) => {
 
             const orderItemsForProcessing = await db.query.orderItems.findMany({ where: eq(orderItems.orderId, orderId) });
             await completeOrderProcessing(orderId, orderItemsForProcessing, Number(order.totalAmount), order.referralCode, order.couponCode);
+            await db.delete(productReservations).where(eq(productReservations.orderId, orderId));
 
             return res.json({ status: true, message: "Payment Verified" });
         } else {
@@ -353,6 +376,8 @@ router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), as
             .where(eq(orders.id, req.params.id))
             .returning();
         if (!updatedOrder) return res.status(404).json({ error: 'Order not found' });
+        await db.insert(activityLogs).values({ userId: req.user.id, action: 'order_updated', entity: 'order', details: { orderId: updatedOrder.id, fields: Object.keys(updates) } });
+        if (updates.orderStatus) await sendWhatsAppUpdate(updatedOrder.guestPhone, `Kido Farms: your order ${updatedOrder.id.slice(0, 8)} is now ${updatedOrder.orderStatus}.`);
         res.json(updatedOrder);
     } catch (error) {
         res.status(400).json({ error: 'Could not update the order.' });

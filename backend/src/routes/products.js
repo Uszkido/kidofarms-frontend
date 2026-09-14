@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { products } = require('../db/schema');
+const { products, activityLogs } = require('../db/schema');
 const { eq, and, desc } = require('drizzle-orm');
 const crypto = require('crypto');
 const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
@@ -70,6 +70,7 @@ router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin', 'vendor
             ownerId: req.user.id, // Assigned from auth middleware
         };
         const [product] = await db.insert(products).values(payload).returning();
+        await db.insert(activityLogs).values({ userId: req.user.id, action: 'product_created', entity: 'product', details: { productId: product.id, name: product.name } });
         await cacheDel('products:*');
         res.status(201).json(product);
     } catch (error) {
@@ -94,6 +95,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
             .set(body)
             .where(eq(products.id, req.params.id))
             .returning();
+        await db.insert(activityLogs).values({ userId: req.user.id, action: 'product_updated', entity: 'product', details: { productId: updated.id, fields: Object.keys(body) } });
         await cacheDel('products:*');
         res.json(updated);
     } catch (error) {
@@ -112,6 +114,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
         }
 
         await db.delete(products).where(eq(products.id, req.params.id));
+        await db.insert(activityLogs).values({ userId: req.user.id, action: 'product_deleted', entity: 'product', details: { productId: product.id, name: product.name } });
         await cacheDel('products:*');
         res.status(204).end();
     } catch (error) {

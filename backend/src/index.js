@@ -52,6 +52,8 @@ const adminVerificationsRoutes = require('./routes/admin_verifications');
 const provenanceRoutes = require('./routes/provenance');
 const wholesaleRoutes = require('./routes/wholesale');
 const invoicesRoutes = require('./routes/invoices');
+const customersRoutes = require('./routes/customers');
+const bundlesRoutes = require('./routes/bundles');
 const path = require('path');
 
 const app = express();
@@ -135,6 +137,8 @@ app.use('/api/library', libraryRoutes);
 app.use('/api/gis', gisRoutes);
 app.use('/api/wholesale', wholesaleRoutes);
 app.use('/api/invoices', invoicesRoutes);
+app.use('/api/customers', customersRoutes);
+app.use('/api/bundles', bundlesRoutes);
 app.use('/api/poultry', poultryRoutes);
 app.use('/api/passports', passportsRoutes);
 app.use('/api/provenance', provenanceRoutes);

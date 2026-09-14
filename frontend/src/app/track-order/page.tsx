@@ -41,6 +41,8 @@ export default function TrackOrderPage() {
     const [lookupResult, setLookupResult] = useState<any>(null);
     const [lookupError, setLookupError] = useState("");
     const [isLookingUp, setIsLookingUp] = useState(false);
+    const [issueMessage, setIssueMessage] = useState("");
+    const [issueStatus, setIssueStatus] = useState("");
 
     useEffect(() => {
         const reference = new URLSearchParams(window.location.search).get('reference');
@@ -66,6 +68,15 @@ export default function TrackOrderPage() {
         } finally {
             setIsLookingUp(false);
         }
+    };
+
+    const reportIssue = async () => {
+        if (!lookupResult || !issueMessage.trim()) return;
+        setIssueStatus('Submitting your issue…');
+        try {
+            const response = await fetch(getApiUrl('/api/tickets'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subject: `Order issue: ${lookupResult.orderId}`, message: issueMessage, guestName: 'Order customer', guestEmail: lookup.email, priority: 'high', category: 'delivery_issue', orderId: lookupResult.orderId }) });
+            if (!response.ok) throw new Error(); setIssueMessage(''); setIssueStatus('Issue submitted. Our support team will contact you.');
+        } catch { setIssueStatus('We could not submit the issue. Please try again.'); }
     };
 
     useEffect(() => {
@@ -158,7 +169,7 @@ export default function TrackOrderPage() {
                                     <h2 className="mt-2 text-2xl font-black font-serif italic text-white">Find an order without signing in</h2>
                                     <p className="mt-2 text-sm text-white/45">Use the order reference from your confirmation and the email used at checkout.</p>
                                 </div>
-                                {lookupResult && <div className="rounded-2xl border border-green-400/20 bg-green-400/10 px-5 py-4 text-sm text-green-100"><div className="flex gap-2 items-center font-bold"><CheckCircle2 size={16} /> {lookupResult.orderStatus}</div><p className="mt-1 text-xs text-green-100/70">{lookupResult.trackingId ? `Tracking: ${lookupResult.trackingId}` : 'Tracking is assigned when dispatch begins.'}</p><a href={`${getApiUrl(`/api/invoices/orders/${lookupResult.orderId}/pdf?email=${encodeURIComponent(lookup.email)}`)}`} className="mt-3 inline-flex items-center gap-2 text-xs font-black text-secondary hover:text-white"><Download size={14} /> Download invoice PDF</a></div>}
+                                {lookupResult && <div className="rounded-2xl border border-green-400/20 bg-green-400/10 px-5 py-4 text-sm text-green-100"><div className="flex gap-2 items-center font-bold"><CheckCircle2 size={16} /> {lookupResult.orderStatus}</div><p className="mt-1 text-xs text-green-100/70">{lookupResult.trackingId ? `Tracking: ${lookupResult.trackingId}` : 'Tracking is assigned when dispatch begins.'}</p><a href={`${getApiUrl(`/api/invoices/orders/${lookupResult.orderId}/pdf?email=${encodeURIComponent(lookup.email)}`)}`} className="mt-3 inline-flex items-center gap-2 text-xs font-black text-secondary hover:text-white"><Download size={14} /> Download invoice PDF</a><div className="mt-4 border-t border-green-100/15 pt-4"><p className="text-xs font-bold">Received a damaged or incorrect item?</p><textarea value={issueMessage} onChange={e => setIssueMessage(e.target.value)} placeholder="Describe the issue. You can add photos through support after submitting." className="mt-2 min-h-20 w-full rounded-xl border border-white/10 bg-black/20 p-3 text-xs text-white" /><button onClick={reportIssue} className="mt-2 rounded-xl border border-secondary/50 px-3 py-2 text-xs font-black text-secondary">Report order issue</button>{issueStatus && <p className="mt-2 text-xs text-green-100/70">{issueStatus}</p>}</div></div>}
                             </div>
                             <form onSubmit={handleLookup} className="mt-6 grid md:grid-cols-[1.1fr_1.3fr_auto] gap-3">
                                 <input value={lookup.reference} onChange={(event) => setLookup({ ...lookup, reference: event.target.value })} placeholder="Order or tracking reference" required className="min-w-0 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-secondary" />
