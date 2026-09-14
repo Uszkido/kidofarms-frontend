@@ -83,15 +83,21 @@ export default function SubscriptionCheckoutPage() {
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
+                const subscriber = await res.json();
+                const paymentRes = await fetch(getApiUrl(`/api/subscribers/${subscriber.id}/initialize-payment`), {
+                    method: "POST",
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const payment = await paymentRes.json();
+                if (!paymentRes.ok || !payment.authorizationUrl) {
+                    throw new Error(payment.error || "Subscription payment is not available yet.");
+                }
                 setActionState(prev => ({
                     ...prev,
-                    message: "Your request is received. We will confirm payment and your delivery schedule before activating the plan.",
+                    message: "Taking you to Paystack to complete your secure subscription payment…",
                     status: "success"
                 }));
-                // Success! Redirect to subscriber dashboard after a delay
-                setTimeout(() => {
-                    router.push("/dashboard/subscriber?status=pending");
-                }, 2000);
+                window.location.assign(payment.authorizationUrl);
             } else {
                 setActionState({
                     isOpen: true,
@@ -100,12 +106,12 @@ export default function SubscriptionCheckoutPage() {
                     status: "error"
                 });
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error(error);
             setActionState({
                 isOpen: true,
                 title: "Error",
-                message: "An error occurred. Please check your connection.",
+                message: error.message || "An error occurred. Please check your connection.",
                 status: "error"
             });
         } finally {
@@ -218,8 +224,8 @@ export default function SubscriptionCheckoutPage() {
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-5 duration-500">
                                     <div className="flex justify-between items-center">
                                         <div className="space-y-2">
-                                            <h2 className="text-4xl font-black font-serif">Subscription Request</h2>
-                                            <p className="text-primary/40 text-sm font-medium">Review your plan. We will confirm payment before activation.</p>
+                                            <h2 className="text-4xl font-black font-serif">Secure subscription payment</h2>
+                                            <p className="text-primary/40 text-sm font-medium">Review your plan, then complete payment securely with Paystack.</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-3xl font-black text-secondary font-serif">₦40,000</p>
@@ -237,7 +243,7 @@ export default function SubscriptionCheckoutPage() {
                                             </div>
                                         </div>
                                         <div className="rounded-2xl bg-white/10 p-6 text-sm leading-relaxed text-white/80">
-                                            Kido Farms never collects card numbers, expiry dates, or CVV in this form. A secure payment link will be sent when your plan is approved.
+                                            Kido Farms never collects card numbers, expiry dates, or CVV in this form. You will complete payment on Paystack’s secure checkout page.
                                         </div>
                                     </div>
 
@@ -250,11 +256,11 @@ export default function SubscriptionCheckoutPage() {
                                             disabled={isSubmitting}
                                             className="flex-[2] bg-secondary text-primary py-6 rounded-3xl font-black text-lg hover:bg-white border-2 border-secondary transition-all shadow-xl flex items-center justify-center gap-3"
                                         >
-                                            {isSubmitting ? <Loader2 className="animate-spin" /> : "Submit subscription request"}
+                                            {isSubmitting ? <Loader2 className="animate-spin" /> : "Continue to secure payment"}
                                         </button>
                                     </div>
                                     <p className="text-center text-[10px] font-black uppercase tracking-widest text-primary/20">
-                                        Your plan remains pending until a verified payment is completed.
+                                        Your plan activates only after Paystack confirms payment.
                                     </p>
                                 </div>
                             )}

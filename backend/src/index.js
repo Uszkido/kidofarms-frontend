@@ -50,6 +50,7 @@ const poultryRoutes = require('./routes/poultry');
 const passportsRoutes = require('./routes/passports');
 const adminVerificationsRoutes = require('./routes/admin_verifications');
 const provenanceRoutes = require('./routes/provenance');
+const wholesaleRoutes = require('./routes/wholesale');
 const path = require('path');
 
 const app = express();
@@ -72,7 +73,10 @@ app.use(compression({
 app.use(cors({ origin: allowedOrigins, credentials: true }));
 
 // 3. JSON body parser
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+    limit: '10mb',
+    verify: (req, _res, buffer) => { req.rawBody = buffer; },
+}));
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
 
 // 4. Global rate limiter — 500 req/min per IP across all routes
@@ -128,6 +132,7 @@ app.use('/api/shipments', shipmentsRoutes);
 app.use('/api/drivers', driversRoutes);
 app.use('/api/library', libraryRoutes);
 app.use('/api/gis', gisRoutes);
+app.use('/api/wholesale', wholesaleRoutes);
 app.use('/api/poultry', poultryRoutes);
 app.use('/api/passports', passportsRoutes);
 app.use('/api/provenance', provenanceRoutes);

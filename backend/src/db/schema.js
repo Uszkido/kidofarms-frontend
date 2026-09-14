@@ -69,8 +69,29 @@ const subscribers = pgTable("subscribers", {
     zip: text("zip"),
     status: subscriberStatusEnum("status").default("pending"), // pending, active, cancelled
     plan: text("plan").default("Weekly Farm Basket"),
+    paystackPlanCode: text("paystack_plan_code"),
+    paystackReference: text("paystack_reference"),
     paymentStatus: text("payment_status").default("pending"), // pending, paid, failed
     createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+const wholesaleRequests = pgTable("wholesale_requests", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id").references(() => users.id).notNull(),
+    productId: uuid("product_id").references(() => products.id),
+    productName: text("product_name").notNull(),
+    quantity: integer("quantity").notNull(),
+    unit: text("unit").default("kg"),
+    city: text("city").notNull(),
+    state: text("state").notNull(),
+    requestedDeliveryDate: timestamp("requested_delivery_date"),
+    notes: text("notes"),
+    status: text("status").default("submitted"),
+    quotedAmount: numeric("quoted_amount", { precision: 12, scale: 2 }),
+    quotedDeliveryFee: numeric("quoted_delivery_fee", { precision: 12, scale: 2 }),
+    quoteNote: text("quote_note"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Harvests Table
@@ -672,6 +693,7 @@ module.exports = {
     categories,
     blogPosts,
     subscribers,
+    wholesaleRequests,
     products,
     orders,
     orderItems,

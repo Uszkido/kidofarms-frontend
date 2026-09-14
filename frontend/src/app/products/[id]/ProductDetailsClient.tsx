@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart, Heart, ShieldCheck, Truck, RefreshCw, Star, Leaf, ArrowLeft, Loader2, User, ArrowRight, Activity } from "lucide-react";
@@ -10,11 +10,16 @@ import { ActionStatus } from "@/components/ActionStatus";
 import { GrowthJourney } from "@/components/GrowthJourney";
 import FarmerStoryModal from "@/components/FarmerStoryModal";
 import KidoTraceQR from "@/components/KidoTraceQR";
+import { trackConversion } from "@/lib/analytics";
+import { getApiUrl } from "@/lib/api";
+import { NIGERIAN_STATES } from "@/lib/constants";
 
 export function ProductDetailsClient({ product, id }: { product: any, id: string }) {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
     const [isFarmerModalOpen, setIsFarmerModalOpen] = useState(false);
+    const [deliveryState, setDeliveryState] = useState("Lagos");
+    const [deliveryQuote, setDeliveryQuote] = useState<{ fee: number; estimate: string } | null>(null);
     const [actionState, setActionState] = useState<{
         isOpen: boolean;
         title: string;
@@ -30,6 +35,19 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
     const defaultImages = ["https://images.unsplash.com/photo-1542838132-92c53300491e?w=800"];
     const displayImages = product.images && (product.images as string[]).length > 0 ? (product.images as string[]) : defaultImages;
 
+    useEffect(() => {
+        trackConversion("product_viewed", { productId: product.id });
+    }, [product.id]);
+
+    useEffect(() => {
+        let cancelled = false;
+        fetch(getApiUrl(`/api/orders/delivery-quote?state=${encodeURIComponent(deliveryState)}`))
+            .then((response) => response.ok ? response.json() : null)
+            .then((quote) => { if (!cancelled) setDeliveryQuote(quote); })
+            .catch(() => { if (!cancelled) setDeliveryQuote(null); });
+        return () => { cancelled = true; };
+    }, [deliveryState]);
+
     const handleAddToCart = () => {
         addToCart({
             id: product.id,
@@ -39,6 +57,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
             quantity: quantity,
             category: product.category
         });
+        trackConversion("add_to_cart", { productId: product.id, value: Number(product.price) * quantity });
 
         setActionState({
             isOpen: true,
@@ -169,6 +188,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                     <Heart size={24} />
                                 </button>
                             </div>
+                            <Link href={`/wholesale?product=${encodeURIComponent(product.name)}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary/65 underline decoration-secondary decoration-2 underline-offset-4 hover:text-primary"><Truck size={16} /> Need a bulk quantity? Request a wholesale quote</Link>
 
                             <div className="pt-8 border-t border-primary/5 flex flex-wrap gap-4">
                                 <KidoTraceQR
@@ -201,6 +221,18 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                     </div>
                                 </div>
                             </div>
+
+                            <section className="rounded-3xl border border-primary/10 bg-white p-6 shadow-sm space-y-4">
+                                <div className="flex items-center gap-3"><Truck className="text-secondary" size={20} /><h3 className="text-sm font-black text-primary">Delivery to your location</h3></div>
+                                <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
+                                    <label htmlFor="product-delivery-state" className="text-xs font-bold text-primary/60">Deliver to</label>
+                                    <select id="product-delivery-state" value={deliveryState} onChange={(event) => setDeliveryState(event.target.value)} className="min-w-0 rounded-xl border border-primary/10 bg-cream/30 px-4 py-3 text-sm font-bold text-primary outline-none focus:border-secondary">
+                                        {NIGERIAN_STATES.map((state) => <option key={state} value={state}>{state}</option>)}
+                                    </select>
+                                </div>
+                                <p className="text-sm text-primary/70">{deliveryQuote ? <>Delivery is <strong>₦{Number(deliveryQuote.fee).toLocaleString()}</strong> to {deliveryState}, estimated <strong>{deliveryQuote.estimate}</strong>.</> : "Check delivery availability at checkout."}</p>
+                                <p className="text-[11px] text-primary/45">Order cutoff and final delivery slot are confirmed during checkout.</p>
+                            </section>
                         </div>
                     </div>
 
@@ -223,11 +255,9 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                         {[
                                             { label: "Harvest Date", value: product.harvestDate ? new Date(product.harvestDate).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' }) : "Verified on request" },
                                             { label: "Source", value: product.farmSource || "Kido verified producer" },
-                                            { label: "Our Vision", href: "/about" },
-                                            { label: "Sovereign Vault", href: "/vault" },
-                                            { label: "Intelligence Exchange", href: "/exchange" },
-                                            { label: "Farm Blog", href: "/blog" },
-                                            ...(typeof window !== 'undefined' && localStorage.getItem('session') ? [{ label: "Support Hub", href: "/dashboard/support" }] : []),
+                                            { label: "Farm source", value: product.farmSource || "Kido verified producer" },
+                                            { label: "Storage", value: "Keep chilled after delivery" },
+                                            { label: "Need help?", value: "Contact support" },
                                         ].map((stat: any, i) => (
                                             <div key={i} className="flex justify-between items-center text-[10px] font-black uppercase">
                                                 <span className="text-white/40">{stat.label}</span>

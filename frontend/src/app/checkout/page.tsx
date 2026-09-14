@@ -19,6 +19,7 @@ import { useCart } from "@/context/CartContext";
 import { NIGERIAN_STATES } from "@/lib/constants";
 import { GeoapifyAutocomplete } from "@/components/GeoapifyAutocomplete";
 import Script from "next/script";
+import { trackConversion } from "@/lib/analytics";
 
 type PaystackResponse = { reference: string };
 
@@ -98,12 +99,15 @@ export default function CheckoutPage() {
             });
 
             if (res.ok) {
+                trackConversion("payment_succeeded", { orderId, value: Number(cartTotal) });
                 clearCart();
                 router.push(`/track-order?reference=${encodeURIComponent(orderId)}`);
             } else {
+                trackConversion("payment_failed", { orderId });
                 setError("Payment verification failed. Please contact support.");
             }
         } catch (err) {
+            trackConversion("payment_failed", { orderId });
             setError("Critical verification error.");
         } finally {
             setVerifying(false);
@@ -153,6 +157,8 @@ export default function CheckoutPage() {
         if (cart.length === 0) return;
         setLoading(true);
         setError("");
+        trackConversion("checkout_started", { value: totalWithShipping });
+        if (couponCode.trim()) trackConversion("coupon_entered");
 
         try {
             // First create the order shell (Support Guest Fields)
