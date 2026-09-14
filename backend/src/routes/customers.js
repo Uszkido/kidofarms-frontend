@@ -25,6 +25,15 @@ router.delete('/addresses/:id', async (req, res) => {
     res.status(204).end();
 });
 
+router.get('/orders', async (req, res) => {
+    const data = await db.query.orders.findMany({
+        where: eq(orders.userId, req.user.id),
+        with: { items: { with: { product: true } } },
+        orderBy: [desc(orders.createdAt)],
+    });
+    res.json(data);
+});
+
 // A reorder returns only live products and current server prices. The cart is
 // never reconstructed from old prices or unavailable products.
 router.get('/orders/:id/reorder', async (req, res) => {

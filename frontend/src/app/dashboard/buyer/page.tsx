@@ -49,6 +49,8 @@ import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
+import { useCart } from "@/context/CartContext";
 import { ActionStatus } from "@/components/ActionStatus";
 import { HarvestPassport } from "@/components/HarvestPassport";
 import { NegotiationTradeFloor } from "@/components/NegotiationTradeFloor";
@@ -62,6 +64,7 @@ export default function BuyerDashboard() {
     const { data: session } = useSession();
     const router = useRouter();
     const userRole = (session?.user as any)?.role;
+    const { addToCart } = useCart();
 
     const [actionState, setActionState] = useState<{
         isOpen: boolean;
@@ -82,6 +85,7 @@ export default function BuyerDashboard() {
     const [wallet, setWallet] = useState<any>(null);
     const [walletTxs, setWalletTxs] = useState<any[]>([]);
     const [loadingWallet, setLoadingWallet] = useState(true);
+    const [buyerOrders, setBuyerOrders] = useState<any[]>([]);
 
     // B2B States
     const [rfqs, setRfqs] = useState<any[]>([]);
@@ -139,6 +143,7 @@ export default function BuyerDashboard() {
     useEffect(() => {
         if ((session?.user as any)?.id) {
             fetchWallet();
+            void authenticatedFetch('/api/customers/orders').then(async (response) => response.ok ? setBuyerOrders(await response.json()) : undefined).catch(() => undefined);
             if (isBusiness) fetchRFQs();
         }
     }, [(session?.user as any)?.id, isBusiness]);
@@ -574,31 +579,28 @@ export default function BuyerDashboard() {
                                             </div>
                                         </div>
                                         <div className="grid gap-6">
-                                            {[
-                                                { id: "ORD-9921", product: "Jos Grade-A Saffron", type: "Premium Node", date: "March 10, 2026", status: "In Transit", price: "₦42,000" },
-                                                { id: "ORD-9918", product: "Extra Virgin Hibiscus", type: "Standard Node", date: "March 08, 2026", status: "Delivered", price: "₦12,500" },
-                                                { id: "ORD-9915", product: "Organic Shea Butter", type: "Bulk Batch", date: "March 05, 2026", status: "Delivered", price: "₦84,000" },
-                                            ].map((order, i) => (
-                                                <div key={i} className="bg-white p-8 md:p-10 rounded-[3rem] border border-primary/5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-secondary transition-all">
+                                            {buyerOrders.map((order) => {
+                                                const firstItem = order.items?.[0]; const productName = firstItem?.product?.name || 'Kido Farms order'; const isInTransit = order.orderStatus === 'shipped';
+                                                return <div key={order.id} className="bg-white p-8 md:p-10 rounded-[3rem] border border-primary/5 shadow-xl flex flex-col md:flex-row justify-between items-center gap-8 group hover:border-secondary transition-all">
                                                     <div className="flex items-center gap-8 w-full md:w-auto">
                                                         <div className="w-16 h-16 bg-cream rounded-3xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
                                                             <Package size={28} />
                                                         </div>
                                                         <div>
-                                                            <p className="text-[9px] font-black uppercase text-primary/20 mb-1">{order.id} • {order.type}</p>
-                                                            <h4 className="text-2xl font-black font-serif uppercase italic text-primary">{order.product}</h4>
-                                                            <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-2">{order.date}</p>
+                                                            <p className="text-[9px] font-black uppercase text-primary/20 mb-1">{order.id.slice(0, 8)} • {order.items?.length || 0} item(s)</p>
+                                                            <h4 className="text-2xl font-black font-serif uppercase italic text-primary">{productName}</h4>
+                                                            <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-2">{new Date(order.createdAt).toLocaleDateString()}</p>
                                                         </div>
                                                     </div>
                                                     <div className="flex flex-row md:flex-col justify-between items-center md:items-end w-full md:w-auto border-t md:border-t-0 pt-6 md:pt-0 border-primary/5">
                                                         <div className="flex flex-col md:flex-row gap-4 items-center">
                                                             <button
-                                                                onClick={() => openPassport(order.id)}
+                                                                onClick={() => router.push(`/track-order?reference=${encodeURIComponent(order.trackingId || order.id)}`)}
                                                                 className="flex items-center gap-2 text-[9px] font-black uppercase tracking-widest text-secondary hover:text-primary transition-colors border border-secondary/20 px-4 py-2 rounded-xl"
                                                             >
                                                                 <QrCode size={14} /> Trace Origin
                                                             </button>
-                                                            {order.status === 'In Transit' && (
+                                                            {isInTransit && (
                                                                 <button
                                                                     onClick={() => handleAction("Live Track Map")}
                                                                     className="flex items-center gap-2 bg-primary text-secondary px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-secondary hover:text-primary transition-all shadow-lg animate-pulse"
@@ -606,12 +608,14 @@ export default function BuyerDashboard() {
                                                                     <Navigation size={14} /> Live Track
                                                                 </button>
                                                             )}
-                                                            <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${order.status === 'Delivered' ? 'bg-green-500 text-white' : 'bg-secondary text-primary'}`}>{order.status}</span>
-                                                            <p className="text-2xl font-black font-serif italic text-primary mt-4 md:mt-0">{order.price}</p>
+                                                            <button onClick={() => { (order.items || []).forEach((item: any) => item.product && addToCart({ id: item.product.id, name: item.product.name, price: Number(item.product.price), image: item.product.images?.[0] || '', quantity: Math.min(item.quantity, item.product.stock), category: item.product.category || '' })); router.push('/cart'); }} className="rounded-xl border border-primary/15 px-4 py-2 text-[9px] font-black uppercase tracking-widest text-primary">Reorder</button>
+                                                            <span className={`px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest ${order.orderStatus === 'delivered' ? 'bg-green-500 text-white' : 'bg-secondary text-primary'}`}>{order.orderStatus}</span>
+                                                            <p className="text-2xl font-black font-serif italic text-primary mt-4 md:mt-0">₦{Number(order.totalAmount).toLocaleString()}</p>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
+                                                </div>;
+                                            })}
+                                            {buyerOrders.length === 0 && <p className="rounded-3xl border border-dashed border-primary/15 p-8 text-center text-sm font-bold text-primary/50">Your completed orders will appear here.</p>}
                                         </div>
                                     </div>
                                 )}
