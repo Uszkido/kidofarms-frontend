@@ -39,34 +39,11 @@ router.post('/credit', (_req, res) => {
 
 // POST /api/wallet/cashout (Withdrawal)
 router.post('/cashout', async (req, res) => {
-    const userId = req.user.id;
-    const { amount, bankDetails } = req.body;
-    try {
-        const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, userId));
-        if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
-
-        if (Number(wallet.balance) < Number(amount)) {
-            return res.status(400).json({ error: 'Insufficient balance' });
-        }
-
-        const newBalance = (Number(wallet.balance) - Number(amount)).toString();
-
-        await db.update(wallets)
-            .set({ balance: newBalance, updatedAt: new Date() })
-            .where(eq(wallets.id, wallet.id));
-
-        const [tx] = await db.insert(walletTransactions).values({
-            walletId: wallet.id,
-            type: 'debit',
-            amount: amount.toString(),
-            description: `Cashout to ${bankDetails?.bankName || 'Bank Account'}`
-        }).returning();
-
-        res.json({ message: 'Cashout successful', tx, newBalance });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Cashout failed' });
-    }
+    // Do not debit a customer before an actual payout provider has accepted the
+    // transfer. A request queue and provider webhook are required for that flow.
+    res.status(503).json({
+        error: 'Withdrawals are not available yet. Please contact support for a manual settlement.'
+    });
 });
 
 module.exports = router;

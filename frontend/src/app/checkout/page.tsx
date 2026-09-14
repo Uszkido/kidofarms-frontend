@@ -99,7 +99,7 @@ export default function CheckoutPage() {
 
             if (res.ok) {
                 clearCart();
-                router.push("/dashboard/buyer?success=true");
+                router.push(`/track-order?reference=${encodeURIComponent(orderId)}`);
             } else {
                 setError("Payment verification failed. Please contact support.");
             }

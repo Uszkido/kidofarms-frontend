@@ -42,6 +42,11 @@ export default function TrackOrderPage() {
     const [lookupError, setLookupError] = useState("");
     const [isLookingUp, setIsLookingUp] = useState(false);
 
+    useEffect(() => {
+        const reference = new URLSearchParams(window.location.search).get('reference');
+        if (reference) setLookup((current) => current.reference ? current : { ...current, reference });
+    }, []);
+
     const handleLookup = async (event: React.FormEvent) => {
         event.preventDefault();
         setIsLookingUp(true);

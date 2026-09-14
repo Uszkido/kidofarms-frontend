@@ -16,7 +16,6 @@ import {
     ArrowRight,
     CreditCard,
     ShieldCheck,
-    Plus,
     X,
     Loader2,
     Globe,
@@ -40,9 +39,7 @@ import {
     ArrowDownLeft,
     ArrowUpRight,
     Download,
-    CirclePlus,
     LayoutDashboard,
-    Fingerprint,
     QrCode,
     Navigation,
     Gavel,
@@ -79,12 +76,9 @@ export default function BuyerDashboard() {
     });
 
     // States from Consumer
-    const [cards, setCards] = useState<any[]>([]);
-    const [loadingCards, setLoadingCards] = useState(true);
     const [trackingId, setTrackingId] = useState("");
     const [trackingResult, setTrackingResult] = useState<any>(null);
     const [trackingLoading, setTrackingLoading] = useState(false);
-    const [isAddCardOpen, setIsAddCardOpen] = useState(false);
     const [wallet, setWallet] = useState<any>(null);
     const [walletTxs, setWalletTxs] = useState<any[]>([]);
     const [loadingWallet, setLoadingWallet] = useState(true);
@@ -145,7 +139,6 @@ export default function BuyerDashboard() {
     useEffect(() => {
         if ((session?.user as any)?.id) {
             fetchWallet();
-            fetchCards();
             if (isBusiness) fetchRFQs();
         }
     }, [(session?.user as any)?.id, isBusiness]);
@@ -160,21 +153,6 @@ export default function BuyerDashboard() {
             console.error(err);
         } finally {
             setLoadingWallet(false);
-        }
-    };
-
-    const fetchCards = async () => {
-        try {
-            const token = (session?.user as any)?.accessToken || (session as any)?.token;
-            const res = await fetch(getApiUrl('/api/cards'), {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            });
-            const data = await res.json();
-            if (Array.isArray(data)) setCards(data);
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoadingCards(false);
         }
     };
 
@@ -750,37 +728,19 @@ export default function BuyerDashboard() {
 
                             {/* Sidebar Section */}
                             <div className="lg:col-span-4 space-y-8">
-                                {/* Saved Cards Node */}
+                                {/* Secure payment information */}
                                 <div className="bg-white p-6 md:p-10 rounded-[2.5rem] md:rounded-[3.5rem] border border-primary/5 shadow-2xl space-y-10">
                                     <div className="flex justify-between items-center px-2">
-                                        <h3 className="text-2xl font-black font-serif italic uppercase text-primary">Card <span className="text-secondary underline underline-offset-4 decoration-2">Nodes</span></h3>
-                                        <button onClick={() => setIsAddCardOpen(true)} className="p-3 bg-primary text-secondary rounded-2xl hover:scale-110 transition-all shadow-xl"><Plus size={18} /></button>
+                                        <h3 className="text-2xl font-black font-serif italic uppercase text-primary">Secure <span className="text-secondary underline underline-offset-4 decoration-2">Payments</span></h3>
+                                        <ShieldCheck className="text-secondary" size={24} aria-hidden="true" />
                                     </div>
-                                    <div className="space-y-6">
-                                        {cards.length > 0 ? cards.map((card, i) => (
-                                            <div key={i} className="bg-gradient-to-br from-[#102018] to-black p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden group hover:scale-[1.02] transition-all cursor-pointer">
-                                                <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/5 rounded-full blur-2xl -translate-y-10 translate-x-10" />
-                                                <div className="space-y-8 relative z-10">
-                                                    <div className="flex justify-between items-start">
-                                                        <CreditCard className="text-secondary" size={24} />
-                                                        <p className="text-[10px] font-black italic uppercase tracking-[0.2em]">{card.cardBrand}</p>
-                                                    </div>
-                                                    <p className="text-lg font-sans font-black tracking-[0.3em]">•••• •••• •••• {card.last4}</p>
-                                                    <div className="flex justify-between items-end">
-                                                        <div>
-                                                            <p className="text-[7px] font-black uppercase text-white/30 italic">Expiry</p>
-                                                            <p className="text-[10px] font-black uppercase">{card.expiry}</p>
-                                                        </div>
-                                                        <Fingerprint size={24} className="text-secondary opacity-40" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )) : (
-                                            <div className="py-16 text-center bg-cream/20 border-4 border-dashed border-primary/5 rounded-[3rem] group hover:border-secondary transition-all cursor-pointer" onClick={() => setIsAddCardOpen(true)}>
-                                                <CirclePlus className="mx-auto text-primary/5 group-hover:text-secondary group-hover:scale-110 transition-all" size={48} />
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-primary/20 mt-4 italic">Initialize Card Registry</p>
-                                            </div>
-                                        )}
+                                    <div className="rounded-[2rem] bg-cream/30 p-7 text-center space-y-4">
+                                        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-secondary shadow-xl">
+                                            <ShieldCheck size={26} aria-hidden="true" />
+                                        </div>
+                                        <p className="text-sm font-black text-primary">Your card details are never stored by Kido Farms.</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-wide leading-relaxed text-primary/50">Payments are completed securely through Paystack when you check out.</p>
+                                        <Link href="/shop" className="inline-flex items-center justify-center rounded-2xl bg-primary px-5 py-3 text-[10px] font-black uppercase tracking-widest text-secondary transition-colors hover:bg-secondary hover:text-primary">Shop securely</Link>
                                     </div>
                                 </div>
 
@@ -844,47 +804,6 @@ export default function BuyerDashboard() {
 
             <Footer />
 
-            {/* Modals Bridge */}
-            {isAddCardOpen && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 md:p-6 bg-primary/95 backdrop-blur-2xl">
-                    <div className="bg-white w-full max-w-lg rounded-[2.5rem] md:rounded-[4rem] p-8 md:p-12 shadow-2xl relative animate-in zoom-in-95">
-                        <button onClick={() => setIsAddCardOpen(false)} className="absolute top-12 right-12 text-primary/10 hover:text-primary transition-colors">
-                            <X size={32} />
-                        </button>
-                        <div className="text-center mb-10 space-y-4">
-                            <div className="w-20 h-20 bg-secondary rounded-[2rem] flex items-center justify-center mx-auto text-primary shadow-2xl">
-                                <CreditCard size={32} />
-                            </div>
-                            <h3 className="text-4xl font-black font-serif italic uppercase tracking-tighter leading-none">Card <span className="text-secondary">Registry</span></h3>
-                            <p className="text-[9px] font-black uppercase tracking-widest text-primary/30 italic">Authorized Secure Protocol Gateway</p>
-                        </div>
-
-                        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); setIsAddCardOpen(false); handleAction("Financial Node Link"); }}>
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-black uppercase tracking-widest text-primary/30 ml-6 italic">Registry Name</label>
-                                <input required placeholder="J. DOE" className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black uppercase tracking-widest text-xs" />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[9px] font-black uppercase tracking-widest text-primary/30 ml-6 italic">Primary Node Identifier</label>
-                                <input required placeholder="XXXX XXXX XXXX XXXX" className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-sans font-black tracking-widest text-sm" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-primary/30 ml-6 italic">Entropy Expiry</label>
-                                    <input required placeholder="MM/YY" className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black text-xs" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[9px] font-black uppercase tracking-widest text-primary/30 ml-6 italic">CVV Vector</label>
-                                    <input required placeholder="***" className="w-full bg-neutral-50 border border-primary/5 rounded-2xl px-6 py-4 outline-none focus:border-secondary font-black text-xs" />
-                                </div>
-                            </div>
-                            <button type="submit" className="w-full bg-primary text-secondary py-6 rounded-[2.5rem] font-black uppercase tracking-[0.3em] text-[10px] shadow-2xl hover:bg-secondary hover:text-primary transition-all font-sans">
-                                Authorize Sovereign Linking
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }

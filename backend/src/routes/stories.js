@@ -8,11 +8,24 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
 // GET /api/stories (List all active stories)
 router.get('/', async (req, res) => {
     try {
-        const data = await db.query.stories.findMany({
-            with: { vendor: true },
-            orderBy: [desc(stories.createdAt)]
-        });
-        res.json(data);
+        const data = await db.select({
+            id: stories.id,
+            vendorId: stories.vendorId,
+            mediaUrl: stories.mediaUrl,
+            mediaType: stories.mediaType,
+            caption: stories.caption,
+            expiresAt: stories.expiresAt,
+            createdAt: stories.createdAt,
+            vendorName: users.name,
+        })
+            .from(stories)
+            .leftJoin(users, eq(stories.vendorId, users.id))
+            .orderBy(desc(stories.createdAt));
+        // Keep the existing client shape but return only the public display name.
+        res.json(data.map(({ vendorName, ...story }) => ({
+            ...story,
+            vendor: { name: vendorName || 'Kido Farm' },
+        })));
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: 'Failed to fetch stories' });

@@ -149,16 +149,30 @@ router.patch('/:id/status', authenticateToken, authorizeRoles('admin', 'sub-admi
 // Get individual vendor profile (Public)
 router.get('/:id', async (req, res) => {
     try {
-        const vendor = await db.query.vendors.findFirst({
-            where: eq(vendors.id, req.params.id),
-            with: {
-                user: true
-            }
-        });
+        const [vendor] = await db.select({
+            id: vendors.id,
+            businessName: vendors.businessName,
+            description: vendors.description,
+            logo: vendors.logo,
+            categories: vendors.categories,
+            createdAt: vendors.createdAt,
+            userState: users.state,
+            userName: users.name,
+        })
+            .from(vendors)
+            .leftJoin(users, eq(vendors.userId, users.id))
+            .where(and(eq(vendors.id, req.params.id), eq(vendors.status, 'approved')))
+            .limit(1);
 
         if (!vendor) return res.status(404).json({ error: 'Vendor not found' });
 
-        res.json(vendor);
+        // Never expose linked account fields such as email, phone, address, or password.
+        res.json({
+            ...vendor,
+            user: { name: vendor.userName, state: vendor.userState },
+            userName: undefined,
+            userState: undefined,
+        });
     } catch (error) {
         console.error('Vendor Profile Error:', error);
         res.status(500).json({ error: 'Failed to fetch vendor profile' });
