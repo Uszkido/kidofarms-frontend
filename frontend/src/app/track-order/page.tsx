@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { getApiUrl } from "@/lib/api";
 import { useSession } from "next-auth/react";
 import nextDynamic from "next/dynamic";
-import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermometer } from "lucide-react";
+import { Loader2, Package, MapPin, Truck, AlertTriangle, ShieldCheck, Thermometer, Search, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const AdvancedMap = nextDynamic(() => import("@/components/AdvancedTrackingMap"), {
@@ -37,6 +37,31 @@ export default function TrackOrderPage() {
     const [selectedShipment, setSelectedShipment] = useState<Shipment | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [aftershipData, setAftershipData] = useState<any>(null);
+    const [lookup, setLookup] = useState({ reference: "", email: "" });
+    const [lookupResult, setLookupResult] = useState<any>(null);
+    const [lookupError, setLookupError] = useState("");
+    const [isLookingUp, setIsLookingUp] = useState(false);
+
+    const handleLookup = async (event: React.FormEvent) => {
+        event.preventDefault();
+        setIsLookingUp(true);
+        setLookupError("");
+        setLookupResult(null);
+        try {
+            const response = await fetch(getApiUrl('/api/orders/lookup'), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(lookup),
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Unable to find that order.');
+            setLookupResult(data);
+        } catch (error: any) {
+            setLookupError(error.message || 'Unable to find that order.');
+        } finally {
+            setIsLookingUp(false);
+        }
+    };
 
     useEffect(() => {
         if (selectedShipment && session) {
@@ -120,6 +145,23 @@ export default function TrackOrderPage() {
                                 <div className="absolute inset-x-0 bottom-0 py-2 bg-secondary text-primary text-[8px] font-black uppercase tracking-widest text-center">Node Active</div>
                             </div>
                         </div>
+
+                        <section className="rounded-[2rem] border border-white/10 bg-white/5 p-6 md:p-8 shadow-xl">
+                            <div className="grid lg:grid-cols-[1fr_auto] gap-6 items-start">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-secondary">Guest order lookup</p>
+                                    <h2 className="mt-2 text-2xl font-black font-serif italic text-white">Find an order without signing in</h2>
+                                    <p className="mt-2 text-sm text-white/45">Use the order reference from your confirmation and the email used at checkout.</p>
+                                </div>
+                                {lookupResult && <div className="rounded-2xl border border-green-400/20 bg-green-400/10 px-5 py-4 text-sm text-green-100"><div className="flex gap-2 items-center font-bold"><CheckCircle2 size={16} /> {lookupResult.orderStatus}</div><p className="mt-1 text-xs text-green-100/70">{lookupResult.trackingId ? `Tracking: ${lookupResult.trackingId}` : 'Tracking is assigned when dispatch begins.'}</p></div>}
+                            </div>
+                            <form onSubmit={handleLookup} className="mt-6 grid md:grid-cols-[1.1fr_1.3fr_auto] gap-3">
+                                <input value={lookup.reference} onChange={(event) => setLookup({ ...lookup, reference: event.target.value })} placeholder="Order or tracking reference" required className="min-w-0 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-secondary" />
+                                <input type="email" value={lookup.email} onChange={(event) => setLookup({ ...lookup, email: event.target.value })} placeholder="Checkout email" required className="min-w-0 rounded-xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none focus:border-secondary" />
+                                <button disabled={isLookingUp} className="inline-flex items-center justify-center gap-2 rounded-xl bg-secondary px-5 py-3 text-sm font-black text-primary transition hover:bg-white disabled:opacity-60">{isLookingUp ? <Loader2 size={17} className="animate-spin" /> : <Search size={17} />} Find order</button>
+                            </form>
+                            {lookupError && <p className="mt-3 text-sm text-red-300">{lookupError}</p>}
+                        </section>
 
                         {shipments.length === 0 ? (
                             <div className="p-20 md:p-40 rounded-[4rem] bg-white/5 border-2 border-white/10 text-center space-y-10 flex flex-col items-center shadow-2xl relative overflow-hidden group">

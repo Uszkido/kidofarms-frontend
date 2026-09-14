@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
 const { orders, orderItems, affiliates, commissions, products, settings } = require('../db/schema');
-const { desc, eq, inArray, and } = require('drizzle-orm');
+const { desc, eq, inArray, and, or } = require('drizzle-orm');
 const { sendOrderToBot, sendTelegramAlert } = require('../lib/bot');
 const { sendOrderConfirmation } = require('../lib/email');
 const axios = require('axios');
@@ -247,6 +247,35 @@ router.post('/verify-payment', async (req, res) => {
     } catch (error) {
         console.error("Paystack Verification Error:", error.response?.data || error.message);
         res.status(500).json({ error: 'Verification System Failure' });
+    }
+});
+
+// Guest-safe order lookup. Matching the email used at checkout prevents an
+// order reference from becoming a public source of customer information.
+router.post('/lookup', async (req, res) => {
+    const reference = typeof req.body?.reference === 'string' ? req.body.reference.trim() : '';
+    const email = typeof req.body?.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+    if (!reference || !email) return res.status(400).json({ error: 'Order reference and email are required.' });
+
+    try {
+        const order = await db.query.orders.findFirst({
+            where: and(
+                eq(orders.guestEmail, email),
+                or(eq(orders.id, reference), eq(orders.paystackReference, reference), eq(orders.trackingId, reference))
+            )
+        });
+        if (!order) return res.status(404).json({ error: 'We could not find an order with those details.' });
+
+        res.json({
+            orderId: order.id,
+            orderStatus: order.orderStatus,
+            paymentStatus: order.paymentStatus,
+            trackingId: order.trackingId,
+            createdAt: order.createdAt,
+        });
+    } catch (error) {
+        console.error('Order lookup failed:', error);
+        res.status(500).json({ error: 'Order lookup is temporarily unavailable.' });
     }
 });
 
