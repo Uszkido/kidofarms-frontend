@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const fs = require('fs');
 const path = require('path');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+
+const isValidDocumentId = (id) => typeof id === 'string' && /^[a-z0-9_-]{1,100}$/i.test(id);
 
 // GET /api/library - List all knowledge nodes
 router.get('/', (req, res) => {
@@ -26,6 +29,7 @@ router.get('/', (req, res) => {
 // GET /api/library/:id - Get specific document content
 router.get('/:id', (req, res) => {
     try {
+        if (!isValidDocumentId(req.params.id)) return res.status(400).json({ error: 'Invalid document ID.' });
         const filePath = path.join(__dirname, '../../../frontend/src/knowledge', `${req.params.id}.md`);
         if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Document not found." });
 
@@ -40,10 +44,10 @@ router.get('/:id', (req, res) => {
 });
 
 // POST /api/library - Inject or Update protocol
-router.post('/', (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), (req, res) => {
     try {
         const { id, content } = req.body;
-        if (!id || !content) return res.status(400).json({ error: "Missing ID or content." });
+        if (!isValidDocumentId(id) || typeof content !== 'string') return res.status(400).json({ error: "Provide a valid document ID and content." });
 
         const fileName = id.endsWith('.md') ? id : `${id.toLowerCase().replace(/\s+/g, '_')}.md`;
         const filePath = path.join(__dirname, '../../../frontend/src/knowledge', fileName);
@@ -56,8 +60,9 @@ router.post('/', (req, res) => {
 });
 
 // DELETE /api/library/:id - Wipe a knowledge node
-router.delete('/:id', (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), (req, res) => {
     try {
+        if (!isValidDocumentId(req.params.id)) return res.status(400).json({ error: 'Invalid document ID.' });
         const filePath = path.join(__dirname, '../../../frontend/src/knowledge', `${req.params.id}.md`);
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);

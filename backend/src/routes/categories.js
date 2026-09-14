@@ -55,7 +55,7 @@ router.delete('/:id', authenticateToken, authorizeRoles('admin'), async (req, re
     }
 });
 
-router.post('/init', async (req, res) => {
+router.post('/init', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         const { products } = require('../db/schema');
         const { eq } = require('drizzle-orm');

@@ -119,7 +119,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/init', async (req, res) => {
+router.post('/init', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         const count = await db.select().from(products);
         if (count.length === 0) {

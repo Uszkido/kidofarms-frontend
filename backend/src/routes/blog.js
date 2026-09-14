@@ -3,7 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { blogPosts } = require('../db/schema');
 const { desc } = require('drizzle-orm');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 router.get('/', async (req, res) => {
     try {
@@ -32,7 +32,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/blog
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [post] = await db.insert(blogPosts).values({
             ...req.body,
@@ -46,7 +46,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/blog/:id
-router.patch('/:id', authenticateToken, async (req, res) => {
+router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         const [updated] = await db.update(blogPosts)
@@ -60,7 +60,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/blog/:id
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         await db.delete(blogPosts).where(eq(blogPosts.id, req.params.id));
@@ -70,7 +70,7 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/init', async (req, res) => {
+router.post('/init', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         const { users } = require('../db/schema');
         const { eq } = require('drizzle-orm');

@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { impactMetrics } = require('../db/schema');
 const { eq } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // GET impact metrics
 router.get('/', async (req, res) => {
@@ -17,7 +18,7 @@ router.get('/', async (req, res) => {
 });
 
 // Admin: Update impact metrics
-router.put('/', async (req, res) => {
+router.put('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [metrics] = await db.insert(impactMetrics).values({
             id: 'current_metrics',

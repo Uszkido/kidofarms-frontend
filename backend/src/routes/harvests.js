@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { harvests } = require('../db/schema');
 const { desc, eq } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // GET /api/harvests
 router.get('/', async (req, res) => {
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/harvests (Admin only - placeholder)
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [harvest] = await db.insert(harvests).values(req.body).returning();
         res.status(201).json(harvest);
@@ -27,7 +28,7 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/harvests/:id
-router.patch('/:id', async (req, res) => {
+router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [updated] = await db.update(harvests)
             .set(req.body)
@@ -40,7 +41,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // Seed some initial harvests if empty
-router.post('/init', async (req, res) => {
+router.post('/init', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         const count = await db.select().from(harvests);
         if (count.length === 0) {
