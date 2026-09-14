@@ -44,10 +44,6 @@ export default function SubscriptionCheckoutPage() {
         state: "Lagos",
         zip: "",
         plan: "Weekly Farm Basket",
-        cardName: "",
-        cardNumber: "",
-        expiry: "",
-        cvv: ""
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -59,29 +55,42 @@ export default function SubscriptionCheckoutPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        const token = (session?.user as any)?.accessToken || (session as any)?.token;
+        if (!token) {
+            setActionState({
+                isOpen: true,
+                title: "Sign in required",
+                message: "Please sign in before submitting a subscription request.",
+                status: "error"
+            });
+            return;
+        }
         setIsSubmitting(true);
         setActionState({
             isOpen: true,
             title: "Subscription",
-            message: "Securing your farm node and processing payment...",
+            message: "Submitting your subscription request...",
             status: "processing"
         });
 
         try {
             const res = await fetch(getApiUrl("/api/subscribers"), {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
                 body: JSON.stringify(formData)
             });
             if (res.ok) {
                 setActionState(prev => ({
                     ...prev,
-                    message: "Welcome to Elite Protocol. Your node is now active.",
+                    message: "Your request is received. We will confirm payment and your delivery schedule before activating the plan.",
                     status: "success"
                 }));
                 // Success! Redirect to subscriber dashboard after a delay
                 setTimeout(() => {
-                    router.push("/dashboard/subscriber?status=success");
+                    router.push("/dashboard/subscriber?status=pending");
                 }, 2000);
             } else {
                 setActionState({
@@ -209,8 +218,8 @@ export default function SubscriptionCheckoutPage() {
                                 <div className="space-y-8 animate-in fade-in slide-in-from-right-5 duration-500">
                                     <div className="flex justify-between items-center">
                                         <div className="space-y-2">
-                                            <h2 className="text-4xl font-black font-serif">Secure Payment</h2>
-                                            <p className="text-primary/40 text-sm font-medium">Verify your plan and complete payment.</p>
+                                            <h2 className="text-4xl font-black font-serif">Subscription Request</h2>
+                                            <p className="text-primary/40 text-sm font-medium">Review your plan. We will confirm payment before activation.</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="text-3xl font-black text-secondary font-serif">₦40,000</p>
@@ -227,21 +236,8 @@ export default function SubscriptionCheckoutPage() {
                                                 <div className="w-8 h-8 rounded-full bg-cream/20" />
                                             </div>
                                         </div>
-                                        <div className="space-y-4">
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2">Card Number</label>
-                                                <input name="cardNumber" value={formData.cardNumber} onChange={handleChange} className="w-full bg-white/10 border-none rounded-2xl py-4 px-6 outline-none focus:ring-1 focus:ring-secondary text-white placeholder:text-white/20 font-mono tracking-widest" placeholder="**** **** **** ****" />
-                                            </div>
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2">Expiry Date</label>
-                                                    <input name="expiry" value={formData.expiry} onChange={handleChange} className="w-full bg-white/10 border-none rounded-2xl py-4 px-6 outline-none focus:ring-1 focus:ring-secondary text-white placeholder:text-white/20 font-medium" placeholder="MM/YY" />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <label className="text-[10px] font-black uppercase tracking-widest text-white/40 px-2">CVV</label>
-                                                    <input name="cvv" value={formData.cvv} onChange={handleChange} className="w-full bg-white/10 border-none rounded-2xl py-4 px-6 outline-none focus:ring-1 focus:ring-secondary text-white placeholder:text-white/20 font-medium" placeholder="***" />
-                                                </div>
-                                            </div>
+                                        <div className="rounded-2xl bg-white/10 p-6 text-sm leading-relaxed text-white/80">
+                                            Kido Farms never collects card numbers, expiry dates, or CVV in this form. A secure payment link will be sent when your plan is approved.
                                         </div>
                                     </div>
 
@@ -254,11 +250,11 @@ export default function SubscriptionCheckoutPage() {
                                             disabled={isSubmitting}
                                             className="flex-[2] bg-secondary text-primary py-6 rounded-3xl font-black text-lg hover:bg-white border-2 border-secondary transition-all shadow-xl flex items-center justify-center gap-3"
                                         >
-                                            {isSubmitting ? <Loader2 className="animate-spin" /> : "Complete Secure Payment"}
+                                            {isSubmitting ? <Loader2 className="animate-spin" /> : "Submit subscription request"}
                                         </button>
                                     </div>
                                     <p className="text-center text-[10px] font-black uppercase tracking-widest text-primary/20">
-                                        By clicking, you authorize Kido Farms to charge your card N40,000 monthly. Secure SSL Encryption Active.
+                                        Your plan remains pending until a verified payment is completed.
                                     </p>
                                 </div>
                             )}

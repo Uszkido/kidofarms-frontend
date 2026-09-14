@@ -3,9 +3,9 @@ const router = express.Router();
 const { db } = require('../db');
 const { subscribers } = require('../db/schema');
 const { desc } = require('drizzle-orm');
-const { authenticateToken } = require('../middleware/authMiddleware');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const data = await db.select().from(subscribers).orderBy(desc(subscribers.createdAt));
         res.json(data);
@@ -17,7 +17,13 @@ router.get('/', async (req, res) => {
 // POST /api/subscribers
 router.post('/', authenticateToken, async (req, res) => {
     try {
-        const { email, phone, street, city, state, zip, plan, userId } = req.body;
+        const { phone, street, city, state, zip, plan } = req.body;
+        const email = req.user.email;
+        const userId = req.user.id;
+
+        if (!email || !phone || !street || !city || !state || !plan) {
+            return res.status(400).json({ error: 'Please provide your contact details, delivery address, and plan.' });
+        }
 
         // Check if subscriber already exists
         const { eq } = require('drizzle-orm');
@@ -26,7 +32,7 @@ router.post('/', authenticateToken, async (req, res) => {
         if (existing.length > 0) {
             // Update existing subscriber
             const [updated] = await db.update(subscribers)
-                .set({ phone, street, city, state, zip, plan, userId, status: 'active', paymentStatus: 'paid' })
+                .set({ phone, street, city, state, zip, plan, userId, status: 'pending', paymentStatus: 'pending' })
                 .where(eq(subscribers.email, email))
                 .returning();
             return res.json(updated);
@@ -34,8 +40,8 @@ router.post('/', authenticateToken, async (req, res) => {
 
         const [sub] = await db.insert(subscribers).values({
             email, phone, street, city, state, zip, plan, userId,
-            status: 'active',
-            paymentStatus: 'paid'
+            status: 'pending',
+            paymentStatus: 'pending'
         }).returning();
 
         res.status(201).json(sub);
@@ -46,7 +52,7 @@ router.post('/', authenticateToken, async (req, res) => {
 });
 
 // PATCH /api/subscribers/:id
-router.patch('/:id', authenticateToken, async (req, res) => {
+router.patch('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         const [updated] = await db.update(subscribers)
@@ -60,7 +66,7 @@ router.patch('/:id', authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/subscribers/:id
-router.delete('/:id', authenticateToken, async (req, res) => {
+router.delete('/:id', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const { eq } = require('drizzle-orm');
         await db.delete(subscribers).where(eq(subscribers.id, req.params.id));
