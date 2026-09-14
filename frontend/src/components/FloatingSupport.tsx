@@ -33,13 +33,15 @@ export function FloatingSupport() {
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={() => setIsAiOpen(!isAiOpen)}
-                    className={`w-14 h-14 md:w-20 md:h-20 rounded-full flex items-center justify-center shadow-2xl transition-all relative ${isAiOpen ? "bg-white text-primary border border-primary/5" : "bg-secondary text-primary border-4 border-black/5"
+                    aria-label={isAiOpen ? "Close Kido Assistant" : "Open Kido Assistant"}
+                    title="Ask Kido Assistant"
+                    className={`w-12 h-12 md:w-16 md:h-16 rounded-full flex items-center justify-center shadow-2xl transition-all relative ${isAiOpen ? "bg-white text-primary border border-primary/5" : "bg-secondary text-primary border-4 border-black/5"
                         }`}
                 >
                     <div className="absolute -top-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-primary rounded-full flex items-center justify-center text-white text-[8px] md:text-[9px] font-black shadow-lg border-2 border-secondary">
                         AI
                     </div>
-                    {isAiOpen ? <X size={20} className="md:w-[28px] md:h-[28px]" strokeWidth={2.5} /> : <MessageSquare size={24} className="md:w-[32px] md:h-[32px]" strokeWidth={2.5} />}
+                    {isAiOpen ? <X size={19} className="md:w-6 md:h-6" strokeWidth={2.5} /> : <MessageSquare size={21} className="md:w-7 md:h-7" strokeWidth={2.5} />}
                 </motion.button>
             </div>
 

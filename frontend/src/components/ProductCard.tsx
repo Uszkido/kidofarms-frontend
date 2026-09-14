@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Star, MapPin } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 interface ProductCardProps {
@@ -16,6 +16,8 @@ interface ProductCardProps {
     rating?: number;
     trackingId?: string;
     ownerId?: string;
+    stock?: number;
+    unit?: string;
 }
 
 export default function ProductCard({
@@ -27,7 +29,9 @@ export default function ProductCard({
     category,
     farmSource,
     rating,
-    trackingId
+    trackingId,
+    stock,
+    unit,
 }: ProductCardProps) {
     const { addToCart } = useCart();
 
@@ -51,8 +55,8 @@ export default function ProductCard({
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-700"
                 />
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black text-primary shadow-sm">
-                    {farmSource || "Lagos, NG"}
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black text-primary shadow-sm flex items-center gap-1">
+                    <MapPin size={10} /> {farmSource || "Kido verified"}
                 </div>
                 <div className="absolute top-4 right-4 bg-secondary px-3 py-1 rounded-full text-[10px] font-black text-primary shadow-sm">
                     {category}
@@ -69,17 +73,19 @@ export default function ProductCard({
                         <h4 className="text-xl font-bold font-serif group-hover:text-secondary transition-colors line-clamp-1">{name}</h4>
                     </Link>
                     {description && <p className="text-xs text-primary/40 font-medium line-clamp-2">{description}</p>}
+                    <div className="flex items-center gap-2 text-[10px] font-bold text-primary/45"><Star size={12} className="fill-secondary text-secondary" /> {rating || '4.8'} <span className="text-primary/20">•</span> {stock !== undefined ? (stock > 0 ? `${stock} ${unit || 'units'} available` : 'Sold out') : 'Fresh stock'}</div>
                 </div>
                 <div className="flex justify-between items-center pt-4 border-t border-primary/5 mt-auto">
                     <div className="flex flex-col">
                         <span className="text-xl font-bold text-primary">₦{price.toLocaleString()}</span>
-                        <span className="text-[10px] text-primary/30 font-bold uppercase">Source Verified</span>
+                        <span className="text-[10px] text-primary/30 font-bold uppercase">{unit ? `Per ${unit}` : 'Source verified'}</span>
                     </div>
                     <button
                         type="button"
                         onClick={handleAddToCart}
                         aria-label={`Add ${name} to cart`}
-                        className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-lg"
+                        disabled={stock !== undefined && stock < 1}
+                        className="w-12 h-12 rounded-2xl bg-primary text-white flex items-center justify-center hover:bg-secondary hover:text-primary transition-all shadow-lg disabled:cursor-not-allowed disabled:opacity-40"
                     >
                         <ShoppingCart size={20} />
                     </button>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
-import { Trash2, ShoppingBag, ArrowRight, Sparkles, Loader2, UtensilsCrossed } from "lucide-react";
+import { Trash2, ShoppingBag, ArrowRight, Sparkles, Loader2, UtensilsCrossed, ShieldCheck, Truck, Leaf } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import axios from "axios";
@@ -103,7 +103,7 @@ export default function CartPage() {
                                     </div>
                                     <div className="flex justify-between text-primary/70">
                                         <span>Shipping</span>
-                                        <span className="font-bold text-accent">Free</span>
+                                        <span className="font-bold text-primary/60">Calculated at checkout</span>
                                     </div>
                                     <div className="flex justify-between text-xl font-bold pt-4 border-t border-primary/5">
                                         <span>Total</span>
@@ -116,9 +116,7 @@ export default function CartPage() {
                                     <ArrowRight size={20} />
                                 </Link>
 
-                                <p className="text-center text-[10px] uppercase font-bold tracking-widest text-primary/30">
-                                    Secure Checkout Guaranteed
-                                </p>
+                                <div className="grid grid-cols-3 gap-2 border-t border-primary/5 pt-5 text-center text-[9px] font-bold text-primary/45"><span className="flex flex-col items-center gap-1"><ShieldCheck size={15} className="text-secondary" />Secure payment</span><span className="flex flex-col items-center gap-1"><Truck size={15} className="text-secondary" />Delivery shown first</span><span className="flex flex-col items-center gap-1"><Leaf size={15} className="text-secondary" />Farm sourced</span></div>
                             </div>
 
                             {/* AI Recipe Suggestions */}

@@ -17,6 +17,7 @@ import { NIGERIAN_STATES } from "@/lib/constants";
 export function ProductDetailsClient({ product, id }: { product: any, id: string }) {
     const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
+    const [selectedImage, setSelectedImage] = useState(0);
     const [isFarmerModalOpen, setIsFarmerModalOpen] = useState(false);
     const [deliveryState, setDeliveryState] = useState("Lagos");
     const [deliveryQuote, setDeliveryQuote] = useState<{ fee: number; estimate: string } | null>(null);
@@ -77,7 +78,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                 status={actionState.status}
             />
 
-            <main className="flex-grow py-24">
+            <main className="flex-grow py-24 pb-32 md:pb-24">
                 <div className="container mx-auto px-6 max-w-7xl">
                     <Link href="/shop" className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/40 hover:text-primary mb-10 transition-colors w-fit">
                         <ArrowLeft size={14} /> Back to Shop
@@ -88,7 +89,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                         <div className="space-y-4">
                             <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-primary/5 shadow-xl bg-white">
                                 <Image
-                                    src={displayImages[0]}
+                                    src={displayImages[selectedImage]}
                                     alt={product.name}
                                     fill
                                     className="object-cover"
@@ -188,6 +189,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                     <Heart size={24} />
                                 </button>
                             </div>
+                            {displayImages.length > 1 && <div className="flex gap-3 overflow-x-auto pb-1">{displayImages.map((image, index) => <button key={image} type="button" onClick={() => setSelectedImage(index)} className={`relative h-20 w-20 shrink-0 overflow-hidden rounded-xl border-2 ${selectedImage === index ? 'border-secondary' : 'border-transparent'}`}><Image src={image} alt={`${product.name} view ${index + 1}`} fill className="object-cover" /></button>)}</div>}
                             <Link href={`/wholesale?product=${encodeURIComponent(product.name)}`} className="inline-flex items-center gap-2 text-sm font-bold text-primary/65 underline decoration-secondary decoration-2 underline-offset-4 hover:text-primary"><Truck size={16} /> Need a bulk quantity? Request a wholesale quote</Link>
 
                             <div className="pt-8 border-t border-primary/5 flex flex-wrap gap-4">
@@ -297,6 +299,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                     <ProductReviews productId={id} productName={product.name} />
                 </div>
             </main>
+            <div className="fixed inset-x-0 bottom-0 z-50 border-t border-primary/10 bg-white/95 p-3 shadow-2xl backdrop-blur md:hidden"><div className="mx-auto flex max-w-lg items-center gap-3"><div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-primary">{product.name}</p><p className="font-serif text-lg font-black text-secondary">₦{Number(product.price).toLocaleString()}</p></div><button onClick={handleAddToCart} disabled={Number(product.stock) < 1} className="rounded-full bg-primary px-5 py-3 text-xs font-black text-white disabled:opacity-40">Add to cart</button></div></div>
         </div>
     );
 }

@@ -226,7 +226,7 @@ export default function CheckoutPage() {
             <Header />
             <main className="flex-grow py-24 bg-cream/30">
                 <div className="container mx-auto px-6">
-                    <h1 className="text-5xl font-bold font-serif mb-12">Checkout</h1>
+                    <div className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-[10px] font-black uppercase tracking-[.25em] text-secondary">Secure checkout</p><h1 className="mt-2 text-4xl font-bold font-serif md:text-5xl">Checkout</h1></div><div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-wider text-primary/45"><span className="rounded-full bg-primary px-3 py-2 text-white">1 Delivery</span><span className="h-px w-5 bg-primary/15" /><span className="rounded-full bg-white px-3 py-2">2 Payment</span><span className="h-px w-5 bg-primary/15" /><span className="rounded-full bg-white px-3 py-2">3 Review</span></div></div>
 
                     {(error || verifying) && (
                         <div className={`mb-8 px-6 py-4 rounded-2xl text-sm font-bold flex items-center gap-3 ${verifying ? 'bg-secondary/10 border border-secondary/20 text-secondary' : 'bg-red-50 border border-red-200 text-red-700'}`}>
@@ -371,9 +371,7 @@ export default function CheckoutPage() {
                                     {loading || verifying ? <Loader2 className="animate-spin" size={24} /> : "Proceed to Secure Payment"}
                                 </button>
 
-                                <div className="text-center">
-                                    <p className="text-[11px] text-primary/40">Secured with Yield-Shield™ Encryption Technology</p>
-                                </div>
+                                <div className="rounded-2xl bg-primary/[.03] p-4 text-center"><p className="text-[11px] font-medium text-primary/55">You will review your final Paystack payment before it is completed.</p><p className="mt-1 text-[10px] text-primary/35">No hidden delivery fees — your delivery estimate is shown above.</p></div>
                             </div>
                         </aside>
                     </div>

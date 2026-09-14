@@ -5,6 +5,7 @@ import {
     Users,
     ShoppingCart,
     Activity,
+    ShoppingBag,
     ArrowRight,
     Globe,
     ImagePlus,
@@ -338,6 +339,7 @@ export default function AdminDashboard() {
                         <ActionBtn href="/admin/inventory" icon={<Warehouse size={20} />} label="Global Restock" permission="inventory" />
                         <ActionBtn href="/admin/orders" icon={<ShoppingCart size={20} />} label="Audit Orders" permission="orders" />
                         <ActionBtn href="/admin/promotions/new" icon={<TrendingUp size={20} />} label="Deploy Promo" permission="promos" />
+                        <ActionBtn href="/admin/bundles" icon={<ShoppingBag size={20} />} label="Manage Bundles" permission="inventory" />
                         <ActionBtn href="/admin/tasks" icon={<Fingerprint size={20} />} label="Deploy Mission" permission="global_data_command" />
                         <ActionBtn href="/admin/library" icon={<BookOpen size={20} />} label="Knowledge Nodes" permission="global_data_command" />
                         <ActionBtn href="/admin/logs" icon={<Database size={20} />} label="Audit Ledger" permission="global_data_command" />
