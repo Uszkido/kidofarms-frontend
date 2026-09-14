@@ -606,7 +606,7 @@ router.patch('/users/:id', async (req, res) => {
 });
 
 // 9. GET /api/admin/settings - Retrieve global site config
-router.get('/settings', async (req, res) => {
+router.get('/settings', authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const [siteSettings] = await db.select().from(settings).limit(1);
         res.json(siteSettings || {});
@@ -616,10 +616,15 @@ router.get('/settings', async (req, res) => {
 });
 
 // 10. PATCH /api/admin/settings - Global Aesthetic & Theme Override
-router.patch('/settings', async (req, res) => {
+router.patch('/settings', authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
-        const [updated] = await db.update(settings)
-            .set({ ...req.body, updatedAt: new Date() })
+        const allowedFields = ['siteName', 'contactEmail', 'currency', 'taxRate', 'shippingOptions', 'themeConfig', 'logoConfig', 'isMaintenanceMode'];
+        const updates = Object.fromEntries(allowedFields
+            .filter((field) => req.body[field] !== undefined)
+            .map((field) => [field, req.body[field]]));
+        const [updated] = await db.insert(settings)
+            .values({ id: 'site_config', ...updates, updatedAt: new Date() })
+            .onConflictDoUpdate({ target: settings.id, set: { ...updates, updatedAt: new Date() } })
             .returning();
 
         await db.insert(activityLogs).values({

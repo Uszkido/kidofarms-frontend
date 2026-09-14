@@ -91,7 +91,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                         <span className="text-sm text-primary/40">({product.numReviews || "124"} reviews)</span>
                                     </div>
                                 </div>
-                                <h1 className="text-5xl font-bold font-serif">{product.name}</h1>
+                                <h1 className="text-4xl md:text-5xl font-bold font-serif leading-tight">{product.name}</h1>
                                 <div className="flex items-baseline gap-2">
                                     <p className="text-3xl font-bold text-secondary">₦{Number(product.price).toLocaleString()}</p>
                                     <p className="text-sm font-bold text-primary/30 uppercase">per {product.unit || "unit"}</p>
@@ -131,8 +131,8 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                 experience="Master Producer"
                             />
 
-                            <div className="grid grid-cols-2 gap-4">
-                                {["Rich in Vitamin C", "High Fiber Content", "Zero Pesticides", "Locally Grown"].map((benefit, i) => (
+                            <div className="grid sm:grid-cols-2 gap-4">
+                                {["Farm-source verified", "Traceable batch", "Carefully packed", "Locally sourced"].map((benefit, i) => (
                                     <div key={i} className="flex items-center gap-2 text-sm font-medium text-accent">
                                         <Leaf size={16} />
                                         {benefit}
@@ -179,7 +179,7 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                 <div className="flex-grow bg-white border border-primary/5 p-6 rounded-2xl flex items-center justify-between">
                                     <div className="space-y-1">
                                         <p className="text-[8px] font-black uppercase text-primary/30">Stock Availability</p>
-                                        <p className="text-xs font-black text-primary uppercase">{Number(product.stock) > 0 ? `${product.stock} units remaining` : "Currently out of stock"}</p>
+                                        <p className="text-xs font-black text-primary uppercase">{Number(product.stock) > 0 ? `${product.stock} ${product.unit || 'units'} available` : "Currently out of stock"}</p>
                                     </div>
                                     <Activity className="text-secondary animate-pulse" size={18} />
                                 </div>
@@ -190,14 +190,14 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
                                     <ShieldCheck className="text-secondary" size={24} />
                                     <div className="space-y-1">
                                         <p className="text-sm font-bold">Secure Delivery</p>
-                                        <p className="text-xs text-primary/40">Hygienic packaging & tracking.</p>
+                                        <p className="text-xs text-primary/40">Delivery cost and timing confirmed at checkout.</p>
                                     </div>
                                 </div>
                                 <div className="flex gap-3">
                                     <RefreshCw className="text-secondary" size={24} />
                                     <div className="space-y-1">
                                         <p className="text-sm font-bold">Freshness Refund</p>
-                                        <p className="text-xs text-primary/40">If not fresh, we replace it.</p>
+                                        <p className="text-xs text-primary/40">Contact support promptly if your order arrives damaged.</p>
                                     </div>
                                 </div>
                             </div>
@@ -221,8 +221,8 @@ export function ProductDetailsClient({ product, id }: { product: any, id: string
 
                                     <div className="space-y-4 pt-4 border-t border-white/10">
                                         {[
-                                            { label: "Harvest Date", value: "April 10, 2026" },
-                                            { label: "Time in Cold Storage", value: "2 Days" },
+                                            { label: "Harvest Date", value: product.harvestDate ? new Date(product.harvestDate).toLocaleDateString('en-NG', { year: 'numeric', month: 'short', day: 'numeric' }) : "Verified on request" },
+                                            { label: "Source", value: product.farmSource || "Kido verified producer" },
                                             { label: "Our Vision", href: "/about" },
                                             { label: "Sovereign Vault", href: "/vault" },
                                             { label: "Intelligence Exchange", href: "/exchange" },

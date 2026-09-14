@@ -17,17 +17,25 @@ import {
     Gift,
     Zap,
     Layout,
-    Leaf
+    Leaf,
+    Truck
 } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch, getApiUrl } from "@/lib/api";
 
 const DEFAULT_SETTINGS = {
     themeConfig: {
         primaryColor: "#06120e",
         secondaryColor: "#C5A059",
         accentColor: "#1a3c34",
-        fontFamily: "Outfit, sans-serif"
+        fontFamily: "Outfit, sans-serif",
+        deliveryZones: [
+            { state: "Plateau", fee: 1500, estimate: "1–2 business days" },
+            { state: "Abuja", fee: 3000, estimate: "2–3 business days" },
+            { state: "Lagos", fee: 3500, estimate: "2–4 business days" },
+            { state: "Kano", fee: 4000, estimate: "2–4 business days" },
+            { state: "Rivers", fee: 4500, estimate: "3–5 business days" }
+        ]
     },
     logoConfig: {
         mainLogo: "/logo.svg",
@@ -76,7 +84,7 @@ export default function AdminSettingsPage() {
 
     const fetchSettings = async () => {
         try {
-            const res = await fetch(getApiUrl("/api/admin/settings"));
+            const res = await authenticatedFetch("/api/admin/settings");
             if (res.ok) {
                 const data = await res.json();
                 // Merge with defaults to prevent crashes
@@ -102,7 +110,7 @@ export default function AdminSettingsPage() {
     const handleSave = async () => {
         setSaving(true);
         try {
-            const res = await fetch(getApiUrl("/api/admin/settings"), {
+            const res = await authenticatedFetch("/api/admin/settings", {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(settings)
@@ -138,6 +146,13 @@ export default function AdminSettingsPage() {
                 isOverlayActive: type !== 'none'
             }
         });
+    };
+
+    const updateDeliveryZone = (index: number, field: 'fee' | 'estimate', value: string) => {
+        if (!settings) return;
+        const zones = [...(settings.themeConfig?.deliveryZones || DEFAULT_SETTINGS.themeConfig.deliveryZones)];
+        zones[index] = { ...zones[index], [field]: field === 'fee' ? Math.max(0, Number(value) || 0) : value.slice(0, 80) };
+        setSettings({ ...settings, themeConfig: { ...settings.themeConfig, deliveryZones: zones } });
     };
 
     if (loading || !settings) return (
@@ -290,6 +305,25 @@ export default function AdminSettingsPage() {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </section>
+
+                        <section className="bg-white/5 border border-white/10 rounded-[4rem] p-8 md:p-12 backdrop-blur-3xl shadow-2xl space-y-8">
+                            <div className="flex items-center gap-4">
+                                <div className="p-4 bg-secondary/10 rounded-2xl text-secondary"><Truck size={24} /></div>
+                                <div>
+                                    <h3 className="text-3xl font-black font-serif italic text-white uppercase">Delivery <span className="text-secondary">Zones</span></h3>
+                                    <p className="text-[10px] font-bold uppercase tracking-widest text-white/35 mt-2">These fees and delivery windows appear at checkout.</p>
+                                </div>
+                            </div>
+                            <div className="space-y-3">
+                                {(settings.themeConfig?.deliveryZones || DEFAULT_SETTINGS.themeConfig.deliveryZones).map((zone: any, index: number) => (
+                                    <div key={zone.state} className="grid grid-cols-1 md:grid-cols-[1fr_130px_1.4fr] items-center gap-3 rounded-2xl border border-white/10 bg-black/20 p-4">
+                                        <p className="font-black uppercase tracking-widest text-xs text-white">{zone.state}</p>
+                                        <label className="flex items-center gap-2 text-secondary font-black"><span>₦</span><input type="number" min="0" value={zone.fee} onChange={(event) => updateDeliveryZone(index, 'fee', event.target.value)} className="w-full bg-transparent text-white outline-none" /></label>
+                                        <input value={zone.estimate} onChange={(event) => updateDeliveryZone(index, 'estimate', event.target.value)} aria-label={`${zone.state} delivery estimate`} className="w-full rounded-xl bg-white/5 px-3 py-2 text-xs text-white outline-none focus:ring-1 focus:ring-secondary" />
+                                    </div>
+                                ))}
                             </div>
                         </section>
                     </div>

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Filter, Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap, ShieldCheck } from "lucide-react";
+import { Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap, ShieldCheck } from "lucide-react";
 import { StoryFeed } from "@/components/StoryFeed";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,6 +28,8 @@ function ShopContent() {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState(initialSearch);
     const [categories, setCategories] = useState<string[]>(["All"]);
+    const [maxPrice, setMaxPrice] = useState(500000);
+    const [sortBy, setSortBy] = useState("featured");
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -72,6 +74,15 @@ function ShopContent() {
         message: "",
         status: "processing"
     });
+
+    const visibleProducts = [...products]
+        .filter((product) => Number(product.isFlashSale ? product.flashPrice || product.price : product.price) <= maxPrice)
+        .sort((a, b) => {
+            if (sortBy === 'price-low') return Number(a.price) - Number(b.price);
+            if (sortBy === 'price-high') return Number(b.price) - Number(a.price);
+            if (sortBy === 'rating') return Number(b.rating || 0) - Number(a.rating || 0);
+            return Number(b.isFeatured) - Number(a.isFeatured);
+        });
 
     const handleGroupBuy = async (productId: string) => {
         if (!session?.user) {
@@ -155,12 +166,15 @@ function ShopContent() {
                                     className="w-full pl-12 pr-4 py-3 rounded-full border border-primary/10 glass focus:ring-1 focus:ring-secondary outline-none text-sm"
                                 />
                             </div>
-                            <button onClick={() => alert("Advanced filtering interface opening soon...")} className="flex items-center gap-2 px-6 py-3 rounded-full glass border border-primary/10 text-sm font-bold hover:bg-white transition-all">
-                                <Filter size={18} /> Filters
-                            </button>
-                            <button onClick={() => alert("Sorting parameters coming soon...")} className="flex items-center gap-2 px-6 py-3 rounded-full glass border border-primary/10 text-sm font-bold hover:bg-white transition-all">
-                                <ArrowUpDown size={18} /> Sort
-                            </button>
+                            <label className="flex items-center gap-2 px-5 py-3 rounded-full glass border border-primary/10 text-sm font-bold">
+                                <ArrowUpDown size={18} />
+                                <select value={sortBy} onChange={(event) => setSortBy(event.target.value)} aria-label="Sort products" className="bg-transparent outline-none text-sm font-bold">
+                                    <option value="featured">Featured</option>
+                                    <option value="price-low">Price: low to high</option>
+                                    <option value="price-high">Price: high to low</option>
+                                    <option value="rating">Highest rated</option>
+                                </select>
+                            </label>
                         </div>
                     </div>
 
@@ -222,10 +236,10 @@ function ShopContent() {
                             <div className="space-y-6">
                                 <h3 className="text-xl font-bold font-serif">Price Range</h3>
                                 <div className="space-y-4">
-                                    <input type="range" className="w-full accent-secondary" min="0" max="100" />
+                                    <input type="range" className="w-full accent-secondary" min="1000" max="500000" step="1000" value={maxPrice} onChange={(event) => setMaxPrice(Number(event.target.value))} aria-label="Maximum price" />
                                     <div className="flex justify-between text-xs font-bold text-primary/60 uppercase tracking-wider">
                                         <span>₦0</span>
-                                        <span>₦10,000+</span>
+                                        <span>Up to ₦{maxPrice.toLocaleString()}</span>
                                     </div>
                                 </div>
                             </div>
@@ -233,7 +247,7 @@ function ShopContent() {
                             <div className="p-6 rounded-3xl bg-primary text-white space-y-4">
                                 <h4 className="text-lg font-bold font-serif text-secondary">Farm Fresh Guarantee</h4>
                                 <p className="text-xs text-cream/70 leading-relaxed">
-                                    We harvest only when you order to ensure maximum freshness and nutritional value.
+                                    Every listed item is checked for source information, availability, and delivery eligibility.
                                 </p>
                             </div>
 
@@ -267,8 +281,8 @@ function ShopContent() {
                                     <div className="col-span-full py-20 flex justify-center">
                                         <Loader2 className="animate-spin text-secondary" size={48} />
                                     </div>
-                                ) : products.length > 0 ? (
-                                    products.map((prod) => (
+                                ) : visibleProducts.length > 0 ? (
+                                    visibleProducts.map((prod) => (
                                         <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden border border-primary/5 hover:shadow-2xl transition-all h-full flex flex-col">
                                             <div className="relative h-72 overflow-hidden">
                                                 <Link href={`/products/${prod.id}`}>
@@ -360,8 +374,8 @@ function ShopContent() {
                                                     </div>
                                                 </div>
                                                 <div className="mt-4 flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                                                    <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded italic">Save 15% with Group</span>
-                                                    <span className="text-primary/20">4 Ongoing Buys</span>
+                                                    <span className="text-green-600 bg-green-50 px-2 py-0.5 rounded italic">Group-buy options may apply</span>
+                                                    <span className="text-primary/20">Source verified</span>
                                                 </div>
                                             </div>
                                         </div>

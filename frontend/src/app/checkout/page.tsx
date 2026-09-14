@@ -3,7 +3,7 @@
 export const dynamic = "force-dynamic";
 
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -54,18 +54,34 @@ export default function CheckoutPage() {
         phone: ""
     });
 
-    const getShippingFee = (stateName: string) => {
-        const fees: Record<string, number> = {
-            "Plateau": 1500, // Home base
-            "Lagos": 3500,
-            "Abuja": 3000,
-            "Rivers": 4500,
-            "Kano": 4000
-        };
-        return fees[stateName] || 5000; // Default for others
-    };
+    const [deliveryQuote, setDeliveryQuote] = useState<{ fee: number; estimate: string } | null>(null);
+    const [loadingQuote, setLoadingQuote] = useState(true);
 
-    const shippingFee = getShippingFee(form.state);
+    useEffect(() => {
+        if (session?.user?.email) setForm((current) => current.email ? current : { ...current, email: session.user?.email || '' });
+    }, [session?.user?.email]);
+
+    useEffect(() => {
+        let cancelled = false;
+        setLoadingQuote(true);
+        fetch(getApiUrl(`/api/orders/delivery-quote?state=${encodeURIComponent(form.state)}`))
+            .then(async (res) => {
+                if (!res.ok) throw new Error('Quote unavailable');
+                return res.json();
+            })
+            .then((quote) => {
+                if (!cancelled) setDeliveryQuote(quote);
+            })
+            .catch(() => {
+                if (!cancelled) setDeliveryQuote(null);
+            })
+            .finally(() => {
+                if (!cancelled) setLoadingQuote(false);
+            });
+        return () => { cancelled = true; };
+    }, [form.state]);
+
+    const shippingFee = deliveryQuote?.fee ?? 0;
     const totalWithShipping = cartTotal + (cart.length > 0 ? shippingFee : 0);
 
     const handlePaystackSuccessAction = async (reference: PaystackResponse, orderId: string) => {
@@ -292,8 +308,9 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="flex justify-between text-sm font-medium text-primary/60">
                                         <span>Logistics ({form.state})</span>
-                                        <span>₦{shippingFee.toLocaleString()}</span>
+                                        <span>{loadingQuote ? "Calculating…" : `₦${shippingFee.toLocaleString()}`}</span>
                                     </div>
+                                    <p className="text-[11px] text-primary/40 flex items-center gap-2"><Truck size={13} className="text-secondary" /> {loadingQuote ? "Checking delivery availability" : `Estimated delivery: ${deliveryQuote?.estimate || 'confirmed after payment'}`}</p>
                                     <div className="flex justify-between font-bold text-2xl pt-4 border-t border-primary/5">
                                         <span>Grand Total</span>
                                         <span className="text-secondary font-serif">₦{totalWithShipping.toLocaleString()}</span>
@@ -303,7 +320,7 @@ export default function CheckoutPage() {
                                 <button
                                     form="checkout-form"
                                     type="submit"
-                                    disabled={loading || verifying || cart.length === 0}
+                                    disabled={loading || verifying || loadingQuote || cart.length === 0}
                                     className="w-full bg-primary text-white py-5 rounded-full font-bold hover:bg-secondary hover:text-primary transition-all shadow-xl flex items-center justify-center gap-3 text-lg disabled:opacity-50 active:scale-95"
                                 >
                                     {loading || verifying ? <Loader2 className="animate-spin" size={24} /> : "Proceed to Secure Payment"}

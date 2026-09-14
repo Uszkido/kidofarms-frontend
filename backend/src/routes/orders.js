@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db');
-const { orders, orderItems, affiliates, commissions, products } = require('../db/schema');
+const { orders, orderItems, affiliates, commissions, products, settings } = require('../db/schema');
 const { desc, eq, inArray, and } = require('drizzle-orm');
 const { sendOrderToBot, sendTelegramAlert } = require('../lib/bot');
 const { sendOrderConfirmation } = require('../lib/email');
@@ -9,16 +9,25 @@ const axios = require('axios');
 const crypto = require('crypto');
 const { authenticateToken, authenticateTokenOptional, authorizeRoles } = require('../middleware/authMiddleware');
 
-const shippingFees = {
-    Plateau: 1500,
-    Lagos: 3500,
-    Abuja: 3000,
-    Rivers: 4500,
-    Kano: 4000,
-};
+const DEFAULT_DELIVERY_ZONES = [
+    { state: 'Plateau', fee: 1500, estimate: '1–2 business days' },
+    { state: 'Abuja', fee: 3000, estimate: '2–3 business days' },
+    { state: 'Lagos', fee: 3500, estimate: '2–4 business days' },
+    { state: 'Kano', fee: 4000, estimate: '2–4 business days' },
+    { state: 'Rivers', fee: 4500, estimate: '3–5 business days' },
+];
 
-function calculateShipping(state) {
-    return shippingFees[state] || 5000;
+async function getDeliveryQuote(state) {
+    const [siteSettings] = await db.select().from(settings).where(eq(settings.id, 'site_config')).limit(1);
+    const configuredZones = siteSettings?.themeConfig?.deliveryZones;
+    const zones = Array.isArray(configuredZones) && configuredZones.length > 0 ? configuredZones : DEFAULT_DELIVERY_ZONES;
+    const zone = zones.find((item) => item?.state === state);
+    const fee = Number(zone?.fee);
+    return {
+        state,
+        fee: Number.isFinite(fee) && fee >= 0 ? fee : 5000,
+        estimate: typeof zone?.estimate === 'string' && zone.estimate.trim() ? zone.estimate.trim().slice(0, 80) : '3–7 business days',
+    };
 }
 
 async function priceOrderItems(items, state) {
@@ -51,9 +60,12 @@ async function priceOrderItems(items, state) {
         return { id: product.id, quantity, price: Number(product.price) };
     });
     const subtotal = pricedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const delivery = await getDeliveryQuote(state);
     return {
         items: pricedItems,
-        totalAmount: Number((subtotal + calculateShipping(state)).toFixed(2)),
+        subtotal: Number(subtotal.toFixed(2)),
+        delivery,
+        totalAmount: Number((subtotal + delivery.fee).toFixed(2)),
     };
 }
 
@@ -127,6 +139,18 @@ router.get('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (
     }
 });
 
+// Public, server-authoritative quote used by checkout before payment.
+router.get('/delivery-quote', async (req, res) => {
+    const state = typeof req.query.state === 'string' ? req.query.state.trim() : '';
+    if (!state) return res.status(400).json({ error: 'A delivery state is required.' });
+    try {
+        res.json(await getDeliveryQuote(state));
+    } catch (error) {
+        console.error('Delivery quote error:', error);
+        res.status(503).json({ error: 'Delivery estimates are temporarily unavailable.' });
+    }
+});
+
 router.post('/', authenticateTokenOptional, async (req, res) => {
     try {
         const { items, street, city, state, zip, paymentMethod, referralCode, guestName, guestEmail, guestPhone } = req.body;
@@ -165,7 +189,12 @@ router.post('/', authenticateTokenOptional, async (req, res) => {
             await completeOrderProcessing(order.id, pricedOrder.items, pricedOrder.totalAmount, referralCode);
         }
 
-        res.status(201).json(order);
+        res.status(201).json({
+            ...order,
+            subtotal: pricedOrder.subtotal,
+            shippingFee: pricedOrder.delivery.fee,
+            deliveryWindow: pricedOrder.delivery.estimate,
+        });
     } catch (error) {
         console.error("Order Creation Error:", error);
         res.status(400).json({ error: error.message || 'Order Creation Failed' });
