@@ -66,7 +66,10 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
 
             if (!response.ok) throw new Error("API failed");
             const data = await response.json();
-            setMessages(prev => [...prev, { role: "bot", text: data.reply }]);
+            const reply = typeof data?.reply === 'string' && data.reply.trim()
+                ? data.reply.trim()
+                : "I couldn't complete that request. Please try again or contact Kido Farms support.";
+            setMessages(prev => [...prev, { role: "bot", text: reply }]);
         } catch (error) {
             setMessages(prev => [...prev, { role: "bot", text: "I'm optimizing my knowledge nodes right now. How can I assist you with harvests or orders today?" }]);
         } finally {
@@ -116,6 +119,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                                 { label: "Track an order", icon: "📦" },
                                 { label: "Find products", icon: "🛒" },
                                 { label: "Farming advice", icon: "🌾" },
+                                { label: "Delivery & fees", icon: "🚚" },
                             ].map((btn: any, i) => (
                                 <button
                                     key={i}
@@ -181,7 +185,7 @@ export default function AdvancedKidoConcierge({ forceOpen, onClose }: { forceOpe
                                 </button>
                             </div>
                             <p className="text-center mt-3 text-[9px] text-white/30 leading-none">
-                                Powered by Kido Farms support
+                                Need a person? <a href="/contact" className="text-secondary hover:underline">Contact Kido Farms support</a>
                             </p>
                         </div>
                     </motion.div>
