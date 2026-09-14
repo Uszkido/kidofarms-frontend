@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Ticket, Percent, Plus, XCircle, ArrowLeft, Loader2, Tag, Zap, Clock, ShieldCheck, Database, Ghost } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function PromotionsPage() {
     const [coupons, setCoupons] = useState<any[]>([]);
@@ -26,7 +26,7 @@ export default function PromotionsPage() {
     const fetchCoupons = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/promotions"));
+            const res = await authenticatedFetch("/api/promotions");
             const data = await res.json();
             setCoupons(data);
         } catch (err) {
@@ -39,7 +39,7 @@ export default function PromotionsPage() {
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const res = await fetch(getApiUrl("/api/promotions"), {
+            const res = await authenticatedFetch("/api/promotions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newCoupon)
@@ -64,7 +64,7 @@ export default function PromotionsPage() {
 
     const deactivateCoupon = async (id: string) => {
         try {
-            const res = await fetch(getApiUrl(`/api/promotions/${id}/deactivate`), { method: "PATCH" });
+            const res = await authenticatedFetch(`/api/promotions/${id}/deactivate`, { method: "PATCH" });
             if (res.ok) fetchCoupons();
         } catch (err) {
             console.error(err);

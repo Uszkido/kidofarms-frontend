@@ -4,7 +4,7 @@ import { useState } from "react";
 import { ArrowLeft, Zap, Loader2, Calendar, Percent, Tag, Shield } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function NewPromotionPage() {
     const router = useRouter();
@@ -21,10 +21,16 @@ export default function NewPromotionPage() {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/promotions"), {
+            const res = await authenticatedFetch("/api/promotions", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({
+                    code: formData.code,
+                    discountType: formData.type,
+                    discountValue: formData.discount,
+                    expiresAt: formData.expiresAt || undefined,
+                    usageLimit: formData.usageLimit || undefined,
+                })
             });
             if (res.ok) {
                 alert("Promotion node deployed across the network.");

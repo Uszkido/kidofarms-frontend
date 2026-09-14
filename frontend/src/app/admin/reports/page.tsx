@@ -6,7 +6,7 @@ import {
     Users, Package, BarChart3, RefreshCw, Calendar, DollarSign
 } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 interface DayPoint { date: string; revenue: number; orders: number; }
 
@@ -85,8 +85,8 @@ export default function ReportsPage() {
         setLoading(true);
         try {
             const [chartRes, statsRes] = await Promise.all([
-                fetch(getApiUrl(`/api/admin/revenue-chart?days=${period}`)),
-                fetch(getApiUrl("/api/admin/stats"))
+                authenticatedFetch(`/api/admin/revenue-chart?days=${period}`),
+                authenticatedFetch("/api/admin/stats")
             ]);
             if (chartRes.ok) setChartData(await chartRes.json());
             if (statsRes.ok) setStats(await statsRes.json());

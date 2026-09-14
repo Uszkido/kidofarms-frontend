@@ -3,6 +3,10 @@ const router = express.Router();
 const { db } = require('../db');
 const { coupons } = require('../db/schema');
 const { eq, gte, lte, and } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
+router.use(authorizeRoles('admin', 'sub-admin'));
 
 // Get all coupons
 router.get('/', async (req, res) => {
@@ -18,12 +22,19 @@ router.get('/', async (req, res) => {
 // Create new coupon
 router.post('/', async (req, res) => {
     const { code, discountType, discountValue, minOrderAmount, expiresAt, usageLimit, isActive, isFlashSale, endsAt } = req.body;
+    const normalizedCode = typeof code === 'string' ? code.trim().toUpperCase() : '';
+    const normalizedValue = Number(discountValue);
+    if (!/^[A-Z0-9-]{3,40}$/.test(normalizedCode)) return res.status(400).json({ error: 'Use 3–40 letters, numbers, or dashes for the promo code.' });
+    if (!['percentage', 'fixed'].includes(discountType || 'percentage') || !Number.isFinite(normalizedValue) || normalizedValue <= 0) {
+        return res.status(400).json({ error: 'Enter a valid discount.' });
+    }
+    if ((discountType || 'percentage') === 'percentage' && normalizedValue > 100) return res.status(400).json({ error: 'Percentage discounts cannot exceed 100%.' });
 
     try {
         const [newCoupon] = await db.insert(coupons).values({
-            code,
+            code: normalizedCode,
             discountType: discountType || 'percentage',
-            discountValue: Number(discountValue),
+            discountValue: normalizedValue,
             minOrderAmount: Number(minOrderAmount) || 0,
             expiresAt: expiresAt ? new Date(expiresAt) : null,
             usageLimit: Number(usageLimit) || 0,

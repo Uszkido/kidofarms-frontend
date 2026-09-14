@@ -3,6 +3,10 @@ const router = express.Router();
 const { db } = require('../db');
 const { orders, users, products, reviews } = require('../db/schema');
 const { sql, eq, and, gte, lte } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
+router.use(authorizeRoles('admin', 'sub-admin'));
 
 // Get overview analytics
 router.get('/overview', async (req, res) => {

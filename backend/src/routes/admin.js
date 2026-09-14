@@ -536,7 +536,7 @@ router.get('/revenue-chart', async (req, res) => {
             count: sql`COUNT(*)`,
         })
             .from(orders)
-            .where(sql`${orders.createdAt} >= NOW() - INTERVAL '${days} days'`)
+            .where(sql`${orders.createdAt} >= NOW() - INTERVAL '${days} days' AND ${orders.paymentStatus} = 'paid'`)
             .groupBy(sql`DATE(${orders.createdAt})`)
             .orderBy(sql`DATE(${orders.createdAt})`);
 
