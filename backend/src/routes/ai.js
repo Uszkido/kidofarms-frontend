@@ -9,6 +9,7 @@ const { authenticateToken, authorizeRoles } = require('../middleware/authMiddlew
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "dummy-key");
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "dummy-key" });
+const CHAT_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 
 // 1. POST /api/admin/ai/scan-trust - Master Trust Oracle Logic
 router.post('/scan-trust', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
@@ -436,7 +437,7 @@ router.post('/chat', async (req, res) => {
             ];
 
             let completion = await groq.chat.completions.create({
-                model: "llama-3.3-70b-versatile",
+                model: CHAT_MODEL,
                 messages: messages,
                 tools: tools,
                 tool_choice: "auto",
@@ -468,7 +469,7 @@ router.post('/chat', async (req, res) => {
 
                 // Get final response after tool execution
                 const finalCompletion = await groq.chat.completions.create({
-                    model: "llama-3.3-70b-versatile",
+                    model: CHAT_MODEL,
                     messages: messages,
                 });
                 res.json({ reply: finalCompletion.choices[0].message.content });
@@ -528,7 +529,7 @@ router.post('/describe-product', async (req, res) => {
         Format as JSON: { "description": "...", "freshnessTip": "..." }`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
@@ -563,7 +564,7 @@ router.post('/suggest-recipe', async (req, res) => {
         Format as JSON: { "recipeName": "...", "instructions": "...", "missingIngredients": ["...", "..."] }`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
@@ -601,7 +602,7 @@ router.post('/yield-shield', async (req, res) => {
         Format as JSON: { "score": 85, "threat": "...", "mitigation": "..." }`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
@@ -631,7 +632,7 @@ router.post('/mastery-tutor', async (req, res) => {
         Provide a detailed, practical answer for a Nigerian farmer. Use local context.`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }]
         });
 
@@ -737,7 +738,7 @@ router.post('/pricing-oracle', async (req, res) => {
         Format as JSON: { "suggestedPrice": 0, "insight": "..." }`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
@@ -853,7 +854,7 @@ router.post('/sovereign-audit', async (req, res) => {
         Format as JSON: { "status": "Optimized/Alert", "assessment": "...", "recommendations": ["...", "..."] }`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
@@ -897,7 +898,7 @@ router.post('/parse-harvest-voice', async (req, res) => {
         Format only as JSON.`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });

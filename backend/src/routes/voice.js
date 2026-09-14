@@ -3,6 +3,7 @@ const router = express.Router();
 const Groq = require("groq-sdk");
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY || "dummy-key" });
+const CHAT_MODEL = process.env.GROQ_MODEL || "openai/gpt-oss-20b";
 
 // POST /api/voice/parse (AI Voice-to-Listing Parsing)
 router.post('/parse', async (req, res) => {
@@ -33,7 +34,7 @@ router.post('/parse', async (req, res) => {
         Format as JSON: { "product": "...", "quantity": 0, "unit": "...", "price": "...", "location": "...", "confidence": 0.0-1.0 }`;
 
         const completion = await groq.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
+            model: CHAT_MODEL,
             messages: [{ role: "user", content: prompt }],
             response_format: { type: "json_object" }
         });
