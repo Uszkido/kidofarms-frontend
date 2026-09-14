@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Users, Shield, ShieldAlert, CheckCircle, XCircle, ArrowLeft, Loader2, Database, Ghost, Mail, UserCircle, Search, Eye, FileText, Zap, Phone, MapPin, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function AdminVendorsPage() {
     const [vendors, setVendors] = useState<any[]>([]);
@@ -19,7 +19,7 @@ export default function AdminVendorsPage() {
     const fetchVendors = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/vendors"));
+            const res = await authenticatedFetch("/api/vendors");
             const data = await res.json();
             setVendors(Array.isArray(data) ? data : []);
         } catch (err) {
@@ -32,7 +32,7 @@ export default function AdminVendorsPage() {
     const updateStatus = async (id: string, status: string) => {
         setPendingId(id);
         try {
-            const res = await fetch(getApiUrl(`/api/vendors/${id}/status`), {
+            const res = await authenticatedFetch(`/api/vendors/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status })

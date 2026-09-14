@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Sprout, Shield, ShieldAlert, CheckCircle, XCircle, ArrowLeft, Loader2, MapPin, Phone, Database, Ghost, Mail, UserCircle, Search, Eye, FileText, Zap, RotateCcw } from "lucide-react";
 import Link from "next/link";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function FarmersAdminPage() {
     const [farmers, setFarmers] = useState<any[]>([]);
@@ -19,7 +19,7 @@ export default function FarmersAdminPage() {
     const fetchFarmers = async () => {
         setLoading(true);
         try {
-            const res = await fetch(getApiUrl("/api/farmers"));
+            const res = await authenticatedFetch("/api/farmers");
             const data = await res.json();
             setFarmers(Array.isArray(data) ? data : []);
         } catch (err) {
@@ -32,7 +32,7 @@ export default function FarmersAdminPage() {
     const updateStatus = async (id: string, status: string) => {
         setPendingId(id);
         try {
-            const res = await fetch(getApiUrl(`/api/farmers/${id}/status`), {
+            const res = await authenticatedFetch(`/api/farmers/${id}/status`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ status })

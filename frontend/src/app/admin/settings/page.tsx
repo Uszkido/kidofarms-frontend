@@ -60,7 +60,7 @@ export default function AdminSettingsPage() {
         formDataUpload.append("image", file);
 
         try {
-            const res = await fetch(getApiUrl("/api/upload"), {
+            const res = await authenticatedFetch("/api/upload", {
                 method: "POST",
                 body: formDataUpload
             });

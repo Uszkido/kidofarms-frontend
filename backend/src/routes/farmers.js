@@ -3,6 +3,10 @@ const router = express.Router();
 const { db } = require('../db');
 const { farmers, users } = require('../db/schema');
 const { eq } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
+router.use(authorizeRoles('admin', 'sub-admin'));
 
 // Get all farmers for admin
 router.get('/', async (req, res) => {
@@ -33,6 +37,7 @@ router.get('/', async (req, res) => {
 router.patch('/:id/status', async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
+    if (!['pending', 'approved', 'suspended', 'rejected'].includes(status)) return res.status(400).json({ error: 'Invalid farmer status' });
 
     try {
         await db.update(farmers)

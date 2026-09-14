@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch, getApiUrl } from "@/lib/api";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 
@@ -95,14 +95,14 @@ export default function FarmerStoriesPage() {
             const formDataUpload = new FormData();
             formDataUpload.append("image", blob, "horizon-broadcast.jpg");
 
-            const uploadRes = await fetch(getApiUrl("/api/upload"), {
+            const uploadRes = await authenticatedFetch("/api/upload", {
                 method: "POST",
                 body: formDataUpload
             });
 
             if (uploadRes.ok) {
                 const uploadData = await uploadRes.json();
-                const postRes = await fetch(getApiUrl("/api/stories"), {
+                const postRes = await authenticatedFetch("/api/stories", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -155,7 +155,7 @@ export default function FarmerStoriesPage() {
         e.preventDefault();
         setIsSubmitting(true);
         try {
-            const res = await fetch(getApiUrl("/api/stories"), {
+            const res = await authenticatedFetch("/api/stories", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),

@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, Wallet, Loader2, CheckCircle2, AlertCircle, Banknote, Building2, CreditCard } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { getApiUrl } from "@/lib/api";
+import { authenticatedFetch } from "@/lib/api";
 
 export default function VendorCashoutPage() {
     const [wallet, setWallet] = useState<any>(null);
@@ -22,7 +22,7 @@ export default function VendorCashoutPage() {
 
     useEffect(() => {
         if (!userId) return;
-        fetch(getApiUrl(`/api/wallet?userId=${userId}`))
+        authenticatedFetch('/api/wallet')
             .then(res => res.json())
             .then(data => {
                 setWallet(data.wallet);
@@ -39,7 +39,7 @@ export default function VendorCashoutPage() {
         setStatus({ type: "", message: "" });
 
         try {
-            const res = await fetch(getApiUrl("/api/wallet/cashout"), {
+            const res = await authenticatedFetch("/api/wallet/cashout", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

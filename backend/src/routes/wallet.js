@@ -31,32 +31,10 @@ router.get('/', async (req, res) => {
     }
 });
 
-// POST /api/wallet/credit (Simulate adding funds or referral reward)
-router.post('/credit', async (req, res) => {
-    const userId = req.user.id;
-    const { amount, description } = req.body;
-    try {
-        const [wallet] = await db.select().from(wallets).where(eq(wallets.userId, userId));
-        if (!wallet) return res.status(404).json({ error: 'Wallet not found' });
-
-        const newBalance = (Number(wallet.balance) + Number(amount)).toString();
-
-        await db.update(wallets)
-            .set({ balance: newBalance, updatedAt: new Date() })
-            .where(eq(wallets.id, wallet.id));
-
-        const [tx] = await db.insert(walletTransactions).values({
-            walletId: wallet.id,
-            type: 'credit',
-            amount: amount.toString(),
-            description: description || 'Account Credit'
-        }).returning();
-
-        res.json({ message: 'Credited', tx, newBalance });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: 'Credit failed' });
-    }
+// Balances must only change through a verified payment, commission, or an
+// authorised finance workflow. Never let a customer credit their own wallet.
+router.post('/credit', (_req, res) => {
+    res.status(410).json({ error: 'Direct wallet credit is unavailable.' });
 });
 
 // POST /api/wallet/cashout (Withdrawal)

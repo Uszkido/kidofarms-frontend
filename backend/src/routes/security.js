@@ -3,6 +3,10 @@ const router = express.Router();
 const { db } = require('../db');
 const { activityLogs, users, settings } = require('../db/schema');
 const { eq, desc } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
+
+router.use(authenticateToken);
+router.use(authorizeRoles('admin', 'sub-admin'));
 
 // Get all activity logs
 router.get('/logs', async (req, res) => {

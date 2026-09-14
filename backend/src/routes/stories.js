@@ -3,6 +3,7 @@ const router = express.Router();
 const { db } = require('../db');
 const { stories, users } = require('../db/schema');
 const { desc, eq } = require('drizzle-orm');
+const { authenticateToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 // GET /api/stories (List all active stories)
 router.get('/', async (req, res) => {
@@ -19,9 +20,17 @@ router.get('/', async (req, res) => {
 });
 
 // POST /api/stories (Admin/Vendor post)
-router.post('/', async (req, res) => {
+router.post('/', authenticateToken, authorizeRoles('admin', 'sub-admin', 'vendor', 'farmer'), async (req, res) => {
     try {
-        const [newStory] = await db.insert(stories).values(req.body).returning();
+        const { mediaUrl, mediaType, caption, expiresAt } = req.body;
+        if (!mediaUrl) return res.status(400).json({ error: 'A story image is required.' });
+        const [newStory] = await db.insert(stories).values({
+            vendorId: req.user.id,
+            mediaUrl,
+            mediaType: mediaType || 'image',
+            caption: typeof caption === 'string' ? caption.slice(0, 500) : null,
+            expiresAt: expiresAt ? new Date(expiresAt) : null,
+        }).returning();
         res.status(201).json(newStory);
     } catch (error) {
         console.error(error);
@@ -30,7 +39,7 @@ router.post('/', async (req, res) => {
 });
 
 // Seed some initial stories if empty
-router.post('/seed', async (req, res) => {
+router.post('/seed', authenticateToken, authorizeRoles('admin'), async (req, res) => {
     try {
         const count = await db.select().from(stories);
         if (count.length === 0) {
@@ -62,8 +71,13 @@ router.post('/seed', async (req, res) => {
 });
 
 // DELETE /api/stories/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken, async (req, res) => {
     try {
+        const [story] = await db.select().from(stories).where(eq(stories.id, req.params.id)).limit(1);
+        if (!story) return res.status(404).json({ error: 'Story not found' });
+        if (req.user.role !== 'admin' && req.user.role !== 'sub-admin' && story.vendorId !== req.user.id) {
+            return res.status(403).json({ error: 'You can only remove your own story.' });
+        }
         await db.delete(stories).where(eq(stories.id, req.params.id));
         res.json({ message: 'Story deleted' });
     } catch (error) {

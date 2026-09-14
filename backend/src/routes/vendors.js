@@ -4,9 +4,10 @@ const { db } = require('../db');
 const { vendors, users, products } = require('../db/schema');
 const { eq, and, desc } = require('drizzle-orm');
 const { sendVendorAlert } = require('../lib/bot');
+const { authenticateToken, authenticateTokenOptional, authorizeRoles } = require('../middleware/authMiddleware');
 
 // Get all vendors (Farmer role)
-router.get('/', async (req, res) => {
+router.get('/', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     try {
         const allVendors = await db.select({
             id: vendors.id,
@@ -30,7 +31,7 @@ router.get('/', async (req, res) => {
 });
 
 // Register new vendor (includes user creation)
-router.post('/register', async (req, res) => {
+router.post('/register', authenticateTokenOptional, async (req, res) => {
     const {
         userId,
         name,
@@ -45,6 +46,10 @@ router.post('/register', async (req, res) => {
         description,
         categories: vendorCategories
     } = req.body;
+
+    if (userId && (!req.user || (req.user.id !== userId && !['admin', 'sub-admin'].includes(req.user.role)))) {
+        return res.status(403).json({ error: 'You can only submit a vendor application for your own account.' });
+    }
 
     try {
         let finalUserId = userId;
@@ -112,8 +117,7 @@ router.post('/register', async (req, res) => {
         res.status(201).json({
             vendor: newVendor,
             userId: finalUserId,
-            requiresOtp: !!otpCode,
-            otpCode: otpCode
+            requiresOtp: !!otpCode
         });
     } catch (error) {
         if (error.code === '23505') {
@@ -125,9 +129,10 @@ router.post('/register', async (req, res) => {
 });
 
 // Approve/Suspend vendor
-router.patch('/:id/status', async (req, res) => {
+router.patch('/:id/status', authenticateToken, authorizeRoles('admin', 'sub-admin'), async (req, res) => {
     const { id } = req.params;
     const { status } = req.body; // approved, suspended
+    if (!['pending', 'approved', 'suspended', 'rejected'].includes(status)) return res.status(400).json({ error: 'Invalid vendor status' });
 
     try {
         await db.update(vendors)
