@@ -145,7 +145,11 @@ export default function BuyerDashboard() {
 
     const fetchWallet = async () => {
         try {
-            const res = await fetch(getApiUrl(`/api/wallet?userId=${(session?.user as any)?.id}`));
+            const token = (session?.user as any)?.accessToken || (session as any)?.token;
+            const res = await fetch(getApiUrl('/api/wallet'), {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
+            if (!res.ok) throw new Error('Unable to load wallet.');
             const data = await res.json();
             setWallet(data.wallet);
             setWalletTxs(data.transactions || []);
@@ -157,27 +161,13 @@ export default function BuyerDashboard() {
     };
 
     const fetchRFQs = async () => {
-        // Placeholder for RFQ fetch
-        setRfqs([
-            { id: "RFQ-902", product: "Bulk Maize Nodes", volume: "2.4 Tons", status: "Negotiating", date: "Oct 28" },
-            { id: "RFQ-881", product: "Industrial Yam Batch", volume: "500kg", status: "Contracted", date: "Oct 22" }
-        ]);
+        // RFQs appear here once a real wholesale request has been created.
+        setRfqs([]);
     };
 
     const handleTrack = async () => {
         if (!trackingId) return;
-        setTrackingLoading(true);
-        setTimeout(() => {
-            setTrackingResult({
-                id: trackingId,
-                status: "In Transit",
-                location: "Kano Dispatch Hub",
-                oxygen: "98%",
-                temp: "18°C",
-                eta: "Tomorrow, 2:00 PM"
-            });
-            setTrackingLoading(false);
-        }, 1500);
+        router.push(`/track-order?reference=${encodeURIComponent(trackingId)}`);
     };
 
     const handleAction = (label: string) => {
@@ -200,18 +190,10 @@ export default function BuyerDashboard() {
 
         setActionState({
             isOpen: true,
-            title: label,
-            message: "Node synchronization in progress...",
-            status: "processing"
+            title: "Not available yet",
+            message: `${label} is not connected to a verified service yet. Please use the available account and checkout options instead.`,
+            status: "error"
         });
-
-        setTimeout(() => {
-            setActionState(prev => ({
-                ...prev,
-                message: `${label} protocol successfully initiated. Gateway nodes online.`,
-                status: "success"
-            }));
-        }, 2000);
     };
 
     return (

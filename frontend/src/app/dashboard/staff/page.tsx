@@ -94,18 +94,10 @@ export default function StaffDashboard() {
     const handleAction = (label: string) => {
         setActionState({
             isOpen: true,
-            title: label,
-            message: "Master Node synchronization in progress...",
-            status: "processing"
+            title: "Workflow not configured",
+            message: `${label} is not connected to an approved workflow yet. Please use assigned tasks and the support desk.`,
+            status: "error"
         });
-
-        setTimeout(() => {
-            setActionState(prev => ({
-                ...prev,
-                message: `${label} protocol successfully initiated. Master Node synchronization complete.`,
-                status: "success"
-            }));
-        }, 2000);
     };
 
     return (
