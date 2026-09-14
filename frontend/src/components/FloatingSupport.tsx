@@ -22,7 +22,7 @@ export function FloatingSupport() {
     if (isExcluded) return null;
 
     return (
-        <div className="fixed bottom-6 right-6 md:bottom-12 md:right-12 z-[1001] flex flex-col items-end gap-3 md:gap-6 pointer-events-none">
+        <div className="fixed bottom-20 right-5 md:bottom-12 md:right-12 z-[1001] flex flex-col items-end gap-3 md:gap-6 pointer-events-none">
             {/* Unified AI Chat Window */}
             <AdvancedKidoConcierge forceOpen={isAiOpen} onClose={() => setIsAiOpen(false)} />
 

@@ -239,6 +239,13 @@ export default function AdminDashboard() {
                     </div>
                 </header>
 
+                <section aria-label="Today's priorities" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <Link href="/admin/orders" className="rounded-2xl border border-secondary/20 bg-secondary/10 p-5 transition-colors hover:bg-secondary/20"><p className="text-[10px] font-black uppercase tracking-widest text-secondary">Orders to review</p><p className="mt-2 text-2xl font-black text-white">{stats?.pendingOrders ?? stats?.pending ?? 0}</p><p className="mt-1 text-xs text-white/45">Open the fulfilment queue</p></Link>
+                    <Link href="/admin/inventory" className="rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors hover:bg-white/10"><p className="text-[10px] font-black uppercase tracking-widest text-white/50">Inventory</p><p className="mt-2 text-2xl font-black text-white">{stats?.totalProducts ?? 0}</p><p className="mt-1 text-xs text-white/45">Review low-stock items</p></Link>
+                    <Link href="/admin/tickets" className="rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors hover:bg-white/10"><p className="text-[10px] font-black uppercase tracking-widest text-white/50">Support</p><p className="mt-2 text-2xl font-black text-white">Support desk</p><p className="mt-1 text-xs text-white/45">Resolve customer issues</p></Link>
+                    <Link href="/admin/vendors" className="rounded-2xl border border-white/10 bg-white/5 p-5 transition-colors hover:bg-white/10"><p className="text-[10px] font-black uppercase tracking-widest text-white/50">Vendors</p><p className="mt-2 text-2xl font-black text-white">Review</p><p className="mt-1 text-xs text-white/45">Approve and manage partners</p></Link>
+                </section>
+
                 <HubSyncTicker />
 
                 {/* 🔍 SEARCH COMMANDS */}

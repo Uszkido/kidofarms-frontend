@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, Suspense } from "react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap, ShieldCheck } from "lucide-react";
+import { Search as SearchIcon, ArrowUpDown, Loader2, ShoppingBag, Eye, Star, MapPin, Tag, Users, QrCode, Zap, ShieldCheck, X } from "lucide-react";
 import { StoryFeed } from "@/components/StoryFeed";
 import Link from "next/link";
 import Image from "next/image";
@@ -21,6 +21,7 @@ function ShopContent() {
     const { data: session } = useSession();
     const searchParams = useSearchParams();
     const [vettingProduct, setVettingProduct] = useState<any>(null);
+    const [quickViewProduct, setQuickViewProduct] = useState<any>(null);
     const initialSearch = searchParams.get("search") || "";
 
     const [products, setProducts] = useState<any[]>([]);
@@ -278,9 +279,7 @@ function ShopContent() {
                         <div className="flex-grow">
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                                 {loading ? (
-                                    <div className="col-span-full py-20 flex justify-center">
-                                        <Loader2 className="animate-spin text-secondary" size={48} />
-                                    </div>
+                                    Array.from({ length: 6 }).map((_, index) => <div key={index} className="overflow-hidden rounded-3xl bg-white p-6 shadow-sm"><div className="h-64 animate-pulse rounded-2xl bg-primary/5" /><div className="mt-6 h-4 w-1/3 animate-pulse rounded bg-primary/5" /><div className="mt-3 h-7 w-3/4 animate-pulse rounded bg-primary/5" /><div className="mt-8 h-12 animate-pulse rounded-full bg-primary/5" /></div>)
                                 ) : visibleProducts.length > 0 ? (
                                     visibleProducts.map((prod) => (
                                         <div key={prod.id} className="group bg-white rounded-3xl overflow-hidden border border-primary/5 hover:shadow-2xl transition-all h-full flex flex-col">
@@ -332,6 +331,7 @@ function ShopContent() {
                                                     >
                                                         <ShieldCheck size={20} className="group-hover/v:scale-110 transition-transform" />
                                                     </button>
+                                                    <button onClick={() => setQuickViewProduct(prod)} className="p-3 text-primary/55 transition-colors hover:text-primary" aria-label={`Quick view ${prod.name}`}><Eye size={20} /></button>
                                                 </div>
                                                 <div className="flex items-center gap-1 mb-4 text-secondary">
                                                     <span className="text-xs font-bold">★</span>
@@ -400,6 +400,7 @@ function ShopContent() {
                 onClose={() => setVettingProduct(null)}
                 product={vettingProduct}
             />
+            {quickViewProduct && <div role="dialog" aria-modal="true" aria-label={`Quick view ${quickViewProduct.name}`} className="fixed inset-0 z-[120] grid place-items-center bg-primary/60 p-4 backdrop-blur-sm" onClick={() => setQuickViewProduct(null)}><div className="relative grid w-full max-w-3xl overflow-hidden rounded-[2rem] bg-white shadow-2xl md:grid-cols-2" onClick={(event) => event.stopPropagation()}><button onClick={() => setQuickViewProduct(null)} className="absolute right-4 top-4 z-10 rounded-full bg-white/90 p-2 text-primary shadow" aria-label="Close quick view"><X size={20} /></button><div className="relative min-h-64"><Image src={quickViewProduct.images?.[0] || 'https://images.unsplash.com/photo-1542838132-92c53300491e?w=800'} alt={quickViewProduct.name} fill className="object-cover" /></div><div className="p-7"><p className="text-[10px] font-black uppercase tracking-widest text-secondary">{quickViewProduct.category}</p><h2 className="mt-3 font-serif text-3xl font-black text-primary">{quickViewProduct.name}</h2><p className="mt-3 text-sm leading-6 text-primary/60">{quickViewProduct.description || 'Fresh produce from a verified Kido Farms source.'}</p><p className="mt-6 font-serif text-3xl font-black text-secondary">₦{Number(quickViewProduct.isFlashSale ? quickViewProduct.flashPrice : quickViewProduct.price).toLocaleString()}</p><p className="mt-2 text-xs font-bold text-primary/45">{Number(quickViewProduct.stock) > 0 ? `${quickViewProduct.stock} ${quickViewProduct.unit || 'units'} available` : 'Currently out of stock'}</p><div className="mt-7 flex gap-3"><button disabled={Number(quickViewProduct.stock) < 1} onClick={() => { addToCart({ id: quickViewProduct.id, name: quickViewProduct.name, price: Number(quickViewProduct.isFlashSale ? quickViewProduct.flashPrice : quickViewProduct.price), image: quickViewProduct.images?.[0] || '', quantity: 1, category: quickViewProduct.category }); setQuickViewProduct(null); }} className="rounded-full bg-primary px-5 py-3 text-sm font-black text-white disabled:opacity-40">Add to cart</button><Link href={`/products/${quickViewProduct.id}`} className="rounded-full border border-primary/15 px-5 py-3 text-sm font-black text-primary">Full details</Link></div></div></div></div>}
         </div>
     );
 }

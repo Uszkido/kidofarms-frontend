@@ -23,6 +23,7 @@ import { FloatingSupport } from "@/components/FloatingSupport";
 import { Suspense } from "react";
 import Script from "next/script";
 import { ServiceWorker } from "@/components/ServiceWorker";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export default function RootLayout({
   children,
@@ -56,6 +57,7 @@ export default function RootLayout({
         <Script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit" strategy="afterInteractive" />
       </head>
       <body className="antialiased flex flex-col min-h-screen relative">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:rounded-xl focus:bg-secondary focus:px-5 focus:py-3 focus:text-sm focus:font-bold focus:text-primary">Skip to main content</a>
         <div id="google_translate_element" className="hidden opacity-0 pointer-events-none absolute -top-96"></div>
         <Providers>
           <ServiceWorker />
@@ -63,8 +65,9 @@ export default function RootLayout({
             <Suspense fallback={null}>
               <ReferralTracker />
             </Suspense>
-            <main className="flex-grow">{children}</main>
+            <main id="main-content" className="flex-grow pb-16 lg:pb-0">{children}</main>
             <FloatingSupport />
+            <MobileBottomNav />
           </ThemeHub>
         </Providers>
       </body>

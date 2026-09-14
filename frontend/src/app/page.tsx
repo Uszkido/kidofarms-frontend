@@ -115,6 +115,12 @@ export default async function Home() {
         {/* Premium Hero Section */}
         <PremiumHero data={hero} />
 
+        <section className="border-y border-white/10 bg-white/[.03] py-5">
+          <div className="container-sovereign grid grid-cols-1 gap-4 text-center sm:grid-cols-3 sm:text-left">
+            {[{ icon: ShieldCheck, title: 'Verified sources', text: 'Traceable farms and clear product details.' }, { icon: Truck, title: 'Delivery clarity', text: 'Fees and delivery windows shown before payment.' }, { icon: Leaf, title: 'Fresh by design', text: 'Carefully selected seasonal produce.' }].map(({ icon: Icon, title, text }) => <div key={title} className="flex items-center justify-center gap-3 sm:justify-start"><Icon size={20} className="shrink-0 text-secondary" /><div><p className="text-xs font-black uppercase tracking-wider text-white">{title}</p><p className="mt-1 text-[11px] text-white/45">{text}</p></div></div>)}
+          </div>
+        </section>
+
         {/* Categories Bar */}
         <section className="bg-primary pt-10 md:pt-16 pb-16 md:pb-24 border-b border-white/5 relative z-10">
           <div className="container-sovereign">
