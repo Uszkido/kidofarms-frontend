@@ -24,7 +24,9 @@ router.get('/stats', async (req, res) => {
         const [siteSettings] = await db.select().from(settings).where(eq(settings.id, 'site_config')).limit(1);
         const mock = siteSettings?.themeConfig?.mockStats;
 
-        if (mock?.useMock) {
+        // Simulated metrics are useful for local design work only. Never let
+        // them replace live operations data in a production deployment.
+        if (mock?.useMock && process.env.NODE_ENV !== 'production') {
             return res.json({
                 users: mock.users || 0,
                 orders: mock.orders || 0,
